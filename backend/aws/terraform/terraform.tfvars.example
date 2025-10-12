@@ -1,0 +1,17 @@
+# AWS Configuration
+aws_region  = "us-east-1"
+environment = "production"
+
+# Database Configuration
+db_instance_class = "db.t3.micro"  # Use db.t3.small or larger for production
+db_name           = "crmdb"
+db_username       = "crmadmin"
+db_password       = "REPLACE_WITH_SECURE_PASSWORD"
+
+# SES Configuration
+ses_email  = "your-verified-email@example.com"
+ses_domain = ""  # Optional: Add your verified domain for production
+
+# Application Configuration
+project_name = "crm"
+app_port     = 3000
