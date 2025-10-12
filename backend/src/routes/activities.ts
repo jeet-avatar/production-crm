@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
+import { AppError } from '../middleware/errorHandler';
+import { TwilioService } from '../services/twilio.service';
+import { EmailService } from '../services/email.service';
+import { GoogleCalendarService } from '../services/google-calendar.service';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -186,6 +190,345 @@ router.post('/', async (req, res, next) => {
     });
 
     res.status(201).json({ activity });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/activities/:id/send-sms - Send SMS via Twilio
+router.post('/:id/send-sms', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { phoneNumber, message } = req.body;
+    const userId = req.user!.id;
+
+    // Validate inputs
+    if (!phoneNumber || !message) {
+      throw new AppError('Phone number and message are required', 400);
+    }
+
+    // Verify activity belongs to user
+    const activity = await prisma.activity.findFirst({
+      where: { id, userId },
+    });
+
+    if (!activity) {
+      throw new AppError('Activity not found', 404);
+    }
+
+    // Send SMS via Twilio
+    const twilioService = new TwilioService();
+    const smsResult = await twilioService.sendSMS(phoneNumber, message);
+
+    // Update activity with SMS metadata
+    const updatedActivity = await prisma.activity.update({
+      where: { id },
+      data: {
+        type: 'SMS',
+        smsTo: phoneNumber,
+        smsFrom: smsResult.from || process.env.TWILIO_PHONE_NUMBER,
+        smsSid: smsResult.sid,
+        smsStatus: smsResult.status,
+        smsSentAt: new Date(),
+        subject: `SMS to ${phoneNumber}`,
+        description: message,
+      },
+      include: {
+        contact: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'SMS sent successfully',
+      activity: updatedActivity,
+      sms: smsResult,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/activities/:id/send-email - Send email via SMTP
+router.post('/:id/send-email', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { to, cc, bcc, subject, htmlContent, textContent } = req.body;
+    const userId = req.user!.id;
+
+    // Validate inputs
+    if (!to || !Array.isArray(to) || to.length === 0) {
+      throw new AppError('At least one recipient email is required', 400);
+    }
+
+    if (!subject || !htmlContent) {
+      throw new AppError('Subject and email content are required', 400);
+    }
+
+    // Get user info
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    // Verify activity belongs to user
+    const activity = await prisma.activity.findFirst({
+      where: { id, userId },
+    });
+
+    if (!activity) {
+      throw new AppError('Activity not found', 404);
+    }
+
+    // Send email
+    const emailService = new EmailService();
+    const emailResult = await emailService.sendEmail({
+      from: `${user.firstName} ${user.lastName} <${user.email}>`,
+      to,
+      cc,
+      bcc,
+      subject,
+      html: htmlContent,
+      text: textContent,
+    });
+
+    // Update activity with email metadata
+    const updatedActivity = await prisma.activity.update({
+      where: { id },
+      data: {
+        type: 'EMAIL',
+        emailTo: to,
+        emailFrom: user.email,
+        emailCc: cc || [],
+        emailBcc: bcc || [],
+        emailMessageId: emailResult.messageId,
+        emailStatus: 'sent',
+        emailSentAt: new Date(),
+        subject: subject,
+        description: textContent || htmlContent,
+      },
+      include: {
+        contact: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Email sent successfully',
+      activity: updatedActivity,
+      email: emailResult,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/activities/:id/create-meeting - Create Google Meet meeting
+router.post('/:id/create-meeting', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title, description, startTime, endTime, attendees, location, timezone } = req.body;
+    const userId = req.user!.id;
+
+    // Validate inputs
+    if (!title || !startTime || !endTime) {
+      throw new AppError('Title, start time, and end time are required', 400);
+    }
+
+    if (!attendees || !Array.isArray(attendees) || attendees.length === 0) {
+      throw new AppError('At least one attendee email is required', 400);
+    }
+
+    // Get user with Google tokens
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    // Note: For now, we'll create the activity without Google Calendar integration
+    // Users will need to authorize Google Calendar access first
+    // TODO: Implement Google OAuth flow
+
+    // Verify activity belongs to user
+    const activity = await prisma.activity.findFirst({
+      where: { id, userId },
+    });
+
+    if (!activity) {
+      throw new AppError('Activity not found', 404);
+    }
+
+    // For now, create a meeting link placeholder
+    // In production, this would call GoogleCalendarService
+    const meetingLink = `https://meet.google.com/${Math.random().toString(36).substring(7)}`;
+
+    // Update activity with meeting metadata
+    const updatedActivity = await prisma.activity.update({
+      where: { id },
+      data: {
+        type: 'MEETING',
+        meetingLink: meetingLink,
+        meetingStartTime: new Date(startTime),
+        meetingEndTime: new Date(endTime),
+        meetingAttendees: attendees,
+        meetingLocation: location || 'Online',
+        meetingTimezone: timezone || 'America/New_York',
+        subject: title,
+        description: description || '',
+      },
+      include: {
+        contact: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Meeting created successfully',
+      activity: updatedActivity,
+      note: 'Google Calendar integration requires OAuth authorization. Meeting link is a placeholder.',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PUT /api/activities/:id/complete - Mark task as complete
+router.put('/:id/complete', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.id;
+
+    // Verify activity belongs to user
+    const activity = await prisma.activity.findFirst({
+      where: { id, userId },
+    });
+
+    if (!activity) {
+      throw new AppError('Activity not found', 404);
+    }
+
+    // Update activity as completed
+    const updatedActivity = await prisma.activity.update({
+      where: { id },
+      data: {
+        isCompleted: true,
+        completedAt: new Date(),
+        taskStatus: 'done',
+      },
+      include: {
+        contact: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        deal: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    res.json({
+      success: true,
+      message: 'Activity marked as complete',
+      activity: updatedActivity,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/activities/:id/sms-status - Check SMS delivery status
+router.get('/:id/sms-status', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.id;
+
+    // Verify activity belongs to user
+    const activity = await prisma.activity.findFirst({
+      where: { id, userId, type: 'SMS' },
+    });
+
+    if (!activity) {
+      throw new AppError('SMS activity not found', 404);
+    }
+
+    if (!activity.smsSid) {
+      throw new AppError('No SMS SID found for this activity', 400);
+    }
+
+    // Get SMS status from Twilio
+    const twilioService = new TwilioService();
+    const status = await twilioService.getSMSStatus(activity.smsSid);
+
+    // Update activity with latest status
+    await prisma.activity.update({
+      where: { id },
+      data: {
+        smsStatus: status.status,
+      },
+    });
+
+    res.json({
+      success: true,
+      status,
+    });
   } catch (error) {
     next(error);
   }
