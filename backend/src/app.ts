@@ -87,7 +87,7 @@ const getAllowedOrigins = (): string[] => {
 
     case 'development':
     default:
-      // Development - localhost allowed
+      // Development - localhost allowed + S3 sandbox
       return [
         'https://brandmonkz.com',
         'https://www.brandmonkz.com',
@@ -103,6 +103,8 @@ const getAllowedOrigins = (): string[] => {
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3001',
         'http://127.0.0.1:8080',
+        'http://sandbox-brandmonkz-crm.s3-website-us-east-1.amazonaws.com',
+        'http://brandmonkz-crm-frontend.s3-website-us-east-1.amazonaws.com',
         'file://',
         process.env.FRONTEND_URL,
       ].filter(Boolean) as string[];
