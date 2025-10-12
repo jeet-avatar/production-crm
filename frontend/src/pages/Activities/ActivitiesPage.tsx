@@ -6,7 +6,9 @@ import {
   DocumentTextIcon,
   ClipboardDocumentCheckIcon,
   PlusIcon,
-  FunnelIcon,
+  PaperAirplaneIcon,
+  CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 
 interface Activity {
@@ -31,15 +33,17 @@ interface Activity {
   };
   createdAt: string;
   status?: string;
+  emailStatus?: string;
+  emailSentAt?: string;
 }
 
 const activityTypes = [
   { value: 'all', label: 'All Activities', icon: ClipboardDocumentCheckIcon },
-  { value: 'email', label: 'Email', icon: EnvelopeIcon },
-  { value: 'call', label: 'Call', icon: PhoneIcon },
-  { value: 'meeting', label: 'Meeting', icon: CalendarIcon },
-  { value: 'note', label: 'Note', icon: DocumentTextIcon },
-  { value: 'task', label: 'Task', icon: ClipboardDocumentCheckIcon },
+  { value: 'EMAIL', label: 'Email', icon: EnvelopeIcon },
+  { value: 'CALL', label: 'Call', icon: PhoneIcon },
+  { value: 'MEETING', label: 'Meeting', icon: CalendarIcon },
+  { value: 'NOTE', label: 'Note', icon: DocumentTextIcon },
+  { value: 'TASK', label: 'Task', icon: ClipboardDocumentCheckIcon },
 ];
 
 export function ActivitiesPage() {
@@ -48,6 +52,20 @@ export function ActivitiesPage() {
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
+
+  // Email form state
+  const [emailForm, setEmailForm] = useState({
+    to: [''],
+    cc: [''],
+    bcc: [''],
+    subject: '',
+    htmlContent: '',
+  });
+
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
 
   useEffect(() => {
     fetchActivities();
@@ -86,46 +104,164 @@ export function ActivitiesPage() {
     }
   };
 
+  const handleCreateActivity = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      if (!token) return;
+
+      const response = await fetch('http://localhost:3000/api/activities', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'EMAIL',
+          subject: 'New Email Activity',
+          description: 'Ready to send email',
+          priority: 'MEDIUM',
+        }),
+      });
+
+      if (response.ok) {
+        await fetchActivities();
+        setShowAddModal(false);
+        showNotification('success', 'Activity created successfully!');
+      }
+    } catch (err) {
+      console.error('Error creating activity:', err);
+      showNotification('error', 'Failed to create activity');
+    }
+  };
+
+  const handleOpenEmailModal = (activity: Activity) => {
+    setSelectedActivity(activity);
+    setEmailForm({
+      to: activity.contact?.email ? [activity.contact.email] : [''],
+      cc: [''],
+      bcc: [''],
+      subject: activity.subject || 'Follow-up',
+      htmlContent: activity.description || '',
+    });
+    setShowEmailModal(true);
+  };
+
+  const handleSendEmail = async () => {
+    if (!selectedActivity) return;
+
+    try {
+      setIsSendingEmail(true);
+      const token = localStorage.getItem('crmToken');
+      if (!token) {
+        showNotification('error', 'Not authenticated');
+        return;
+      }
+
+      // Filter out empty email addresses
+      const toEmails = emailForm.to.filter(email => email.trim() !== '');
+      const ccEmails = emailForm.cc.filter(email => email.trim() !== '');
+      const bccEmails = emailForm.bcc.filter(email => email.trim() !== '');
+
+      if (toEmails.length === 0) {
+        showNotification('error', 'Please enter at least one recipient email');
+        return;
+      }
+
+      if (!emailForm.subject.trim()) {
+        showNotification('error', 'Please enter email subject');
+        return;
+      }
+
+      if (!emailForm.htmlContent.trim()) {
+        showNotification('error', 'Please enter email content');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:3000/api/activities/${selectedActivity.id}/send-email`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: toEmails,
+          cc: ccEmails.length > 0 ? ccEmails : undefined,
+          bcc: bccEmails.length > 0 ? bccEmails : undefined,
+          subject: emailForm.subject,
+          htmlContent: emailForm.htmlContent,
+          textContent: emailForm.htmlContent.replace(/<[^>]*>/g, ''), // Strip HTML for text version
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send email');
+      }
+
+      const result = await response.json();
+      console.log('Email sent successfully:', result);
+
+      showNotification('success', '✅ Email sent successfully!');
+      setShowEmailModal(false);
+      await fetchActivities(); // Refresh activities to show updated status
+    } catch (err: any) {
+      console.error('Error sending email:', err);
+      showNotification('error', `Failed to send email: ${err.message}`);
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 5000);
+  };
+
+  const addEmailField = (field: 'to' | 'cc' | 'bcc') => {
+    setEmailForm(prev => ({
+      ...prev,
+      [field]: [...prev[field], ''],
+    }));
+  };
+
+  const updateEmailField = (field: 'to' | 'cc' | 'bcc', index: number, value: string) => {
+    setEmailForm(prev => ({
+      ...prev,
+      [field]: prev[field].map((email, i) => i === index ? value : email),
+    }));
+  };
+
+  const removeEmailField = (field: 'to' | 'cc' | 'bcc', index: number) => {
+    setEmailForm(prev => ({
+      ...prev,
+      [field]: prev[field].filter((_, i) => i !== index),
+    }));
+  };
+
   const filteredActivities = filterType === 'all'
     ? activities
-    : activities.filter(a => a.type === filterType);
+    : activities.filter(a => a.type.toUpperCase() === filterType.toUpperCase());
 
   const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'email': return EnvelopeIcon;
-      case 'call': return PhoneIcon;
-      case 'meeting': return CalendarIcon;
-      case 'note': return DocumentTextIcon;
-      case 'task': return ClipboardDocumentCheckIcon;
+    switch (type.toUpperCase()) {
+      case 'EMAIL': return EnvelopeIcon;
+      case 'CALL': return PhoneIcon;
+      case 'MEETING': return CalendarIcon;
+      case 'NOTE': return DocumentTextIcon;
+      case 'TASK': return ClipboardDocumentCheckIcon;
       default: return DocumentTextIcon;
     }
   };
 
   const getActivityColor = (type: string) => {
-    switch (type) {
-      case 'email': return 'bg-blue-100 text-blue-700';
-      case 'call': return 'bg-green-100 text-green-700';
-      case 'meeting': return 'bg-purple-100 text-purple-700';
-      case 'note': return 'bg-yellow-100 text-yellow-700';
-      case 'task': return 'bg-orange-100 text-orange-700';
+    switch (type.toUpperCase()) {
+      case 'EMAIL': return 'bg-blue-100 text-blue-700';
+      case 'CALL': return 'bg-green-100 text-green-700';
+      case 'MEETING': return 'bg-purple-100 text-purple-700';
+      case 'NOTE': return 'bg-yellow-100 text-yellow-700';
+      case 'TASK': return 'bg-orange-100 text-orange-700';
       default: return 'bg-gray-100 text-gray-700';
     }
-  };
-
-  const getStatusBadge = (status?: string) => {
-    if (!status) return null;
-
-    const badges = {
-      completed: 'badge-success',
-      pending: 'badge-warning',
-      cancelled: 'badge-error',
-    };
-
-    return (
-      <span className={`badge ${badges[status as keyof typeof badges]}`}>
-        {status}
-      </span>
-    );
   };
 
   const formatDate = (dateString: string) => {
@@ -159,6 +295,20 @@ export function ActivitiesPage() {
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
+      {/* Notification */}
+      {notification && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center gap-3 ${
+          notification.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+        }`}>
+          {notification.type === 'success' ? (
+            <CheckCircleIcon className="h-5 w-5 text-green-600" />
+          ) : (
+            <XCircleIcon className="h-5 w-5 text-red-600" />
+          )}
+          <span className="font-medium">{notification.message}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Activities</h1>
@@ -187,11 +337,11 @@ export function ActivitiesPage() {
           })}
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={handleCreateActivity}
           className="btn-secondary flex items-center gap-2"
         >
           <PlusIcon className="h-4 w-4" />
-          Add Activity
+          Create Email Activity
         </button>
       </div>
 
@@ -206,17 +356,19 @@ export function ActivitiesPage() {
                 {filterType === 'all' ? 'Start adding activities to track your work' : `No ${filterType} activities found`}
               </p>
               <button
-                onClick={() => setShowAddModal(true)}
-                className="btn-secondary flex items-center gap-2"
+                onClick={handleCreateActivity}
+                className="btn-secondary flex items-center gap-2 inline-flex"
               >
                 <PlusIcon className="h-4 w-4" />
-                Add Activity
+                Create Activity
               </button>
             </div>
           ) : (
             <div className="space-y-6">
               {filteredActivities.map((activity, index) => {
                 const Icon = getActivityIcon(activity.type);
+                const isEmail = activity.type.toUpperCase() === 'EMAIL';
+
                 return (
                   <div key={activity.id} className="relative">
                     {/* Timeline line */}
@@ -231,9 +383,9 @@ export function ActivitiesPage() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex-1 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
                         <div className="flex justify-between items-start mb-2">
-                          <div>
+                          <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-900">{activity.subject || activity.title || 'No subject'}</h3>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="text-sm text-gray-500">
@@ -241,13 +393,40 @@ export function ActivitiesPage() {
                                  activity.deal ? activity.deal.title :
                                  'No relation'}
                               </span>
-                              <span className="text-gray-300">•</span>
-                              <span className="text-sm text-gray-500 capitalize">
-                                {activity.contact ? 'contact' : activity.deal ? 'deal' : 'none'}
-                              </span>
+                              {activity.contact?.email && (
+                                <>
+                                  <span className="text-gray-300">•</span>
+                                  <span className="text-sm text-gray-500">{activity.contact.email}</span>
+                                </>
+                              )}
                             </div>
+                            {activity.emailStatus && (
+                              <div className="mt-2">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  activity.emailStatus === 'sent' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {activity.emailStatus === 'sent' && <CheckCircleIcon className="h-3 w-3 mr-1" />}
+                                  {activity.emailStatus}
+                                </span>
+                                {activity.emailSentAt && (
+                                  <span className="ml-2 text-xs text-gray-500">
+                                    Sent {formatDate(activity.emailSentAt)}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
-                          {getStatusBadge(activity.status)}
+
+                          {/* Action Button for Email */}
+                          {isEmail && !activity.emailStatus && (
+                            <button
+                              onClick={() => handleOpenEmailModal(activity)}
+                              className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                            >
+                              <PaperAirplaneIcon className="h-4 w-4 mr-1" />
+                              Send Email
+                            </button>
+                          )}
                         </div>
 
                         <p className="text-gray-600 text-sm mb-3">{activity.description || 'No description'}</p>
@@ -269,50 +448,130 @@ export function ActivitiesPage() {
         </div>
       </div>
 
-      {/* Add Activity Modal */}
-      {showAddModal && (
-        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-900">Add Activity</h2>
+      {/* Send Email Modal */}
+      {showEmailModal && selectedActivity && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">Send Email</h2>
+              <p className="text-sm text-gray-500 mt-1">Activity: {selectedActivity.subject}</p>
             </div>
-            <div className="p-6">
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                  <select className="input">
-                    <option value="email">Email</option>
-                    <option value="call">Call</option>
-                    <option value="meeting">Meeting</option>
-                    <option value="note">Note</option>
-                    <option value="task">Task</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                  <input type="text" className="input" placeholder="Enter activity title" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <textarea className="input" rows={4} placeholder="Enter activity details"></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Related To</label>
-                  <select className="input">
-                    <option value="">Select contact, company, or deal</option>
-                    <option value="contact-1">John Doe (Contact)</option>
-                    <option value="company-1">Acme Corp (Company)</option>
-                    <option value="deal-1">Q1 Enterprise Deal (Deal)</option>
-                  </select>
-                </div>
-              </form>
+
+            <div className="p-6 space-y-4">
+              {/* To Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">To *</label>
+                {emailForm.to.map((email, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => updateEmailField('to', index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="recipient@example.com"
+                      required
+                    />
+                    {emailForm.to.length > 1 && (
+                      <button
+                        onClick={() => removeEmailField('to', index)}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-md"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  onClick={() => addEmailField('to')}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  + Add recipient
+                </button>
+              </div>
+
+              {/* CC Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">CC (Optional)</label>
+                {emailForm.cc.map((email, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => updateEmailField('cc', index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="cc@example.com"
+                    />
+                    <button
+                      onClick={() => removeEmailField('cc', index)}
+                      className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-md"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <button
+                  onClick={() => addEmailField('cc')}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  + Add CC
+                </button>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                <input
+                  type="text"
+                  value={emailForm.subject}
+                  onChange={(e) => setEmailForm(prev => ({ ...prev, subject: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Email subject"
+                  required
+                />
+              </div>
+
+              {/* Email Content */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Message *</label>
+                <textarea
+                  value={emailForm.htmlContent}
+                  onChange={(e) => setEmailForm(prev => ({ ...prev, htmlContent: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows={10}
+                  placeholder="Enter your email message..."
+                  required
+                />
+                <p className="mt-1 text-xs text-gray-500">You can use HTML tags for formatting</p>
+              </div>
             </div>
-            <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
-              <button onClick={() => setShowAddModal(false)} className="btn-secondary">
+
+            <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                disabled={isSendingEmail}
+              >
                 Cancel
               </button>
-              <button onClick={() => setShowAddModal(false)} className="btn-primary">
-                Add Activity
+              <button
+                onClick={handleSendEmail}
+                disabled={isSendingEmail}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSendingEmail ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <PaperAirplaneIcon className="h-4 w-4 mr-2" />
+                    Send Email
+                  </>
+                )}
               </button>
             </div>
           </div>
