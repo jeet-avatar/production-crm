@@ -208,7 +208,12 @@ INSTRUCTIONS:
 
    For LinkedIn: Always include full LinkedIn profile URLs in format https://www.linkedin.com/in/firstname-lastname
    For Emails: Use company domain with formats: firstname.lastname@domain.com, first.last@domain.com, flast@domain.com
-   For Phones: Include if available from website or LinkedIn
+   For Phones: CRITICAL - Extract DIRECT/PERSONAL phone numbers with extensions (NOT toll-free numbers):
+     - Look for direct dial numbers with extensions (e.g., "(555) 123-4567 ext. 123" or "+1-555-123-4567 x456")
+     - Avoid toll-free numbers starting with 800, 888, 877, 866, 855, 844, 833
+     - Prefer mobile/cell numbers or direct office lines
+     - Include extension numbers when available (format: "555-123-4567 x123")
+     - If only main company number found, note it as "Main: (555) 123-4567"
 
 Respond ONLY in this exact JSON format (no other text):
 {
@@ -370,7 +375,11 @@ INSTRUCTIONS:
 Extract the following information:
 1. FULL NAME (First and Last name separately)
 2. EMAIL ADDRESS (if not provided, generate likely format using company domain)
-3. PHONE NUMBER (if available)
+3. PHONE NUMBER - CRITICAL: Extract DIRECT/PERSONAL phone number (NOT toll-free):
+   - Look for direct dial with extension (e.g., "555-123-4567 x123")
+   - Avoid toll-free numbers (800, 888, 877, 866, 855, 844, 833)
+   - Prefer mobile/cell or direct office line
+   - Include extension if available
 4. CURRENT JOB TITLE
 5. LINKEDIN URL (full profile URL)
 6. CURRENT COMPANY NAME
