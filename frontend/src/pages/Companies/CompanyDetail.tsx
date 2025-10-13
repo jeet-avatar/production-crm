@@ -384,7 +384,12 @@ export function CompanyDetail() {
               type="button"
               onClick={handleSocialFlow}
               disabled={socialFlowing}
-              className="px-5 py-2.5 bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 text-gray-900 text-sm font-bold rounded-lg hover:from-yellow-400 hover:via-amber-400 hover:to-yellow-500 transition-all shadow-lg hover:shadow-2xl active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-yellow-600 hover:border-yellow-500"
+              style={{
+                background: 'linear-gradient(to right, #eab308, #f59e0b, #d97706)',
+                color: '#111827',
+                border: '2px solid #d97706',
+              }}
+              className="px-5 py-2.5 text-sm font-bold rounded-lg transition-all shadow-lg hover:shadow-2xl active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110"
               title="🚀 Premium: SocialFlow - Credit Rating, Social Media, Tech Stack & More"
             >
               {socialFlowing ? (
