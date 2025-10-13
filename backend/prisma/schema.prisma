@@ -317,6 +317,39 @@ model Activity {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
+  // SMS Metadata (Twilio Integration)
+  smsTo       String?   // Phone number recipient
+  smsFrom     String?   // Twilio phone number used
+  smsSid      String?   // Twilio message SID for tracking
+  smsStatus   String?   // sent, delivered, failed, queued
+  smsSentAt   DateTime? // When SMS was sent
+
+  // Email Metadata (SMTP Integration)
+  emailTo        String[] @default([]) // Array of recipient emails
+  emailFrom      String?   // Sender email (user's email)
+  emailCc        String[] @default([]) // CC recipients
+  emailBcc       String[] @default([]) // BCC recipients
+  emailMessageId String?   // SMTP message ID for tracking
+  emailStatus    String?   // sent, delivered, opened, clicked
+  emailSentAt    DateTime? // When email was sent
+
+  // Meeting Metadata (Google Meet & Calendar Integration)
+  meetingLink       String?   // Google Meet link or Zoom link
+  meetingEventId    String?   // Google Calendar event ID
+  meetingStartTime  DateTime? // Scheduled start time
+  meetingEndTime    DateTime? // Scheduled end time
+  meetingAttendees  String[] @default([]) // Array of attendee emails
+  meetingLocation   String?   // Physical location or "Online"
+  meetingTimezone   String?   // Timezone for meeting
+
+  // Task Metadata
+  taskAssignedTo String?  // User ID of assignee
+  taskStatus     String?  // todo, in_progress, done, cancelled
+  taskCheckbox   Boolean? // For simple checkbox tasks
+
+  // Generic metadata for extensibility (JSON for custom fields)
+  metadata Json?
+
   // Foreign keys
   contactId String?
   dealId    String?
@@ -332,6 +365,9 @@ model Activity {
   @@index([dealId])
   @@index([type])
   @@index([createdAt])
+  @@index([smsStatus])
+  @@index([emailStatus])
+  @@index([taskStatus])
   @@map("activities")
 }
 
