@@ -106,6 +106,7 @@ export function CompanyDetail() {
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [enriching, setEnriching] = useState(false);
+  const [socialFlowing, setSocialFlowing] = useState(false);
 
   useEffect(() => {
     loadCompanyDetails();
@@ -191,6 +192,48 @@ export function CompanyDetail() {
       console.error('Error enriching company:', err);
       setError(err.message || 'Failed to enrich company');
       setEnriching(false);
+    }
+  };
+
+  // 🚀 PREMIUM FEATURE: SocialFlow Handler
+  const handleSocialFlow = async () => {
+    if (!company) return;
+
+    try {
+      setSocialFlowing(true);
+      setError('');
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/enrichment/companies/${company.id}/socialflow`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('crmToken')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to start SocialFlow enrichment');
+      }
+
+      const result = await response.json();
+
+      // Reload company data
+      await loadCompanyDetails();
+      setSocialFlowing(false);
+
+      // Show premium success message
+      const features = [];
+      if (result.socialFlowData.creditRating) features.push('Credit Rating');
+      if (result.socialFlowData.socialMedia?.twitter || result.socialFlowData.socialMedia?.facebook) features.push('Social Media');
+      if (result.socialFlowData.technographics?.length > 0) features.push('Tech Stack');
+      if (result.socialFlowData.revenue) features.push('Revenue');
+
+      alert(`✅ SocialFlow enrichment complete!\n\nPremium data added:\n${features.map(f => `• ${f}`).join('\n')}`);
+    } catch (err: any) {
+      console.error('Error with SocialFlow:', err);
+      setError(err.message || 'Failed to enrich with SocialFlow');
+      setSocialFlowing(false);
     }
   };
 
@@ -308,6 +351,29 @@ export function CompanyDetail() {
                 )}
               </button>
             )}
+            {/* 🚀 PREMIUM FEATURE: SocialFlow Button */}
+            <button
+              type="button"
+              onClick={handleSocialFlow}
+              disabled={socialFlowing}
+              className="px-4 py-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white text-sm font-bold rounded-lg hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-yellow-400"
+              title="🚀 Premium: SocialFlow - Credit Rating, Social Media, Tech Stack & More"
+            >
+              {socialFlowing ? (
+                <>
+                  <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
+                    <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-4a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                  </svg>
+                  SocialFlow ⭐
+                </>
+              )}
+            </button>
             <button
               type="button"
               onClick={() => setShowCampaignModal(true)}

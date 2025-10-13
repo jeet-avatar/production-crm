@@ -197,6 +197,11 @@ model Company {
   facebook       String?
   foundedYear    Int?
   employeeCount  String? // Changed to String to support ranges like "51-200", "1001-5000"
+
+  // 🚀 Premium SocialFlow Enrichment Fields
+  socialFlowEnriched   Boolean   @default(false)
+  socialFlowEnrichedAt DateTime?
+  socialFlowData       Json? // Stores credit rating, social media, technographics, revenue, funding
   revenue        String?
   ticker         String?
   phone          String?

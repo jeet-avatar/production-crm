@@ -225,4 +225,178 @@ router.post('/contacts/:id/enrich', async (req: Request, res: Response, next: Ne
   }
 });
 
+// 🚀 PREMIUM FEATURE: SocialFlow - Advanced Social & Credit Data Enrichment
+router.post('/companies/:id/socialflow', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    // ✅ Verify ownership before enrichment
+    const company = await prisma.company.findFirst({
+      where: {
+        id,
+        userId: req.user?.id,
+      },
+    });
+
+    if (!company) {
+      throw new AppError('Company not found', 404);
+    }
+
+    console.log(`\n🚀 Starting SocialFlow enrichment for: ${company.name}`);
+
+    // Prepare enrichment data object
+    const socialFlowData: any = {
+      creditRating: null,
+      socialMedia: {
+        twitter: null,
+        facebook: null,
+        instagram: null,
+        youtube: null,
+      },
+      technographics: [],
+      funding: null,
+      revenue: null,
+      employees: null,
+      growth: null,
+    };
+
+    // 1. Fetch Credit Rating from external API
+    try {
+      console.log(`   📊 Fetching credit rating...`);
+      const creditResponse = await fetch(
+        `http://13.53.133.99:8000/api/company-analysis/lookup?companyName=${encodeURIComponent(company.name)}`
+      );
+
+      if (creditResponse.ok) {
+        const creditData = await creditResponse.json();
+        socialFlowData.creditRating = creditData;
+        console.log(`   ✅ Credit rating fetched successfully`);
+      } else {
+        console.log(`   ⚠️  Credit rating API returned ${creditResponse.status}`);
+      }
+    } catch (creditError) {
+      console.log(`   ⚠️  Credit rating fetch failed: ${creditError.message}`);
+    }
+
+    // 2. Extract social media links from website
+    if (company.website) {
+      try {
+        console.log(`   🔍 Scanning for social media profiles...`);
+        const axios = require('axios');
+        const cheerio = require('cheerio');
+
+        const response = await axios.get(company.website, {
+          timeout: 10000,
+          headers: { 'User-Agent': 'Mozilla/5.0' }
+        });
+
+        const $ = cheerio.load(response.data);
+
+        // Extract social media links
+        $('a[href*="twitter.com"], a[href*="x.com"]').each((i, el) => {
+          const href = $(el).attr('href');
+          if (href && !socialFlowData.socialMedia.twitter) {
+            socialFlowData.socialMedia.twitter = href;
+          }
+        });
+
+        $('a[href*="facebook.com"]').each((i, el) => {
+          const href = $(el).attr('href');
+          if (href && !socialFlowData.socialMedia.facebook) {
+            socialFlowData.socialMedia.facebook = href;
+          }
+        });
+
+        $('a[href*="instagram.com"]').each((i, el) => {
+          const href = $(el).attr('href');
+          if (href && !socialFlowData.socialMedia.instagram) {
+            socialFlowData.socialMedia.instagram = href;
+          }
+        });
+
+        $('a[href*="youtube.com"]').each((i, el) => {
+          const href = $(el).attr('href');
+          if (href && !socialFlowData.socialMedia.youtube) {
+            socialFlowData.socialMedia.youtube = href;
+          }
+        });
+
+        console.log(`   ✅ Social media scan complete`);
+      } catch (scrapeError) {
+        console.log(`   ⚠️  Social media scan failed: ${scrapeError.message}`);
+      }
+    }
+
+    // 3. Use AI to extract additional premium data
+    try {
+      console.log(`   🧠 Analyzing with AI for premium insights...`);
+      const Anthropic = require('@anthropic-ai/sdk');
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY || '',
+      });
+
+      const prompt = `Analyze "${company.name}" (website: ${company.website || 'unknown'}) and provide premium business intelligence data.
+
+Extract the following:
+1. Technology Stack (software/platforms they use - e.g., Salesforce, AWS, Shopify, etc.)
+2. Estimated Annual Revenue (if publicly available or industry standard estimate)
+3. Estimated Employee Count (if not already known: ${company.employeeCount || 'unknown'})
+4. Recent Funding Rounds (if applicable - amount, date, investors)
+5. Growth Stage (Startup, Growth, Mature, Enterprise)
+
+Respond in JSON format:
+{
+  "technographics": ["tech1", "tech2"],
+  "revenue": "estimated revenue or null",
+  "employees": "employee count or null",
+  "funding": "funding info or null",
+  "growth": "growth stage or null"
+}`;
+
+      const message = await anthropic.messages.create({
+        model: 'claude-sonnet-4-5-20250929',
+        max_tokens: 1024,
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+
+      if (jsonMatch) {
+        const aiData = JSON.parse(jsonMatch[0]);
+        socialFlowData.technographics = aiData.technographics || [];
+        socialFlowData.revenue = aiData.revenue;
+        socialFlowData.employees = aiData.employees;
+        socialFlowData.funding = aiData.funding;
+        socialFlowData.growth = aiData.growth;
+        console.log(`   ✅ AI analysis complete`);
+      }
+    } catch (aiError) {
+      console.log(`   ⚠️  AI analysis failed: ${aiError.message}`);
+    }
+
+    // 4. Update company with SocialFlow data
+    const updatedCompany = await prisma.company.update({
+      where: { id },
+      data: {
+        socialFlowData: socialFlowData as any,
+        socialFlowEnriched: true,
+        socialFlowEnrichedAt: new Date(),
+      },
+    });
+
+    console.log(`✅ SocialFlow enrichment complete for: ${company.name}`);
+
+    logger.info(`SocialFlow enriched: ${company.name}`);
+
+    res.json({
+      message: 'SocialFlow enrichment completed successfully',
+      company: updatedCompany,
+      socialFlowData,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
