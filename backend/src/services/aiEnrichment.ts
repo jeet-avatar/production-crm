@@ -248,6 +248,14 @@ If exact contact info isn't available:
 1. Generate likely LinkedIn URLs: https://www.linkedin.com/in/firstname-lastname
 2. Generate likely email addresses using company domain
 3. Use your knowledge about the company to identify key decision makers
+4. For phone numbers: If you find a main company phone number, generate likely direct extensions:
+   - CEO/President: main number + ext. 100-199
+   - CFO/Controller: main number + ext. 200-299
+   - CTO/IT Head: main number + ext. 300-399
+   - VPs: main number + ext. 400-499
+   - Directors: main number + ext. 500-599
+   - Managers: main number + ext. 600-699
+   Example: If main number is (555) 123-4567, CEO would be "(555) 123-4567 x101"
 
 Set confidence based on available data quality.`;
 
