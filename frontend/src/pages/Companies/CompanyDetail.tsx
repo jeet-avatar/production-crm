@@ -222,14 +222,42 @@ export function CompanyDetail() {
       await loadCompanyDetails();
       setSocialFlowing(false);
 
-      // Show premium success message
-      const features = [];
-      if (result.socialFlowData.creditRating) features.push('Credit Rating');
-      if (result.socialFlowData.socialMedia?.twitter || result.socialFlowData.socialMedia?.facebook) features.push('Social Media');
-      if (result.socialFlowData.technographics?.length > 0) features.push('Tech Stack');
-      if (result.socialFlowData.revenue) features.push('Revenue');
+      // Show detailed enrichment status
+      const { successCount, totalSteps, enrichmentStatus } = result;
 
-      alert(`✅ SocialFlow enrichment complete!\n\nPremium data added:\n${features.map(f => `• ${f}`).join('\n')}`);
+      if (successCount === 0) {
+        // All steps failed
+        const errors = [];
+        if (enrichmentStatus?.creditRating?.error) errors.push(`Credit Rating: ${enrichmentStatus.creditRating.error}`);
+        if (enrichmentStatus?.socialMedia?.error) errors.push(`Social Media: ${enrichmentStatus.socialMedia.error}`);
+        if (enrichmentStatus?.aiAnalysis?.error) errors.push(`AI Analysis: ${enrichmentStatus.aiAnalysis.error}`);
+
+        alert(`⚠️  SocialFlow enrichment completed but no data was found.\n\nIssues:\n${errors.map(e => `• ${e}`).join('\n')}\n\nPlease ensure the company has a website URL configured and is publicly accessible.`);
+      } else {
+        // At least one step succeeded
+        const features = [];
+        if (result.socialFlowData.creditRating) features.push('✅ Credit Rating');
+        if (result.socialFlowData.socialMedia?.twitter || result.socialFlowData.socialMedia?.facebook ||
+            result.socialFlowData.socialMedia?.instagram || result.socialFlowData.socialMedia?.youtube) features.push('✅ Social Media');
+        if (result.socialFlowData.technographics?.length > 0) features.push('✅ Tech Stack');
+        if (result.socialFlowData.revenue) features.push('✅ Revenue');
+        if (result.socialFlowData.employees) features.push('✅ Employees');
+
+        const failures = [];
+        if (enrichmentStatus?.creditRating?.error) failures.push(`❌ Credit Rating: ${enrichmentStatus.creditRating.error}`);
+        if (enrichmentStatus?.socialMedia?.error) failures.push(`❌ Social Media: ${enrichmentStatus.socialMedia.error}`);
+        if (enrichmentStatus?.aiAnalysis?.error) failures.push(`❌ AI Analysis: ${enrichmentStatus.aiAnalysis.error}`);
+
+        let message = `✅ SocialFlow enrichment complete! (${successCount}/${totalSteps} successful)\n\n`;
+        if (features.length > 0) {
+          message += `Data found:\n${features.join('\n')}\n`;
+        }
+        if (failures.length > 0) {
+          message += `\n${failures.join('\n')}`;
+        }
+
+        alert(message);
+      }
     } catch (err: any) {
       console.error('Error with SocialFlow:', err);
       setError(err.message || 'Failed to enrich with SocialFlow');
@@ -533,7 +561,36 @@ export function CompanyDetail() {
                 <span className="ml-auto text-xs text-gray-500">
                   Enriched: {new Date(company.socialFlowEnrichedAt).toLocaleDateString()}
                 </span>
+                <button
+                  onClick={handleSocialFlow}
+                  disabled={socialFlowing}
+                  className="ml-2 px-3 py-1 text-xs bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  title="Re-enrich with latest data"
+                >
+                  {socialFlowing ? 'Re-enriching...' : '🔄 Re-enrich'}
+                </button>
               </div>
+
+              {/* Show Enrichment Status if available */}
+              {company.socialFlowData.enrichmentStatus && (
+                <div className="mb-4 p-3 bg-white rounded-lg border border-gray-200">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Enrichment Status:</h3>
+                  <div className="space-y-1 text-xs">
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.creditRating?.success ? 'text-green-700' : 'text-red-600'}`}>
+                      {company.socialFlowData.enrichmentStatus.creditRating?.success ? '✅' : '❌'}
+                      <span>Credit Rating {company.socialFlowData.enrichmentStatus.creditRating?.error && `- ${company.socialFlowData.enrichmentStatus.creditRating.error}`}</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.socialMedia?.success ? 'text-green-700' : 'text-red-600'}`}>
+                      {company.socialFlowData.enrichmentStatus.socialMedia?.success ? '✅' : '❌'}
+                      <span>Social Media {company.socialFlowData.enrichmentStatus.socialMedia?.error && `- ${company.socialFlowData.enrichmentStatus.socialMedia.error}`}</span>
+                    </div>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? 'text-green-700' : 'text-red-600'}`}>
+                      {company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? '✅' : '❌'}
+                      <span>AI Analysis {company.socialFlowData.enrichmentStatus.aiAnalysis?.error && `- ${company.socialFlowData.enrichmentStatus.aiAnalysis.error}`}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Credit Rating */}

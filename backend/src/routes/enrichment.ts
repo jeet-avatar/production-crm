@@ -244,6 +244,13 @@ router.post('/companies/:id/socialflow', async (req: Request, res: Response, nex
 
     console.log(`\n🚀 Starting SocialFlow enrichment for: ${company.name}`);
 
+    // Track enrichment status for each step
+    const enrichmentStatus = {
+      creditRating: { success: false, error: null as string | null },
+      socialMedia: { success: false, error: null as string | null },
+      aiAnalysis: { success: false, error: null as string | null },
+    };
+
     // Prepare enrichment data object
     const socialFlowData: any = {
       creditRating: null,
@@ -258,6 +265,7 @@ router.post('/companies/:id/socialflow', async (req: Request, res: Response, nex
       revenue: null,
       employees: null,
       growth: null,
+      enrichmentStatus: enrichmentStatus, // Store status in data
     };
 
     // 1. Fetch Credit Rating from external API
@@ -270,11 +278,14 @@ router.post('/companies/:id/socialflow', async (req: Request, res: Response, nex
       if (creditResponse.ok) {
         const creditData = await creditResponse.json();
         socialFlowData.creditRating = creditData;
+        enrichmentStatus.creditRating.success = true;
         console.log(`   ✅ Credit rating fetched successfully`);
       } else {
+        enrichmentStatus.creditRating.error = `API returned status ${creditResponse.status}`;
         console.log(`   ⚠️  Credit rating API returned ${creditResponse.status}`);
       }
-    } catch (creditError) {
+    } catch (creditError: any) {
+      enrichmentStatus.creditRating.error = creditError.message;
       console.log(`   ⚠️  Credit rating fetch failed: ${creditError.message}`);
     }
 
@@ -321,10 +332,24 @@ router.post('/companies/:id/socialflow', async (req: Request, res: Response, nex
           }
         });
 
+        const hasAnySocialMedia = socialFlowData.socialMedia.twitter ||
+                                  socialFlowData.socialMedia.facebook ||
+                                  socialFlowData.socialMedia.instagram ||
+                                  socialFlowData.socialMedia.youtube;
+
+        if (hasAnySocialMedia) {
+          enrichmentStatus.socialMedia.success = true;
+        } else {
+          enrichmentStatus.socialMedia.error = 'No social media links found on website';
+        }
         console.log(`   ✅ Social media scan complete`);
-      } catch (scrapeError) {
+      } catch (scrapeError: any) {
+        enrichmentStatus.socialMedia.error = scrapeError.message;
         console.log(`   ⚠️  Social media scan failed: ${scrapeError.message}`);
       }
+    } else {
+      enrichmentStatus.socialMedia.error = 'No website URL configured';
+      console.log(`   ⚠️  No website URL configured for social media scan`);
     }
 
     // 3. Use AI to extract additional premium data
@@ -369,31 +394,82 @@ Respond in JSON format:
         socialFlowData.employees = aiData.employees;
         socialFlowData.funding = aiData.funding;
         socialFlowData.growth = aiData.growth;
+
+        const hasAnyData = (socialFlowData.technographics && socialFlowData.technographics.length > 0) ||
+                          socialFlowData.revenue ||
+                          socialFlowData.employees ||
+                          socialFlowData.funding ||
+                          socialFlowData.growth;
+
+        if (hasAnyData) {
+          enrichmentStatus.aiAnalysis.success = true;
+        } else {
+          enrichmentStatus.aiAnalysis.error = 'AI returned no data';
+        }
         console.log(`   ✅ AI analysis complete`);
+      } else {
+        enrichmentStatus.aiAnalysis.error = 'Failed to parse AI response';
+        console.log(`   ⚠️  Failed to parse AI response`);
       }
-    } catch (aiError) {
+    } catch (aiError: any) {
+      enrichmentStatus.aiAnalysis.error = aiError.message;
       console.log(`   ⚠️  AI analysis failed: ${aiError.message}`);
     }
 
-    // 4. Update company with SocialFlow data
+    // 4. Determine if enrichment was successful (at least one step succeeded)
+    const anySuccess = enrichmentStatus.creditRating.success ||
+                      enrichmentStatus.socialMedia.success ||
+                      enrichmentStatus.aiAnalysis.success;
+
+    const allFailed = !enrichmentStatus.creditRating.success &&
+                      !enrichmentStatus.socialMedia.success &&
+                      !enrichmentStatus.aiAnalysis.success;
+
+    // 5. Update company with SocialFlow data
     const updatedCompany = await prisma.company.update({
       where: { id },
       data: {
         socialFlowData: socialFlowData as any,
-        socialFlowEnriched: true,
-        socialFlowEnrichedAt: new Date(),
+        socialFlowEnriched: anySuccess, // Only mark as enriched if at least one step succeeded
+        socialFlowEnrichedAt: anySuccess ? new Date() : null,
       },
     });
 
-    console.log(`✅ SocialFlow enrichment complete for: ${company.name}`);
+    // Log final status
+    const successCount = [
+      enrichmentStatus.creditRating.success,
+      enrichmentStatus.socialMedia.success,
+      enrichmentStatus.aiAnalysis.success
+    ].filter(Boolean).length;
 
-    logger.info(`SocialFlow enriched: ${company.name}`);
+    console.log(`✅ SocialFlow enrichment complete: ${successCount}/3 steps successful`);
+    console.log(`   Credit Rating: ${enrichmentStatus.creditRating.success ? '✅' : '❌'} ${enrichmentStatus.creditRating.error || ''}`);
+    console.log(`   Social Media: ${enrichmentStatus.socialMedia.success ? '✅' : '❌'} ${enrichmentStatus.socialMedia.error || ''}`);
+    console.log(`   AI Analysis: ${enrichmentStatus.aiAnalysis.success ? '✅' : '❌'} ${enrichmentStatus.aiAnalysis.error || ''}`);
 
-    res.json({
-      message: 'SocialFlow enrichment completed successfully',
-      company: updatedCompany,
-      socialFlowData,
-    });
+    logger.info(`SocialFlow enriched: ${company.name} (${successCount}/3 successful)`);
+
+    // Return appropriate response
+    if (allFailed) {
+      res.status(207).json({
+        message: 'SocialFlow enrichment completed but all steps failed',
+        warning: 'No data was successfully enriched. Please check the errors below.',
+        company: updatedCompany,
+        socialFlowData,
+        enrichmentStatus,
+        successCount: 0,
+        totalSteps: 3
+      });
+    } else {
+      res.json({
+        message: `SocialFlow enrichment completed successfully (${successCount}/3 steps)`,
+        company: updatedCompany,
+        socialFlowData,
+        enrichmentStatus,
+        successCount,
+        totalSteps: 3
+      });
+    }
   } catch (error) {
     next(error);
   }
