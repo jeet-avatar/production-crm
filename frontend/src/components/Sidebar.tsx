@@ -41,7 +41,7 @@ export function Sidebar({ user, onLogout }: SidebarProps) {
           <img
             src="/logo.png"
             alt="BrandMonkz Logo"
-            className="h-8 w-auto max-w-full object-contain"
+            className="h-16 w-auto max-w-full object-contain"
           />
         </div>
       </div>
