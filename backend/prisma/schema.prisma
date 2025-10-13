@@ -130,6 +130,15 @@ model Contact {
   notes         String?
   lastContacted DateTime?
   isActive      Boolean       @default(true)
+
+  // AI Enrichment fields
+  linkedin      String? // LinkedIn profile URL
+  location      String? // City, State/Country
+  bio           String? // Professional bio
+  skills        String? // Comma-separated skills
+  enriched      Boolean       @default(false)
+  enrichedAt    DateTime?
+
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
