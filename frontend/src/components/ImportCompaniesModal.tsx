@@ -436,13 +436,22 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
               </button>
             )}
             {currentStep === 1 && companies.length > 0 && (
-              <button
-                onClick={handleAIEnrichment}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
-              >
-                <SparklesIcon className="w-5 h-5" />
-                Enhance with AI
-              </button>
+              <>
+                <button
+                  onClick={handleImport}
+                  disabled={importing}
+                  className="px-6 py-3 bg-white text-purple-700 border-2 border-purple-500 rounded-lg font-semibold hover:bg-purple-50 transition-all shadow-md disabled:opacity-50"
+                >
+                  Import Without Enrichment
+                </button>
+                <button
+                  onClick={handleAIEnrichment}
+                  className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                >
+                  <SparklesIcon className="w-5 h-5" />
+                  Enhance with AI
+                </button>
+              </>
             )}
             {currentStep === 3 && (
               <button
