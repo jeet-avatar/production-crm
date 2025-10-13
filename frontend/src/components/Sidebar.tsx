@@ -35,19 +35,16 @@ const navigation = [
 export function Sidebar({ user, onLogout }: SidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-gray-200 flex flex-col shadow-lg">
-      {/* Logo Section with Gradient */}
-      <div className="p-6 border-b-2 border-gray-200 bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Logo Section with BrandMonkz Logo */}
+      <div className="p-6 border-b-2 border-gray-200 bg-white">
         <div className="flex items-center">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform">
-            <SparklesIcon className="h-6 w-6 text-white" />
-          </div>
-          <div className="ml-3">
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              BrandMonkz
-            </span>
-            <p className="text-xs text-gray-600 font-medium">CRM Platform</p>
-          </div>
+          <img
+            src="/logo.png"
+            alt="BrandMonkz Logo"
+            className="h-12 w-auto object-contain"
+          />
         </div>
+        <p className="text-xs text-gray-500 font-medium mt-2 text-center">CRM Platform</p>
       </div>
 
       {/* Navigation */}
