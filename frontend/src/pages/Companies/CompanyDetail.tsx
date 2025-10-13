@@ -174,28 +174,18 @@ export function CompanyDetail() {
         throw new Error(errorData.error || 'Failed to start enrichment');
       }
 
-      // Poll for enrichment completion
-      const pollInterval = setInterval(async () => {
-        const data = await companiesApi.getById(company.id);
-        if (data.company) {
-          setCompany(data.company);
+      const enrichmentResult = await response.json();
 
-          if (data.company.enrichmentStatus === 'enriched') {
-            setEnriching(false);
-            clearInterval(pollInterval);
-          } else if (data.company.enrichmentStatus === 'failed') {
-            setEnriching(false);
-            setError('AI enrichment failed. Please try again.');
-            clearInterval(pollInterval);
-          }
-        }
-      }, 3000); // Poll every 3 seconds
+      // Reload company data and contacts
+      await loadCompanyDetails();
+      setEnriching(false);
 
-      // Stop polling after 2 minutes
-      setTimeout(() => {
-        clearInterval(pollInterval);
-        setEnriching(false);
-      }, 120000);
+      // Show success message with professionals count
+      if (enrichmentResult.professionalsCreated > 0) {
+        alert(`✅ Company enriched successfully! ${enrichmentResult.professionalsCreated} professional contact(s) added.`);
+      } else {
+        alert('✅ Company enriched successfully!');
+      }
 
     } catch (err: any) {
       console.error('Error enriching company:', err);

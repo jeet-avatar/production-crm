@@ -16,6 +16,15 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
 });
 
+interface CompanyProfessional {
+  firstName: string;
+  lastName: string;
+  role: string;
+  email?: string;
+  phone?: string;
+  linkedin?: string;
+}
+
 interface CompanyEnrichmentResult {
   industry?: string;
   headquarters?: string;
@@ -25,6 +34,7 @@ interface CompanyEnrichmentResult {
   videoUrl?: string; // Video URL (YouTube, Vimeo, Loom, etc.)
   hiringIntent?: string; // Why they're hiring
   pitch?: string; // Sales pitch/value proposition
+  professionals?: CompanyProfessional[]; // Top professionals with contact info
   confidence: number; // 0-100
 }
 
@@ -155,6 +165,7 @@ INSTRUCTIONS:
 6. Extract any VIDEO URL (YouTube, Vimeo, Loom, company website videos, etc.)
 7. Identify HIRING INTENT (e.g., "Expanding engineering team", "Seeking sales leadership", "Building AI/ML capabilities")
 8. Create a concise SALES PITCH (2-3 sentences) explaining why an AI/automation solution would benefit this company
+9. Extract TOP PROFESSIONALS: Find 3-5 key executives/decision makers with their contact information (Name, Role, Email if available, Phone if available, LinkedIn if available). Focus on C-level executives, VPs, Directors. Use typical email formats like firstname.lastname@domain.com or first@domain.com if exact email not found.
 
 Respond ONLY in this exact JSON format (no other text):
 {
@@ -166,14 +177,24 @@ Respond ONLY in this exact JSON format (no other text):
   "videoUrl": "video_url_or_null",
   "hiringIntent": "Hiring intent or null",
   "pitch": "Sales pitch for AI/automation solution",
+  "professionals": [
+    {
+      "firstName": "First",
+      "lastName": "Last",
+      "role": "Title/Position",
+      "email": "email@company.com or null",
+      "phone": "phone_number or null",
+      "linkedin": "linkedin_url or null"
+    }
+  ],
   "confidence": confidence_score_0_to_100
 }
 
-If you cannot find information, use your knowledge about the company or return null for that field. Set confidence based on available data quality.`;
+If you cannot find information, use your knowledge about the company or return null for that field. For professionals, if you know the company but don't have specific contact details, provide the typical executives for that type/size of company with estimated contact formats. Set confidence based on available data quality.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [
         {
           role: 'user',
@@ -198,6 +219,7 @@ If you cannot find information, use your knowledge about the company or return n
         videoUrl: result.videoUrl || undefined,
         hiringIntent: result.hiringIntent || undefined,
         pitch: result.pitch || undefined,
+        professionals: result.professionals || undefined,
         confidence: result.confidence || 50,
       };
     }

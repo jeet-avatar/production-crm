@@ -57,12 +57,74 @@ router.post('/companies/:id/enrich', async (req: Request, res: Response, next: N
       },
     });
 
-    logger.info(`Company enriched: ${company.name} (Confidence: ${enrichmentData.confidence}%)`);
+    // Create Contact records for extracted professionals
+    let createdProfessionals = 0;
+    if (enrichmentData.professionals && enrichmentData.professionals.length > 0) {
+      console.log(`👥 Creating ${enrichmentData.professionals.length} professional contacts...`);
+
+      for (const professional of enrichmentData.professionals) {
+        try {
+          // Check if contact already exists by email or name
+          const existingContact = professional.email
+            ? await prisma.contact.findFirst({
+                where: {
+                  companyId: company.id,
+                  userId: req.user?.id,
+                  OR: [
+                    { email: professional.email },
+                    {
+                      AND: [
+                        { firstName: professional.firstName },
+                        { lastName: professional.lastName },
+                      ],
+                    },
+                  ],
+                },
+              })
+            : await prisma.contact.findFirst({
+                where: {
+                  companyId: company.id,
+                  userId: req.user?.id,
+                  firstName: professional.firstName,
+                  lastName: professional.lastName,
+                },
+              });
+
+          if (!existingContact) {
+            await prisma.contact.create({
+              data: {
+                firstName: professional.firstName,
+                lastName: professional.lastName,
+                email: professional.email || undefined,
+                phone: professional.phone || undefined,
+                title: professional.role,
+                linkedin: professional.linkedin || undefined,
+                companyId: company.id,
+                userId: req.user!.id,
+                source: 'AI_ENRICHMENT',
+                isActive: true,
+              },
+            });
+            createdProfessionals++;
+            console.log(`   ✅ Created contact: ${professional.firstName} ${professional.lastName} (${professional.role})`);
+          } else {
+            console.log(`   ⏭️  Skipped duplicate: ${professional.firstName} ${professional.lastName}`);
+          }
+        } catch (contactError) {
+          console.error(`   ❌ Failed to create contact: ${professional.firstName} ${professional.lastName}`, contactError);
+        }
+      }
+
+      console.log(`✅ Created ${createdProfessionals} new professional contacts`);
+    }
+
+    logger.info(`Company enriched: ${company.name} (Confidence: ${enrichmentData.confidence}%, ${createdProfessionals} contacts created)`);
 
     res.json({
       message: 'Company enriched successfully',
       company: enrichedCompany,
       enrichmentData,
+      professionalsCreated: createdProfessionals,
     });
   } catch (error) {
     next(error);
