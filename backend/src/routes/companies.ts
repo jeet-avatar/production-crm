@@ -54,7 +54,11 @@ router.get('/', async (req, res, next) => {
       include: {
         _count: {
           select: {
-            contacts: true,
+            contacts: {
+              where: {
+                isActive: true,
+              },
+            },
           },
         },
         contacts: {
@@ -128,7 +132,11 @@ router.get('/:id', async (req, res, next) => {
         },
         _count: {
           select: {
-            contacts: true,
+            contacts: {
+              where: {
+                isActive: true,
+              },
+            },
             deals: true,
           },
         },
@@ -234,7 +242,11 @@ router.post('/', async (req, res, next) => {
       include: {
         _count: {
           select: {
-            contacts: true,
+            contacts: {
+              where: {
+                isActive: true,
+              },
+            },
           },
         },
       },
@@ -287,7 +299,11 @@ router.put('/:id', async (req, res, next) => {
       include: {
         _count: {
           select: {
-            contacts: true,
+            contacts: {
+              where: {
+                isActive: true,
+              },
+            },
           },
         },
       },
@@ -392,7 +408,11 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
           include: {
             _count: {
               select: {
-                contacts: true,
+                contacts: {
+                  where: {
+                    isActive: true,
+                  },
+                },
               },
             },
           },
@@ -514,7 +534,11 @@ router.post('/:id/upload-details', upload.single('file'), async (req, res, next)
       include: {
         _count: {
           select: {
-            contacts: true,
+            contacts: {
+              where: {
+                isActive: true,
+              },
+            },
           },
         },
       },
@@ -601,7 +625,11 @@ router.post('/:id/manual-update', async (req, res, next) => {
       include: {
         _count: {
           select: {
-            contacts: true,
+            contacts: {
+              where: {
+                isActive: true,
+              },
+            },
           },
         },
       },
