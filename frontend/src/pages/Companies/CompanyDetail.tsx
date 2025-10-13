@@ -519,6 +519,144 @@ export function CompanyDetail() {
             </div>
           )}
 
+          {/* 🚀 PREMIUM: SocialFlow Data Display */}
+          {company.socialFlowEnriched && company.socialFlowData && (
+            <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-xl shadow-lg border-2 border-yellow-400 mb-6">
+              <div className="flex items-center gap-2 mb-4">
+                <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
+                  <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-4a1 1 0 01-1-1V6a1 1 0 011-1z"/>
+                </svg>
+                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+                  SocialFlow Premium Intelligence ⭐
+                </h2>
+                <span className="ml-auto text-xs text-gray-500">
+                  Enriched: {new Date(company.socialFlowEnrichedAt).toLocaleDateString()}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Credit Rating */}
+                {company.socialFlowData.creditRating && (
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      📊 Credit Rating
+                    </h3>
+                    <div className="space-y-2">
+                      {typeof company.socialFlowData.creditRating === 'object' ? (
+                        Object.entries(company.socialFlowData.creditRating).map(([key, value]) => (
+                          <div key={key} className="flex justify-between">
+                            <span className="text-gray-600 capitalize">{key}:</span>
+                            <span className="font-semibold text-gray-900">{String(value)}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-600">{JSON.stringify(company.socialFlowData.creditRating)}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Social Media */}
+                {company.socialFlowData.socialMedia && (
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      🔗 Social Media Profiles
+                    </h3>
+                    <div className="space-y-2">
+                      {company.socialFlowData.socialMedia.twitter && (
+                        <a href={company.socialFlowData.socialMedia.twitter} target="_blank" rel="noopener noreferrer"
+                           className="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline">
+                          <span>🐦 Twitter/X</span>
+                        </a>
+                      )}
+                      {company.socialFlowData.socialMedia.facebook && (
+                        <a href={company.socialFlowData.socialMedia.facebook} target="_blank" rel="noopener noreferrer"
+                           className="flex items-center gap-2 text-blue-700 hover:text-blue-900 hover:underline">
+                          <span>👥 Facebook</span>
+                        </a>
+                      )}
+                      {company.socialFlowData.socialMedia.instagram && (
+                        <a href={company.socialFlowData.socialMedia.instagram} target="_blank" rel="noopener noreferrer"
+                           className="flex items-center gap-2 text-pink-600 hover:text-pink-800 hover:underline">
+                          <span>📸 Instagram</span>
+                        </a>
+                      )}
+                      {company.socialFlowData.socialMedia.youtube && (
+                        <a href={company.socialFlowData.socialMedia.youtube} target="_blank" rel="noopener noreferrer"
+                           className="flex items-center gap-2 text-red-600 hover:text-red-800 hover:underline">
+                          <span>📺 YouTube</span>
+                        </a>
+                      )}
+                      {!company.socialFlowData.socialMedia.twitter &&
+                       !company.socialFlowData.socialMedia.facebook &&
+                       !company.socialFlowData.socialMedia.instagram &&
+                       !company.socialFlowData.socialMedia.youtube && (
+                        <p className="text-gray-500 text-sm">No social media profiles found</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tech Stack */}
+                {company.socialFlowData.technographics && company.socialFlowData.technographics.length > 0 && (
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      💻 Technology Stack
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {company.socialFlowData.technographics.map((tech, i) => (
+                        <span key={i} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Revenue & Funding */}
+                {(company.socialFlowData.revenue || company.socialFlowData.funding) && (
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      💰 Financial Information
+                    </h3>
+                    <div className="space-y-2">
+                      {company.socialFlowData.revenue && (
+                        <div>
+                          <span className="text-gray-600">Revenue:</span>
+                          <p className="font-semibold text-gray-900">{company.socialFlowData.revenue}</p>
+                        </div>
+                      )}
+                      {company.socialFlowData.funding && (
+                        <div>
+                          <span className="text-gray-600">Funding:</span>
+                          <p className="font-semibold text-gray-900">{company.socialFlowData.funding}</p>
+                        </div>
+                      )}
+                      {company.socialFlowData.growth && (
+                        <div>
+                          <span className="text-gray-600">Growth Stage:</span>
+                          <p className="font-semibold text-gray-900">{company.socialFlowData.growth}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Employee Count */}
+                {company.socialFlowData.employees && (
+                  <div className="bg-white p-4 rounded-lg shadow-md col-span-1">
+                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                      👥 Employee Information
+                    </h3>
+                    <p className="text-2xl font-bold text-purple-600">{company.socialFlowData.employees}</p>
+                    <p className="text-gray-500 text-sm">Estimated employees</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Intent & Hiring Info */}
           {company.intent && (
             <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6">
