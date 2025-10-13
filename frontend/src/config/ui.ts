@@ -58,6 +58,7 @@ export const buttonStyles = {
     success: 'px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-500 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md active:scale-95',
     danger: 'px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white border-2 border-red-500 rounded-xl font-semibold hover:from-red-700 hover:to-orange-700 transition-all shadow-md active:scale-95',
     apollo: 'px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-2 border-purple-500 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-md active:scale-95',
+    socialFlow: 'px-5 py-2.5 bg-blue-400 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2',
   },
 };
 
