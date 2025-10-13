@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { XMarkIcon, UserCircleIcon, BuildingOfficeIcon, TagIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { contactsApi, tagsApi } from '../../services/api';
+import { validatePhoneNumber, validateEmail } from '../../utils/validation';
 
 interface Contact {
   id: string;
@@ -118,10 +119,24 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
       return;
     }
 
-    if (formData.email && !formData.email.includes('@')) {
-      setError('Please enter a valid email address');
-      setLoading(false);
-      return;
+    // Validate email if provided
+    if (formData.email && formData.email.trim()) {
+      const emailValidation = validateEmail(formData.email);
+      if (!emailValidation.isValid) {
+        setError(emailValidation.error || 'Invalid email address');
+        setLoading(false);
+        return;
+      }
+    }
+
+    // Validate phone number if provided
+    if (formData.phone && formData.phone.trim()) {
+      const phoneValidation = validatePhoneNumber(formData.phone);
+      if (!phoneValidation.isValid) {
+        setError(phoneValidation.error || 'Invalid phone number');
+        setLoading(false);
+        return;
+      }
     }
 
     try {
@@ -283,7 +298,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
 
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
+                    Phone Number <span className="text-gray-400 text-xs">(optional)</span>
                   </label>
                   <input
                     type="tel"
@@ -291,8 +306,11 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="(555) 123-4567 or +1-555-123-4567"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Formats: (555) 123-4567, 555-123-4567, +1-555-123-4567, +44 20 1234 5678
+                  </p>
                 </div>
               </div>
             </div>

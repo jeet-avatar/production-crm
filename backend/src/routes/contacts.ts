@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
 import multer from 'multer';
 import { parse } from 'csv-parse/sync';
+import { validatePhoneNumber, validateEmail, validateContactData } from '../utils/validation';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -149,13 +150,13 @@ router.post('/', async (req, res, next) => {
       tagIds = [],
     } = req.body;
 
-    // Validation
-    if (!firstName || !firstName.trim()) {
-      return res.status(400).json({ error: 'First name is required' });
-    }
-
-    if (!lastName || !lastName.trim()) {
-      return res.status(400).json({ error: 'Last name is required' });
+    // Validate contact data
+    const validation = validateContactData({ firstName, lastName, email, phone });
+    if (!validation.isValid) {
+      return res.status(400).json({
+        error: validation.errors.join(', '),
+        errors: validation.errors
+      });
     }
 
     // Create contact
@@ -239,6 +240,15 @@ router.put('/:id', async (req, res, next) => {
 
     if (!existingContact) {
       return res.status(404).json({ error: 'Contact not found' });
+    }
+
+    // Validate contact data
+    const validation = validateContactData({ firstName, lastName, email, phone });
+    if (!validation.isValid) {
+      return res.status(400).json({
+        error: validation.errors.join(', '),
+        errors: validation.errors
+      });
     }
 
     // Update contact
@@ -525,6 +535,28 @@ async function processCSVRecord(record: any, fieldMapping: Record<string, string
 
   if (!contactData.lastName) contactData.lastName = '';
 
+  // Validate phone number if provided
+  if (contactData.phone) {
+    const phoneValidation = validatePhoneNumber(contactData.phone);
+    if (!phoneValidation.isValid) {
+      return {
+        error: true,
+        message: `Invalid phone number for ${contactData.firstName} ${contactData.lastName}: ${phoneValidation.error}`
+      };
+    }
+  }
+
+  // Validate email if provided
+  if (contactData.email) {
+    const emailValidation = validateEmail(contactData.email);
+    if (!emailValidation.isValid) {
+      return {
+        error: true,
+        message: `Invalid email for ${contactData.firstName} ${contactData.lastName}: ${emailValidation.error}`
+      };
+    }
+  }
+
   // Check for duplicates
   const existing = await checkDuplicateContact(contactData, companyData, userId);
   if (existing) {
@@ -601,6 +633,11 @@ router.post('/csv-import', upload.array('files', 10), async (req, res, next) => 
 
           if (result.duplicate) {
             allDuplicates.push(result.identifier!);
+            continue;
+          }
+
+          if (result.error) {
+            allErrors.push(result.message!);
             continue;
           }
 
