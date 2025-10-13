@@ -389,6 +389,13 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
             userId,
             dataSource: 'csv_import',
           },
+          include: {
+            _count: {
+              select: {
+                contacts: true,
+              },
+            },
+          },
         });
 
         importedCompanies.push(company);
