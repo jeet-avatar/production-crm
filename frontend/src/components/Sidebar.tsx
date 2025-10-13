@@ -36,15 +36,14 @@ export function Sidebar({ user, onLogout }: SidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-gray-200 flex flex-col shadow-lg">
       {/* Logo Section with BrandMonkz Logo */}
-      <div className="p-6 border-b-2 border-gray-200 bg-white">
-        <div className="flex items-center">
+      <div className="p-4 border-b-2 border-gray-200 bg-white">
+        <div className="flex items-center justify-center">
           <img
             src="/logo.png"
             alt="BrandMonkz Logo"
-            className="h-12 w-auto object-contain"
+            className="h-8 w-auto max-w-full object-contain"
           />
         </div>
-        <p className="text-xs text-gray-500 font-medium mt-2 text-center">CRM Platform</p>
       </div>
 
       {/* Navigation */}
