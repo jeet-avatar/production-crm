@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeftIcon, 
-  PencilIcon, 
-  TrashIcon, 
-  EnvelopeIcon, 
-  PhoneIcon, 
+import {
+  ArrowLeftIcon,
+  PencilIcon,
+  TrashIcon,
+  EnvelopeIcon,
+  PhoneIcon,
   BuildingOfficeIcon,
   UserIcon,
   ClockIcon,
   ChatBubbleLeftIcon,
   DocumentTextIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import { contactsApi, activitiesApi } from '../../services/api';
 import { ContactForm } from './ContactForm';
@@ -69,6 +70,7 @@ export function ContactDetail() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
   const [showEditModal, setShowEditModal] = useState(false);
+  const [enriching, setEnriching] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -113,6 +115,41 @@ export function ContactDetail() {
   const handleEditClose = () => {
     setShowEditModal(false);
     loadContact();
+  };
+
+  const handleEnrich = async () => {
+    if (!contact) return;
+
+    try {
+      setEnriching(true);
+      setError('');
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/enrichment/contacts/${contact.id}/enrich`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('crmToken')}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to enrich contact');
+      }
+
+      const enrichmentResult = await response.json();
+
+      // Reload contact data
+      await loadContact();
+      setEnriching(false);
+
+      // Show success message
+      alert(`✅ Contact enriched successfully! Profile updated with LinkedIn data.`);
+    } catch (err: any) {
+      console.error('Error enriching contact:', err);
+      setError(err.message || 'Failed to enrich contact');
+      setEnriching(false);
+    }
   };
 
   if (loading) {
@@ -196,6 +233,14 @@ export function ContactDetail() {
           </div>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={handleEnrich}
+            disabled={enriching}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <SparklesIcon className="h-4 w-4" />
+            <span>{enriching ? 'Enriching...' : 'AI Enrich'}</span>
+          </button>
           <button
             onClick={() => setShowEditModal(true)}
             className="apple-button-primary flex items-center gap-2"

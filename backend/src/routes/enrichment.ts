@@ -4,7 +4,7 @@ import { prisma } from '../app';
 import { authenticate } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
-import { enrichCompanyWithAI } from '../services/aiEnrichment';
+import { enrichCompanyWithAI, enrichContactWithAI } from '../services/aiEnrichment';
 
 const router = Router();
 
@@ -158,6 +158,67 @@ router.post('/companies/bulk-enrich', async (req: Request, res: Response, next: 
     res.json({
       message: `Successfully enriched ${enrichedCount.count} companies`,
       count: enrichedCount.count,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Enrich a contact by ID
+router.post('/contacts/:id/enrich', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    // ✅ Verify ownership before enrichment
+    const contact = await prisma.contact.findFirst({
+      where: {
+        id,
+        userId: req.user?.id,
+      },
+    });
+
+    if (!contact) {
+      throw new AppError('Contact not found', 404);
+    }
+
+    // Use AI enrichment service
+    console.log(`\n🚀 Starting contact enrichment for: ${contact.firstName} ${contact.lastName}`);
+
+    const enrichmentData = await enrichContactWithAI(
+      contact.email || undefined,
+      `${contact.firstName} ${contact.lastName}`,
+      contact.linkedin || undefined
+    );
+
+    console.log(`✅ Contact enrichment complete with confidence: ${enrichmentData.confidence}%`);
+
+    // Update contact with enriched data
+    const enrichedContact = await prisma.contact.update({
+      where: { id },
+      data: {
+        firstName: enrichmentData.firstName || contact.firstName,
+        lastName: enrichmentData.lastName || contact.lastName,
+        email: enrichmentData.email || contact.email,
+        phone: enrichmentData.phone || contact.phone,
+        title: enrichmentData.title || contact.title,
+        linkedin: enrichmentData.linkedin || contact.linkedin,
+        location: enrichmentData.location || contact.location,
+        bio: enrichmentData.bio || contact.bio,
+        skills: enrichmentData.skills ? enrichmentData.skills.join(', ') : contact.skills,
+        notes: enrichmentData.experience && enrichmentData.education
+          ? `Experience: ${enrichmentData.experience.join('; ')}\n\nEducation: ${enrichmentData.education.join('; ')}`
+          : contact.notes,
+        enriched: true,
+        enrichedAt: new Date(),
+      },
+    });
+
+    logger.info(`Contact enriched: ${contact.firstName} ${contact.lastName} (Confidence: ${enrichmentData.confidence}%)`);
+
+    res.json({
+      message: 'Contact enriched successfully',
+      contact: enrichedContact,
+      enrichmentData,
     });
   } catch (error) {
     next(error);

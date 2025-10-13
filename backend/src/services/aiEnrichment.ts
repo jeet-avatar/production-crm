@@ -38,6 +38,24 @@ interface CompanyEnrichmentResult {
   confidence: number; // 0-100
 }
 
+interface ContactEnrichmentResult {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  title?: string;
+  linkedin?: string;
+  company?: string;
+  location?: string;
+  bio?: string;
+  skills?: string[];
+  experience?: string[];
+  education?: string[];
+  currentCompany?: string;
+  currentRole?: string;
+  confidence: number; // 0-100
+}
+
 /**
  * Scrape company website and use AI to extract information
  */
@@ -302,4 +320,128 @@ export async function bulkEnrichCompanies(
 
   console.log(`\n✨ Bulk enrichment complete! Processed ${results.size} companies.\n`);
   return results;
+}
+
+/**
+ * Enrich contact using LinkedIn profile and AI
+ */
+export async function enrichContactWithAI(
+  contactEmail?: string,
+  contactName?: string,
+  linkedinUrl?: string
+): Promise<ContactEnrichmentResult> {
+  console.log(`\n🤖 AI Contact Enrichment: ${contactName || contactEmail}`);
+
+  let scrapedContent = '';
+
+  // Step 1: Scrape LinkedIn profile if available
+  if (linkedinUrl) {
+    console.log(`   📡 Scraping LinkedIn: ${linkedinUrl}`);
+    scrapedContent += await scrapeLinkedIn(linkedinUrl);
+  }
+
+  // Step 2: Use Claude AI to extract structured contact data
+  console.log(`   🧠 Analyzing with Claude AI...`);
+  const enrichment = await extractContactDataWithAI(contactEmail, contactName, scrapedContent);
+
+  console.log(`   ✅ Contact enrichment complete - Confidence: ${enrichment.confidence}%`);
+  return enrichment;
+}
+
+/**
+ * Use Claude AI to extract structured contact data
+ */
+async function extractContactDataWithAI(
+  email?: string,
+  name?: string,
+  scrapedContent?: string
+): Promise<ContactEnrichmentResult> {
+  try {
+    const prompt = `You are a professional contact research analyst. Analyze the following information about a contact and extract structured data.
+
+CONTACT INFO:
+Email: ${email || 'Not provided'}
+Name: ${name || 'Not provided'}
+
+SCRAPED LINKEDIN/WEB CONTENT:
+${scrapedContent || 'No content available - use your knowledge if you recognize this person'}
+
+INSTRUCTIONS:
+Extract the following information:
+1. FULL NAME (First and Last name separately)
+2. EMAIL ADDRESS (if not provided, generate likely format using company domain)
+3. PHONE NUMBER (if available)
+4. CURRENT JOB TITLE
+5. LINKEDIN URL (full profile URL)
+6. CURRENT COMPANY NAME
+7. LOCATION (City, State/Country)
+8. PROFESSIONAL BIO (2-3 sentences)
+9. TOP SKILLS (up to 10 key skills)
+10. WORK EXPERIENCE (last 3-5 positions with company and role)
+11. EDUCATION (degrees, institutions)
+
+Respond ONLY in this exact JSON format (no other text):
+{
+  "firstName": "First name",
+  "lastName": "Last name",
+  "email": "email@company.com",
+  "phone": "phone_number_or_null",
+  "title": "Current Job Title",
+  "linkedin": "https://www.linkedin.com/in/profile-url",
+  "currentCompany": "Company Name",
+  "location": "City, State/Country",
+  "bio": "Professional bio",
+  "skills": ["Skill1", "Skill2", "Skill3"],
+  "experience": ["Company 1 - Role 1", "Company 2 - Role 2"],
+  "education": ["Degree - Institution", "Degree - Institution"],
+  "confidence": confidence_score_0_to_100
+}
+
+If you cannot find information, return null for that field. If you recognize the person from the email/name, use your knowledge. Set confidence based on data quality.`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2048,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    });
+
+    // Extract JSON from response
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+
+    // Try to parse JSON from response
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const result = JSON.parse(jsonMatch[0]);
+      return {
+        firstName: result.firstName || undefined,
+        lastName: result.lastName || undefined,
+        email: result.email || email || undefined,
+        phone: result.phone || undefined,
+        title: result.title || undefined,
+        linkedin: result.linkedin || undefined,
+        currentCompany: result.currentCompany || undefined,
+        location: result.location || undefined,
+        bio: result.bio || undefined,
+        skills: result.skills || undefined,
+        experience: result.experience || undefined,
+        education: result.education || undefined,
+        confidence: result.confidence || 50,
+      };
+    }
+
+    // Fallback if JSON parsing fails
+    return {
+      confidence: 20,
+    };
+  } catch (error) {
+    console.log(`   ❌ AI contact extraction failed: ${error.message}`);
+    return {
+      confidence: 0,
+    };
+  }
 }
