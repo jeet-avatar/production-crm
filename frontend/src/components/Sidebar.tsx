@@ -35,15 +35,14 @@ const navigation = [
 export function Sidebar({ user, onLogout }: SidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-gray-200 flex flex-col shadow-lg">
-      {/* Logo Section with BrandMonkz Logo */}
-      <div className="p-4 border-b-2 border-gray-200 bg-white">
-        <div className="flex items-center justify-center">
-          <img
-            src="/logo.png"
-            alt="BrandMonkz Logo"
-            className="h-16 w-auto max-w-full object-contain"
-          />
-        </div>
+      {/* Compact Logo */}
+      <div className="flex items-center justify-center py-3 px-4 border-b border-gray-100">
+        <img
+          src="/logo.png"
+          alt="BrandMonkz"
+          className="h-10 w-auto"
+          style={{ maxWidth: '140px' }}
+        />
       </div>
 
       {/* Navigation */}
