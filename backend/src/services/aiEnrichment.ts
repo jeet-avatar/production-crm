@@ -238,24 +238,31 @@ Respond ONLY in this exact JSON format (no other text):
   "confidence": confidence_score_0_to_100
 }
 
-CRITICAL: Extract MAXIMUM number of professionals (aim for 10-15). Search deeply through:
+CRITICAL INSTRUCTIONS FOR PROFESSIONALS:
+1. ONLY include professionals if you find ACTUAL REAL NAMES on the website, LinkedIn, or in your knowledge base
+2. DO NOT use placeholder names like "Unknown CEO", "Unknown CFO", etc.
+3. If you cannot find real names, return an EMPTY professionals array []
+4. Extract MAXIMUM number of professionals with REAL names (aim for 10-15 if available)
+
+Search deeply through:
 - Company website "Team", "About Us", "Leadership", "Contact" pages
 - LinkedIn company page employees section
-- Press releases and news articles mentioning executives
-- Any available directory or staff listing
+- Press releases and news articles mentioning executives by name
+- Any available directory or staff listing with actual names
 
-If exact contact info isn't available:
-1. Generate likely LinkedIn URLs: https://www.linkedin.com/in/firstname-lastname
-2. Generate likely email addresses using company domain
-3. Use your knowledge about the company to identify key decision makers
-4. For phone numbers: If you find a main company phone number, generate likely direct extensions:
-   - CEO/President: main number + ext. 100-199
+For professionals with REAL names found:
+1. Use their actual first and last names exactly as found
+2. Generate likely LinkedIn URLs: https://www.linkedin.com/in/firstname-lastname
+3. Generate likely email addresses: firstname.lastname@company-domain.com
+4. Generate phone extensions based on role:
+   - CEO/President: main number + ext. 100-199 (e.g., "555-123-4567 x101")
    - CFO/Controller: main number + ext. 200-299
    - CTO/IT Head: main number + ext. 300-399
    - VPs: main number + ext. 400-499
    - Directors: main number + ext. 500-599
    - Managers: main number + ext. 600-699
-   Example: If main number is (555) 123-4567, CEO would be "(555) 123-4567 x101"
+
+NEVER use "Unknown" or placeholder names. Return empty array if no real names found.
 
 Set confidence based on available data quality.`;
 
