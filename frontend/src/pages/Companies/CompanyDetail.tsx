@@ -161,10 +161,10 @@ export function CompanyDetail() {
       setEnriching(true);
       setError('');
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/companies/${company.id}/enrich`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/enrichment/companies/${company.id}/enrich`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('crmToken')}`,
           'Content-Type': 'application/json',
         },
       });
