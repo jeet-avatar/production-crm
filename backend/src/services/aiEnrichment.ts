@@ -50,16 +50,33 @@ export async function enrichCompanyWithAI(
 
   let scrapedContent = '';
 
-  // Step 1: Scrape website if available
-  if (website) {
-    console.log(`   📡 Scraping website: ${website}`);
-    scrapedContent += await scrapeWebsite(website);
-  }
-
-  // Step 2: Scrape LinkedIn if available
+  // Step 1: Scrape LinkedIn FIRST (priority for contact data)
   if (linkedin) {
     console.log(`   📡 Scraping LinkedIn: ${linkedin}`);
     scrapedContent += await scrapeLinkedIn(linkedin);
+  }
+
+  // Step 2: Scrape website (main page + team/about pages)
+  if (website) {
+    console.log(`   📡 Scraping website: ${website}`);
+    scrapedContent += await scrapeWebsite(website);
+
+    // Also try to scrape team/about/leadership pages
+    const teamUrls = [
+      '/team', '/about', '/about-us', '/leadership', '/people',
+      '/our-team', '/company', '/contact', '/about/team'
+    ];
+
+    for (const path of teamUrls) {
+      const teamUrl = website.replace(/\/$/, '') + path;
+      console.log(`   📡 Checking ${path} page...`);
+      const teamContent = await scrapeWebsite(teamUrl);
+      if (teamContent.length > 100) {
+        scrapedContent += '\n\n--- TEAM PAGE ---\n' + teamContent;
+        console.log(`   ✅ Found team page: ${path}`);
+        break; // Only use the first valid team page found
+      }
+    }
   }
 
   // Step 3: Use Claude AI to extract structured data
@@ -165,7 +182,15 @@ INSTRUCTIONS:
 6. Extract any VIDEO URL (YouTube, Vimeo, Loom, company website videos, etc.)
 7. Identify HIRING INTENT (e.g., "Expanding engineering team", "Seeking sales leadership", "Building AI/ML capabilities")
 8. Create a concise SALES PITCH (2-3 sentences) explaining why an AI/automation solution would benefit this company
-9. Extract TOP PROFESSIONALS: Find 3-5 key executives/decision makers with their contact information (Name, Role, Email if available, Phone if available, LinkedIn if available). Focus on C-level executives, VPs, Directors. Use typical email formats like firstname.lastname@domain.com or first@domain.com if exact email not found.
+9. Extract MAXIMUM PROFESSIONALS (10-15): Find as many key executives/decision makers as possible with their contact information (Name, Role, Email, Phone, LinkedIn). Prioritize:
+   - C-level executives (CEO, CTO, CFO, CMO, COO)
+   - VPs (VP of Sales, VP of Marketing, VP of Engineering, etc.)
+   - Directors and Department Heads
+   - Senior Managers in key departments
+
+   For LinkedIn: Always include full LinkedIn profile URLs in format https://www.linkedin.com/in/firstname-lastname
+   For Emails: Use company domain with formats: firstname.lastname@domain.com, first.last@domain.com, flast@domain.com
+   For Phones: Include if available from website or LinkedIn
 
 Respond ONLY in this exact JSON format (no other text):
 {
@@ -190,11 +215,22 @@ Respond ONLY in this exact JSON format (no other text):
   "confidence": confidence_score_0_to_100
 }
 
-If you cannot find information, use your knowledge about the company or return null for that field. For professionals, if you know the company but don't have specific contact details, provide the typical executives for that type/size of company with estimated contact formats. Set confidence based on available data quality.`;
+CRITICAL: Extract MAXIMUM number of professionals (aim for 10-15). Search deeply through:
+- Company website "Team", "About Us", "Leadership", "Contact" pages
+- LinkedIn company page employees section
+- Press releases and news articles mentioning executives
+- Any available directory or staff listing
+
+If exact contact info isn't available:
+1. Generate likely LinkedIn URLs: https://www.linkedin.com/in/firstname-lastname
+2. Generate likely email addresses using company domain
+3. Use your knowledge about the company to identify key decision makers
+
+Set confidence based on available data quality.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-5-20250929',
-      max_tokens: 2048,
+      max_tokens: 4096,
       messages: [
         {
           role: 'user',
