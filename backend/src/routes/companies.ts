@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticate } from '../middleware/auth';
+import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import multer from 'multer';
 import { parse } from 'csv-parse/sync';
 import { companyEnrichmentService } from '../services/companyEnrichment';
@@ -34,18 +34,38 @@ router.get('/', async (req, res, next) => {
     const limitNum = Number.parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    // Build where clause with user isolation
+    // Build where clause with team collaboration support
+    const accountOwnerId = getAccountOwnerId(req);
+    const userId = req.user?.id;
+
+    const teamAccessConditions = [
+      { userId: userId },
+      ...(req.user?.teamRole === 'OWNER' ? [{
+        user: {
+          OR: [
+            { id: accountOwnerId },
+            { accountOwnerId: accountOwnerId }
+          ]
+        }
+      }] : []),
+      { shares: { some: { userId: userId } } }
+    ];
+
     const where: any = {
       isActive: true,
-      userId: req.user?.id, // Only show companies owned by this user
+      AND: [
+        { OR: teamAccessConditions }
+      ]
     };
 
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { domain: { contains: search, mode: 'insensitive' } },
-        { industry: { contains: search, mode: 'insensitive' } },
-      ];
+      where.AND.push({
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { domain: { contains: search, mode: 'insensitive' } },
+          { industry: { contains: search, mode: 'insensitive' } },
+        ]
+      });
     }
 
     // Get companies with contact count and contact details

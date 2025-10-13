@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticate } from '../middleware/auth';
+import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { TwilioService } from '../services/twilio.service';
 import { EmailService } from '../services/email.service';
@@ -31,9 +31,25 @@ router.get('/', async (req, res, next) => {
     const limitNum = Number.parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    // Build where clause with user isolation
+    // Build where clause with team collaboration support
+    const accountOwnerId = getAccountOwnerId(req);
+    const userId = req.user?.id;
+
+    const teamAccessConditions = [
+      { userId: userId },
+      ...(req.user?.teamRole === 'OWNER' ? [{
+        user: {
+          OR: [
+            { id: accountOwnerId },
+            { accountOwnerId: accountOwnerId }
+          ]
+        }
+      }] : []),
+      { shares: { some: { userId: userId } } }
+    ];
+
     const where: any = {
-      userId: req.user?.id, // Only show activities owned by this user
+      OR: teamAccessConditions
     };
 
     if (contactId) {

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticate } from '../middleware/auth';
+import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import multer from 'multer';
 import { parse } from 'csv-parse/sync';
 import { validatePhoneNumber, validateEmail, validateContactData } from '../utils/validation';
@@ -36,18 +36,42 @@ router.get('/', async (req, res, next) => {
     const limitNum = Number.parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    // Build where clause with user isolation
+    // Build where clause with team collaboration support
+    const accountOwnerId = getAccountOwnerId(req);
+    const userId = req.user?.id;
+
+    // Team collaboration: Show contacts that are:
+    // 1. Owned by the user
+    // 2. Owned by team members (if user is account owner)
+    // 3. Shared with the user
+    const teamAccessConditions = [
+      { userId: userId }, // User's own contacts
+      ...(req.user?.teamRole === 'OWNER' ? [{
+        user: {
+          OR: [
+            { id: accountOwnerId },
+            { accountOwnerId: accountOwnerId }
+          ]
+        }
+      }] : []),
+      { shares: { some: { userId: userId } } } // Shared contacts
+    ];
+
     const where: any = {
       isActive: true,
-      userId: req.user?.id, // Only show contacts owned by this user
+      AND: [
+        { OR: teamAccessConditions }
+      ]
     };
 
     if (search) {
-      where.OR = [
-        { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-      ];
+      where.AND.push({
+        OR: [
+          { firstName: { contains: search, mode: 'insensitive' } },
+          { lastName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+        ]
+      });
     }
 
     if (status && status !== '') {

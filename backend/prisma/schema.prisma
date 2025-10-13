@@ -18,6 +18,11 @@ enum Role {
   USER
 }
 
+enum TeamRole {
+  OWNER
+  MEMBER
+}
+
 enum ContactStatus {
   LEAD
   PROSPECT
@@ -98,6 +103,15 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  // Team Collaboration Fields
+  teamRole       TeamRole @default(OWNER)
+  accountOwnerId String? // Reference to account owner (null if this user is owner)
+  invitedById    String? // Who invited this user
+  inviteToken    String?  @unique
+  inviteAccepted Boolean  @default(false)
+  invitedAt      DateTime?
+  acceptedAt     DateTime?
+
   // Relationships
   contacts           Contact[]
   companies          Company[]
@@ -112,6 +126,22 @@ model User {
   tags               Tag[]
   positions          Position[]
 
+  // Team relationships
+  accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
+  teamMembers    User[] @relation("AccountOwner")
+  invitedBy      User?  @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedMembers User[] @relation("InvitedBy")
+
+  // Shared data relationships
+  sharedContacts   ContactShare[]
+  sharedCompanies  CompanyShare[]
+  sharedDeals      DealShare[]
+  sharedActivities ActivityShare[]
+
+  @@index([accountOwnerId])
+  @@index([invitedById])
+  @@index([inviteToken])
+  @@index([teamRole])
   @@map("users")
 }
 
@@ -158,6 +188,7 @@ model Contact {
   emailLogs     EmailLog[]
   emailComposer EmailComposer[]
   positions     Position[] // Positions this contact is decision maker for
+  shares        ContactShare[] // Team members this contact is shared with
 
   @@index([email])
   @@index([userId])
@@ -246,6 +277,7 @@ model Company {
   deals     Deal[]
   campaigns CampaignCompany[]
   positions Position[]
+  shares    CompanyShare[] // Team members this company is shared with
 
   @@index([userId])
   @@index([domain])
@@ -278,6 +310,7 @@ model Deal {
   company    Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   activities Activity[]
+  shares     DealShare[] // Team members this deal is shared with
 
   @@index([userId])
   @@index([contactId])
@@ -373,6 +406,7 @@ model Activity {
   contact Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
   deal    Deal?    @relation(fields: [dealId], references: [id], onDelete: SetNull)
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shares  ActivityShare[] // Team members this activity is shared with
 
   @@index([userId])
   @@index([contactId])
@@ -792,4 +826,76 @@ model Position {
   @@index([hiringIntent])
   @@index([postedDate])
   @@map("positions")
+}
+
+// ===================================
+// TEAM COLLABORATION & SHARING MODELS
+// ===================================
+
+// Contact Sharing Model
+model ContactShare {
+  id        String   @id @default(cuid())
+  contactId String
+  userId    String
+  sharedAt  DateTime @default(now())
+  sharedBy  String
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([contactId, userId])
+  @@index([contactId])
+  @@index([userId])
+  @@map("contact_shares")
+}
+
+// Company Sharing Model
+model CompanyShare {
+  id        String   @id @default(cuid())
+  companyId String
+  userId    String
+  sharedAt  DateTime @default(now())
+  sharedBy  String
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([companyId])
+  @@index([userId])
+  @@map("company_shares")
+}
+
+// Deal Sharing Model
+model DealShare {
+  id       String   @id @default(cuid())
+  dealId   String
+  userId   String
+  sharedAt DateTime @default(now())
+  sharedBy String
+
+  deal Deal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([dealId, userId])
+  @@index([dealId])
+  @@index([userId])
+  @@map("deal_shares")
+}
+
+// Activity Sharing Model
+model ActivityShare {
+  id         String   @id @default(cuid())
+  activityId String
+  userId     String
+  sharedAt   DateTime @default(now())
+  sharedBy   String
+
+  activity Activity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, userId])
+  @@index([activityId])
+  @@index([userId])
+  @@map("activity_shares")
 }

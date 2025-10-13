@@ -39,6 +39,8 @@ import subscriptionRoutes from './routes/subscriptions';
 import pricingRoutes from './routes/pricing';
 import adminRoutes from './routes/admin';
 import verificationRoutes from './routes/verification';
+import teamRoutes from './routes/team';
+import sharingRoutes from './routes/sharing';
 // import godaddyRoutes from './routes/godaddy'; // Disabled - service not implemented
 
 const app = express();
@@ -262,6 +264,8 @@ app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/verification', verificationRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/sharing', sharingRoutes);
 // app.use('/api/godaddy', godaddyRoutes); // Disabled - service not implemented
 
 // 404 handler
