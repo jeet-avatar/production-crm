@@ -151,17 +151,9 @@ router.post('/:id/enrich', async (req, res, next) => {
     const userId = req.user!.id;
     const { id } = req.params;
 
-    console.log(`🔍 Enrichment request received for company ID: ${id}, User ID: ${userId}`);
-
     // Get company
     const company = await prisma.company.findFirst({
       where: { id, userId }
-    });
-
-    console.log(`📊 Company found:`, {
-      name: company?.name,
-      website: company?.website,
-      enrichmentStatus: company?.enrichmentStatus
     });
 
     if (!company) {
