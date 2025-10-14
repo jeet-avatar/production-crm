@@ -45,7 +45,8 @@ export function RemoveDuplicatesModal({ isOpen, onClose, onComplete }: RemoveDup
       setError('');
 
       const token = localStorage.getItem('crmToken');
-      const response = await fetch('http://localhost:3000/api/contacts/detect-duplicates', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/contacts/detect-duplicates`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -79,7 +80,8 @@ export function RemoveDuplicatesModal({ isOpen, onClose, onComplete }: RemoveDup
       setError('');
 
       const token = localStorage.getItem('crmToken');
-      const response = await fetch('http://localhost:3000/api/contacts/remove-duplicates', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/contacts/remove-duplicates`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

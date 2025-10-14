@@ -121,7 +121,7 @@ export function ActivitiesPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/activities', {
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/activities', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -148,7 +148,7 @@ export function ActivitiesPage() {
       const token = localStorage.getItem('crmToken');
       if (!token) return;
 
-      const response = await fetch('http://localhost:3000/api/activities', {
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/activities', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -239,7 +239,7 @@ export function ActivitiesPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/activities/${selectedActivity.id}/send-email`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/activities/${selectedActivity.id}/send-email`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -302,7 +302,7 @@ export function ActivitiesPage() {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/api/activities/${selectedActivity.id}/create-meeting`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/activities/${selectedActivity.id}/create-meeting`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -341,7 +341,7 @@ export function ActivitiesPage() {
       const token = localStorage.getItem('crmToken');
       if (!token) return;
 
-      const response = await fetch(`http://localhost:3000/api/activities/${activityId}/complete`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/activities/${activityId}/complete`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -17,7 +17,7 @@ export const createCheckoutSession = async (params: CheckoutSessionParams): Prom
     }
 
     // Call backend to create checkout session
-    const response = await fetch('http://localhost:3000/api/subscriptions/checkout', {
+    const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/subscriptions/checkout', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ export const createPortalSession = async (): Promise<void> => {
       throw new Error('Not authenticated');
     }
 
-    const response = await fetch('http://localhost:3000/api/subscriptions/portal', {
+    const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/subscriptions/portal', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

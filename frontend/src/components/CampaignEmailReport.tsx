@@ -58,7 +58,8 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
   const loadEmailLogs = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/api/campaigns/${campaignId}/email-logs`);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/campaigns/${campaignId}/email-logs`);
       const data = await response.json();
       setEmailLogs(data.emailLogs || []);
     } catch (error) {

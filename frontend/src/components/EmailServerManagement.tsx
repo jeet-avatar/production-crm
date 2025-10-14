@@ -61,7 +61,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
   const loadServers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/email-servers?userId=demo-user');
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/email-servers?userId=demo-user');
       const data = await response.json();
       setServers(data.servers || []);
     } catch (err) {
@@ -88,7 +88,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
       setError('');
       setLoading(true);
 
-      const response = await fetch('http://localhost:3000/api/email-servers', {
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/email-servers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -130,7 +130,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
       setError('');
       setLoading(true);
 
-      const response = await fetch(`http://localhost:3000/api/email-servers/${serverId}/test`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/email-servers/${serverId}/test`, {
         method: 'POST',
       });
 
@@ -154,7 +154,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
       setError('');
       setLoading(true);
 
-      const response = await fetch(`http://localhost:3000/api/email-servers/${serverId}/send-verification`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/email-servers/${serverId}/send-verification`, {
         method: 'POST',
       });
 
@@ -180,7 +180,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
       setError('');
       setLoading(true);
 
-      const response = await fetch(`http://localhost:3000/api/email-servers/${verifyingId}/verify`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/email-servers/${verifyingId}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: verificationCode }),
@@ -208,7 +208,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
     if (!confirm('Are you sure you want to delete this email configuration?')) return;
 
     try {
-      await fetch(`http://localhost:3000/api/email-servers/${serverId}`, {
+      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/email-servers/${serverId}`, {
         method: 'DELETE',
       });
       await loadServers();

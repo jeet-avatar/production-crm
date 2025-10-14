@@ -77,7 +77,7 @@ export default function CampaignAnalytics() {
 
   const loadAnalytics = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/tracking/analytics/${campaignId}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/tracking/analytics/${campaignId}`);
       if (!response.ok) throw new Error('Failed to load analytics');
       const data = await response.json();
       setAnalytics(data);

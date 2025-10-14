@@ -24,7 +24,7 @@ export function SubscriptionSuccess() {
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Verify the subscription was created
-        const response = await fetch('http://localhost:3000/api/subscriptions/me', {
+        const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/subscriptions/me', {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

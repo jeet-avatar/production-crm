@@ -53,7 +53,7 @@ export function TagsPage() {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/api/tags', {
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/tags', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export function TagsPage() {
       console.log('Creating tag with data:', formData);
       console.log('Token:', token ? 'exists' : 'missing');
 
-      const response = await fetch('http://localhost:3000/api/tags', {
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/tags', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -138,7 +138,7 @@ export function TagsPage() {
     try {
       setIsSaving(true);
       const token = localStorage.getItem('crmToken');
-      const response = await fetch(`http://localhost:3000/api/tags/${editingTag.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/tags/${editingTag.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -177,7 +177,7 @@ export function TagsPage() {
 
     try {
       const token = localStorage.getItem('crmToken');
-      const response = await fetch(`http://localhost:3000/api/tags/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/tags/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
