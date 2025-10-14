@@ -4,6 +4,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: 'USER' | 'ADMIN';
+  teamRole?: 'OWNER' | 'MEMBER';
   isActive: boolean;
   createdAt: string;
   updatedAt?: string;
