@@ -4,13 +4,13 @@
 import express from 'express';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
-import { authMiddleware } from '../middleware/auth.middleware';
+import { authenticate } from '../middleware/auth';
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
 // Apply authentication
-router.use(authMiddleware);
+router.use(authenticate);
 
 // ============================================
 // DISCOVER LEADS
