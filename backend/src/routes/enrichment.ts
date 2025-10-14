@@ -34,27 +34,42 @@ router.post('/companies/:id/enrich', async (req: Request, res: Response, next: N
     const enrichmentData = await enrichCompanyWithAI(
       company.name,
       company.website || undefined,
-      company.linkedin || undefined
+      company.linkedin || undefined,
+      company.location || undefined
     );
 
     console.log(`✅ Enrichment complete with confidence: ${enrichmentData.confidence}%`);
 
+    // Prepare update data
+    const updateData: any = {
+      enriched: true,
+      enrichedAt: new Date(),
+      industry: enrichmentData.industry || company.industry,
+      location: enrichmentData.headquarters || company.location,
+      description: enrichmentData.description || company.description,
+      employeeCount: enrichmentData.employeeCount || company.employeeCount,
+      foundedYear: enrichmentData.foundedYear || company.foundedYear,
+      videoUrl: enrichmentData.videoUrl || company.videoUrl,
+      hiringInfo: enrichmentData.hiringIntent || company.hiringInfo,
+      pitch: enrichmentData.pitch || company.pitch,
+      enrichmentData: enrichmentData as any,
+    };
+
+    // Add discovered URLs if found
+    if (enrichmentData.discoveredWebsite) {
+      updateData.website = enrichmentData.discoveredWebsite;
+      console.log(`   🔗 Discovered website: ${enrichmentData.discoveredWebsite}`);
+    }
+
+    if (enrichmentData.discoveredLinkedIn) {
+      updateData.linkedin = enrichmentData.discoveredLinkedIn;
+      console.log(`   🔗 Discovered LinkedIn: ${enrichmentData.discoveredLinkedIn}`);
+    }
+
     // Update company with enriched data
     const enrichedCompany = await prisma.company.update({
       where: { id },
-      data: {
-        enriched: true,
-        enrichedAt: new Date(),
-        industry: enrichmentData.industry || company.industry,
-        location: enrichmentData.headquarters || company.location,
-        description: enrichmentData.description || company.description,
-        employeeCount: enrichmentData.employeeCount || company.employeeCount,
-        foundedYear: enrichmentData.foundedYear || company.foundedYear,
-        videoUrl: enrichmentData.videoUrl || company.videoUrl,
-        hiringInfo: enrichmentData.hiringIntent || company.hiringInfo,
-        pitch: enrichmentData.pitch || company.pitch,
-        enrichmentData: enrichmentData as any,
-      },
+      data: updateData,
     });
 
     // Create Contact records for extracted professionals

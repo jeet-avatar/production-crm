@@ -366,9 +366,9 @@ export function CompanyDetail() {
               <button
                 type="button"
                 onClick={handleEnrich}
-                disabled={enriching || !company.website}
+                disabled={enriching}
                 className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                title={!company.website ? "Add a website URL to enable AI enrichment" : "AI Enrich Data"}
+                title={!company.website ? "AI will search the web and LinkedIn to find company information" : "AI Enrich Data - Scrape website and find key contacts"}
               >
                 {enriching ? (
                   <>

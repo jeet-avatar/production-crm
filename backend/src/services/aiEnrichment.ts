@@ -35,6 +35,8 @@ interface CompanyEnrichmentResult {
   hiringIntent?: string; // Why they're hiring
   pitch?: string; // Sales pitch/value proposition
   professionals?: CompanyProfessional[]; // Top professionals with contact info
+  discoveredWebsite?: string; // Website found through search
+  discoveredLinkedIn?: string; // LinkedIn found through search
   confidence: number; // 0-100
 }
 
@@ -57,27 +59,121 @@ interface ContactEnrichmentResult {
 }
 
 /**
+ * Search for company information on the web using Claude AI
+ */
+async function searchCompanyOnWeb(companyName: string, location?: string): Promise<{
+  website?: string;
+  linkedin?: string;
+  description?: string;
+}> {
+  console.log(`   🔍 Searching web for: ${companyName}${location ? ` in ${location}` : ''}`);
+
+  try {
+    const searchQuery = location
+      ? `${companyName} company ${location} official website LinkedIn`
+      : `${companyName} company official website LinkedIn`;
+
+    const prompt = `You are a company research assistant. Search your knowledge base for information about "${companyName}"${location ? ` located in ${location}` : ''}.
+
+Find and return:
+1. Official website URL
+2. LinkedIn company page URL (must be https://www.linkedin.com/company/...)
+3. Brief description of what the company does
+
+CRITICAL:
+- Verify this is the CORRECT company by matching the name AND location
+- LinkedIn URL is ESSENTIAL for verification - prioritize finding it
+- Return null for any field you cannot find with high confidence
+
+Respond ONLY in this exact JSON format:
+{
+  "website": "https://example.com or null",
+  "linkedin": "https://www.linkedin.com/company/... or null",
+  "description": "Brief description or null",
+  "confidence": confidence_score_0_to_100
+}`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+
+    if (jsonMatch) {
+      const result = JSON.parse(jsonMatch[0]);
+      console.log(`   ✅ Found: Website=${!!result.website}, LinkedIn=${!!result.linkedin}, Confidence=${result.confidence}%`);
+      return {
+        website: result.website || undefined,
+        linkedin: result.linkedin || undefined,
+        description: result.description || undefined,
+      };
+    }
+  } catch (error) {
+    console.log(`   ⚠️  Web search failed: ${error.message}`);
+  }
+
+  return {};
+}
+
+/**
  * Scrape company website and use AI to extract information
  */
 export async function enrichCompanyWithAI(
   companyName: string,
   website?: string,
-  linkedin?: string
+  linkedin?: string,
+  location?: string
 ): Promise<CompanyEnrichmentResult> {
   console.log(`\n🤖 AI Enrichment: ${companyName}`);
 
   let scrapedContent = '';
+  let foundWebsite = website;
+  let foundLinkedIn = linkedin;
 
-  // Step 1: Scrape LinkedIn FIRST (priority for contact data)
-  if (linkedin) {
-    console.log(`   📡 Scraping LinkedIn: ${linkedin}`);
-    scrapedContent += await scrapeLinkedIn(linkedin);
+  // Step 0: If no website or LinkedIn provided, search the web
+  if (!website && !linkedin) {
+    console.log(`   ⚠️  No website or LinkedIn provided - searching web...`);
+    const searchResults = await searchCompanyOnWeb(companyName, location);
+
+    if (searchResults.website) {
+      foundWebsite = searchResults.website;
+      console.log(`   ✅ Found website: ${foundWebsite}`);
+    }
+
+    if (searchResults.linkedin) {
+      foundLinkedIn = searchResults.linkedin;
+      console.log(`   ✅ Found LinkedIn: ${foundLinkedIn}`);
+    }
+
+    if (searchResults.description) {
+      scrapedContent += `\n\n--- WEB SEARCH DESCRIPTION ---\n${searchResults.description}\n`;
+    }
+
+    if (!foundWebsite && !foundLinkedIn) {
+      console.log(`   ❌ Could not find company information on the web`);
+      // Continue anyway - AI will use its knowledge base
+    }
+  }
+
+  // Step 1: Scrape LinkedIn FIRST (priority for verification and contact data)
+  if (foundLinkedIn) {
+    console.log(`   📡 Scraping LinkedIn: ${foundLinkedIn}`);
+    const linkedinContent = await scrapeLinkedIn(foundLinkedIn);
+    if (linkedinContent) {
+      scrapedContent += '\n\n--- LINKEDIN ---\n' + linkedinContent;
+    }
   }
 
   // Step 2: Scrape website (main page + team/about pages)
-  if (website) {
-    console.log(`   📡 Scraping website: ${website}`);
-    scrapedContent += await scrapeWebsite(website);
+  if (foundWebsite) {
+    console.log(`   📡 Scraping website: ${foundWebsite}`);
+    const mainContent = await scrapeWebsite(foundWebsite);
+    if (mainContent) {
+      scrapedContent += '\n\n--- WEBSITE ---\n' + mainContent;
+    }
 
     // Also try to scrape team/about/leadership pages
     const teamUrls = [
@@ -86,10 +182,10 @@ export async function enrichCompanyWithAI(
     ];
 
     for (const path of teamUrls) {
-      const teamUrl = website.replace(/\/$/, '') + path;
+      const teamUrl = foundWebsite.replace(/\/$/, '') + path;
       console.log(`   📡 Checking ${path} page...`);
       const teamContent = await scrapeWebsite(teamUrl);
-      if (teamContent.length > 100) {
+      if (teamContent && teamContent.length > 100) {
         scrapedContent += '\n\n--- TEAM PAGE ---\n' + teamContent;
         console.log(`   ✅ Found team page: ${path}`);
         break; // Only use the first valid team page found
@@ -99,7 +195,15 @@ export async function enrichCompanyWithAI(
 
   // Step 3: Use Claude AI to extract structured data
   console.log(`   🧠 Analyzing with Claude AI...`);
-  const enrichment = await extractDataWithAI(companyName, scrapedContent);
+  const enrichment = await extractDataWithAI(companyName, scrapedContent, location);
+
+  // Add discovered URLs to enrichment result
+  if (foundWebsite && !website) {
+    enrichment.discoveredWebsite = foundWebsite;
+  }
+  if (foundLinkedIn && !linkedin) {
+    enrichment.discoveredLinkedIn = foundLinkedIn;
+  }
 
   console.log(`   ✅ Enrichment complete - Confidence: ${enrichment.confidence}%`);
   return enrichment;
@@ -183,13 +287,16 @@ async function scrapeLinkedIn(url: string): Promise<string> {
  */
 async function extractDataWithAI(
   companyName: string,
-  scrapedContent: string
+  scrapedContent: string,
+  location?: string
 ): Promise<CompanyEnrichmentResult> {
   try {
-    const prompt = `You are a company research analyst. Analyze the following information about "${companyName}" and extract structured data.
+    const prompt = `You are a company research analyst. Analyze the following information about "${companyName}"${location ? ` (location: ${location})` : ''} and extract structured data.
 
 SCRAPED CONTENT:
-${scrapedContent || 'No content available - use your knowledge'}
+${scrapedContent || 'No content available - use your knowledge base'}
+
+${location ? `\nVERIFICATION: Ensure this is the correct company by verifying the location matches "${location}". If the location doesn't match, reduce confidence score.` : ''}
 
 INSTRUCTIONS:
 1. Determine the company's PRIMARY INDUSTRY (e.g., "Technology", "Healthcare", "Finance", "Manufacturing", "Retail", etc.)
