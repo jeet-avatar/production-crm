@@ -111,6 +111,7 @@ model User {
   inviteAccepted Boolean  @default(false)
   invitedAt      DateTime?
   acceptedAt     DateTime?
+  requirePasswordChange Boolean @default(false) // Force password change on next login
 
   // Relationships
   contacts           Contact[]

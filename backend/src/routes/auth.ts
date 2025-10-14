@@ -118,6 +118,9 @@ router.post('/login', validateLogin, async (req: Request, res: Response, next: N
 
     logger.info(`User logged in: ${email}`);
 
+    // Check if user needs to change password
+    const requirePasswordChange = user.requirePasswordChange || false;
+
     res.json({
       message: 'Login successful',
       user: {
@@ -128,6 +131,7 @@ router.post('/login', validateLogin, async (req: Request, res: Response, next: N
         role: user.role,
       },
       token,
+      requirePasswordChange, // Signal to frontend that password change is required
     });
   } catch (error) {
     next(error);
@@ -186,6 +190,65 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
     res.json({
       message: 'Token refreshed successfully',
       token: newToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Change password (requires authentication)
+router.post('/change-password', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = AuthUtils.extractTokenFromHeader(authHeader);
+
+    if (!token) {
+      throw new AppError('Authentication required', 401);
+    }
+
+    const payload = AuthUtils.verifyToken(token);
+    const { currentPassword, newPassword } = req.body;
+
+    // Validate input
+    if (!currentPassword || !newPassword) {
+      throw new AppError('Current password and new password are required', 400);
+    }
+
+    if (newPassword.length < 8) {
+      throw new AppError('New password must be at least 8 characters long', 400);
+    }
+
+    // Get user
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    });
+
+    if (!user || !user.isActive) {
+      throw new AppError('User not found', 404);
+    }
+
+    // Verify current password
+    const isValidPassword = await AuthUtils.comparePassword(currentPassword, user.passwordHash);
+    if (!isValidPassword) {
+      throw new AppError('Current password is incorrect', 401);
+    }
+
+    // Hash new password
+    const newPasswordHash = await AuthUtils.hashPassword(newPassword);
+
+    // Update password and clear requirePasswordChange flag
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: newPasswordHash,
+        requirePasswordChange: false,
+      },
+    });
+
+    logger.info(`Password changed for user: ${user.email}`);
+
+    res.json({
+      message: 'Password changed successfully',
     });
   } catch (error) {
     next(error);

@@ -29,6 +29,7 @@ const navigation = [
   { name: 'Analytics', href: '/analytics', icon: ChartBarSquareIcon },
   { name: 'Tags', href: '/tags', icon: TagIcon },
   { name: 'Campaigns', href: '/campaigns', icon: MegaphoneIcon },
+  { name: 'Team', href: '/team', icon: UserCircleIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];
 

@@ -6,7 +6,126 @@ import crypto from 'crypto';
 
 const router = Router();
 
-// All routes require authentication
+/**
+ * GET /api/team/verify-invite/:token
+ * Verify invitation token and get user info (PUBLIC - no auth required)
+ */
+router.get('/verify-invite/:token', async (req, res, next) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      throw new AppError('Invite token is required', 400);
+    }
+
+    // Find user with this invite token
+    const user = await prisma.user.findUnique({
+      where: { inviteToken: token },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        inviteAccepted: true,
+        invitedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new AppError('Invalid invite token', 404);
+    }
+
+    if (user.inviteAccepted) {
+      throw new AppError('Invitation already accepted', 400);
+    }
+
+    // Check if token is expired (7 days)
+    const invitedAt = new Date(user.invitedAt!);
+    const expiresAt = new Date(invitedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+    if (new Date() > expiresAt) {
+      throw new AppError('Invitation has expired', 400);
+    }
+
+    res.json({
+      message: 'Valid invitation',
+      user: {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/team/accept-invite
+ * Accept team invitation and set password (PUBLIC - no auth required)
+ * Body: { inviteToken: string, password: string }
+ */
+router.post('/accept-invite', async (req, res, next) => {
+  try {
+    const { inviteToken, password } = req.body;
+
+    // Validate input
+    if (!inviteToken || !password) {
+      throw new AppError('Invite token and password are required', 400);
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      throw new AppError('Password must be at least 8 characters long', 400);
+    }
+
+    // Find user with this invite token
+    const user = await prisma.user.findUnique({
+      where: { inviteToken },
+    });
+
+    if (!user) {
+      throw new AppError('Invalid invite token', 400);
+    }
+
+    if (user.inviteAccepted) {
+      throw new AppError('Invitation already accepted', 400);
+    }
+
+    // Hash new password
+    const bcrypt = require('bcryptjs');
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Update user - mark for password change on first login
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        inviteAccepted: true,
+        acceptedAt: new Date(),
+        inviteToken: null, // Clear token after acceptance
+        requirePasswordChange: true, // Force password change on first login
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        teamRole: true,
+        inviteAccepted: true,
+        acceptedAt: true,
+      },
+    });
+
+    res.json({
+      message: 'Invitation accepted successfully. Please log in with your new password.',
+      user: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// All routes below require authentication
 router.use(authenticate);
 
 /**
@@ -132,66 +251,6 @@ router.post('/invite', async (req, res, next) => {
       message: 'Team member invited successfully',
       teamMember: newUser,
       inviteToken, // Temporary - will be sent via email in production
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * POST /api/team/accept-invite
- * Accept team invitation and set password
- * Body: { inviteToken: string, password: string }
- */
-router.post('/accept-invite', async (req, res, next) => {
-  try {
-    const { inviteToken, password } = req.body;
-
-    // Validate input
-    if (!inviteToken || !password) {
-      throw new AppError('Invite token and password are required', 400);
-    }
-
-    // Find user with this invite token
-    const user = await prisma.user.findUnique({
-      where: { inviteToken },
-    });
-
-    if (!user) {
-      throw new AppError('Invalid invite token', 400);
-    }
-
-    if (user.inviteAccepted) {
-      throw new AppError('Invitation already accepted', 400);
-    }
-
-    // Hash new password
-    const bcrypt = require('bcryptjs');
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    // Update user
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        passwordHash,
-        inviteAccepted: true,
-        acceptedAt: new Date(),
-        inviteToken: null, // Clear token after acceptance
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        teamRole: true,
-        inviteAccepted: true,
-        acceptedAt: true,
-      },
-    });
-
-    res.json({
-      message: 'Invitation accepted successfully',
-      user: updatedUser,
     });
   } catch (error) {
     next(error);

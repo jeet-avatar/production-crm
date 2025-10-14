@@ -5,6 +5,7 @@ import { Layout } from './components/Layout';
 import { LoginPage } from './pages/Auth/LoginPage';
 import { SignupPage } from './pages/Auth/SignupPage';
 import { OAuthCallback } from './pages/Auth/OAuthCallback';
+import { ChangePasswordPage } from './pages/Auth/ChangePasswordPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ContactList } from './pages/Contacts/ContactList';
 import { ContactDetail } from './pages/Contacts/ContactDetail';
@@ -17,6 +18,8 @@ import { TagsPage } from './pages/Tags/TagsPage';
 import { CampaignsPage } from './pages/Campaigns/CampaignsPage';
 import CampaignAnalytics from './pages/Campaigns/CampaignAnalytics';
 import { SettingsPage } from './pages/Settings/SettingsPage';
+import { TeamPage } from './pages/Team/TeamPage';
+import { AcceptInvitePage } from './pages/Auth/AcceptInvitePage';
 import PricingPage from './pages/Pricing/PricingPage';
 import { SubscriptionSuccess } from './pages/Subscription/SubscriptionSuccess';
 import type { User } from './types';
@@ -78,8 +81,12 @@ function App() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
+          <Route path="/accept-invite" element={<AcceptInvitePage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
+
+          {/* Change password route - requires authentication but accessible before other routes */}
+          {user && <Route path="/change-password" element={<ChangePasswordPage />} />}
 
           {/* Login route */}
           {!user && <Route path="*" element={<Navigate to="/login" replace />} />}
@@ -99,6 +106,7 @@ function App() {
               <Route path="campaigns" element={<CampaignsPage />} />
               <Route path="campaigns/:campaignId/analytics" element={<CampaignAnalytics />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="team" element={<TeamPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           )}

@@ -55,7 +55,13 @@ export function LoginPage() {
 
       localStorage.setItem('crmToken', data.token);
       localStorage.setItem('crmUser', JSON.stringify(data.user));
-      window.location.reload();
+
+      // Check if user needs to change password
+      if (data.requirePasswordChange) {
+        window.location.href = '/change-password';
+      } else {
+        window.location.reload();
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.message || 'Failed to login. Please try again.');
@@ -121,17 +127,20 @@ export function LoginPage() {
             )}
 
             {/* Login Form */}
-            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit} autoComplete="off">
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="login-email" className="block text-sm font-semibold text-gray-700 mb-2">
                   Email address
                 </label>
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id="login-email"
+                  name="login-email"
+                  type="text"
+                  autoComplete="new-password"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck="false"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -142,15 +151,18 @@ export function LoginPage() {
 
               {/* Password Input */}
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="login-password" className="block text-sm font-semibold text-gray-700 mb-2">
                   Password
                 </label>
                 <div className="relative">
                   <input
-                    id="password"
-                    name="password"
+                    id="login-password"
+                    name="login-password"
                     type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
