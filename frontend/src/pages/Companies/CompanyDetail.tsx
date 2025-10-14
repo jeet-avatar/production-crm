@@ -24,6 +24,7 @@ import { companiesApi } from '../../services/api';
 import { CompanyForm } from './CompanyForm';
 import { CampaignSelectModal } from '../../components/CampaignSelectModal';
 import { AssignmentDropdown } from '../../components/AssignmentDropdown';
+import { LinkedInEmployeeList } from '../../components/LinkedInEmployeeList';
 import { buttonStyles } from '../../config/ui';
 
 interface Contact {
@@ -568,6 +569,15 @@ export function CompanyDetail() {
             currentAssignedTo={company.assignedTo}
             onAssignmentChange={loadCompanyDetails}
           />
+
+          {/* LinkedIn Employees */}
+          <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+            <LinkedInEmployeeList
+              companyId={company.id}
+              companyName={company.name}
+              linkedinUrl={company.linkedin}
+            />
+          </div>
 
           {/* 🚀 PREMIUM: SocialFlow Data Display */}
           {company.socialFlowEnriched && company.socialFlowData && (

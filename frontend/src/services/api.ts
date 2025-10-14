@@ -95,6 +95,22 @@ export const companiesApi = {
     const response = await apiClient.delete(`/companies/${id}`);
     return response.data;
   },
+
+  // LinkedIn Employee Data
+  getCompanyEmployees: async (id: string, params?: { limit?: number; enrich?: boolean }) => {
+    const response = await apiClient.get(`/companies/${id}/employees`, { params });
+    return response.data;
+  },
+
+  importEmployeesAsContacts: async (id: string, employeeUrls: string[]) => {
+    const response = await apiClient.post(`/companies/${id}/employees/import`, { employeeUrls });
+    return response.data;
+  },
+
+  checkProxycurlCredits: async () => {
+    const response = await apiClient.get('/companies/proxycurl/credits');
+    return response.data;
+  },
 };
 
 // Deals API
