@@ -868,4 +868,199 @@ router.post('/remove-duplicates', async (req, res, next) => {
   }
 });
 
+// ==========================================
+// ASSIGNMENT ENDPOINTS
+// ==========================================
+
+// GET /api/contacts/assigned-to-me - Get all contacts assigned to current user
+// NOTE: This must come BEFORE /:id routes to avoid route conflict
+router.get('/assigned-to-me', async (req, res, next) => {
+  try {
+    const userId = req.user!.id;
+
+    const {
+      page = '1',
+      limit = '10'
+    } = req.query as {
+      page?: string;
+      limit?: string;
+    };
+
+    const pageNum = Number.parseInt(page);
+    const limitNum = Number.parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    const contacts = await prisma.contact.findMany({
+      where: {
+        assignedToId: userId,
+        isActive: true
+      },
+      include: {
+        company: true,
+        tags: {
+          include: { tag: true }
+        },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limitNum
+    });
+
+    const total = await prisma.contact.count({
+      where: {
+        assignedToId: userId,
+        isActive: true
+      }
+    });
+
+    res.json({
+      contacts,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/contacts/bulk-assign - Bulk assign multiple contacts to a team member
+router.post('/bulk-assign', async (req, res, next) => {
+  try {
+    const { contactIds, assignToUserId } = req.body;
+    const userId = req.user!.id;
+    const accountOwnerId = getAccountOwnerId(req);
+
+    if (!contactIds || !Array.isArray(contactIds) || contactIds.length === 0) {
+      return res.status(400).json({ error: 'contactIds array is required' });
+    }
+
+    if (!assignToUserId) {
+      return res.status(400).json({ error: 'assignToUserId is required' });
+    }
+
+    // Verify that assignToUserId is a team member
+    const targetUser = await prisma.user.findUnique({
+      where: { id: assignToUserId }
+    });
+
+    if (!targetUser || (targetUser.accountOwnerId !== accountOwnerId && targetUser.id !== accountOwnerId)) {
+      return res.status(400).json({ error: 'Target user is not in your team' });
+    }
+
+    // Only update contacts that user owns or is account owner
+    const whereClause = req.user?.teamRole === 'OWNER'
+      ? { id: { in: contactIds } }
+      : { id: { in: contactIds }, userId };
+
+    const result = await prisma.contact.updateMany({
+      where: whereClause,
+      data: { assignedToId: assignToUserId }
+    });
+
+    res.json({
+      message: 'Contacts assigned successfully',
+      assignedCount: result.count
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/contacts/:id/assign - Assign contact to a team member
+router.post('/:id/assign', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { assignToUserId } = req.body;
+    const userId = req.user!.id;
+    const accountOwnerId = getAccountOwnerId(req);
+
+    if (!assignToUserId) {
+      return res.status(400).json({ error: 'assignToUserId is required' });
+    }
+
+    // Check if contact exists and user has permission
+    const contact = await prisma.contact.findUnique({
+      where: { id }
+    });
+
+    if (!contact) {
+      return res.status(404).json({ error: 'Contact not found' });
+    }
+
+    // Only owner or contact creator can assign
+    if (contact.userId !== userId && req.user?.teamRole !== 'OWNER') {
+      return res.status(403).json({ error: 'You do not have permission to assign this contact' });
+    }
+
+    // Verify that assignToUserId is a team member
+    const targetUser = await prisma.user.findUnique({
+      where: { id: assignToUserId }
+    });
+
+    if (!targetUser || targetUser.accountOwnerId !== accountOwnerId) {
+      return res.status(400).json({ error: 'Target user is not in your team' });
+    }
+
+    // Assign the contact
+    const updatedContact = await prisma.contact.update({
+      where: { id },
+      data: { assignedToId: assignToUserId }
+    });
+
+    res.json({
+      message: 'Contact assigned successfully',
+      contact: updatedContact
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/contacts/:id/unassign - Unassign contact from team member
+router.post('/:id/unassign', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.id;
+
+    // Check if contact exists and user has permission
+    const contact = await prisma.contact.findUnique({
+      where: { id }
+    });
+
+    if (!contact) {
+      return res.status(404).json({ error: 'Contact not found' });
+    }
+
+    // Only owner or contact creator can unassign
+    if (contact.userId !== userId && req.user?.teamRole !== 'OWNER') {
+      return res.status(403).json({ error: 'You do not have permission to unassign this contact' });
+    }
+
+    // Unassign the contact
+    const updatedContact = await prisma.contact.update({
+      where: { id },
+      data: { assignedToId: null }
+    });
+
+    res.json({
+      message: 'Contact unassigned successfully',
+      contact: updatedContact
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

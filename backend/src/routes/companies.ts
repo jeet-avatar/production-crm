@@ -753,4 +753,201 @@ function parseCompanyData(record: any, fieldMapping: Record<string, string>): an
   return companyData;
 }
 
+// ==========================================
+// ASSIGNMENT ENDPOINTS
+// ==========================================
+
+// GET /api/companies/assigned-to-me - Get all companies assigned to current user
+// NOTE: This must come BEFORE /:id routes to avoid route conflict
+router.get('/assigned-to-me', async (req, res, next) => {
+  try {
+    const userId = req.user!.id;
+
+    const {
+      page = '1',
+      limit = '10'
+    } = req.query as {
+      page?: string;
+      limit?: string;
+    };
+
+    const pageNum = Number.parseInt(page);
+    const limitNum = Number.parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    const companies = await prisma.company.findMany({
+      where: {
+        assignedToId: userId,
+        isActive: true
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        },
+        _count: {
+          select: {
+            contacts: true,
+            deals: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limitNum
+    });
+
+    const total = await prisma.company.count({
+      where: {
+        assignedToId: userId,
+        isActive: true
+      }
+    });
+
+    res.json({
+      companies,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/companies/bulk-assign - Bulk assign multiple companies to a team member
+router.post('/bulk-assign', async (req, res, next) => {
+  try {
+    const { companyIds, assignToUserId } = req.body;
+    const userId = req.user!.id;
+    const accountOwnerId = getAccountOwnerId(req);
+
+    if (!companyIds || !Array.isArray(companyIds) || companyIds.length === 0) {
+      return res.status(400).json({ error: 'companyIds array is required' });
+    }
+
+    if (!assignToUserId) {
+      return res.status(400).json({ error: 'assignToUserId is required' });
+    }
+
+    // Verify that assignToUserId is a team member
+    const targetUser = await prisma.user.findUnique({
+      where: { id: assignToUserId }
+    });
+
+    if (!targetUser || (targetUser.accountOwnerId !== accountOwnerId && targetUser.id !== accountOwnerId)) {
+      return res.status(400).json({ error: 'Target user is not in your team' });
+    }
+
+    // Only update companies that user owns or is account owner
+    const whereClause = req.user?.teamRole === 'OWNER'
+      ? { id: { in: companyIds } }
+      : { id: { in: companyIds }, userId };
+
+    const result = await prisma.company.updateMany({
+      where: whereClause,
+      data: { assignedToId: assignToUserId }
+    });
+
+    res.json({
+      message: 'Companies assigned successfully',
+      assignedCount: result.count
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/companies/:id/assign - Assign company to a team member
+router.post('/:id/assign', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { assignToUserId } = req.body;
+    const userId = req.user!.id;
+    const accountOwnerId = getAccountOwnerId(req);
+
+    if (!assignToUserId) {
+      return res.status(400).json({ error: 'assignToUserId is required' });
+    }
+
+    // Check if company exists and user has permission
+    const company = await prisma.company.findUnique({
+      where: { id }
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    // Only owner or company creator can assign
+    if (company.userId !== userId && req.user?.teamRole !== 'OWNER') {
+      return res.status(403).json({ error: 'You do not have permission to assign this company' });
+    }
+
+    // Verify that assignToUserId is a team member
+    const targetUser = await prisma.user.findUnique({
+      where: { id: assignToUserId }
+    });
+
+    if (!targetUser || targetUser.accountOwnerId !== accountOwnerId) {
+      return res.status(400).json({ error: 'Target user is not in your team' });
+    }
+
+    // Assign the company
+    const updatedCompany = await prisma.company.update({
+      where: { id },
+      data: { assignedToId: assignToUserId }
+    });
+
+    res.json({
+      message: 'Company assigned successfully',
+      company: updatedCompany
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/companies/:id/unassign - Unassign company from team member
+router.post('/:id/unassign', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.id;
+
+    // Check if company exists and user has permission
+    const company = await prisma.company.findUnique({
+      where: { id }
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    // Only owner or company creator can unassign
+    if (company.userId !== userId && req.user?.teamRole !== 'OWNER') {
+      return res.status(403).json({ error: 'You do not have permission to unassign this company' });
+    }
+
+    // Unassign the company
+    const updatedCompany = await prisma.company.update({
+      where: { id },
+      data: { assignedToId: null }
+    });
+
+    res.json({
+      message: 'Company unassigned successfully',
+      company: updatedCompany
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
