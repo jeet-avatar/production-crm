@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, BuildingOfficeIcon, PaperAirplaneIcon, ArrowUpTrayIcon, SparklesIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, BuildingOfficeIcon, PaperAirplaneIcon, ArrowUpTrayIcon, SparklesIcon, PencilIcon, FunnelIcon, XMarkIcon, ArrowsUpDownIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { companiesApi, enrichmentApi } from '../../services/api';
 import { CompanyForm } from './CompanyForm';
 import { CampaignSelectModal } from '../../components/CampaignSelectModal';
@@ -50,15 +50,27 @@ export function CompanyList() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showLeadDiscovery, setShowLeadDiscovery] = useState(false);
   const [enriching, setEnriching] = useState(false);
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [industryFilter, setIndustryFilter] = useState<string>('');
+  const [showFilters, setShowFilters] = useState(false);
 
   const loadCompanies = async () => {
     try {
       setLoading(true);
-      const response = await companiesApi.getAll({
+      const params: any = {
         search: searchTerm,
         page: currentPage,
         limit: companiesPerPage,
-      });
+        sortBy,
+        sortOrder,
+      };
+
+      if (industryFilter) {
+        params.industry = industryFilter;
+      }
+
+      const response = await companiesApi.getAll(params);
 
       setCompanies(response.companies || []);
       setTotalCompanies(response.total || 0);
@@ -72,7 +84,25 @@ export function CompanyList() {
 
   useEffect(() => {
     loadCompanies();
-  }, [searchTerm, currentPage]);
+  }, [searchTerm, currentPage, sortBy, sortOrder, industryFilter]);
+
+  const handleSortChange = (field: string) => {
+    if (sortBy === field) {
+      // Toggle sort order if clicking the same field
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New field, default to ascending for name/industry, descending for others
+      setSortBy(field);
+      setSortOrder(field === 'name' || field === 'industry' ? 'asc' : 'desc');
+    }
+  };
+
+  const clearFilters = () => {
+    setSortBy('createdAt');
+    setSortOrder('desc');
+    setIndustryFilter('');
+    setSearchTerm('');
+  };
 
   const handleDeleteCompany = async (id: string) => {
     if (!confirm('Are you sure you want to delete this company?')) return;
@@ -184,18 +214,127 @@ export function CompanyList() {
           </div>
         </div>
 
-        {/* Search Filter */}
-        <div className="p-6 border-b border-gray-200 bg-gray-50">
-          <div className="relative max-w-md">
-            <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search companies..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field pl-10"
-            />
+        {/* Search and Filters */}
+        <div className="p-6 border-b border-gray-200 bg-gray-50 space-y-4">
+          <div className="flex items-center gap-4">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search companies..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input-field pl-10"
+              />
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-semibold text-gray-700">Sort by:</label>
+              <select
+                value={sortBy}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              >
+                <option value="createdAt">Recently Added</option>
+                <option value="name">Alphabetical (A-Z)</option>
+                <option value="industry">Industry</option>
+                <option value="employeeCount">Employee Count</option>
+                <option value="foundedYear">Founded Year</option>
+              </select>
+
+              {/* Sort Order Toggle */}
+              <button
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+              >
+                {sortOrder === 'asc' ? (
+                  <ChevronUpIcon className="w-5 h-5 text-gray-600" />
+                ) : (
+                  <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                )}
+              </button>
+            </div>
+
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`px-4 py-2 flex items-center gap-2 rounded-lg font-semibold transition-all ${
+                showFilters
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <FunnelIcon className="w-4 h-4" />
+              Filters
+              {industryFilter && (
+                <span className="px-2 py-0.5 bg-white text-blue-600 rounded-full text-xs font-bold">
+                  1
+                </span>
+              )}
+            </button>
+
+            {/* Clear Filters */}
+            {(searchTerm || industryFilter || sortBy !== 'createdAt') && (
+              <button
+                onClick={clearFilters}
+                className="px-4 py-2 flex items-center gap-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-all"
+              >
+                <XMarkIcon className="w-4 h-4" />
+                Clear All
+              </button>
+            )}
           </div>
+
+          {/* Advanced Filters Panel */}
+          {showFilters && (
+            <div className="p-4 bg-white border-2 border-gray-200 rounded-xl space-y-4">
+              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <FunnelIcon className="w-4 h-4" />
+                Advanced Filters
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Industry Filter */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Industry
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Technology, Healthcare"
+                    value={industryFilter}
+                    onChange={(e) => setIndustryFilter(e.target.value)}
+                    className="input-field text-sm"
+                  />
+                </div>
+
+                {/* Quick Industry Tags */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Quick Select
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail', 'Education'].map((ind) => (
+                      <button
+                        key={ind}
+                        onClick={() => setIndustryFilter(ind)}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                          industryFilter === ind
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {ind}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Error Message */}
