@@ -30,6 +30,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
   const [error, setError] = useState('');
   const [importingId, setImportingId] = useState<string | null>(null);
   const [importedIds, setImportedIds] = useState<Set<string>>(new Set());
+  const [infoMessage, setInfoMessage] = useState('');
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +42,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
 
     setLoading(true);
     setError('');
+    setInfoMessage('');
     setLeads([]);
 
     try {
@@ -60,17 +62,23 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
       });
 
       if (!response.ok) {
-        throw new Error('Failed to discover leads');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to discover leads');
       }
 
       const data = await response.json();
       setLeads(data.leads || []);
 
+      // Show info message if using mock data
+      if (data.source === 'mock' && data.message) {
+        setInfoMessage(data.message);
+      }
+
       if (!data.leads || data.leads.length === 0) {
         setError('No leads found. Try different search criteria.');
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to discover leads');
+      setError(err.message || 'The lead discovery service is temporarily unavailable. Please try again later.');
       console.error('Lead discovery error:', err);
     } finally {
       setLoading(false);
@@ -241,6 +249,13 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
           {error && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {error}
+            </div>
+          )}
+
+          {infoMessage && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm flex items-start gap-2">
+              <span className="text-lg">ℹ️</span>
+              <span>{infoMessage}</span>
             </div>
           )}
         </div>
