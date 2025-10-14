@@ -95,6 +95,8 @@ const dataSourceLabels: Record<string, { label: string; icon: string }> = {
   csv_import: { label: 'Manual Research', icon: '📄' },
   ai_enrichment: { label: 'AI Enrichment', icon: '✨' },
   lead_discovery: { label: 'Lead Discovery', icon: '🎯' },
+  manual_contact: { label: 'Added via Contact', icon: '👤' },
+  socialflow: { label: 'SocialFlow Enrichment', icon: '🌊' },
 };
 
 export function CompanyDetail() {

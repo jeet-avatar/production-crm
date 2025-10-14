@@ -170,6 +170,7 @@ router.post('/', async (req, res, next) => {
       phone,
       role,
       companyId,
+      companyName, // NEW: Allow creating company by name
       status = 'LEAD',
       tagIds = [],
     } = req.body;
@@ -183,6 +184,38 @@ router.post('/', async (req, res, next) => {
       });
     }
 
+    // Handle company creation/lookup if companyName provided
+    let finalCompanyId = companyId || null;
+
+    if (!companyId && companyName && companyName.trim()) {
+      const companyNameTrimmed = companyName.trim();
+
+      // Check if company already exists
+      const existingCompany = await prisma.company.findFirst({
+        where: {
+          userId: req.user!.id,
+          name: companyNameTrimmed,
+        },
+      });
+
+      if (existingCompany) {
+        console.log('🏢 Using existing company:', existingCompany.name);
+        finalCompanyId = existingCompany.id;
+      } else {
+        // Create new company
+        console.log('🏢 Creating new company:', companyNameTrimmed);
+        const newCompany = await prisma.company.create({
+          data: {
+            name: companyNameTrimmed,
+            dataSource: 'manual_contact', // Mark as created from contact form
+            userId: req.user!.id,
+          },
+        });
+        finalCompanyId = newCompany.id;
+        console.log('✅ Company created:', newCompany.id);
+      }
+    }
+
     // Create contact
     const contact = await prisma.contact.create({
       data: {
@@ -192,7 +225,7 @@ router.post('/', async (req, res, next) => {
         phone: phone && phone.trim() ? phone.trim() : null,
         role: role && role.trim() ? role.trim() : null,
         status,
-        companyId: companyId || null,
+        companyId: finalCompanyId,
         userId: req.user!.id,
       },
       include: {

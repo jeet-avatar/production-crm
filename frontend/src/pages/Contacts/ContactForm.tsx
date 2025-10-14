@@ -42,6 +42,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
     phone: '',
     role: '',
     companyId: '',
+    companyName: '', // NEW: Allow typing company name to create new company
     status: 'LEAD' as 'LEAD' | 'PROSPECT' | 'CUSTOMER' | 'COLD' | 'WARM' | 'HOT' | 'CLOSED_WON' | 'CLOSED_LOST',
     tagIds: [] as string[],
   });
@@ -147,6 +148,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
         phone: formData.phone.trim() || undefined,
         role: formData.role.trim() || undefined,
         companyId: formData.companyId || undefined,
+        companyName: formData.companyName.trim() || undefined, // NEW: Send company name for auto-creation
         status: formData.status,
         tagIds: formData.tagIds,
       };
@@ -361,16 +363,30 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                   <select
                     id="companyId"
                     value={formData.companyId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, companyId: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    onChange={(e) => setFormData(prev => ({ ...prev, companyId: e.target.value, companyName: '' }))}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 mb-2"
                   >
-                    <option value="">Select Company</option>
+                    <option value="">Select existing company</option>
                     {companies.map((company) => (
                       <option key={company.id} value={company.id}>
                         {company.name}
                       </option>
                     ))}
                   </select>
+                  <div className="text-center text-sm text-gray-500 mb-2">or</div>
+                  <input
+                    type="text"
+                    placeholder="Type new company name to create"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value, companyId: '' }))}
+                    disabled={!!formData.companyId}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  {formData.companyName && !formData.companyId && (
+                    <p className="mt-2 text-xs text-green-600">
+                      ✨ A new company "{formData.companyName}" will be created
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
