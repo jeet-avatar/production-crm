@@ -287,6 +287,42 @@ router.post('/import-contact', async (req, res) => {
       }
     }
 
+    // Create or find company if leadData has company information
+    let companyId: string | undefined = undefined;
+
+    if (leadData.company && leadData.company.trim()) {
+      const companyName = leadData.company.trim();
+
+      // Check if company already exists for this user
+      let company = await prisma.company.findFirst({
+        where: {
+          userId: userId,
+          name: companyName,
+        },
+      });
+
+      // If company doesn't exist, create it
+      if (!company) {
+        console.log('🏢 Creating company:', companyName);
+        company = await prisma.company.create({
+          data: {
+            name: companyName,
+            website: leadData.website || '',
+            location: leadData.headquarters || leadData.location || '',
+            linkedin: leadData.companyLinkedIn || '',
+            description: `🎯 Auto-created from Lead Discovery\n\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}`,
+            dataSource: 'lead_discovery',
+            userId: userId,
+          },
+        });
+        console.log('✅ Company created:', company.id);
+      } else {
+        console.log('🏢 Using existing company:', company.id);
+      }
+
+      companyId = company.id;
+    }
+
     // Create contact from lead data
     const contact = await prisma.contact.create({
       data: {
@@ -295,10 +331,12 @@ router.post('/import-contact', async (req, res) => {
         email: email,
         title: leadData.jobTitle || '',
         linkedin: leadData.LinkedinLink || '',
+        location: leadData.headquarters || leadData.location || '',
         notes: `🎯 Imported from Lead Discovery\n\nCompany: ${leadData.company || 'N/A'}\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}\nProfile: ${leadData.id || 'N/A'}`,
         source: 'lead_discovery',
         userId: userId,
         status: 'LEAD',
+        companyId: companyId, // Link to company
       },
     });
 
@@ -311,7 +349,13 @@ router.post('/import-contact', async (req, res) => {
         firstName: contact.firstName,
         lastName: contact.lastName,
         email: contact.email,
-      }
+        companyId: companyId,
+      },
+      company: companyId ? {
+        id: companyId,
+        created: true,
+        message: 'Company automatically created and linked'
+      } : null,
     });
   } catch (error: any) {
     console.error('❌ Import contact error:', error);
@@ -484,6 +528,213 @@ Website: ${leadData.website || 'N/A'}`,
     console.error('❌ Bulk import error:', error);
     res.status(500).json({
       error: 'Failed to bulk import companies',
+      details: error.message,
+    });
+  }
+});
+
+// ============================================
+// GET COMPANIES FROM LEADS
+// Returns all unique companies from saved leads
+// ============================================
+router.get('/companies', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    console.log('📊 Fetching companies from leads for user:', userId);
+
+    // Get all leads with company information
+    const leads = await prisma.lead.findMany({
+      where: {
+        userId: userId,
+        company: {
+          not: null,
+          not: '',
+        },
+      },
+      select: {
+        id: true,
+        leadName: true,
+        company: true,
+        website: true,
+        linkedin: true,
+        headquarters: true,
+        location: true,
+        industry: true,
+        leadScore: true,
+        imported: true,
+        importedAsCompanyId: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Group by company name to get unique companies
+    const companiesMap = new Map<string, any>();
+
+    for (const lead of leads) {
+      const companyName = lead.company!;
+
+      if (!companiesMap.has(companyName)) {
+        // Check if this company is already in the companies table
+        const existingCompany = await prisma.company.findFirst({
+          where: {
+            userId: userId,
+            name: companyName,
+          },
+        });
+
+        companiesMap.set(companyName, {
+          companyName: companyName,
+          website: lead.website || '',
+          linkedin: lead.linkedin || '',
+          location: lead.headquarters || lead.location || '',
+          industry: lead.industry || '',
+          leadScore: lead.leadScore || 0,
+          leadCount: 1, // Will increment below
+          imported: !!existingCompany,
+          companyId: existingCompany?.id || null,
+          firstSeen: lead.createdAt,
+          leads: [lead],
+        });
+      } else {
+        // Increment lead count for this company
+        const companyData = companiesMap.get(companyName)!;
+        companyData.leadCount += 1;
+        companyData.leads.push(lead);
+      }
+    }
+
+    // Convert map to array
+    const companies = Array.from(companiesMap.values());
+
+    console.log(`✅ Found ${companies.length} unique companies from ${leads.length} leads`);
+
+    res.json({
+      success: true,
+      companies: companies,
+      totalLeads: leads.length,
+      uniqueCompanies: companies.length,
+    });
+
+  } catch (error: any) {
+    console.error('❌ Get companies from leads error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch companies from leads',
+      details: error.message,
+    });
+  }
+});
+
+// ============================================
+// IMPORT COMPANY FROM LEAD
+// Import a specific company from lead data to companies table
+// ============================================
+router.post('/import-company-from-lead', async (req, res) => {
+  try {
+    const { companyName, enrich } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!companyName || !companyName.trim()) {
+      return res.status(400).json({ error: 'Company name is required' });
+    }
+
+    console.log('🏢 Importing company from lead:', companyName);
+
+    // Check if company already exists
+    const existingCompany = await prisma.company.findFirst({
+      where: {
+        userId: userId,
+        name: companyName.trim(),
+      },
+    });
+
+    if (existingCompany) {
+      return res.status(400).json({
+        error: 'Company already exists',
+        company: {
+          id: existingCompany.id,
+          name: existingCompany.name,
+        },
+      });
+    }
+
+    // Find the best lead data for this company (highest lead score)
+    const lead = await prisma.lead.findFirst({
+      where: {
+        userId: userId,
+        company: companyName.trim(),
+      },
+      orderBy: {
+        leadScore: 'desc',
+      },
+    });
+
+    if (!lead) {
+      return res.status(404).json({
+        error: 'No lead data found for this company',
+      });
+    }
+
+    // Create company
+    const company = await prisma.company.create({
+      data: {
+        name: companyName.trim(),
+        website: lead.website || '',
+        location: lead.headquarters || lead.location || '',
+        industry: lead.industry || '',
+        linkedin: lead.linkedinLink || '',
+        description: `🎯 Imported from Lead Discovery\n\nLead Score: ${lead.leadScore || 'N/A'}\nLocation: ${lead.headquarters || lead.location || 'N/A'}`,
+        dataSource: 'lead_discovery',
+        enriched: enrich === true, // Mark as enriched if requested
+        userId: userId,
+      },
+    });
+
+    // Update all leads for this company to mark as imported
+    await prisma.lead.updateMany({
+      where: {
+        userId: userId,
+        company: companyName.trim(),
+      },
+      data: {
+        imported: true,
+        importedAsCompanyId: company.id,
+      },
+    });
+
+    console.log('✅ Company imported:', company.id);
+
+    res.json({
+      success: true,
+      company: {
+        id: company.id,
+        name: company.name,
+        website: company.website,
+        location: company.location,
+      },
+      leadsUpdated: await prisma.lead.count({
+        where: {
+          userId: userId,
+          importedAsCompanyId: company.id,
+        },
+      }),
+    });
+
+  } catch (error: any) {
+    console.error('❌ Import company from lead error:', error);
+    res.status(500).json({
+      error: 'Failed to import company',
       details: error.message,
     });
   }
