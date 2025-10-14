@@ -54,16 +54,39 @@ export function sqlInjectionGuard(req: Request, res: Response, next: NextFunctio
       /(--|\*\/|\/\*)/g, // SQL comments
       /(\bOR\b.*=.*)/gi, // OR 1=1 patterns
       /(\bUNION\b.*\bSELECT\b)/gi,
-      /(;|\||&)/g, // Command injection
     ];
+
+    // Helper function to check if string is a URL
+    const isUrl = (str: string): boolean => {
+      try {
+        // Check if it's a valid URL or starts with http/https
+        return str.startsWith('http://') ||
+               str.startsWith('https://') ||
+               /^(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}/.test(str);
+      } catch {
+        return false;
+      }
+    };
 
     const checkValue = (value: any, path: string): boolean => {
       if (typeof value === 'string') {
+        // Skip URL validation - URLs can have &, |, ; in query parameters
+        if (isUrl(value)) {
+          return true;
+        }
+
         for (const pattern of suspiciousPatterns) {
           if (pattern.test(value)) {
             console.warn(`Security Guard - Potential SQL Injection detected in ${path}:`, value);
             return false;
           }
+        }
+
+        // Check for command injection characters only in non-URL strings
+        // Allow & in URLs but block in other contexts
+        if (!isUrl(value) && /(;|\||&&|\|\|)/.test(value)) {
+          console.warn(`Security Guard - Potential Command Injection detected in ${path}:`, value);
+          return false;
         }
       } else if (typeof value === 'object' && value !== null) {
         for (const key in value) {
