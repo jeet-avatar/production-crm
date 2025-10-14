@@ -367,17 +367,34 @@ router.put('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
+    const accountOwnerId = getAccountOwnerId(req);
+    const userId = req.user?.id;
 
-    // Verify ownership before delete
+    // Build team access conditions for deletion
+    const teamAccessConditions = [
+      { userId: userId },
+      ...(req.user?.teamRole === 'OWNER' ? [{
+        user: {
+          OR: [
+            { id: accountOwnerId },
+            { accountOwnerId: accountOwnerId }
+          ]
+        }
+      }] : []),
+      { shares: { some: { userId: userId } } }
+    ];
+
+    // Verify ownership or team access before delete
     const existingContact = await prisma.contact.findFirst({
       where: {
         id,
-        userId: req.user?.id,
+        isActive: true,
+        OR: teamAccessConditions
       },
     });
 
     if (!existingContact) {
-      return res.status(404).json({ error: 'Contact not found' });
+      return res.status(404).json({ error: 'Contact not found or you do not have permission to delete it' });
     }
 
     // Soft delete - mark as inactive
