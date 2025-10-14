@@ -54,6 +54,20 @@ enum ActivityType {
   OTHER
 }
 
+enum LeadType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  IMPORTED
+  REJECTED
+  ARCHIVED
+}
+
 enum CampaignStatus {
   DRAFT
   SCHEDULED
@@ -104,23 +118,23 @@ model User {
   updatedAt    DateTime  @updatedAt
 
   // Team Collaboration Fields
-  teamRole       TeamRole @default(OWNER)
-  accountOwnerId String? // Reference to account owner (null if this user is owner)
-  invitedById    String? // Who invited this user
-  inviteToken    String?  @unique
-  inviteAccepted Boolean  @default(false)
-  invitedAt      DateTime?
-  acceptedAt     DateTime?
-  requirePasswordChange Boolean @default(false) // Force password change on next login
+  teamRole              TeamRole  @default(OWNER)
+  accountOwnerId        String? // Reference to account owner (null if this user is owner)
+  invitedById           String? // Who invited this user
+  inviteToken           String?   @unique
+  inviteAccepted        Boolean   @default(false)
+  invitedAt             DateTime?
+  acceptedAt            DateTime?
+  requirePasswordChange Boolean   @default(false) // Force password change on next login
 
   // Email Verification Fields (OTP)
-  emailVerified            Boolean?  @default(true) // Default true for backward compatibility
-  verificationToken        String?   // 6-digit OTP code
-  verificationTokenExpiry  DateTime? // OTP expiry time (15 minutes)
+  emailVerified           Boolean?  @default(true) // Default true for backward compatibility
+  verificationToken       String? // 6-digit OTP code
+  verificationTokenExpiry DateTime? // OTP expiry time (15 minutes)
 
   // Password Reset Fields
-  passwordResetToken       String?   // Reset token
-  passwordResetExpiry      DateTime? // Reset token expiry (1 hour)
+  passwordResetToken  String? // Reset token
+  passwordResetExpiry DateTime? // Reset token expiry (1 hour)
 
   // Relationships
   contacts           Contact[]
@@ -135,6 +149,7 @@ model User {
   emailServerConfigs EmailServerConfig[]
   tags               Tag[]
   positions          Position[]
+  leads              Lead[]
 
   // Team relationships
   accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
@@ -172,15 +187,15 @@ model Contact {
   isActive      Boolean       @default(true)
 
   // AI Enrichment fields
-  linkedin      String? // LinkedIn profile URL
-  location      String? // City, State/Country
-  bio           String? // Professional bio
-  skills        String? // Comma-separated skills
-  enriched      Boolean       @default(false)
-  enrichedAt    DateTime?
+  linkedin   String? // LinkedIn profile URL
+  location   String? // City, State/Country
+  bio        String? // Professional bio
+  skills     String? // Comma-separated skills
+  enriched   Boolean   @default(false)
+  enrichedAt DateTime?
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Field-level data source tracking
   fieldSources Json? @map("field_sources") // {"firstName": "manual", "email": "claude_ai", "phone": "csv_import"}
@@ -231,42 +246,42 @@ model Company {
   fieldSources Json? @map("field_sources") // {"name": "manual", "email": "claude_ai", "phone": "csv_import"}
 
   // Company Enrichment Fields
-  enriched       Boolean   @default(false)
-  enrichedAt     DateTime?
-  linkedin       String?
-  twitter        String?
-  facebook       String?
-  foundedYear    Int?
-  employeeCount  String? // Changed to String to support ranges like "51-200", "1001-5000"
+  enriched      Boolean   @default(false)
+  enrichedAt    DateTime?
+  linkedin      String?
+  twitter       String?
+  facebook      String?
+  foundedYear   Int?
+  employeeCount String? // Changed to String to support ranges like "51-200", "1001-5000"
 
   // 🚀 Premium SocialFlow Enrichment Fields
   socialFlowEnriched   Boolean   @default(false)
   socialFlowEnrichedAt DateTime?
   socialFlowData       Json? // Stores credit rating, social media, technographics, revenue, funding
-  revenue        String?
-  ticker         String?
-  phone          String?
-  address        String?
-  city           String?
-  state          String?
-  country        String?
-  zipCode        String?
-  tags           String[] // Array of tags/keywords
-  technologies   String[] // Technologies used
-  socialProfiles Json? // Additional social media profiles
-  enrichmentData Json? // Raw enrichment data
+  revenue              String?
+  ticker               String?
+  phone                String?
+  address              String?
+  city                 String?
+  state                String?
+  country              String?
+  zipCode              String?
+  tags                 String[] // Array of tags/keywords
+  technologies         String[] // Technologies used
+  socialProfiles       Json? // Additional social media profiles
+  enrichmentData       Json? // Raw enrichment data
 
   // AI Intelligence Fields (Web Scraping + Claude AI)
-  aiDescription     String? @db.Text
-  aiIndustry        String?
-  aiKeywords        String[]
-  aiCompanyType     String? // B2B, B2C, Enterprise, etc.
-  aiTechStack       String[]
-  aiRecentNews      String? @db.Text
-  aiEmployeeRange   String?
-  aiRevenue         String?
-  aiFoundedYear     Int?
-  enrichmentStatus  String? @default("pending") // pending, enriching, enriched, failed
+  aiDescription    String?  @db.Text
+  aiIndustry       String?
+  aiKeywords       String[]
+  aiCompanyType    String? // B2B, B2C, Enterprise, etc.
+  aiTechStack      String[]
+  aiRecentNews     String?  @db.Text
+  aiEmployeeRange  String?
+  aiRevenue        String?
+  aiFoundedYear    Int?
+  enrichmentStatus String?  @default("pending") // pending, enriching, enriched, failed
 
   // Decision Makers Data (Page 3 of CSV)
   jobPostings  String? @db.Text // Recent job postings
@@ -316,9 +331,9 @@ model Deal {
   userId    String
 
   // Relationships
-  contact    Contact?   @relation(fields: [contactId], references: [id], onDelete: SetNull)
-  company    Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact    Contact?    @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company    Company?    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   activities Activity[]
   shares     DealShare[] // Team members this deal is shared with
 
@@ -375,33 +390,33 @@ model Activity {
   updatedAt   DateTime     @updatedAt
 
   // SMS Metadata (Twilio Integration)
-  smsTo       String?   // Phone number recipient
-  smsFrom     String?   // Twilio phone number used
-  smsSid      String?   // Twilio message SID for tracking
-  smsStatus   String?   // sent, delivered, failed, queued
-  smsSentAt   DateTime? // When SMS was sent
+  smsTo     String? // Phone number recipient
+  smsFrom   String? // Twilio phone number used
+  smsSid    String? // Twilio message SID for tracking
+  smsStatus String? // sent, delivered, failed, queued
+  smsSentAt DateTime? // When SMS was sent
 
   // Email Metadata (SMTP Integration)
-  emailTo        String[] @default([]) // Array of recipient emails
-  emailFrom      String?   // Sender email (user's email)
-  emailCc        String[] @default([]) // CC recipients
-  emailBcc       String[] @default([]) // BCC recipients
-  emailMessageId String?   // SMTP message ID for tracking
-  emailStatus    String?   // sent, delivered, opened, clicked
+  emailTo        String[]  @default([]) // Array of recipient emails
+  emailFrom      String? // Sender email (user's email)
+  emailCc        String[]  @default([]) // CC recipients
+  emailBcc       String[]  @default([]) // BCC recipients
+  emailMessageId String? // SMTP message ID for tracking
+  emailStatus    String? // sent, delivered, opened, clicked
   emailSentAt    DateTime? // When email was sent
 
   // Meeting Metadata (Google Meet & Calendar Integration)
-  meetingLink       String?   // Google Meet link or Zoom link
-  meetingEventId    String?   // Google Calendar event ID
-  meetingStartTime  DateTime? // Scheduled start time
-  meetingEndTime    DateTime? // Scheduled end time
-  meetingAttendees  String[] @default([]) // Array of attendee emails
-  meetingLocation   String?   // Physical location or "Online"
-  meetingTimezone   String?   // Timezone for meeting
+  meetingLink      String? // Google Meet link or Zoom link
+  meetingEventId   String? // Google Calendar event ID
+  meetingStartTime DateTime? // Scheduled start time
+  meetingEndTime   DateTime? // Scheduled end time
+  meetingAttendees String[]  @default([]) // Array of attendee emails
+  meetingLocation  String? // Physical location or "Online"
+  meetingTimezone  String? // Timezone for meeting
 
   // Task Metadata
-  taskAssignedTo String?  // User ID of assignee
-  taskStatus     String?  // todo, in_progress, done, cancelled
+  taskAssignedTo String? // User ID of assignee
+  taskStatus     String? // todo, in_progress, done, cancelled
   taskCheckbox   Boolean? // For simple checkbox tasks
 
   // Generic metadata for extensibility (JSON for custom fields)
@@ -413,9 +428,9 @@ model Activity {
   userId    String
 
   // Relationships
-  contact Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
-  deal    Deal?    @relation(fields: [dealId], references: [id], onDelete: SetNull)
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  deal    Deal?           @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   shares  ActivityShare[] // Team members this activity is shared with
 
   @@index([userId])
@@ -836,6 +851,72 @@ model Position {
   @@index([hiringIntent])
   @@index([postedDate])
   @@map("positions")
+}
+
+// ===================================
+// LEAD DISCOVERY & STORAGE
+// ===================================
+
+model Lead {
+  id     String     @id @default(cuid())
+  type   LeadType
+  status LeadStatus @default(NEW)
+
+  // Lead Information
+  leadName     String
+  email        String?
+  phone        String?
+  jobTitle     String?
+  company      String?
+  location     String?
+  headquarters String?
+  industry     String?
+  website      String?
+  linkedinLink String?
+  leadScore    Int?
+
+  // Search Context (what query generated this lead)
+  searchQuery     String?
+  searchMode      String?
+  searchLocation  String?
+  searchIndustry  String?
+  searchTechStack String?
+
+  // Raw Data from API (full JSON response)
+  rawData Json?
+
+  // Import Tracking
+  imported            Boolean   @default(false)
+  importedAt          DateTime?
+  importedAsContactId String? // ID of Contact if imported
+  importedAsCompanyId String? // ID of Company if imported
+
+  // Metadata
+  notes    String?
+  tags     String[]
+  isActive Boolean  @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Foreign Keys
+  userId String
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, email], name: "unique_user_email")
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([imported])
+  @@index([leadScore])
+  @@index([createdAt])
+  @@index([email])
+  @@index([company])
+  @@index([searchQuery])
+  @@map("leads")
 }
 
 // ===================================
