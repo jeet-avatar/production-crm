@@ -551,17 +551,25 @@ router.get('/companies', async (req, res) => {
     const leads = await prisma.lead.findMany({
       where: {
         userId: userId,
-        company: {
-          not: null,
-          not: '',
-        },
+        AND: [
+          {
+            company: {
+              not: null,
+            },
+          },
+          {
+            company: {
+              not: '',
+            },
+          },
+        ],
       },
       select: {
         id: true,
         leadName: true,
         company: true,
         website: true,
-        linkedin: true,
+        linkedinLink: true,
         headquarters: true,
         location: true,
         industry: true,
@@ -593,7 +601,7 @@ router.get('/companies', async (req, res) => {
         companiesMap.set(companyName, {
           companyName: companyName,
           website: lead.website || '',
-          linkedin: lead.linkedin || '',
+          linkedinLink: lead.linkedinLink || '',
           location: lead.headquarters || lead.location || '',
           industry: lead.industry || '',
           leadScore: lead.leadScore || 0,
