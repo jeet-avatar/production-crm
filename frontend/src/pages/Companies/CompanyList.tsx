@@ -279,6 +279,10 @@ export function CompanyList() {
                           <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
                             Apollo.io
                           </span>
+                        ) : company.dataSource === 'lead_discovery' ? (
+                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                            🎯 Lead Discovery
+                          </span>
                         ) : (
                           <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
                             Manual Entry

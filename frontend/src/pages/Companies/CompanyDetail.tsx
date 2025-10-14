@@ -94,6 +94,7 @@ const dataSourceLabels: Record<string, { label: string; icon: string }> = {
   apollo: { label: 'Uploaded via Apollo.io', icon: '⚡' },
   csv_import: { label: 'Manual Research', icon: '📄' },
   ai_enrichment: { label: 'AI Enrichment', icon: '✨' },
+  lead_discovery: { label: 'Lead Discovery', icon: '🎯' },
 };
 
 export function CompanyDetail() {
