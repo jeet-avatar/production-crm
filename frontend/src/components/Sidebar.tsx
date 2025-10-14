@@ -13,6 +13,7 @@ import {
   UserCircleIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
+import { Logo } from './Logo';
 import type { User } from '../types';
 
 interface SidebarProps {
@@ -36,13 +37,9 @@ const navigation = [
 export function Sidebar({ user, onLogout }: SidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-gray-200 flex flex-col shadow-lg">
-      {/* Compact Logo */}
+      {/* BrandMonkz Logo */}
       <div className="flex items-center py-6 px-4 border-b-2 border-gray-200">
-        <img
-          src="/logo.png"
-          alt="BrandMonkz"
-          className="h-12 w-auto ml-4"
-        />
+        <Logo />
       </div>
 
       {/* Navigation */}
