@@ -50,10 +50,31 @@ export function CompanyList() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showLeadDiscovery, setShowLeadDiscovery] = useState(false);
   const [enriching, setEnriching] = useState(false);
-  const [sortBy, setSortBy] = useState<string>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [industryFilter, setIndustryFilter] = useState<string>('');
+
+  // Load preferences from localStorage or use defaults
+  const [sortBy, setSortBy] = useState<string>(() => {
+    return localStorage.getItem('companies_sortBy') || 'createdAt';
+  });
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(() => {
+    return (localStorage.getItem('companies_sortOrder') as 'asc' | 'desc') || 'desc';
+  });
+  const [industryFilter, setIndustryFilter] = useState<string>(() => {
+    return localStorage.getItem('companies_industryFilter') || '';
+  });
   const [showFilters, setShowFilters] = useState(false);
+
+  // Save preferences to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('companies_sortBy', sortBy);
+  }, [sortBy]);
+
+  useEffect(() => {
+    localStorage.setItem('companies_sortOrder', sortOrder);
+  }, [sortOrder]);
+
+  useEffect(() => {
+    localStorage.setItem('companies_industryFilter', industryFilter);
+  }, [industryFilter]);
 
   const loadCompanies = async () => {
     try {
@@ -102,6 +123,10 @@ export function CompanyList() {
     setSortOrder('desc');
     setIndustryFilter('');
     setSearchTerm('');
+    // Clear from localStorage too
+    localStorage.setItem('companies_sortBy', 'createdAt');
+    localStorage.setItem('companies_sortOrder', 'desc');
+    localStorage.setItem('companies_industryFilter', '');
   };
 
   const handleDeleteCompany = async (id: string) => {
@@ -231,11 +256,17 @@ export function CompanyList() {
 
             {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
-              <label className="text-sm font-semibold text-gray-700">Sort by:</label>
+              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                Sort by:
+                {sortBy !== 'createdAt' && (
+                  <span className="text-xs text-green-600 font-medium">✓ Saved</span>
+                )}
+              </label>
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value)}
                 className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                title="Your preference is automatically saved"
               >
                 <option value="createdAt">Recently Added</option>
                 <option value="name">Alphabetical (A-Z)</option>
@@ -248,7 +279,7 @@ export function CompanyList() {
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
                 className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+                title={`${sortOrder === 'asc' ? 'Ascending' : 'Descending'} - Preference saved automatically`}
               >
                 {sortOrder === 'asc' ? (
                   <ChevronUpIcon className="w-5 h-5 text-gray-600" />
