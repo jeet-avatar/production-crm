@@ -390,6 +390,7 @@ body {
 .hover\:bg-primary-50:hover { background-color: var(--color-primary-50); }
 .hover\:bg-primary-700:hover { background-color: var(--color-primary-700); }
 .hover\:bg-blue-700:hover { background-color: #1D4ED8; }
+.hover\:bg-sky-400:hover { background-color: #38BDF8; }
 .hover\:bg-red-50:hover { background-color: var(--color-error-100); }
 .hover\:bg-red-700:hover { background-color: var(--color-error-600); }
 .hover\:from-red-600:hover { --tw-gradient-from: #DC2626; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(220, 38, 38, 0)); }
@@ -441,6 +442,8 @@ body {
 .bg-blue-100 { background-color: #DBEAFE; }
 .bg-blue-500 { background-color: #3B82F6; }
 .bg-blue-600 { background-color: #2563EB; }
+.bg-sky-300 { background-color: #7DD3FC; }
+.bg-sky-400 { background-color: #38BDF8; }
 .bg-purple-50 { background-color: #FAF5FF; }
 .bg-purple-100 { background-color: #E9D5FF; }
 .bg-purple-500 { background-color: #8B5CF6; }
