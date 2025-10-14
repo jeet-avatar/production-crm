@@ -92,11 +92,75 @@ router.post('/discover', async (req, res) => {
           leads = response.data;
         }
 
+        // Save leads to database
+        const userId = req.user?.id;
+        let savedCount = 0;
+        let duplicateCount = 0;
+
+        if (userId && leads.length > 0) {
+          console.log(`💾 Saving ${leads.length} leads to database...`);
+
+          for (const lead of leads) {
+            try {
+              // Check if lead already exists
+              const existingLead = await prisma.lead.findFirst({
+                where: {
+                  userId: userId,
+                  OR: [
+                    { leadName: lead.LeadName || lead.name },
+                    ...(lead.email ? [{ email: lead.email }] : []),
+                    ...(lead.LinkedinLink ? [{ linkedinLink: lead.LinkedinLink }] : []),
+                  ],
+                },
+              });
+
+              if (existingLead) {
+                duplicateCount++;
+                continue;
+              }
+
+              // Save lead
+              await prisma.lead.create({
+                data: {
+                  type: mode === 'individual' ? 'INDIVIDUAL' : 'COMPANY',
+                  status: 'NEW',
+                  leadName: lead.LeadName || lead.name || 'Unknown',
+                  email: lead.email || null,
+                  phone: lead.phone || null,
+                  jobTitle: lead.jobTitle || '',
+                  company: lead.company || '',
+                  location: location || '',
+                  headquarters: lead.headquarters || '',
+                  industry: industry || lead.industry || '',
+                  website: lead.website || '',
+                  linkedinLink: lead.LinkedinLink || '',
+                  leadScore: lead.leadScore || null,
+                  searchQuery: query,
+                  searchMode: mode,
+                  searchLocation: location || null,
+                  searchIndustry: industry || null,
+                  searchTechStack: techStack || null,
+                  rawData: lead,
+                  userId: userId,
+                },
+              });
+
+              savedCount++;
+            } catch (saveError: any) {
+              console.error(`Failed to save lead ${lead.LeadName}:`, saveError.message);
+            }
+          }
+
+          console.log(`✅ Saved ${savedCount} leads, ${duplicateCount} duplicates skipped`);
+        }
+
         return res.json({
           success: true,
           leads: leads,
           count: leads.length,
           mode: mode,
+          saved: savedCount,
+          duplicates: duplicateCount,
         });
       } catch (error: any) {
         lastError = error;
@@ -198,12 +262,38 @@ router.post('/import-contact', async (req, res) => {
 
     console.log('📥 Importing contact:', leadData.LeadName);
 
+    // Generate unique email if none provided (to avoid unique constraint violation)
+    const email = leadData.email && leadData.email.trim()
+      ? leadData.email.trim()
+      : null;
+
+    // Check for existing contact
+    if (email) {
+      const existingContact = await prisma.contact.findFirst({
+        where: {
+          userId: userId,
+          email: email,
+        },
+      });
+
+      if (existingContact) {
+        return res.status(400).json({
+          error: 'Contact already exists',
+          contact: {
+            id: existingContact.id,
+            firstName: existingContact.firstName,
+            lastName: existingContact.lastName,
+          }
+        });
+      }
+    }
+
     // Create contact from lead data
     const contact = await prisma.contact.create({
       data: {
         firstName: leadData.LeadName?.split(' ')[0] || 'Unknown',
         lastName: leadData.LeadName?.split(' ').slice(1).join(' ') || '',
-        email: leadData.email || '',
+        email: email,
         title: leadData.jobTitle || '',
         linkedin: leadData.LinkedinLink || '',
         notes: `🎯 Imported from Lead Discovery\n\nCompany: ${leadData.company || 'N/A'}\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}\nProfile: ${leadData.id || 'N/A'}`,
@@ -226,9 +316,16 @@ router.post('/import-contact', async (req, res) => {
     });
   } catch (error: any) {
     console.error('❌ Import contact error:', error);
+
+    // Provide more helpful error messages
+    let errorMessage = 'Failed to import contact';
+    if (error.code === 'P2002') {
+      errorMessage = 'This contact already exists in your CRM';
+    }
+
     res.status(500).json({
-      error: 'Failed to import contact',
-      details: error.message,
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 });
