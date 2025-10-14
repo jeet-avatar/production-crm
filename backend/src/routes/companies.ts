@@ -20,14 +20,28 @@ router.use(authenticate);
 // GET /api/companies - Get all companies
 router.get('/', async (req, res, next) => {
   try {
-    const { 
-      search, 
-      page = '1', 
-      limit = '10' 
+    const {
+      search,
+      page = '1',
+      limit = '10',
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      industry,
+      minRevenue,
+      maxRevenue,
+      minEmployees,
+      maxEmployees
     } = req.query as {
       search?: string;
       page?: string;
       limit?: string;
+      sortBy?: string;
+      sortOrder?: string;
+      industry?: string;
+      minRevenue?: string;
+      maxRevenue?: string;
+      minEmployees?: string;
+      maxEmployees?: string;
     };
 
     const pageNum = Number.parseInt(page);
@@ -68,6 +82,49 @@ router.get('/', async (req, res, next) => {
       });
     }
 
+    // Industry filter
+    if (industry) {
+      where.AND.push({
+        industry: { contains: industry, mode: 'insensitive' }
+      });
+    }
+
+    // Revenue filters (intelligent parsing)
+    if (minRevenue || maxRevenue) {
+      const revenueConditions: any = {};
+      if (minRevenue) {
+        revenueConditions.gte = minRevenue;
+      }
+      if (maxRevenue) {
+        revenueConditions.lte = maxRevenue;
+      }
+      where.AND.push({
+        revenue: revenueConditions
+      });
+    }
+
+    // Employee count filters (intelligent parsing)
+    if (minEmployees || maxEmployees) {
+      const employeeConditions: any = {};
+      if (minEmployees) {
+        employeeConditions.gte = minEmployees;
+      }
+      if (maxEmployees) {
+        employeeConditions.lte = maxEmployees;
+      }
+      where.AND.push({
+        employeeCount: employeeConditions
+      });
+    }
+
+    // Build orderBy clause
+    let orderBy: any = {};
+    const validSortFields = ['name', 'industry', 'revenue', 'employeeCount', 'createdAt', 'foundedYear'];
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
+    const order = sortOrder === 'asc' ? 'asc' : 'desc';
+
+    orderBy[sortField] = order;
+
     // Get companies with contact count and contact details
     const companies = await prisma.company.findMany({
       where,
@@ -99,9 +156,7 @@ router.get('/', async (req, res, next) => {
           },
         },
       },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy,
       skip,
       take: limitNum,
     });
