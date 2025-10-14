@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon } from '@heroicons/react/24/outline';
 // Commented out unused imports
 // import { SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { contactsApi, companiesApi } from '../../services/api';
 import { ContactForm } from './ContactForm';
 import { CSVImportModal } from '../../components/CSVImportModal';
+import { LeadDiscoveryModal } from '../../components/LeadDiscoveryModal';
 // Commented out modal imports - uncomment when needed
 // import { ApolloImportModal } from '../../components/ApolloImportModal';
 // import { RemoveDuplicatesModal } from '../../components/RemoveDuplicatesModal';
@@ -58,6 +59,7 @@ export function ContactList() {
   const [showModal, setShowModal] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [showAICSVImport, setShowAICSVImport] = useState(false);
+  const [showLeadDiscovery, setShowLeadDiscovery] = useState(false);
   // Commented out modal state variables - uncomment when needed
   // const [showApolloImport, setShowApolloImport] = useState(false);
   // const [showRemoveDuplicates, setShowRemoveDuplicates] = useState(false);
@@ -249,6 +251,13 @@ export function ContactList() {
               <SparklesIcon className="h-5 w-5" />
               <span>Import from Apollo</span>
             </button> */}
+            <button
+              onClick={() => setShowLeadDiscovery(true)}
+              className="apple-button-secondary flex items-center gap-2"
+            >
+              <SparklesIcon className="h-5 w-5" />
+              <span>Discover Leads</span>
+            </button>
             <button
               onClick={() => setShowAICSVImport(true)}
               className="apple-button-green flex items-center gap-2"
@@ -627,6 +636,17 @@ export function ContactList() {
           loadContacts();
         }}
       />
+
+      {/* Lead Discovery Modal */}
+      {showLeadDiscovery && (
+        <LeadDiscoveryModal
+          mode="individual"
+          onClose={() => setShowLeadDiscovery(false)}
+          onImport={() => {
+            loadContacts();
+          }}
+        />
+      )}
 
       {/* Remove Duplicates Modal */}
       {/* <RemoveDuplicatesModal

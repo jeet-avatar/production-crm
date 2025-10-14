@@ -5,6 +5,7 @@ import { companiesApi, enrichmentApi } from '../../services/api';
 import { CompanyForm } from './CompanyForm';
 import { CampaignSelectModal } from '../../components/CampaignSelectModal';
 import { ImportCompaniesModal } from '../../components/ImportCompaniesModal';
+import { LeadDiscoveryModal } from '../../components/LeadDiscoveryModal';
 
 interface Contact {
   id: string;
@@ -47,6 +48,7 @@ export function CompanyList() {
   const [showCampaignModal, setShowCampaignModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showLeadDiscovery, setShowLeadDiscovery] = useState(false);
   const [enriching, setEnriching] = useState(false);
 
   const loadCompanies = async () => {
@@ -150,6 +152,13 @@ export function CompanyList() {
             <p className="text-sm font-medium text-gray-600 mt-1">Manage your business relationships</p>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowLeadDiscovery(true)}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <SparklesIcon className="w-4 h-4" />
+              Discover Leads
+            </button>
             <button
               onClick={() => setShowImportModal(true)}
               className="btn-primary flex items-center gap-2"
@@ -376,6 +385,17 @@ export function CompanyList() {
           loadCompanies();
         }}
       />
+
+      {/* Lead Discovery Modal */}
+      {showLeadDiscovery && (
+        <LeadDiscoveryModal
+          mode="company"
+          onClose={() => setShowLeadDiscovery(false)}
+          onImport={() => {
+            loadCompanies();
+          }}
+        />
+      )}
     </div>
   );
 }
