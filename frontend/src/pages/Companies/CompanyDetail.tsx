@@ -23,6 +23,7 @@ import {
 import { companiesApi } from '../../services/api';
 import { CompanyForm } from './CompanyForm';
 import { CampaignSelectModal } from '../../components/CampaignSelectModal';
+import { AssignmentDropdown } from '../../components/AssignmentDropdown';
 import { buttonStyles } from '../../config/ui';
 
 interface Contact {
@@ -85,6 +86,15 @@ interface Company {
     contacts: number;
     deals: number;
   };
+  assignedToId?: string | null;
+  assignedTo?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
+  socialFlowEnriched?: boolean;
+  socialFlowEnrichedAt?: string;
+  socialFlowData?: any;
   createdAt: string;
   updatedAt: string;
 }
@@ -549,6 +559,15 @@ export function CompanyDetail() {
               </div>
             </div>
           )}
+
+          {/* Team Assignment */}
+          <AssignmentDropdown
+            resourceType="company"
+            resourceId={company.id}
+            currentAssignedToId={company.assignedToId || null}
+            currentAssignedTo={company.assignedTo}
+            onAssignmentChange={loadCompanyDetails}
+          />
 
           {/* 🚀 PREMIUM: SocialFlow Data Display */}
           {company.socialFlowEnriched && company.socialFlowData && (

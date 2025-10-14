@@ -16,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { contactsApi, activitiesApi } from '../../services/api';
 import { ContactForm } from './ContactForm';
+import { AssignmentDropdown } from '../../components/AssignmentDropdown';
 
 interface Contact {
   id: string;
@@ -29,8 +30,14 @@ interface Contact {
     domain?: string;
     industry?: string;
   };
-  status: 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'CUSTOMER';
+  status: 'LEAD' | 'PROSPECT' | 'CUSTOMER' | 'COLD' | 'WARM' | 'HOT' | 'CLOSED_WON' | 'CLOSED_LOST';
   tags: { id: string; name: string; color: string }[];
+  assignedToId?: string | null;
+  assignedTo?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -47,11 +54,15 @@ interface Activity {
   };
 }
 
-const statusColors = {
-  NEW: 'apple-badge apple-badge-blue',
-  CONTACTED: 'apple-badge apple-badge-yellow',
-  QUALIFIED: 'apple-badge apple-badge-purple',
+const statusColors: Record<string, string> = {
+  LEAD: 'apple-badge apple-badge-blue',
+  PROSPECT: 'apple-badge apple-badge-yellow',
   CUSTOMER: 'apple-badge apple-badge-green',
+  COLD: 'apple-badge apple-badge-gray',
+  WARM: 'apple-badge apple-badge-orange',
+  HOT: 'apple-badge apple-badge-red',
+  CLOSED_WON: 'apple-badge apple-badge-green',
+  CLOSED_LOST: 'apple-badge apple-badge-gray',
 };
 
 const activityIcons = {
@@ -369,6 +380,15 @@ export function ContactDetail() {
                   </div>
                 </div>
               )}
+
+              {/* Team Assignment */}
+              <AssignmentDropdown
+                resourceType="contact"
+                resourceId={contact.id}
+                currentAssignedToId={contact.assignedToId || null}
+                currentAssignedTo={contact.assignedTo}
+                onAssignmentChange={loadContact}
+              />
             </div>
           )}
 
