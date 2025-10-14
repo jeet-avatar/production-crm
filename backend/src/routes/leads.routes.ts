@@ -1,3 +1,6 @@
+// File: backend/src/routes/leads.routes.ts
+// Lead discovery routes with comprehensive error handling
+
 import express from 'express';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
@@ -6,209 +9,180 @@ import { authMiddleware } from '../middleware/auth.middleware';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Apply authentication to all routes
+// Apply authentication
 router.use(authMiddleware);
 
-// Mock data for testing when external API is unavailable
-const getMockLeads = (mode: string, query: string) => {
-  if (mode === 'company') {
-    return {
-      leads: [
-        {
-          LeadName: 'TechCorp Solutions',
-          company: 'TechCorp Solutions',
-          jobTitle: 'Technology Company',
-          LinkedinLink: 'https://linkedin.com/company/techcorp-solutions',
-          website: 'https://techcorp-solutions.com',
-          headquarters: 'San Francisco, CA',
-          location: 'San Francisco, CA',
-          industry: 'Software Development',
-          leadScore: 85,
-          email: 'contact@techcorp-solutions.com'
-        },
-        {
-          LeadName: 'InnovateLabs Inc',
-          company: 'InnovateLabs Inc',
-          jobTitle: 'SaaS Provider',
-          LinkedinLink: 'https://linkedin.com/company/innovatelabs',
-          website: 'https://innovatelabs.io',
-          headquarters: 'San Francisco, CA',
-          location: 'San Francisco, CA',
-          industry: 'Cloud Services',
-          leadScore: 92,
-          email: 'hello@innovatelabs.io'
-        },
-        {
-          LeadName: 'DataStream Analytics',
-          company: 'DataStream Analytics',
-          jobTitle: 'Data Analytics Platform',
-          LinkedinLink: 'https://linkedin.com/company/datastream',
-          website: 'https://datastream.ai',
-          headquarters: 'San Francisco, CA',
-          location: 'San Francisco, CA',
-          industry: 'Business Intelligence',
-          leadScore: 78,
-          email: 'info@datastream.ai'
-        }
-      ]
-    };
-  } else {
-    return {
-      leads: [
-        {
-          LeadName: 'John Smith',
-          email: 'john.smith@example.com',
-          company: 'Tech Innovations Inc',
-          jobTitle: 'Senior Software Engineer',
-          LinkedinLink: 'https://linkedin.com/in/johnsmith',
-          location: 'San Francisco, CA',
-          leadScore: 88
-        },
-        {
-          LeadName: 'Sarah Johnson',
-          email: 'sarah.j@example.com',
-          company: 'Digital Solutions Corp',
-          jobTitle: 'Product Manager',
-          LinkedinLink: 'https://linkedin.com/in/sarahjohnson',
-          location: 'San Francisco, CA',
-          leadScore: 92
-        },
-        {
-          LeadName: 'Michael Chen',
-          email: 'mchen@example.com',
-          company: 'StartupHub',
-          jobTitle: 'CTO',
-          LinkedinLink: 'https://linkedin.com/in/michaelchen',
-          location: 'San Francisco, CA',
-          leadScore: 95
-        }
-      ]
-    };
-  }
-};
-
-// Discover leads from external API
+// ============================================
+// DISCOVER LEADS
+// ============================================
 router.post('/discover', async (req, res) => {
-  const startTime = Date.now();
   try {
     const { query, mode, location, industry, techStack } = req.body;
 
-    if (!query || !mode) {
+    // Validation
+    if (!query) {
       return res.status(400).json({
-        error: 'Query and mode are required'
+        error: 'Search query is required'
       });
     }
 
-    console.log('🔍 Lead Discovery Request:', {
-      query,
-      mode,
-      location,
-      industry,
-      techStack,
-      timestamp: new Date().toISOString()
-    });
+    if (!mode || !['individual', 'company'].includes(mode)) {
+      return res.status(400).json({
+        error: 'Mode must be "individual" or "company"'
+      });
+    }
 
-    // Build query params
+    // Log the request for debugging
+    console.log('🔍 Lead Discovery Request:', { query, mode, location, industry, techStack });
+
+    // Build query parameters
     const params: any = {
-      query,
-      mode, // 'individual' or 'company'
-      location: location || '',
+      query: query.trim(),
+      mode: mode,
     };
 
+    // Add optional parameters
+    if (location && location.trim()) {
+      params.location = location.trim();
+    }
+
     if (mode === 'company') {
-      if (industry) params.industry = industry;
-      if (techStack) params.techStack = techStack;
+      if (industry && industry.trim()) {
+        params.industry = industry.trim();
+      }
+      if (techStack && techStack.trim()) {
+        params.techStack = techStack.trim();
+      }
     }
 
-    // Call external lead generation API with increased timeout and better error handling
-    try {
-      console.log('📡 Calling external API:', 'http://13.53.133.99:8000/api/live-leads');
-      console.log('📋 Parameters:', params);
+    console.log('📤 API Request Params:', params);
 
-      const response = await axios.get('http://13.53.133.99:8000/api/live-leads', {
-        params,
-        timeout: 60000, // Increased to 60 seconds
-        validateStatus: (status) => status < 500, // Don't throw on 4xx errors
-      });
+    // Call external lead generation API with timeout and retry
+    let attempts = 0;
+    let lastError;
+    const maxAttempts = 2;
 
-      const duration = Date.now() - startTime;
-      console.log(`✅ External API responded in ${duration}ms`);
-      console.log('📦 Response data:', JSON.stringify(response.data).substring(0, 200) + '...');
+    while (attempts < maxAttempts) {
+      try {
+        attempts++;
+        console.log(`🔄 Attempt ${attempts}/${maxAttempts}`);
 
-      // Check if response has leads
-      if (!response.data || !response.data.leads || response.data.leads.length === 0) {
-        console.log('⚠️  External API returned no leads, using mock data');
-        const mockData = getMockLeads(mode, query);
-        return res.json({
-          ...mockData,
-          source: 'mock',
-          message: 'Using sample data - external API returned no results'
+        const response = await axios.get('http://13.53.133.99:8000/api/live-leads', {
+          params,
+          timeout: 45000, // 45 second timeout
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'BrandMonkz-CRM/1.0',
+          },
         });
-      }
 
-      res.json(response.data);
-    } catch (apiError: any) {
-      const duration = Date.now() - startTime;
+        console.log('✅ API Response Status:', response.status);
+        console.log('📥 API Response Data:', JSON.stringify(response.data).substring(0, 200));
 
-      // Detailed error logging
-      console.error('❌ External API Error:', {
-        message: apiError.message,
-        code: apiError.code,
-        status: apiError.response?.status,
-        duration: `${duration}ms`,
-        isTimeout: apiError.code === 'ECONNABORTED' || apiError.message?.includes('timeout'),
-        isNetworkError: apiError.code === 'ECONNREFUSED' || apiError.code === 'ENOTFOUND',
-      });
+        // Check if response is valid
+        if (!response.data) {
+          throw new Error('Empty response from lead API');
+        }
 
-      // Check if it's a timeout
-      if (apiError.code === 'ECONNABORTED' || apiError.message?.includes('timeout')) {
-        console.log('⏱️  Request timed out after 60 seconds, returning mock data');
-        const mockData = getMockLeads(mode, query);
+        // Normalize response format
+        let leads = [];
+        if (response.data.categories && Array.isArray(response.data.categories)) {
+          leads = response.data.categories[0]?.leads || [];
+        } else if (Array.isArray(response.data)) {
+          leads = response.data;
+        }
+
         return res.json({
-          ...mockData,
-          source: 'mock',
-          message: 'The lead discovery service is taking longer than expected. Showing sample results while we retry in the background.'
+          success: true,
+          leads: leads,
+          count: leads.length,
+          mode: mode,
         });
-      }
+      } catch (error: any) {
+        lastError = error;
+        console.error(`❌ Attempt ${attempts} failed:`, error.message);
 
-      // For other errors, also return mock data
-      console.log('🔄 API unavailable, returning mock data for testing');
-      const mockData = getMockLeads(mode, query);
-      return res.json({
-        ...mockData,
-        source: 'mock',
-        message: 'The lead discovery service is currently unavailable. Showing sample results for testing.'
-      });
+        if (attempts < maxAttempts) {
+          // Wait 2 seconds before retry
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
     }
+
+    // All attempts failed
+    throw lastError;
+
   } catch (error: any) {
-    const duration = Date.now() - startTime;
-    console.error('💥 Unexpected error in lead discovery:', {
-      error: error.message,
-      stack: error.stack,
-      duration: `${duration}ms`
-    });
+    console.error('❌ Lead Discovery Error:', error);
 
-    // As last resort, return mock data
-    try {
-      const { mode, query } = req.body;
-      const mockData = getMockLeads(mode || 'company', query || 'test');
-      return res.json({
-        ...mockData,
-        source: 'mock',
-        message: 'An error occurred. Showing sample results for testing.'
+    // Categorize error types
+    let errorMessage = 'Failed to discover leads';
+    let statusCode = 500;
+
+    if (error.code === 'ECONNREFUSED') {
+      errorMessage = 'Lead discovery service is unavailable. Please try again later.';
+      statusCode = 503;
+    } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+      errorMessage = 'Request timed out. The service is taking too long to respond.';
+      statusCode = 504;
+    } else if (error.response) {
+      // API returned an error response
+      statusCode = error.response.status;
+      errorMessage = error.response.data?.error || error.response.data?.message || 'External API error';
+
+      console.error('API Error Response:', {
+        status: error.response.status,
+        data: error.response.data,
       });
-    } catch (mockError) {
-      // If even mock data fails, return a proper error
-      res.status(500).json({
-        error: 'Lead discovery service is temporarily unavailable',
-        details: 'Please try again later or contact support if the issue persists.',
-        technicalDetails: error.message
-      });
+    } else if (error.request) {
+      // Request made but no response
+      errorMessage = 'No response from lead discovery service';
+      statusCode = 503;
     }
+
+    res.status(statusCode).json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      suggestion: 'Try different search criteria or check your internet connection',
+    });
   }
 });
 
-// Import individual lead as contact
+// ============================================
+// TEST ENDPOINT (for debugging)
+// ============================================
+router.get('/test-api', async (req, res) => {
+  try {
+    console.log('🧪 Testing lead API connection...');
+
+    const response = await axios.get('http://13.53.133.99:8000/api/live-leads', {
+      params: {
+        query: 'software engineer',
+        mode: 'individual',
+        location: 'USA',
+      },
+      timeout: 30000,
+    });
+
+    res.json({
+      success: true,
+      message: 'API connection successful',
+      status: response.status,
+      dataReceived: !!response.data,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: error.code,
+      details: error.response?.data,
+    });
+  }
+});
+
+// ============================================
+// IMPORT INDIVIDUAL LEAD AS CONTACT
+// ============================================
 router.post('/import-contact', async (req, res) => {
   try {
     const { leadData } = req.body;
@@ -218,12 +192,11 @@ router.post('/import-contact', async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    console.log('📥 Importing contact:', {
-      name: leadData.LeadName,
-      email: leadData.email,
-      company: leadData.company,
-      userId
-    });
+    if (!leadData || !leadData.LeadName) {
+      return res.status(400).json({ error: 'Invalid lead data' });
+    }
+
+    console.log('📥 Importing contact:', leadData.LeadName);
 
     // Create contact from lead data
     const contact = await prisma.contact.create({
@@ -234,29 +207,36 @@ router.post('/import-contact', async (req, res) => {
         company: leadData.company || '',
         title: leadData.jobTitle || '',
         linkedin: leadData.LinkedinLink || '',
-        notes: `Imported from Lead Discovery\nLead Score: ${leadData.leadScore || 'N/A'}\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}`,
+        notes: `🎯 Imported from Lead Discovery\n\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}\nProfile: ${leadData.id || 'N/A'}`,
         dataSource: 'lead_discovery',
         userId: userId,
         status: 'LEAD',
       },
     });
 
-    console.log('✅ Contact imported successfully:', contact.id);
+    console.log('✅ Contact imported:', contact.id);
 
     res.json({
       success: true,
-      contact
+      contact: {
+        id: contact.id,
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        company: contact.company,
+      }
     });
   } catch (error: any) {
     console.error('❌ Import contact error:', error);
     res.status(500).json({
       error: 'Failed to import contact',
-      details: error.message
+      details: error.message,
     });
   }
 });
 
-// Import company lead
+// ============================================
+// IMPORT COMPANY LEAD
+// ============================================
 router.post('/import-company', async (req, res) => {
   try {
     const { leadData } = req.body;
@@ -266,12 +246,11 @@ router.post('/import-company', async (req, res) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    console.log('📥 Importing company:', {
-      name: leadData.LeadName,
-      website: leadData.website,
-      location: leadData.headquarters || leadData.location,
-      userId
-    });
+    if (!leadData || !leadData.LeadName) {
+      return res.status(400).json({ error: 'Invalid lead data' });
+    }
+
+    console.log('📥 Importing company:', leadData.LeadName);
 
     // Create company from lead data
     const company = await prisma.company.create({
@@ -281,23 +260,27 @@ router.post('/import-company', async (req, res) => {
         website: leadData.website || '',
         location: leadData.headquarters || leadData.location || '',
         industry: leadData.industry || leadData.jobTitle || '',
-        description: `Lead Score: ${leadData.leadScore || 'N/A'}\nType: ${leadData.jobTitle || 'N/A'}\nImported from Lead Discovery`,
+        description: `🎯 Imported from Lead Discovery\n\nLead Score: ${leadData.leadScore || 'N/A'}\nType: ${leadData.jobTitle || 'N/A'}\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}\nWebsite: ${leadData.website || 'N/A'}`,
         dataSource: 'lead_discovery',
         userId: userId,
       },
     });
 
-    console.log('✅ Company imported successfully:', company.id);
+    console.log('✅ Company imported:', company.id);
 
     res.json({
       success: true,
-      company
+      company: {
+        id: company.id,
+        name: company.name,
+        leadScore: leadData.leadScore,
+      }
     });
   } catch (error: any) {
     console.error('❌ Import company error:', error);
     res.status(500).json({
       error: 'Failed to import company',
-      details: error.message
+      details: error.message,
     });
   }
 });
