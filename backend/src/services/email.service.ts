@@ -40,6 +40,22 @@ export class EmailService {
   }
 
   /**
+   * Generate 6-digit OTP code
+   * @returns 6-digit numeric string
+   */
+  static generateOTP(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  /**
+   * Calculate OTP expiry time (15 minutes from now)
+   * @returns Date object for expiry time
+   */
+  static getOTPExpiry(): Date {
+    return new Date(Date.now() + 15 * 60 * 1000);
+  }
+
+  /**
    * Send email via SMTP
    * @param options - Email options including from, to, subject, body, etc.
    * @returns Email info with messageId
@@ -201,5 +217,63 @@ export class EmailService {
 </body>
 </html>
     `.trim();
+  }
+
+  /**
+   * Send email verification with OTP
+   * @param email - Recipient email
+   * @param firstName - User's first name
+   * @param otp - 6-digit OTP code
+   * @returns Promise<boolean> - Success status
+   */
+  async sendVerificationEmail(email: string, firstName: string, otp: string): Promise<boolean> {
+    try {
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+    .otp { font-size: 32px; font-weight: bold; color: #4F46E5; text-align: center; letter-spacing: 8px; padding: 20px; background: white; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔒 Email Verification</h1>
+    </div>
+    <div class="content">
+      <p>Hi ${firstName},</p>
+      <p>Thank you for signing up for BrandMonkz CRM! Please use the code below to verify your email address:</p>
+      <div class="otp">${otp}</div>
+      <p><strong>This code expires in 15 minutes.</strong></p>
+      <p>If you didn't create an account with BrandMonkz, please ignore this email.</p>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} BrandMonkz CRM. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
+      `;
+
+      const info = await this.transporter.sendMail({
+        from: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER,
+        to: email,
+        subject: 'Verify your BrandMonkz CRM account',
+        html: htmlContent,
+        text: `Hi ${firstName},\n\nThank you for signing up for BrandMonkz CRM! Your verification code is: ${otp}\n\nThis code expires in 15 minutes.\n\nIf you didn't create an account, please ignore this email.`,
+      });
+
+      console.log(`✅ Verification email sent to ${email}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Error sending verification email:', error);
+      return false;
+    }
   }
 }

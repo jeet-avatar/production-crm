@@ -113,6 +113,11 @@ model User {
   acceptedAt     DateTime?
   requirePasswordChange Boolean @default(false) // Force password change on next login
 
+  // Email Verification Fields (OTP)
+  emailVerified            Boolean?  @default(true) // Default true for backward compatibility
+  verificationToken        String?   // 6-digit OTP code
+  verificationTokenExpiry  DateTime? // OTP expiry time (15 minutes)
+
   // Relationships
   contacts           Contact[]
   companies          Company[]

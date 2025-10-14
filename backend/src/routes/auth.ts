@@ -255,6 +255,125 @@ router.post('/change-password', async (req: Request, res: Response, next: NextFu
   }
 });
 
+// ============================================
+// EMAIL VERIFICATION ENDPOINTS
+// ============================================
+
+// Verify email with OTP
+router.post('/verify-email', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email, token } = req.body;
+
+    if (!email || !token) {
+      throw new AppError('Email and verification code are required', 400);
+    }
+
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    if (user.emailVerified) {
+      throw new AppError('Email already verified', 400);
+    }
+
+    // Check token
+    if (user.verificationToken !== token) {
+      throw new AppError('Invalid verification code', 400);
+    }
+
+    // Check expiry
+    if (user.verificationTokenExpiry && new Date() > user.verificationTokenExpiry) {
+      throw new AppError('Verification code expired. Please request a new one.', 400);
+    }
+
+    // Update user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        verificationToken: null,
+        verificationTokenExpiry: null,
+      },
+    });
+
+    // Generate JWT token
+    const jwtToken = AuthUtils.generateToken(user);
+
+    logger.info(`Email verified for user: ${email}`);
+
+    res.json({
+      success: true,
+      token: jwtToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        emailVerified: true,
+      },
+      message: 'Email verified successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Resend verification code
+router.post('/resend-verification', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new AppError('Email is required', 400);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    if (user.emailVerified) {
+      throw new AppError('Email already verified', 400);
+    }
+
+    // Generate new OTP
+    const { EmailService } = require('../services/email.service');
+    const emailService = new EmailService();
+    const otp = EmailService.generateOTP();
+    const otpExpiry = EmailService.getOTPExpiry();
+
+    // Update user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        verificationToken: otp,
+        verificationTokenExpiry: otpExpiry,
+      },
+    });
+
+    // Send email
+    await emailService.sendVerificationEmail(email, user.firstName, otp);
+
+    logger.info(`Verification code resent to: ${email}`);
+
+    res.json({
+      success: true,
+      message: 'New verification code sent',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Google OAuth Routes
 router.get('/google',
   passport.authenticate('google', {

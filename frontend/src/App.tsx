@@ -6,6 +6,7 @@ import { LoginPage } from './pages/Auth/LoginPage';
 import { SignupPage } from './pages/Auth/SignupPage';
 import { OAuthCallback } from './pages/Auth/OAuthCallback';
 import { ChangePasswordPage } from './pages/Auth/ChangePasswordPage';
+import { VerifyEmailPage } from './pages/Auth/VerifyEmailPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ContactList } from './pages/Contacts/ContactList';
 import { ContactDetail } from './pages/Contacts/ContactDetail';
@@ -82,6 +83,7 @@ function App() {
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/accept-invite" element={<AcceptInvitePage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
 
