@@ -37,12 +37,11 @@ export function Sidebar({ user, onLogout }: SidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-gray-200 flex flex-col shadow-lg">
       {/* Compact Logo */}
-      <div className="flex items-center justify-center py-3 px-4 border-b border-gray-100">
+      <div className="flex items-center justify-center py-6 px-6 border-b-2 border-gray-200">
         <img
           src="/logo.png"
           alt="BrandMonkz"
-          className="h-10 w-auto"
-          style={{ maxWidth: '140px' }}
+          className="h-12 w-auto"
         />
       </div>
 
