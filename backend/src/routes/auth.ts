@@ -129,6 +129,7 @@ router.post('/login', validateLogin, async (req: Request, res: Response, next: N
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        teamRole: user.teamRole,
       },
       token,
       requirePasswordChange, // Signal to frontend that password change is required
