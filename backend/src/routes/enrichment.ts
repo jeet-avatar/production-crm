@@ -64,31 +64,38 @@ router.post('/companies/:id/enrich', async (req: Request, res: Response, next: N
 
       for (const professional of enrichmentData.professionals) {
         try {
+          // Skip if professional has no firstName or lastName
+          if (!professional.firstName || !professional.lastName) {
+            console.log(`   ⏭️  Skipped professional with missing name data`);
+            continue;
+          }
+
           // Check if contact already exists by email or name
-          const existingContact = professional.email
-            ? await prisma.contact.findFirst({
-                where: {
-                  companyId: company.id,
-                  userId: req.user?.id,
-                  OR: [
-                    { email: professional.email },
-                    {
-                      AND: [
-                        { firstName: professional.firstName },
-                        { lastName: professional.lastName },
-                      ],
-                    },
-                  ],
-                },
-              })
-            : await prisma.contact.findFirst({
-                where: {
-                  companyId: company.id,
-                  userId: req.user?.id,
-                  firstName: professional.firstName,
-                  lastName: professional.lastName,
-                },
-              });
+          const whereClause: any = {
+            companyId: company.id,
+            userId: req.user?.id,
+          };
+
+          // Build OR conditions only if we have valid data
+          if (professional.email) {
+            whereClause.OR = [
+              { email: professional.email },
+              {
+                AND: [
+                  { firstName: professional.firstName },
+                  { lastName: professional.lastName },
+                ],
+              },
+            ];
+          } else {
+            // No email, just search by name
+            whereClause.firstName = professional.firstName;
+            whereClause.lastName = professional.lastName;
+          }
+
+          const existingContact = await prisma.contact.findFirst({
+            where: whereClause,
+          });
 
           if (!existingContact) {
             await prisma.contact.create({
