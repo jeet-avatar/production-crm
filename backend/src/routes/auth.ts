@@ -155,11 +155,82 @@ router.post('/forgot-password', async (req: Request, res: Response, next: NextFu
       return;
     }
 
-    // TODO: Implement password reset token generation and email sending
-    logger.info(`Password reset requested for: ${email}`);
+    // Generate reset token (64 character random hex string)
+    const crypto = require('crypto');
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+    // Save token to database
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordResetToken: resetToken,
+        passwordResetExpiry: resetExpiry,
+      },
+    });
+
+    // Send reset email
+    const EmailService = require('../services/email.service').EmailService;
+    const emailService = new EmailService();
+
+    const resetUrl = `${process.env.FRONTEND_URL || 'https://brandmonkz.com'}/reset-password?token=${resetToken}`;
+
+    await emailService.sendPasswordResetEmail(user.email, user.firstName, resetUrl, resetToken);
+
+    logger.info(`Password reset email sent to: ${email}`);
 
     res.json({
       message: 'If an account with that email exists, a password reset link has been sent.',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Reset password
+router.post('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      throw new AppError('Token and password are required', 400);
+    }
+
+    if (password.length < 8) {
+      throw new AppError('Password must be at least 8 characters long', 400);
+    }
+
+    // Find user with valid reset token
+    const user = await prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpiry: {
+          gt: new Date(), // Token not expired
+        },
+      },
+    });
+
+    if (!user) {
+      throw new AppError('Invalid or expired reset token', 400);
+    }
+
+    // Hash new password
+    const passwordHash = await AuthUtils.hashPassword(password);
+
+    // Update password and clear reset token
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpiry: null,
+      },
+    });
+
+    logger.info(`Password reset successful for: ${user.email}`);
+
+    res.json({
+      message: 'Password reset successfully',
     });
   } catch (error) {
     next(error);

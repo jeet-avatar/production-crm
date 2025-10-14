@@ -276,4 +276,93 @@ export class EmailService {
       return false;
     }
   }
+
+  /**
+   * Send password reset email
+   */
+  async sendPasswordResetEmail(email: string, firstName: string, resetUrl: string, token: string): Promise<boolean> {
+    try {
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+    .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+    .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-weight: 600; font-size: 16px; margin: 20px 0; }
+    .token { font-family: monospace; background: #f3f4f6; padding: 12px; border-radius: 4px; font-size: 14px; word-break: break-all; margin: 15px 0; border-left: 4px solid #667eea; }
+    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+    .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; color: #92400e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🔒 Password Reset Request</h1>
+    </div>
+    <div class="content">
+      <p>Hi ${firstName},</p>
+      <p>We received a request to reset your password for your BrandMonkz CRM account. Click the button below to reset your password:</p>
+
+      <div style="text-align: center;">
+        <a href="${resetUrl}" class="button">Reset Password</a>
+      </div>
+
+      <p>Or copy and paste this link into your browser:</p>
+      <div class="token">${resetUrl}</div>
+
+      <div class="warning">
+        <strong>⏰ Important:</strong> This link will expire in 1 hour for security reasons.
+      </div>
+
+      <p><strong>If you didn't request a password reset</strong>, you can safely ignore this email. Your password will not be changed.</p>
+
+      <p>For security reasons, we recommend:</p>
+      <ul>
+        <li>Use a strong, unique password</li>
+        <li>Don't share your password with anyone</li>
+        <li>Enable two-factor authentication</li>
+      </ul>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} BrandMonkz CRM. All rights reserved.</p>
+      <p>If you need help, contact us at support@brandmonkz.com</p>
+    </div>
+  </div>
+</body>
+</html>
+      `;
+
+      const textContent = `
+Hi ${firstName},
+
+We received a request to reset your password for your BrandMonkz CRM account.
+
+Click this link to reset your password:
+${resetUrl}
+
+This link will expire in 1 hour for security reasons.
+
+If you didn't request a password reset, you can safely ignore this email. Your password will not be changed.
+
+© ${new Date().getFullYear()} BrandMonkz CRM. All rights reserved.
+      `;
+
+      const info = await this.transporter.sendMail({
+        from: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER,
+        to: email,
+        subject: 'Reset your BrandMonkz CRM password',
+        html: htmlContent,
+        text: textContent,
+      });
+
+      console.log(`✅ Password reset email sent to ${email}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Error sending password reset email:', error);
+      return false;
+    }
+  }
 }

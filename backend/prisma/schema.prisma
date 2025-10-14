@@ -118,6 +118,10 @@ model User {
   verificationToken        String?   // 6-digit OTP code
   verificationTokenExpiry  DateTime? // OTP expiry time (15 minutes)
 
+  // Password Reset Fields
+  passwordResetToken       String?   // Reset token
+  passwordResetExpiry      DateTime? // Reset token expiry (1 hour)
+
   // Relationships
   contacts           Contact[]
   companies          Company[]
