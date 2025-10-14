@@ -163,6 +163,10 @@ model User {
   sharedDeals      DealShare[]
   sharedActivities ActivityShare[]
 
+  // Assigned data relationships
+  assignedContacts Contact[] @relation("AssignedContacts")
+  assignedCompanies Company[] @relation("AssignedCompanies")
+
   @@index([accountOwnerId])
   @@index([invitedById])
   @@index([inviteToken])
@@ -201,12 +205,14 @@ model Contact {
   fieldSources Json? @map("field_sources") // {"firstName": "manual", "email": "claude_ai", "phone": "csv_import"}
 
   // Foreign keys
-  companyId String?
-  userId    String
+  companyId    String?
+  userId       String
+  assignedToId String? // Team member this contact is assigned to
 
   // Relationships
   company       Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo    User?           @relation("AssignedContacts", fields: [assignedToId], references: [id], onDelete: SetNull)
   deals         Deal[]
   activities    Activity[]
   tags          ContactTag[]
@@ -218,6 +224,7 @@ model Contact {
   @@index([email])
   @@index([userId])
   @@index([companyId])
+  @@index([assignedToId])
   @@index([status])
   @@index([createdAt])
   @@map("contacts")
@@ -294,17 +301,20 @@ model Company {
   updatedAt DateTime @updatedAt
 
   // Foreign keys
-  userId String
+  userId       String
+  assignedToId String? // Team member this company is assigned to
 
   // Relationships
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contacts  Contact[]
-  deals     Deal[]
-  campaigns CampaignCompany[]
-  positions Position[]
-  shares    CompanyShare[] // Team members this company is shared with
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo User?             @relation("AssignedCompanies", fields: [assignedToId], references: [id], onDelete: SetNull)
+  contacts   Contact[]
+  deals      Deal[]
+  campaigns  CampaignCompany[]
+  positions  Position[]
+  shares     CompanyShare[] // Team members this company is shared with
 
   @@index([userId])
+  @@index([assignedToId])
   @@index([domain])
   @@index([enriched])
   @@index([dataSource])
