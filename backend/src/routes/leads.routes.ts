@@ -284,4 +284,113 @@ router.post('/import-company', async (req, res) => {
   }
 });
 
+// ============================================
+// BULK IMPORT COMPANIES
+// ============================================
+router.post('/import-companies-bulk', async (req, res) => {
+  try {
+    const { leads } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    if (!leads || !Array.isArray(leads) || leads.length === 0) {
+      return res.status(400).json({ error: 'Invalid lead data - array of leads required' });
+    }
+
+    console.log(`📥 Bulk importing ${leads.length} companies`);
+
+    const results = {
+      imported: [] as any[],
+      failed: [] as any[],
+      duplicates: [] as any[],
+    };
+
+    // Process each lead
+    for (const leadData of leads) {
+      try {
+        if (!leadData.LeadName) {
+          results.failed.push({
+            lead: leadData,
+            error: 'Missing company name',
+          });
+          continue;
+        }
+
+        // Check for duplicates
+        const existingCompany = await prisma.company.findFirst({
+          where: {
+            userId: userId,
+            OR: [
+              { name: leadData.LeadName || leadData.company },
+              ...(leadData.LinkedinLink ? [{ linkedin: leadData.LinkedinLink }] : []),
+            ],
+          },
+        });
+
+        if (existingCompany) {
+          results.duplicates.push({
+            name: leadData.LeadName,
+            existingId: existingCompany.id,
+          });
+          continue;
+        }
+
+        // Create company
+        const company = await prisma.company.create({
+          data: {
+            name: leadData.LeadName || leadData.company || 'Unknown',
+            linkedin: leadData.LinkedinLink || '',
+            website: leadData.website || '',
+            location: leadData.headquarters || leadData.location || '',
+            industry: leadData.industry || leadData.jobTitle || '',
+            description: `🎯 Imported from Lead Discovery
+
+Lead Score: ${leadData.leadScore || 'N/A'}
+Type: ${leadData.jobTitle || 'N/A'}
+LinkedIn: ${leadData.LinkedinLink || 'N/A'}
+Website: ${leadData.website || 'N/A'}`,
+            dataSource: 'lead_discovery',
+            userId: userId,
+          },
+        });
+
+        results.imported.push({
+          id: company.id,
+          name: company.name,
+          leadScore: leadData.leadScore,
+        });
+
+      } catch (error: any) {
+        results.failed.push({
+          lead: leadData.LeadName || 'Unknown',
+          error: error.message,
+        });
+      }
+    }
+
+    console.log(`✅ Bulk import complete: ${results.imported.length} imported, ${results.duplicates.length} duplicates, ${results.failed.length} failed`);
+
+    res.json({
+      success: true,
+      summary: {
+        total: leads.length,
+        imported: results.imported.length,
+        duplicates: results.duplicates.length,
+        failed: results.failed.length,
+      },
+      results: results,
+    });
+
+  } catch (error: any) {
+    console.error('❌ Bulk import error:', error);
+    res.status(500).json({
+      error: 'Failed to bulk import companies',
+      details: error.message,
+    });
+  }
+});
+
 export default router;
