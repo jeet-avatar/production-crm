@@ -263,9 +263,8 @@ router.post('/import-contact', async (req, res) => {
     console.log('📥 Importing contact:', leadData.LeadName);
 
     // Generate unique email if none provided (to avoid unique constraint violation)
-    const email = leadData.email && leadData.email.trim()
-      ? leadData.email.trim()
-      : null;
+    // Use null for empty/missing emails to avoid unique constraint violations
+    const email = leadData.email?.trim() || null;
 
     // Check for existing contact
     if (email) {
