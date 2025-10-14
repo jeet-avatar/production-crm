@@ -290,9 +290,24 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                         <h3 className="font-bold text-gray-900 truncate">
                           {lead.LeadName || 'Unknown'}
                         </h3>
-                        <p className="text-sm text-gray-600 truncate">
-                          {lead.jobTitle || lead.company || 'N/A'}
-                        </p>
+                        {mode === 'individual' ? (
+                          // For people: Show job title and company
+                          <div className="text-sm text-gray-600">
+                            {lead.jobTitle && <p className="truncate">{lead.jobTitle}</p>}
+                            {lead.company && (
+                              <p className="truncate font-medium flex items-center gap-1">
+                                <span className="text-xs">🏢</span>
+                                {lead.company}
+                              </p>
+                            )}
+                            {!lead.jobTitle && !lead.company && <p className="truncate">N/A</p>}
+                          </div>
+                        ) : (
+                          // For companies: Show company name or industry
+                          <p className="text-sm text-gray-600 truncate">
+                            {lead.industry || lead.company || 'N/A'}
+                          </p>
+                        )}
                       </div>
                     </div>
 
