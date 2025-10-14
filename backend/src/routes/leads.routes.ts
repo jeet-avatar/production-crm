@@ -204,11 +204,10 @@ router.post('/import-contact', async (req, res) => {
         firstName: leadData.LeadName?.split(' ')[0] || 'Unknown',
         lastName: leadData.LeadName?.split(' ').slice(1).join(' ') || '',
         email: leadData.email || '',
-        company: leadData.company || '',
         title: leadData.jobTitle || '',
         linkedin: leadData.LinkedinLink || '',
-        notes: `🎯 Imported from Lead Discovery\n\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}\nProfile: ${leadData.id || 'N/A'}`,
-        dataSource: 'lead_discovery',
+        notes: `🎯 Imported from Lead Discovery\n\nCompany: ${leadData.company || 'N/A'}\nLinkedIn: ${leadData.LinkedinLink || 'N/A'}\nProfile: ${leadData.id || 'N/A'}`,
+        source: 'lead_discovery',
         userId: userId,
         status: 'LEAD',
       },
@@ -222,7 +221,7 @@ router.post('/import-contact', async (req, res) => {
         id: contact.id,
         firstName: contact.firstName,
         lastName: contact.lastName,
-        company: contact.company,
+        email: contact.email,
       }
     });
   } catch (error: any) {
