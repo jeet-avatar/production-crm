@@ -1,5 +1,7 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
+import * as aws from '@aws-sdk/client-ses';
+import { defaultProvider } from '@aws-sdk/credential-provider-node';
 
 export interface EmailOptions {
   from: string;
@@ -45,26 +47,16 @@ export class EmailService {
         },
       });
     } else {
-      // Use AWS SES (more reliable, no Google blocking)
+      // Use AWS SES with IAM role credentials from EC2 instance
       console.log('✅ Using AWS SES for email sending from', sesFromEmail);
 
-      // For now, keep Gmail but this signals we should migrate to SES
-      // The proper SES integration requires nodemailer-ses-transport package
-      const smtpUser = process.env.SMTP_USER;
-      const smtpPass = process.env.SMTP_PASS;
-
-      if (!smtpUser || !smtpPass) {
-        throw new Error('Email credentials not configured.');
-      }
+      const ses = new aws.SESClient({
+        region: awsRegion,
+        credentialDefaultProvider: defaultProvider(),
+      });
 
       this.transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
+        SES: { ses, aws },
       });
     }
   }
