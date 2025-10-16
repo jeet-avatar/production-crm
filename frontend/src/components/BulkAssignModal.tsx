@@ -45,7 +45,8 @@ export function BulkAssignModal({
       setLoading(true);
       const response = await apiClient.get('/team');
       const members = response.data.teamMembers || [];
-      setTeamMembers(members.filter((m: TeamMember) => m.inviteAccepted));
+      // Show all team members (including those who haven't accepted invites yet)
+      setTeamMembers(members);
     } catch (err: any) {
       setError('Failed to load team members');
     } finally {
@@ -164,7 +165,7 @@ export function BulkAssignModal({
                   <option value="">Select team member...</option>
                   {teamMembers.map((member) => (
                     <option key={member.id} value={member.id}>
-                      {member.firstName} {member.lastName} ({member.email})
+                      {member.firstName} {member.lastName} ({member.email}){!member.inviteAccepted ? ' - Pending Invite' : ''}
                     </option>
                   ))}
                 </select>
