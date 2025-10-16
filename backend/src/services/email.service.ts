@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
-import * as aws from '@aws-sdk/client-ses';
+import * as aws from '@aws-sdk/client-sesv2';
 import { defaultProvider } from '@aws-sdk/credential-provider-node';
 
 export interface EmailOptions {
@@ -50,7 +50,7 @@ export class EmailService {
       // Use AWS SES with IAM role credentials from EC2 instance
       console.log('✅ Using AWS SES for email sending from', sesFromEmail);
 
-      const ses = new aws.SESClient({
+      const ses = new aws.SESv2Client({
         region: awsRegion,
         credentials: defaultProvider(),
       });
