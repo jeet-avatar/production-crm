@@ -47,8 +47,9 @@ export function AssignmentDropdown({
       setLoading(true);
       const response = await apiClient.get('/team');
       const members = response.data.teamMembers || [];
-      // Only show accepted team members
-      setTeamMembers(members.filter((m: TeamMember) => m.inviteAccepted));
+      // Show all team members (including those who haven't accepted invites yet)
+      // They are still valid team members and can be assigned work
+      setTeamMembers(members);
     } catch (err: any) {
       console.error('Failed to fetch team members:', err);
       // Silently fail - user might not have team members yet
@@ -108,7 +109,7 @@ export function AssignmentDropdown({
           <option value="">Unassigned</option>
           {teamMembers.map((member) => (
             <option key={member.id} value={member.id}>
-              {member.firstName} {member.lastName}
+              {member.firstName} {member.lastName}{!member.inviteAccepted ? ' (Pending)' : ''}
             </option>
           ))}
         </select>
@@ -168,7 +169,7 @@ export function AssignmentDropdown({
                 <option value="">Unassigned</option>
                 {teamMembers.map((member) => (
                   <option key={member.id} value={member.id}>
-                    {member.firstName} {member.lastName} ({member.teamRole})
+                    {member.firstName} {member.lastName} ({member.teamRole}){!member.inviteAccepted ? ' - Pending Invite' : ''}
                   </option>
                 ))}
               </select>
