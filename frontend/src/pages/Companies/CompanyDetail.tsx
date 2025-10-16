@@ -561,28 +561,14 @@ export function CompanyDetail() {
             </div>
           )}
 
-          {/* Team Assignment - Compact inline version */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <UserGroupIcon className="w-5 h-5 text-gray-400" />
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900">Team Assignment</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">Assign to team member for collaboration</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <AssignmentDropdown
-                  resourceType="company"
-                  resourceId={company.id}
-                  currentAssignedToId={company.assignedToId || null}
-                  currentAssignedTo={company.assignedTo}
-                  onAssignmentChange={loadCompanyDetails}
-                  compact={true}
-                />
-              </div>
-            </div>
-          </div>
+          {/* Team Assignment */}
+          <AssignmentDropdown
+            resourceType="company"
+            resourceId={company.id}
+            currentAssignedToId={company.assignedToId || null}
+            currentAssignedTo={company.assignedTo}
+            onAssignmentChange={loadCompanyDetails}
+          />
 
           {/* LinkedIn Employees */}
           <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200">

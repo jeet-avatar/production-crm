@@ -120,79 +120,17 @@ export function LinkedInEmployeeList({
     }
   };
 
-  const handleFindLinkedInUrl = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await companiesApi.findLinkedInUrl(companyId);
-
-      if (response.success && response.linkedinUrl) {
-        setSuccess(`LinkedIn URL found and saved: ${response.linkedinUrl}`);
-        // Reload the page to show the new URL
-        setTimeout(() => window.location.reload(), 2000);
-      }
-    } catch (err: any) {
-      console.error('Error finding LinkedIn URL:', err);
-      setError(
-        err.response?.data?.message ||
-        'Could not find LinkedIn URL automatically. Please add it manually.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   if (!linkedinUrl) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <UserGroupIcon className="w-5 h-5 text-gray-500" />
-            <h3 className="text-lg font-semibold text-gray-900">LinkedIn Employees</h3>
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <ExclamationCircleIcon className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-medium text-yellow-800">LinkedIn URL Required</h4>
+            <p className="text-sm text-yellow-700 mt-1">
+              Add a LinkedIn company URL to fetch employee data from LinkedIn.
+            </p>
           </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <UserGroupIcon className="w-6 h-6 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <h4 className="font-semibold text-gray-900 mb-2">Find Company Employees via RapidAPI</h4>
-              <p className="text-sm text-gray-600 mb-4">
-                Automatically discover employee profiles from LinkedIn using AI-powered search.
-              </p>
-              <button
-                type="button"
-                onClick={handleFindLinkedInUrl}
-                disabled={loading}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:scale-95"
-              >
-                {loading ? (
-                  <>
-                    <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    Finding Company...
-                  </>
-                ) : (
-                  <>
-                    <MagnifyingGlassIcon className="w-4 h-4" />
-                    Find via RapidAPI
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-          {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700">
-              {success}
-            </div>
-          )}
         </div>
       </div>
     );
@@ -216,7 +154,7 @@ export function LinkedInEmployeeList({
           type="button"
           onClick={fetchEmployees}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:scale-95"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <>
@@ -226,7 +164,7 @@ export function LinkedInEmployeeList({
           ) : (
             <>
               <MagnifyingGlassIcon className="w-4 h-4" />
-              {hasLoaded ? 'Refresh via RapidAPI' : 'Fetch via RapidAPI'}
+              {hasLoaded ? 'Refresh' : 'Fetch Employees'}
             </>
           )}
         </button>
@@ -261,7 +199,6 @@ export function LinkedInEmployeeList({
                 type="checkbox"
                 checked={selectedEmployees.size === employees.length}
                 onChange={selectAllEmployees}
-                aria-label="Select all employees"
                 className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700">
@@ -293,7 +230,6 @@ export function LinkedInEmployeeList({
                   type="checkbox"
                   checked={selectedEmployees.has(employee.linkedinUrl)}
                   onChange={() => toggleEmployeeSelection(employee.linkedinUrl)}
-                  aria-label={`Select ${employee.fullName || 'employee'}`}
                   className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                 />
 
