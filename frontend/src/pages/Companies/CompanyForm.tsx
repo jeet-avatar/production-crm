@@ -9,6 +9,8 @@ interface Company {
   industry?: string;
   size?: string;
   description?: string;
+  linkedin?: string;
+  website?: string;
 }
 
 interface CompanyFormProps {
@@ -46,6 +48,8 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
     industry: '',
     size: '',
     description: '',
+    linkedin: '',
+    website: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -59,6 +63,8 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
         industry: company.industry || '',
         size: company.size || '',
         description: company.description || '',
+        linkedin: company.linkedin || '',
+        website: company.website || '',
       });
     } else {
       setFormData({
@@ -67,6 +73,8 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
         industry: '',
         size: '',
         description: '',
+        linkedin: '',
+        website: '',
       });
     }
   }, [company]);
@@ -83,6 +91,8 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
         industry: formData.industry || undefined,
         size: formData.size || undefined,
         description: formData.description || undefined,
+        linkedin: formData.linkedin || undefined,
+        website: formData.website || undefined,
       };
 
       if (company) {
@@ -108,6 +118,7 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
             {company ? 'Edit Company' : 'Add Company'}
           </h2>
           <button
+            type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
             title="Close modal"
@@ -140,19 +151,35 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
             />
           </div>
 
-          {/* Domain */}
+          {/* Website */}
           <div>
-            <label htmlFor="domain" className="block text-sm font-medium text-gray-700 mb-1">
-              Website Domain
+            <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
+              Website
             </label>
             <input
-              type="text"
-              id="domain"
-              value={formData.domain}
-              onChange={(e) => setFormData(prev => ({ ...prev, domain: e.target.value }))}
+              type="url"
+              id="website"
+              value={formData.website}
+              onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
               className="input-field"
-              placeholder="example.com"
+              placeholder="https://example.com"
             />
+          </div>
+
+          {/* LinkedIn */}
+          <div>
+            <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 mb-1">
+              LinkedIn Company URL
+            </label>
+            <input
+              type="url"
+              id="linkedin"
+              value={formData.linkedin}
+              onChange={(e) => setFormData(prev => ({ ...prev, linkedin: e.target.value }))}
+              className="input-field"
+              placeholder="https://linkedin.com/company/example"
+            />
+            <p className="text-xs text-gray-500 mt-1">Must be a company page (/company/), not a personal profile</p>
           </div>
 
           {/* Industry */}

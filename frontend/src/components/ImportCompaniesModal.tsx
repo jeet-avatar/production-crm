@@ -16,6 +16,9 @@ interface Company {
   size?: string;
   description?: string;
   website?: string;
+  linkedin?: string;
+  twitter?: string;
+  facebook?: string;
   employeeCount?: string;
   headquarters?: string;
   enriched?: boolean;
@@ -66,6 +69,9 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
             size: row.size || row.Size || row['Company Size'],
             description: row.description || row.Description,
             website: row.website || row.Website,
+            linkedin: row.linkedin || row.LinkedIn || row['LinkedIn URL'] || row.linkedinUrl || row['Company LinkedIn'],
+            twitter: row.twitter || row.Twitter || row['Twitter URL'],
+            facebook: row.facebook || row.Facebook || row['Facebook URL'],
             employeeCount: row.employeeCount || row.Employees || row['Employee Count'],
           }));
 
@@ -174,9 +180,9 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
       const token = localStorage.getItem('crmToken');
 
       // Create CSV content from enriched companies
-      const csvHeaders = 'name,domain,industry,location,size,description,website,employeeCount\n';
+      const csvHeaders = 'name,domain,industry,location,size,description,website,linkedin,twitter,facebook,employeeCount\n';
       const csvRows = companies.map(c =>
-        `"${c.name}","${c.domain || ''}","${c.industry || ''}","${c.location || ''}","${c.size || ''}","${c.description || ''}","${c.website || ''}","${c.employeeCount || ''}"`
+        `"${c.name}","${c.domain || ''}","${c.industry || ''}","${c.location || ''}","${c.size || ''}","${c.description || ''}","${c.website || ''}","${c.linkedin || ''}","${c.twitter || ''}","${c.facebook || ''}","${c.employeeCount || ''}"`
       ).join('\n');
       const csvContent = csvHeaders + csvRows;
 

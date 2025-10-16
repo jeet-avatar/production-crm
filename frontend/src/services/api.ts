@@ -107,8 +107,13 @@ export const companiesApi = {
     return response.data;
   },
 
-  checkProxycurlCredits: async () => {
-    const response = await apiClient.get('/companies/proxycurl/credits');
+  checkRapidAPIUsage: async () => {
+    const response = await apiClient.get('/companies/rapidapi/usage');
+    return response.data;
+  },
+
+  findLinkedInUrl: async (id: string) => {
+    const response = await apiClient.post(`/companies/${id}/find-linkedin`);
     return response.data;
   },
 };
@@ -329,6 +334,133 @@ export const csvImportApi = {
 
   delete: async (id: string) => {
     const response = await apiClient.delete(`/csv-import/${id}`);
+    return response.data;
+  },
+};
+
+// Tasks API
+export const tasksApi = {
+  getAll: async (params?: { search?: string; status?: string; priority?: string; type?: string; assignedTo?: string; projectId?: string; page?: number; limit?: number }) => {
+    const response = await apiClient.get('/tasks', { params });
+    return response.data;
+  },
+
+  getById: async (id: string) => {
+    const response = await apiClient.get(`/tasks/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await apiClient.post('/tasks', data);
+    return response.data;
+  },
+
+  update: async (id: string, data: any) => {
+    const response = await apiClient.put(`/tasks/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await apiClient.delete(`/tasks/${id}`);
+    return response.data;
+  },
+
+  addComment: async (id: string, content: string) => {
+    const response = await apiClient.post(`/tasks/${id}/comments`, { content });
+    return response.data;
+  },
+
+  logTime: async (id: string, data: { duration: number; notes?: string; loggedAt?: string }) => {
+    const response = await apiClient.post(`/tasks/${id}/time-logs`, data);
+    return response.data;
+  },
+};
+
+// Projects API
+export const projectsApi = {
+  getAll: async (params?: { search?: string; status?: string; ownerId?: string; page?: number; limit?: number }) => {
+    const response = await apiClient.get('/projects', { params });
+    return response.data;
+  },
+
+  getById: async (id: string) => {
+    const response = await apiClient.get(`/projects/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await apiClient.post('/projects', data);
+    return response.data;
+  },
+
+  update: async (id: string, data: any) => {
+    const response = await apiClient.put(`/projects/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await apiClient.delete(`/projects/${id}`);
+    return response.data;
+  },
+
+  getTasks: async (id: string, status?: string) => {
+    const response = await apiClient.get(`/projects/${id}/tasks`, { params: { status } });
+    return response.data;
+  },
+};
+
+// Support Tickets API
+export const ticketsApi = {
+  getAll: async (params?: { search?: string; status?: string; priority?: string; category?: string; assignedTo?: string; customerId?: string; page?: number; limit?: number }) => {
+    const response = await apiClient.get('/tickets', { params });
+    return response.data;
+  },
+
+  getById: async (id: string) => {
+    const response = await apiClient.get(`/tickets/${id}`);
+    return response.data;
+  },
+
+  create: async (data: any) => {
+    const response = await apiClient.post('/tickets', data);
+    return response.data;
+  },
+
+  update: async (id: string, data: any) => {
+    const response = await apiClient.put(`/tickets/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await apiClient.delete(`/tickets/${id}`);
+    return response.data;
+  },
+
+  addComment: async (id: string, data: { content: string; isInternal?: boolean }) => {
+    const response = await apiClient.post(`/tickets/${id}/comments`, data);
+    return response.data;
+  },
+
+  getStats: async (params?: { assignedTo?: string; customerId?: string }) => {
+    const response = await apiClient.get('/tickets/stats/overview', { params });
+    return response.data;
+  },
+};
+
+// Internal Operations API
+export const internalApi = {
+  getDashboard: async () => {
+    const response = await apiClient.get('/internal/dashboard');
+    return response.data;
+  },
+
+  getActivity: async (limit?: number) => {
+    const response = await apiClient.get('/internal/activity', { params: { limit } });
+    return response.data;
+  },
+
+  getTeamStats: async () => {
+    const response = await apiClient.get('/internal/team-stats');
     return response.data;
   },
 };
