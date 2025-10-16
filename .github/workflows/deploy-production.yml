@@ -27,7 +27,7 @@ jobs:
       - name: Build Backend
         working-directory: ./backend
         run: |
-          npm ci
+          npm install
           npm run build
 
       - name: Build Frontend
@@ -35,7 +35,7 @@ jobs:
         env:
           VITE_API_URL: https://brandmonkz.com
         run: |
-          npm ci
+          npm install
           npm run build
 
       - name: Create deployment package
