@@ -3,8 +3,11 @@ import { app } from './app';
 import { PrismaClient } from '@prisma/client';
 import { logger } from './utils/logger';
 
-// Load environment variables
-dotenv.config();
+// Load environment variables with explicit path
+const dotenvResult = dotenv.config({ path: '/home/ec2-user/crm-backend/backend/.env' });
+console.log('🔧 Environment loaded:', dotenvResult.error ? dotenvResult.error.message : 'SUCCESS');
+console.log('🔧 SMTP_USER:', process.env.SMTP_USER || 'NOT SET');
+console.log('🔧 SMTP_PASS:', process.env.SMTP_PASS ? '***SET***' : 'NOT SET');
 
 const PORT = process.env.PORT || 3000;
 const prisma = new PrismaClient();

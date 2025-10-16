@@ -425,42 +425,78 @@ router.delete('/:id', async (req, res, next) => {
 // POST /api/companies/import - Import companies from CSV
 router.post('/import', upload.single('file'), async (req, res, next) => {
   try {
+    console.log('[CSV Import] Starting import process...');
     const userId = req.user!.id;
+    console.log('[CSV Import] User ID:', userId);
 
     if (!req.file) {
+      console.error('[CSV Import] ERROR: No file uploaded');
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    console.log('[CSV Import] File received:', req.file.originalname, 'Size:', req.file.size, 'bytes');
+
     // Parse CSV
-    const csvContent = req.file.buffer.toString('utf-8');
-    const records = parse(csvContent, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    });
+    let csvContent: string;
+    let records: any[];
+
+    try {
+      csvContent = req.file.buffer.toString('utf-8');
+      console.log('[CSV Import] CSV content length:', csvContent.length, 'characters');
+      console.log('[CSV Import] First 200 chars:', csvContent.substring(0, 200));
+    } catch (error: any) {
+      console.error('[CSV Import] ERROR parsing buffer to string:', error.message);
+      throw error;
+    }
+
+    try {
+      records = parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+      console.log('[CSV Import] Parsed records count:', records.length);
+    } catch (error: any) {
+      console.error('[CSV Import] ERROR parsing CSV:', error.message);
+      throw error;
+    }
 
     if (records.length === 0) {
+      console.error('[CSV Import] ERROR: No valid records found in CSV');
       return res.status(400).json({ error: 'No valid records found in CSV' });
     }
 
     // AI Field Mapping for Companies
     const headers = Object.keys(records[0]);
+    console.log('[CSV Import] CSV Headers:', headers.join(', '));
+
     const fieldMapping = mapCSVFieldsToCompany(headers);
+    console.log('[CSV Import] Field Mapping:', JSON.stringify(fieldMapping, null, 2));
 
     const importedCompanies = [];
     const errors = [];
     let duplicates = 0;
+    let skipped = 0;
 
-    for (const record of records) {
+    console.log('[CSV Import] Starting row-by-row processing...');
+
+    for (let i = 0; i < records.length; i++) {
+      const record = records[i];
       try {
+        console.log(`[CSV Import] Processing row ${i + 1}/${records.length}...`);
+
         const companyData = parseCompanyData(record, fieldMapping);
+        console.log(`[CSV Import] Row ${i + 1} parsed data:`, JSON.stringify(companyData, null, 2));
 
         // Skip if no name
         if (!companyData.name || !companyData.name.trim()) {
+          console.log(`[CSV Import] Row ${i + 1} SKIPPED: No company name`);
+          skipped++;
           continue;
         }
 
         // Check for duplicate
+        console.log(`[CSV Import] Row ${i + 1} checking for duplicate: ${companyData.name}`);
         const existing = await prisma.company.findFirst({
           where: {
             name: companyData.name,
@@ -469,11 +505,13 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
         });
 
         if (existing) {
+          console.log(`[CSV Import] Row ${i + 1} DUPLICATE: ${companyData.name} (ID: ${existing.id})`);
           duplicates++;
           continue;
         }
 
         // Create company
+        console.log(`[CSV Import] Row ${i + 1} creating company: ${companyData.name}`);
         const company = await prisma.company.create({
           data: {
             ...companyData,
@@ -493,21 +531,34 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
           },
         });
 
+        console.log(`[CSV Import] Row ${i + 1} SUCCESS: Created company ${company.name} (ID: ${company.id})`);
         importedCompanies.push(company);
       } catch (error: any) {
-        errors.push(`Row error: ${error.message}`);
+        console.error(`[CSV Import] Row ${i + 1} ERROR:`, error.message);
+        console.error(`[CSV Import] Row ${i + 1} Stack:`, error.stack);
+        errors.push(`Row ${i + 1}: ${error.message}`);
       }
     }
+
+    console.log('[CSV Import] Import complete!');
+    console.log('[CSV Import] Total processed:', records.length);
+    console.log('[CSV Import] Imported:', importedCompanies.length);
+    console.log('[CSV Import] Duplicates:', duplicates);
+    console.log('[CSV Import] Skipped (no name):', skipped);
+    console.log('[CSV Import] Errors:', errors.length);
 
     res.json({
       message: 'Company import completed',
       totalProcessed: records.length,
       imported: importedCompanies.length,
       duplicates,
+      skipped,
       errors: errors.length > 0 ? errors : undefined,
       companies: importedCompanies,
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[CSV Import] CRITICAL ERROR:', error.message);
+    console.error('[CSV Import] Stack trace:', error.stack);
     next(error);
   }
 });
@@ -760,6 +811,9 @@ function mapCSVFieldsToCompany(headers: string[]): Record<string, string> {
     if (normalized.match(/^(company.*name|name|business.*name)$/)) mapping[header] = 'name';
     else if (normalized.match(/domain|companywebsite/)) mapping[header] = 'domain';
     else if (normalized.match(/^(website|url|site)$/)) mapping[header] = 'website';
+    else if (normalized.match(/linkedin|linkedinurl|linkedinprofile|companylinkedin/)) mapping[header] = 'linkedin';
+    else if (normalized.match(/twitter|twitterurl|twitterhandle/)) mapping[header] = 'twitter';
+    else if (normalized.match(/facebook|facebookurl|facebookpage/)) mapping[header] = 'facebook';
     else if (normalized.match(/industry|sector|vertical/)) mapping[header] = 'industry';
     else if (normalized.match(/location|city|address|headquarters|hq/)) mapping[header] = 'location';
     else if (normalized.match(/size|companysize|employees/)) mapping[header] = 'size';
@@ -779,33 +833,41 @@ function mapCSVFieldsToCompany(headers: string[]): Record<string, string> {
 function parseCompanyData(record: any, fieldMapping: Record<string, string>): any {
   const companyData: any = {};
 
-  for (const [csvHeader, dbField] of Object.entries(fieldMapping)) {
-    const value = record[csvHeader]?.trim();
-    if (!value) continue;
+  try {
+    for (const [csvHeader, dbField] of Object.entries(fieldMapping)) {
+      const value = record[csvHeader]?.trim();
+      if (!value) continue;
 
-    // Handle custom fields
-    if (dbField.startsWith('custom_')) {
-      continue; // Skip custom fields for now
+      // Handle custom fields
+      if (dbField.startsWith('custom_')) {
+        continue; // Skip custom fields for now
+      }
+
+      // Map standard fields
+      companyData[dbField] = value;
     }
 
-    // Map standard fields
-    companyData[dbField] = value;
-  }
-
-  // Extract domain from website if not provided
-  if (companyData.website && !companyData.domain) {
-    try {
-      const url = companyData.website.startsWith('http')
-        ? companyData.website
-        : 'https://' + companyData.website;
-      const urlObj = new URL(url);
-      companyData.domain = urlObj.hostname;
-    } catch (error) {
-      // Invalid URL, skip domain extraction
+    // Extract domain from website if not provided
+    if (companyData.website && !companyData.domain) {
+      try {
+        const url = companyData.website.startsWith('http')
+          ? companyData.website
+          : 'https://' + companyData.website;
+        const urlObj = new URL(url);
+        companyData.domain = urlObj.hostname;
+      } catch (error: any) {
+        console.warn('[parseCompanyData] Failed to extract domain from website:', companyData.website, error.message);
+        // Invalid URL, skip domain extraction
+      }
     }
-  }
 
-  return companyData;
+    return companyData;
+  } catch (error: any) {
+    console.error('[parseCompanyData] ERROR:', error.message);
+    console.error('[parseCompanyData] Record:', JSON.stringify(record));
+    console.error('[parseCompanyData] Field Mapping:', JSON.stringify(fieldMapping));
+    throw error;
+  }
 }
 
 // ==========================================
@@ -1001,6 +1063,239 @@ router.post('/:id/unassign', async (req, res, next) => {
       company: updatedCompany
     });
   } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/companies/:id/find-linkedin - Auto-find LinkedIn company URL
+router.post('/:id/find-linkedin', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Get company details
+    const company = await prisma.company.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        website: true,
+        linkedin: true,
+        userId: true
+      }
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    // Check if LinkedIn URL already exists
+    if (company.linkedin && company.linkedin.includes('linkedin.com/company/')) {
+      return res.json({
+        success: true,
+        linkedinUrl: company.linkedin,
+        message: 'LinkedIn URL already exists'
+      });
+    }
+
+    // Import and use the LinkedIn URL finder service
+    const { findLinkedInCompanyUrl } = await import('../services/linkedin-url-finder.service');
+
+    const result = await findLinkedInCompanyUrl(
+      company.name,
+      company.website || undefined
+    );
+
+    if (!result || !result.linkedinUrl) {
+      return res.status(404).json({
+        success: false,
+        error: 'LinkedIn URL not found',
+        message: 'Could not automatically find LinkedIn company URL. Please add it manually.'
+      });
+    }
+
+    // Update company with found LinkedIn URL
+    await prisma.company.update({
+      where: { id },
+      data: { linkedin: result.linkedinUrl }
+    });
+
+    res.json({
+      success: true,
+      linkedinUrl: result.linkedinUrl,
+      confidence: result.confidence,
+      method: result.method
+    });
+  } catch (error: any) {
+    console.error('Error finding LinkedIn URL:', error);
+    next(error);
+  }
+});
+
+// ==========================================
+// LINKEDIN EMPLOYEE ENDPOINTS
+// ==========================================
+
+// GET /api/companies/:id/employees - Fetch company employees from LinkedIn via RapidAPI
+router.get('/:id/employees', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { limit = '20', enrich = 'false' } = req.query as {
+      limit?: string;
+      enrich?: string;
+    };
+
+    const userId = req.user!.id;
+
+    // Get company
+    const company = await prisma.company.findFirst({
+      where: {
+        id,
+        userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        linkedin: true,
+        domain: true,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    let linkedinUrl = company.linkedin;
+
+    // If no LinkedIn URL, use AI to find it
+    if (!linkedinUrl) {
+      console.log(`[Get Employees] No LinkedIn URL for ${company.name}, using AI to find it...`);
+
+      const { findLinkedInCompanyUrl } = await import('../services/linkedin-url-finder.service');
+      const result = await findLinkedInCompanyUrl(company.name, company.domain || undefined);
+
+      if (result && result.linkedinUrl) {
+        linkedinUrl = result.linkedinUrl;
+        console.log(`[Get Employees] AI found LinkedIn URL: ${linkedinUrl} (${result.confidence} confidence)`);
+
+        // Save the found LinkedIn URL to the database for future use
+        await prisma.company.update({
+          where: { id: company.id },
+          data: { linkedin: linkedinUrl },
+        });
+
+        console.log(`[Get Employees] Saved LinkedIn URL to database`);
+      } else {
+        return res.status(400).json({
+          error: 'No LinkedIn URL',
+          message: 'Could not automatically find LinkedIn company URL. Please add it manually.',
+        });
+      }
+    }
+
+    // Import RapidAPI service
+    const { fetchCompanyEmployees } = await import('../services/rapidapi-linkedin.service');
+
+    // Fetch employees from RapidAPI
+    const employees = await fetchCompanyEmployees(linkedinUrl, {
+      limit: Number.parseInt(limit),
+      enrichProfiles: enrich === 'true',
+      useCache: true,
+    });
+
+    res.json({
+      companyId: company.id,
+      companyName: company.name,
+      linkedinUrl: linkedinUrl,
+      employees,
+      count: employees.length,
+    });
+  } catch (error: any) {
+    console.error('[Get Employees] Error:', error);
+    next(error);
+  }
+});
+
+// POST /api/companies/:id/employees/import - Import selected employees as contacts
+router.post('/:id/employees/import', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { employeeUrls } = req.body as { employeeUrls: string[] };
+    const userId = req.user!.id;
+
+    if (!employeeUrls || !Array.isArray(employeeUrls) || employeeUrls.length === 0) {
+      return res.status(400).json({ error: 'employeeUrls array is required' });
+    }
+
+    // Get company
+    const company = await prisma.company.findFirst({
+      where: {
+        id,
+        userId,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    // Import RapidAPI service
+    const { fetchEmployeesByUrls } = await import('../services/rapidapi-linkedin.service');
+
+    // Fetch detailed profiles for selected employees
+    const employees = await fetchEmployeesByUrls(employeeUrls);
+
+    // Create contacts from employees
+    const createdContacts = [];
+    const errors = [];
+
+    for (const emp of employees) {
+      try {
+        // Check if contact already exists
+        const existing = await prisma.contact.findFirst({
+          where: {
+            userId,
+            linkedin: emp.linkedinUrl,
+          },
+        });
+
+        if (existing) {
+          errors.push(`${emp.fullName} already exists as a contact`);
+          continue;
+        }
+
+        // Create contact
+        const contact = await prisma.contact.create({
+          data: {
+            userId,
+            companyId: company.id,
+            firstName: emp.firstName || 'Unknown',
+            lastName: emp.lastName || '',
+            title: emp.title,
+            location: emp.location,
+            linkedin: emp.linkedinUrl,
+            enriched: true,
+          },
+        });
+
+        createdContacts.push(contact);
+      } catch (error: any) {
+        errors.push(`${emp.fullName}: ${error.message}`);
+      }
+    }
+
+    res.json({
+      message: 'Employee import completed',
+      imported: createdContacts.length,
+      total: employeeUrls.length,
+      errors: errors.length > 0 ? errors : undefined,
+      contacts: createdContacts,
+    });
+  } catch (error: any) {
+    console.error('[Import Employees] Error:', error);
     next(error);
   }
 });

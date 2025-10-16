@@ -49,6 +49,11 @@ export function sanitizeInputGuard(req: Request, res: Response, next: NextFuncti
  */
 export function sqlInjectionGuard(req: Request, res: Response, next: NextFunction) {
   try {
+    // Skip AI chat routes - they need to accept natural language with SQL-like words
+    if (req.path.startsWith('/ai-chat')) {
+      return next();
+    }
+
     const suspiciousPatterns = [
       /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE)\b)/gi,
       /(--|\*\/|\/\*)/g, // SQL comments

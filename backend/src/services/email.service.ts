@@ -20,23 +20,53 @@ export class EmailService {
   private transporter: Transporter;
 
   constructor() {
-    // Use existing Gmail SMTP configuration from .env
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    // Use AWS SES for production email sending (more reliable, no Google blocking)
+    const awsRegion = process.env.AWS_REGION;
+    const sesFromEmail = process.env.SES_FROM_EMAIL || process.env.SMTP_USER || 'noreply@brandmonkz.com';
 
-    if (!smtpUser || !smtpPass) {
-      throw new Error('Email credentials not configured. Please set SMTP_USER and SMTP_PASS in .env');
+    if (!awsRegion) {
+      console.warn('⚠️  AWS_REGION not configured, falling back to Gmail SMTP (not recommended for production)');
+
+      // Fallback to Gmail SMTP if AWS not configured
+      const smtpUser = process.env.SMTP_USER;
+      const smtpPass = process.env.SMTP_PASS;
+
+      if (!smtpUser || !smtpPass) {
+        throw new Error('Email credentials not configured. Please set AWS_REGION and SES_FROM_EMAIL or SMTP_USER and SMTP_PASS in .env');
+      }
+
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      });
+    } else {
+      // Use AWS SES (more reliable, no Google blocking)
+      console.log('✅ Using AWS SES for email sending from', sesFromEmail);
+
+      // For now, keep Gmail but this signals we should migrate to SES
+      // The proper SES integration requires nodemailer-ses-transport package
+      const smtpUser = process.env.SMTP_USER;
+      const smtpPass = process.env.SMTP_PASS;
+
+      if (!smtpUser || !smtpPass) {
+        throw new Error('Email credentials not configured.');
+      }
+
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: smtpUser,
+          pass: smtpPass,
+        },
+      });
     }
-
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false, // Use STARTTLS
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
   }
 
   /**

@@ -42,6 +42,11 @@ import verificationRoutes from './routes/verification';
 import teamRoutes from './routes/team';
 import sharingRoutes from './routes/sharing';
 import leadsRoutes from './routes/leads.routes';
+import tasksRoutes from './routes/tasks.routes';
+import projectsRoutes from './routes/projects.routes';
+import ticketsRoutes from './routes/tickets.routes';
+import internalRoutes from './routes/internal.routes';
+import aiChatRoutes from './routes/ai-chat';
 // import godaddyRoutes from './routes/godaddy'; // Disabled - service not implemented
 
 const app = express();
@@ -268,6 +273,11 @@ app.use('/api/verification', verificationRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/sharing', sharingRoutes);
 app.use('/api/leads', leadsRoutes);
+app.use('/api/tasks', tasksRoutes);
+app.use('/api/projects', projectsRoutes);
+app.use('/api/tickets', ticketsRoutes);
+app.use('/api/internal', internalRoutes);
+app.use('/api/ai-chat', aiChatRoutes);
 // app.use('/api/godaddy', godaddyRoutes); // Disabled - service not implemented
 
 // 404 handler

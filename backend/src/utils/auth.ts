@@ -40,7 +40,8 @@ export class AuthUtils {
         audience: 'crm-client',
       }) as TokenPayload;
     } catch (error) {
-      throw new Error('Invalid token');
+      const { AppError } = require('../middleware/errorHandler');
+      throw new AppError('Invalid or expired token', 401);
     }
   }
 

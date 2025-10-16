@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import { prisma } from '../app';
 import { AppError } from '../middleware/errorHandler';
+import { logger } from '../utils/logger';
 import crypto from 'crypto';
 
 const router = Router();
@@ -184,6 +185,7 @@ router.get('/', async (req, res, next) => {
  */
 router.post('/invite', async (req, res, next) => {
   try {
+    console.log('🎯 Team invite endpoint called');
     const userId = req.user?.id;
     if (!userId) {
       throw new AppError('User not authenticated', 401);
@@ -194,23 +196,36 @@ router.post('/invite', async (req, res, next) => {
       throw new AppError('Only account owners can invite team members', 403);
     }
 
-    const { email, firstName, lastName } = req.body;
+    let { email, firstName, lastName } = req.body;
+
+    // Normalize email to lowercase and trim whitespace
+    email = email ? email.toLowerCase().trim() : email;
+
+    console.log(`🎯 Inviting ${email} (${firstName} ${lastName})`);
 
     // Validate input
     if (!email || !firstName || !lastName) {
       throw new AppError('Email, first name, and last name are required', 400);
     }
 
-    // Check if user with this email already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    // Check if user with this email already exists (case-insensitive)
+    console.log('🎯 Checking if user exists...');
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive'
+        }
+      },
     });
 
     if (existingUser) {
+      console.log('🎯 User already exists');
       throw new AppError('A user with this email already exists', 400);
     }
 
     // Generate invite token
+    console.log('🎯 Generating invite token...');
     const inviteToken = crypto.randomBytes(32).toString('hex');
 
     // Create temporary password (user will be required to change it on first login)
@@ -219,6 +234,7 @@ router.post('/invite', async (req, res, next) => {
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
     // Create new user with MEMBER role
+    console.log('🎯 Creating new user in database...');
     const newUser = await prisma.user.create({
       data: {
         email,
@@ -244,15 +260,84 @@ router.post('/invite', async (req, res, next) => {
       },
     });
 
-    // TODO: Send invitation email with invite token
-    // This will be implemented in the email invitation system task
+    // Send invitation email
+    console.log(`📧 Starting email invitation for ${email}...`);
+    console.log(`SMTP_USER: ${process.env.SMTP_USER}`);
+    console.log(`SMTP_PASS: ${process.env.SMTP_PASS ? '***configured***' : 'NOT SET'}`);
+    try {
+      const { EmailService } = await import('../services/email.service');
+      console.log('EmailService imported successfully');
+      const emailService = new EmailService();
+      console.log('EmailService instance created');
+
+      const inviteUrl = `${process.env.FRONTEND_URL || 'https://brandmonkz.com'}/accept-invite?token=${inviteToken}`;
+
+      const emailHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+            .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🎉 You're Invited!</h1>
+            </div>
+            <div class="content">
+              <p>Hi ${firstName},</p>
+              <p>${req.user?.firstName || 'Your team lead'} has invited you to join their team on <strong>Brandmonkz CRM</strong>!</p>
+              <p>Click the button below to accept the invitation and set up your password:</p>
+              <p style="text-align: center;">
+                <a href="${inviteUrl}" class="button">Accept Invitation</a>
+              </p>
+              <p style="color: #666; font-size: 14px;">Or copy and paste this link into your browser:<br>${inviteUrl}</p>
+              <p><strong>This invitation will expire in 7 days.</strong></p>
+              <p>Once you accept, you'll have access to:</p>
+              <ul>
+                <li>View and manage shared contacts and companies</li>
+                <li>Collaborate on deals and activities</li>
+                <li>Access team analytics and reports</li>
+              </ul>
+              <p>If you have any questions, please reach out to your team lead.</p>
+            </div>
+            <div class="footer">
+              <p>© 2025 Brandmonkz CRM. All rights reserved.</p>
+              <p>If you didn't expect this invitation, please ignore this email.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      await emailService.sendEmail({
+        from: process.env.SMTP_USER || 'noreply@brandmonkz.com',
+        to: [email],
+        subject: `You're invited to join ${req.user?.firstName || 'the'} team on Brandmonkz CRM`,
+        html: emailHtml,
+      });
+
+      console.log(`✉️  Invitation email sent to ${email}`);
+    } catch (emailError: any) {
+      console.error('Failed to send invitation email:', emailError.message);
+      // Don't fail the request if email fails - user can still be invited manually
+    }
 
     res.status(201).json({
-      message: 'Team member invited successfully',
+      message: 'Team member invited successfully. An invitation email has been sent.',
       teamMember: newUser,
-      inviteToken, // Temporary - will be sent via email in production
+      inviteUrl: `${process.env.FRONTEND_URL || 'https://brandmonkz.com'}/accept-invite?token=${inviteToken}`,
     });
-  } catch (error) {
+  } catch (error: any) {
+    const fs = require('fs');
+    fs.appendFileSync('/tmp/team-invite-error.log', `${new Date().toISOString()} - ERROR: ${error.message}\n${error.stack}\n\n`);
+    console.error('🚨 Team invite error:', error.message, error.stack);
     next(error);
   }
 });
