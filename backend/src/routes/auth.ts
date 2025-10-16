@@ -452,7 +452,8 @@ router.post('/resend-verification', async (req: Request, res: Response, next: Ne
 router.get('/google',
   passport.authenticate('google', {
     scope: ['profile', 'email'],
-    session: false
+    session: false,
+    prompt: "select_account"
   })
 );
 
