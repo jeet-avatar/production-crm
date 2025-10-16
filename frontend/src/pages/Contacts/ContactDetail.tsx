@@ -247,11 +247,10 @@ export function ContactDetail() {
           <button
             onClick={handleEnrich}
             disabled={enriching}
-            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
-            title="Enrich contact with LinkedIn data via RapidAPI"
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <SparklesIcon className="h-4 w-4" />
-            <span>{enriching ? 'Enriching...' : 'Enrich via RapidAPI'}</span>
+            <span>{enriching ? 'Enriching...' : 'AI Enrich'}</span>
           </button>
           <button
             onClick={() => setShowEditModal(true)}
