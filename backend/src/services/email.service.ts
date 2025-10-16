@@ -52,12 +52,12 @@ export class EmailService {
 
       const ses = new aws.SESClient({
         region: awsRegion,
-        credentialDefaultProvider: defaultProvider(),
+        credentials: defaultProvider(),
       });
 
       this.transporter = nodemailer.createTransport({
         SES: { ses, aws },
-      });
+      } as any);
     }
   }
 
