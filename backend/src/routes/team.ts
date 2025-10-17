@@ -343,6 +343,62 @@ router.post('/invite', async (req, res, next) => {
 });
 
 /**
+ * PUT /api/team/:userId/role
+ * Change a team member's role
+ * Only account owners can change team roles
+ * Body: { teamRole: 'MEMBER' | 'ADMIN' }
+ */
+router.put('/:userId/role', async (req, res, next) => {
+  try {
+    const ownerId = req.user?.id;
+    if (!ownerId) {
+      throw new AppError('User not authenticated', 401);
+    }
+
+    if (req.user?.teamRole !== 'OWNER') {
+      throw new AppError('Only account owners can change team roles', 403);
+    }
+
+    const { userId } = req.params;
+    const { teamRole } = req.body;
+
+    if (!teamRole || !['MEMBER', 'ADMIN'].includes(teamRole)) {
+      throw new AppError('Valid teamRole is required (MEMBER or ADMIN)', 400);
+    }
+
+    const teamMember = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, accountOwnerId: true, teamRole: true },
+    });
+
+    if (!teamMember) {
+      throw new AppError('Team member not found', 404);
+    }
+
+    if (teamMember.accountOwnerId !== ownerId) {
+      throw new AppError('You can only change roles for members of your own team', 403);
+    }
+
+    if (teamMember.teamRole === 'OWNER') {
+      throw new AppError('Cannot change the role of account owners', 400);
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { teamRole: teamRole as any },
+      select: { id: true, email: true, firstName: true, lastName: true, teamRole: true },
+    });
+
+    res.json({
+      message: `Team role updated to ${teamRole} successfully`,
+      teamMember: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * DELETE /api/team/:userId
  * Remove a team member
  * Only account owners can remove team members
