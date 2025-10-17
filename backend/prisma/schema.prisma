@@ -1079,6 +1079,10 @@ model VideoCampaign {
   narrationScript String               @db.Text
   tone            String               @default("professional") // professional, friendly, enthusiastic, persuasive
 
+  // Voice Settings
+  voiceId         String               @default("gtts-en-us") // Built-in voice ID (gtts-en-us, gtts-en-uk, etc.)
+  customVoiceUrl  String? // Custom uploaded voice file URL
+
   // Visual Elements
   clientLogoUrl   String? // Client company logo
   userLogoUrl     String? // User's company logo
