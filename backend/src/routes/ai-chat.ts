@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
-import { aiOrchestrator } from '../services/ai-orchestrator.service';
+import { chatbotOpenAI } from '../services/chatbot-openai.service';
 import { prisma } from '../app';
 
 const router = Router();
@@ -47,7 +47,7 @@ router.post('/message', async (req, res, next) => {
     session.lastActivity = new Date();
 
     // Process request through AI orchestrator
-    const response = await aiOrchestrator.processRequest(message, {
+    const response = await chatbotOpenAI.processRequest(message, {
       userId,
       conversationHistory: session.conversationHistory,
     });
@@ -97,7 +97,7 @@ router.post('/approve', async (req, res, next) => {
     }
 
     // Execute approved action
-    const result = await aiOrchestrator.executeApprovedAction(action, data, userId);
+    const result = await chatbotOpenAI.executeApprovedAction(action, data, userId);
 
     // Add execution result to conversation history
     session.conversationHistory.push({
@@ -199,7 +199,7 @@ router.post('/quick-action', async (req, res, next) => {
     chatSessions.set(sessionId, session);
 
     // Process as regular message
-    const response = await aiOrchestrator.processRequest(message, {
+    const response = await chatbotOpenAI.processRequest(message, {
       userId,
       conversationHistory: session.conversationHistory,
     });

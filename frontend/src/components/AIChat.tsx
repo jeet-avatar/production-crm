@@ -216,7 +216,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
           </div>
           <div>
             <h3 className="font-bold text-lg">AI Assistant</h3>
-            <p className="text-xs text-purple-100">Powered by Claude 3.5</p>
+            <p className="text-xs text-purple-100">Powered by ChatGPT</p>
           </div>
         </div>
         <button
