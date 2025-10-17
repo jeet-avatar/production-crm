@@ -265,10 +265,10 @@ body {
 .bg-blue-50 { background-color: var(--color-primary-50); }
 
 /* Borders */
-.border { border-width: 1px; }
+.border { border-width: 1px; border-style: solid; }
 .border-0 { border-width: 0; }
-.border-2 { border-width: 2px; }
-.border-4 { border-width: 4px; }
+.border-2 { border-width: 2px; border-style: solid; }
+.border-4 { border-width: 4px; border-style: solid; }
 .border-t { border-top-width: 1px; }
 .border-r { border-right-width: 1px; }
 .border-b { border-bottom-width: 1px; }
