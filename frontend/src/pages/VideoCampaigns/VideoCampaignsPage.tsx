@@ -10,6 +10,7 @@ import {
 import { CreateVideoCampaignModal } from '../../components/CreateVideoCampaignModal';
 import { VideoGenerationProgress } from '../../components/VideoGenerationProgress';
 import { videoService, type VideoCampaign } from '../../services/videoService';
+import { buttonStyles } from '../../config/ui';
 
 export function VideoCampaignsPage() {
   const [campaigns, setCampaigns] = useState<VideoCampaign[]>([]);
@@ -89,7 +90,7 @@ export function VideoCampaignsPage() {
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              className={`flex items-center gap-2 ${buttonStyles.gradient.primary}`}
             >
               <PlusIcon className="w-5 h-5" />
               Create Campaign
@@ -105,7 +106,7 @@ export function VideoCampaignsPage() {
                 className={`px-4 py-2 rounded-lg font-medium capitalize transition-all ${
                   selectedStatus === status
                     ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                    : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    : `${buttonStyles.secondary}`
                 }`}
               >
                 {status === 'all' ? 'All' : status.toLowerCase()}
@@ -147,7 +148,7 @@ export function VideoCampaignsPage() {
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+              className={`inline-flex items-center gap-2 ${buttonStyles.gradient.primary}`}
             >
               <PlusIcon className="w-5 h-5" />
               Create Your First Campaign
@@ -231,14 +232,14 @@ export function VideoCampaignsPage() {
                       <>
                         <button
                           onClick={() => window.open(campaign.videoUrl, '_blank')}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
+                          className={`flex-1 flex items-center justify-center gap-2 ${buttonStyles.primary} text-sm`}
                         >
                           <PlayIcon className="w-4 h-4" />
                           Play
                         </button>
                         <button
                           onClick={() => handleDownload(campaign.videoUrl!, campaign.name)}
-                          className="flex items-center justify-center px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                          className={`flex items-center justify-center px-3 py-2 ${buttonStyles.secondary}`}
                           title="Download"
                         >
                           <ArrowDownTrayIcon className="w-4 h-4" />
@@ -247,7 +248,7 @@ export function VideoCampaignsPage() {
                     )}
                     <button
                       onClick={() => handleDelete(campaign.id)}
-                      className="flex items-center justify-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                      className="flex items-center justify-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border-2 border-red-200"
                       title="Delete"
                     >
                       <TrashIcon className="w-4 h-4" />
