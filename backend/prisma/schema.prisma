@@ -20,6 +20,7 @@ enum Role {
 
 enum TeamRole {
   OWNER
+  ADMIN
   MEMBER
 }
 

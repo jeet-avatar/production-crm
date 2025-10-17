@@ -7,7 +7,7 @@ interface TeamMember {
   email: string;
   firstName: string;
   lastName: string;
-  teamRole: 'OWNER' | 'MEMBER';
+  teamRole: 'OWNER' | 'ADMIN' | 'MEMBER';
   inviteAccepted: boolean;
   invitedAt: string;
   acceptedAt?: string;
@@ -81,6 +81,19 @@ export function TeamPage() {
       setTimeout(() => setInviteSuccess(''), 3000);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to remove team member');
+    }
+  };
+
+  const handleRoleChange = async (memberId: string, newRole: 'MEMBER' | 'ADMIN', memberName: string) => {
+    try {
+      await apiClient.put(`/team/${memberId}/role`, { teamRole: newRole });
+      setTeamMembers(teamMembers.map(m =>
+        m.id === memberId ? { ...m, teamRole: newRole } : m
+      ));
+      setInviteSuccess(`✅ Updated ${memberName}'s role to ${newRole}`);
+      setTimeout(() => setInviteSuccess(''), 3000);
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to update role');
     }
   };
 
@@ -175,7 +188,20 @@ export function TeamPage() {
                       <div className="text-sm font-medium text-gray-900">
                         {member.firstName} {member.lastName}
                       </div>
-                      <div className="text-xs text-gray-500">{member.teamRole}</div>
+                      <div className="text-xs text-gray-500">
+                        {member.teamRole === 'OWNER' ? (
+                          <span className="font-semibold text-blue-600">OWNER</span>
+                        ) : (
+                          <select
+                            value={member.teamRole}
+                            onChange={(e) => handleRoleChange(member.id, e.target.value as 'MEMBER' | 'ADMIN', `${member.firstName} ${member.lastName}`)}
+                            className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="MEMBER">MEMBER</option>
+                            <option value="ADMIN">ADMIN</option>
+                          </select>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{member.email}</div>
