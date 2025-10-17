@@ -102,6 +102,15 @@ class VideoGenerationWorker {
         args.push('--user-logo', campaign.userLogoUrl);
       }
 
+      // Voice settings
+      if (campaign.voiceId) {
+        args.push('--voice-id', campaign.voiceId);
+      }
+
+      if (campaign.customVoiceUrl) {
+        args.push('--custom-voice-url', campaign.customVoiceUrl);
+      }
+
       logger.info(`Spawning Python process: python3 ${args.join(' ')}`);
 
       // Update progress

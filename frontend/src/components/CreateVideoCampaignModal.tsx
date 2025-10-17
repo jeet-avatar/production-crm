@@ -4,6 +4,7 @@ import { TemplateLibrary } from './TemplateLibrary';
 import { VideoUploader } from './VideoUploader';
 import { LogoUploader } from './LogoUploader';
 import { TextLayoverEditor } from './TextLayoverEditor';
+import { VoiceSelector } from './VoiceSelector';
 import { videoService, type VideoTemplate, type TextOverlay } from '../services/videoService';
 
 interface CreateVideoCampaignModalProps {
@@ -13,7 +14,7 @@ interface CreateVideoCampaignModalProps {
   companyIds?: string[];
 }
 
-type StepType = 'basics' | 'source' | 'design' | 'overlays' | 'preview';
+type StepType = 'basics' | 'voice' | 'source' | 'design' | 'overlays' | 'preview';
 
 export function CreateVideoCampaignModal({
   isOpen,
@@ -29,6 +30,9 @@ export function CreateVideoCampaignModal({
   const [name, setName] = useState('');
   const [script, setScript] = useState('');
   const [tone, setTone] = useState('professional');
+  const [voiceId, setVoiceId] = useState('gtts-en-us');
+  const [customVoiceUrl, setCustomVoiceUrl] = useState('');
+  const [isCustomVoice, setIsCustomVoice] = useState(false);
   const [videoSource, setVideoSource] = useState<'template' | 'upload'>('template');
   const [selectedTemplate, setSelectedTemplate] = useState<VideoTemplate | null>(null);
   const [customVideoUrl, setCustomVideoUrl] = useState('');
@@ -40,6 +44,7 @@ export function CreateVideoCampaignModal({
 
   const steps: { id: StepType; label: string }[] = [
     { id: 'basics', label: 'Basics' },
+    { id: 'voice', label: 'Voice' },
     { id: 'source', label: 'Video Source' },
     { id: 'design', label: 'Design' },
     { id: 'overlays', label: 'Overlays' },
@@ -97,6 +102,8 @@ export function CreateVideoCampaignModal({
         videoSource: videoSource === 'template' ? 'TEMPLATE' : 'CUSTOM_UPLOAD',
         templateId: selectedTemplate?.id,
         customVideoUrl: videoSource === 'upload' ? customVideoUrl : undefined,
+        voiceId: isCustomVoice ? undefined : voiceId,
+        customVoiceUrl: isCustomVoice ? customVoiceUrl : undefined,
         clientLogoUrl: clientLogo || undefined,
         userLogoUrl: userLogo || undefined,
         bgmUrl: bgmUrl || undefined,
@@ -276,7 +283,32 @@ export function CreateVideoCampaignModal({
             </div>
           )}
 
-          {/* Step 2: Video Source */}
+          {/* Step 2: Voice Selection */}
+          {step === 'voice' && (
+            <div className="space-y-4">
+              <VoiceSelector
+                value={isCustomVoice ? customVoiceUrl : voiceId}
+                onChange={(voice, custom) => {
+                  if (custom) {
+                    setCustomVoiceUrl(voice);
+                    setIsCustomVoice(true);
+                  } else {
+                    setVoiceId(voice);
+                    setIsCustomVoice(false);
+                  }
+                }}
+                onCustomVoiceUpload={async (file) => {
+                  // Upload voice file
+                  const formData = new FormData();
+                  formData.append('voice', file);
+                  const result = await videoService.uploadVoice(formData);
+                  return result.voiceUrl;
+                }}
+              />
+            </div>
+          )}
+
+          {/* Step 3: Video Source */}
           {step === 'source' && (
             <div className="space-y-4">
               <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">

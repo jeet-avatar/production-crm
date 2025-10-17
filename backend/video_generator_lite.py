@@ -96,13 +96,25 @@ class VideoGeneratorLite:
             logger.error(f"ElevenLabs generation failed: {e}")
             return False
 
-    def generate_audio_gtts(self, text: str, output_path: str) -> bool:
+    def generate_audio_gtts(self, text: str, output_path: str, voice_id: str = 'gtts-en-us') -> bool:
         """Fallback: Generate audio using gTTS (free, no API key needed)"""
         try:
             from gtts import gTTS
 
-            logger.info("Generating audio with gTTS (fallback)...")
-            tts = gTTS(text=text, lang='en', slow=False)
+            # Map voice IDs to gTTS language and TLD
+            voice_map = {
+                'gtts-en-us': ('en', 'us'),
+                'gtts-en-uk': ('en', 'co.uk'),
+                'gtts-en-au': ('en', 'com.au'),
+                'gtts-en-in': ('en', 'co.in'),
+                'gtts-en-ca': ('en', 'ca'),
+                'gtts-en-ie': ('en', 'ie')
+            }
+
+            lang, tld = voice_map.get(voice_id, ('en', 'us'))
+
+            logger.info(f"Generating audio with gTTS (voice: {voice_id}, lang: {lang}, tld: {tld})...")
+            tts = gTTS(text=text, lang=lang, tld=tld, slow=False)
             tts.save(output_path)
             logger.info(f"Audio saved to {output_path}")
             return True
@@ -175,7 +187,9 @@ class VideoGeneratorLite:
         template_url: Optional[str] = None,
         client_logo_url: Optional[str] = None,
         user_logo_url: Optional[str] = None,
-        output_filename: str = "output.mp4"
+        output_filename: str = "output.mp4",
+        voice_id: str = 'gtts-en-us',
+        custom_voice_url: Optional[str] = None
     ) -> str:
         """Generate video with narration and overlays"""
 
@@ -184,17 +198,24 @@ class VideoGeneratorLite:
             temp_dir = tempfile.mkdtemp()
             logger.info(f"Working directory: {temp_dir}")
 
-            # Step 1: Generate audio
+            # Step 1: Generate or download audio
             audio_path = os.path.join(temp_dir, "narration.mp3")
             self.temp_files.append(audio_path)
 
             audio_generated = False
-            if self.elevenlabs_api_key:
+
+            # Priority 1: Custom uploaded voice
+            if custom_voice_url:
+                logger.info(f"Using custom voice from: {custom_voice_url}")
+                audio_generated = self.download_file(custom_voice_url, audio_path)
+
+            # Priority 2: ElevenLabs (if API key available)
+            if not audio_generated and self.elevenlabs_api_key:
                 audio_generated = self.generate_audio_elevenlabs(script, audio_path)
 
+            # Priority 3: gTTS with selected voice/accent
             if not audio_generated:
-                # Fallback to gTTS
-                audio_generated = self.generate_audio_gtts(script, audio_path)
+                audio_generated = self.generate_audio_gtts(script, audio_path, voice_id)
 
             if not audio_generated:
                 raise Exception("Failed to generate audio")
@@ -312,6 +333,8 @@ def main():
     parser.add_argument('--user-logo', help='User logo URL')
     parser.add_argument('--output', default='output.mp4', help='Output filename')
     parser.add_argument('--campaign-id', help='Campaign ID for status updates')
+    parser.add_argument('--voice-id', default='gtts-en-us', help='Voice ID for accent (e.g., gtts-en-us, gtts-en-uk)')
+    parser.add_argument('--custom-voice-url', help='Custom voice file URL')
 
     args = parser.parse_args()
 
@@ -323,7 +346,9 @@ def main():
             template_url=args.template,
             client_logo_url=args.client_logo,
             user_logo_url=args.user_logo,
-            output_filename=args.output
+            output_filename=args.output,
+            voice_id=args.voice_id,
+            custom_voice_url=args.custom_voice_url
         )
 
         print(json.dumps({

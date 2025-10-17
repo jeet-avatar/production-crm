@@ -76,6 +76,8 @@ export interface CreateVideoCampaignData {
   videoSource?: 'TEMPLATE' | 'CUSTOM_UPLOAD' | 'URL';
   templateId?: string;
   customVideoUrl?: string;
+  voiceId?: string;
+  customVoiceUrl?: string;
   clientLogoUrl?: string;
   userLogoUrl?: string;
   bgmUrl?: string;
@@ -172,6 +174,18 @@ class VideoService {
         'Content-Type': 'multipart/form-data',
       },
       timeout: 60000, // 1 minute timeout
+    });
+    return response.data;
+  }
+
+  async uploadVoice(formData: FormData): Promise<{ voiceUrl: string }> {
+    const token = localStorage.getItem('crmToken');
+    const response = await axios.post(`${API_URL}/api/video-campaigns/upload-voice`, formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 120000, // 2 minute timeout for audio files
     });
     return response.data;
   }
