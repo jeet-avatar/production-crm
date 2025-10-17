@@ -172,8 +172,8 @@ router.post('/forgot-password', async (req: Request, res: Response, next: NextFu
       },
     });
 
-    // Send reset email
-    const EmailService = require('../services/email.service').EmailService;
+    // Send reset email via Google Workspace SMTP
+    const { EmailService } = await import('../services/google-smtp.service');
     const emailService = new EmailService();
 
     const resetUrl = `${process.env.FRONTEND_URL || 'https://brandmonkz.com'}/reset-password?token=${resetToken}`;
@@ -420,7 +420,7 @@ router.post('/resend-verification', async (req: Request, res: Response, next: Ne
     }
 
     // Generate new OTP
-    const { EmailService } = require('../services/email.service');
+    const { EmailService } = await import('../services/google-smtp.service');
     const emailService = new EmailService();
     const otp = EmailService.generateOTP();
     const otpExpiry = EmailService.getOTPExpiry();
