@@ -190,6 +190,50 @@ router.post('/templates/upload', upload.single('video'), async (req, res, next) 
   }
 });
 
+// POST /api/video-campaigns/upload-logo - Upload logo file
+router.post('/upload-logo', upload.single('logo'), async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No logo file uploaded' });
+    }
+
+    const file = req.file;
+
+    // Validate file type
+    const allowedMimes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+    if (!allowedMimes.includes(file.mimetype)) {
+      return res.status(400).json({ error: 'Invalid file type. Only PNG, JPG, and SVG are allowed.' });
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+    }
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const fileExtension = file.originalname.split('.').pop();
+    const s3Key = `logos/${req.user!.id}/${timestamp}.${fileExtension}`;
+
+    // Upload to S3
+    const uploadCommand = new PutObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: s3Key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
+
+    await s3Client.send(uploadCommand);
+
+    const logoUrl = `https://${CLOUDFRONT_DOMAIN}/${s3Key}`;
+
+    return res.status(201).json({ logoUrl });
+  } catch (error) {
+    logger.error('Logo upload error:', error);
+    return next(error);
+  }
+});
+
 // PUT /api/video-campaigns/templates/:id - Update template
 router.put('/templates/:id', async (req, res, next) => {
   try {
