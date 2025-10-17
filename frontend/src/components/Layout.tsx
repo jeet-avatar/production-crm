@@ -25,7 +25,24 @@ export function Layout({ user, onLogout }: LayoutProps) {
       {/* AI Chat Button (Fixed Bottom Right) */}
       <button
         onClick={() => setIsChatOpen(!isChatOpen)}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full shadow-2xl hover:shadow-purple-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 border-4 border-white"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          width: '64px',
+          height: '64px',
+          background: 'linear-gradient(to right, rgb(147, 51, 234), rgb(79, 70, 229))',
+          color: 'white',
+          borderRadius: '50%',
+          border: '4px solid white',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999,
+          cursor: 'pointer',
+          transition: 'all 0.3s ease'
+        }}
         title="AI Assistant"
       >
         <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
