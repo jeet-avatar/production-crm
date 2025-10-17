@@ -20,7 +20,6 @@ enum Role {
 
 enum TeamRole {
   OWNER
-  ADMIN
   MEMBER
 }
 
@@ -151,6 +150,8 @@ model User {
   tags               Tag[]
   positions          Position[]
   leads              Lead[]
+  videoTemplates     VideoTemplate[] @relation("VideoTemplates")
+  videoCampaigns     VideoCampaign[]
 
   // Team relationships
   accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
@@ -167,14 +168,6 @@ model User {
   // Assigned data relationships
   assignedContacts Contact[] @relation("AssignedContacts")
   assignedCompanies Company[] @relation("AssignedCompanies")
-
-  // Internal Operations relationships
-  projects        Project[]
-  tasks           Task[]
-  taskComments    TaskComment[]
-  supportTickets  SupportTicket[] @relation("TicketAssignee")
-  ticketComments  TicketComment[]
-  timeLogs        TimeLog[]
 
   @@index([accountOwnerId])
   @@index([invitedById])
@@ -314,14 +307,14 @@ model Company {
   assignedToId String? // Team member this company is assigned to
 
   // Relationships
-  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assignedTo     User?             @relation("AssignedCompanies", fields: [assignedToId], references: [id], onDelete: SetNull)
-  contacts       Contact[]
-  deals          Deal[]
-  campaigns      CampaignCompany[]
-  positions      Position[]
-  shares         CompanyShare[] // Team members this company is shared with
-  supportTickets SupportTicket[] // Support tickets for this company
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo User?             @relation("AssignedCompanies", fields: [assignedToId], references: [id], onDelete: SetNull)
+  contacts   Contact[]
+  deals      Deal[]
+  campaigns       CampaignCompany[]
+  positions       Position[]
+  shares          CompanyShare[] // Team members this company is shared with
+  videoCampaigns  VideoCampaignCompany[] @relation("VideoCampaigns")
 
   @@index([userId])
   @@index([assignedToId])
@@ -1010,190 +1003,186 @@ model ActivityShare {
   @@index([userId])
   @@map("activity_shares")
 }
-// Internal Operations Module - Added for task management, projects, and support tickets
 
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  IN_REVIEW
-  BLOCKED
-  DONE
-  CANCELLED
+// ===================================
+// VIDEO CAMPAIGN MODELS
+// ===================================
+
+enum VideoCampaignStatus {
+  DRAFT
+  GENERATING
+  READY
+  FAILED
+  PROCESSING
 }
 
-enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
+enum VideoSourceType {
+  TEMPLATE
+  CUSTOM_UPLOAD
+  URL
 }
 
-enum TaskType {
-  BUG
-  FEATURE
-  IMPROVEMENT
-  DOCUMENTATION
-  RESEARCH
-  SUPPORT
-}
+// Video Template Library
+model VideoTemplate {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?  @db.Text
+  videoUrl     String // S3 URL or external URL
+  thumbnailUrl String? // Auto-generated thumbnail
+  duration     Int? // Duration in seconds
+  width        Int? // Video width in pixels
+  height       Int? // Video height in pixels
+  fileSize     Int? // File size in bytes
+  category     String   @default("Business") // Business, Tech, Creative, Minimal, Abstract
+  tags         String[] @default([]) // Searchable tags
 
-enum ProjectStatus {
-  PLANNING
-  ACTIVE
-  ON_HOLD
-  COMPLETED
-  CANCELLED
-}
+  // Template ownership
+  isSystem     Boolean  @default(false) // System template vs user-uploaded
+  userId       String? // null for system templates
 
-enum TicketStatus {
-  OPEN
-  IN_PROGRESS
-  WAITING_ON_CUSTOMER
-  RESOLVED
-  CLOSED
-}
+  // User preferences
+  isFavorite   Boolean  @default(false)
+  isPublic     Boolean  @default(false) // Share with team
+  usageCount   Int      @default(0) // Track popularity
 
-enum TicketPriority {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
+  // Metadata
+  metadata     Json? // Additional metadata
 
-enum TicketCategory {
-  BUG
-  FEATURE_REQUEST
-  QUESTION
-  TECHNICAL_SUPPORT
-  BILLING
-  GENERAL
-}
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-// Project Model
-model Project {
-  id          String        @id @default(cuid())
-  name        String
-  description String?       @db.Text
-  status      ProjectStatus @default(PLANNING)
-  ownerId     String
-  progress    Int           @default(0) // 0-100
-  startDate   DateTime?
-  dueDate     DateTime?
-  completedAt DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  // Relationships
+  user         User?          @relation("VideoTemplates", fields: [userId], references: [id], onDelete: Cascade)
+  campaigns    VideoCampaign[]
 
-  owner User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  tasks Task[]
-
-  @@index([ownerId])
-  @@index([status])
-  @@map("projects")
-}
-
-// Task Model
-model Task {
-  id          String       @id @default(cuid())
-  title       String
-  description String?      @db.Text
-  status      TaskStatus   @default(TODO)
-  priority    TaskPriority @default(MEDIUM)
-  type        TaskType     @default(FEATURE)
-  assignedTo  String?
-  projectId   String?
-  dueDate     DateTime?
-  completedAt DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  assignee User?         @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
-  project  Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  comments TaskComment[]
-  timeLogs TimeLog[]
-
-  @@index([assignedTo])
-  @@index([projectId])
-  @@index([status])
-  @@index([priority])
-  @@map("tasks")
-}
-
-// Task Comment Model
-model TaskComment {
-  id        String   @id @default(cuid())
-  content   String   @db.Text
-  taskId    String
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  @@index([taskId])
-  @@index([authorId])
-  @@map("task_comments")
-}
-
-// Support Ticket Model
-model SupportTicket {
-  id           String         @id @default(cuid())
-  title        String
-  description  String         @db.Text
-  status       TicketStatus   @default(OPEN)
-  priority     TicketPriority @default(MEDIUM)
-  category     TicketCategory @default(GENERAL)
-  assignedTo   String?
-  customerId   String?
-  resolvedAt   DateTime?
-  closedAt     DateTime?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-
-  assignee User?            @relation("TicketAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
-  customer Company?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  comments TicketComment[]
-
-  @@index([assignedTo])
-  @@index([customerId])
-  @@index([status])
-  @@index([priority])
-  @@map("support_tickets")
-}
-
-// Ticket Comment Model
-model TicketComment {
-  id         String   @id @default(cuid())
-  content    String   @db.Text
-  ticketId   String
-  authorId   String
-  isInternal Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  author User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  @@index([ticketId])
-  @@index([authorId])
-  @@map("ticket_comments")
-}
-
-// Time Log Model
-model TimeLog {
-  id        String   @id @default(cuid())
-  duration  Int // in minutes
-  taskId    String
-  userId    String
-  notes     String?  @db.Text
-  loggedAt  DateTime @default(now())
-  createdAt DateTime @default(now())
-
-  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([taskId])
   @@index([userId])
-  @@index([loggedAt])
-  @@map("time_logs")
+  @@index([category])
+  @@index([isSystem])
+  @@index([isFavorite])
+  @@index([usageCount])
+  @@map("video_templates")
+}
+
+// Video Campaign
+model VideoCampaign {
+  id              String               @id @default(cuid())
+  name            String
+  status          VideoCampaignStatus  @default(DRAFT)
+
+  // Video Source
+  videoSource     VideoSourceType      @default(TEMPLATE)
+  templateId      String? // If using template from library
+  customVideoUrl  String? // If uploaded custom video or URL
+
+  // Video Content
+  narrationScript String               @db.Text
+  tone            String               @default("professional") // professional, friendly, enthusiastic, persuasive
+
+  // Visual Elements
+  clientLogoUrl   String? // Client company logo
+  userLogoUrl     String? // User's company logo
+  bgmUrl          String? // Background music URL
+  bgmVolume       Float                @default(0.1) // BGM volume (0.0 to 1.0)
+
+  // Text Overlays (JSON array)
+  textOverlays    Json? // [{text, startTime, duration, fontSize, color, position}]
+
+  // Generated Video
+  videoUrl        String? // Final generated video URL (S3)
+  thumbnailUrl    String? // Video thumbnail
+  duration        Int? // Final video duration in seconds
+
+  // Generation metadata
+  generatedAt     DateTime?
+  generationError String?              @db.Text
+  generationTime  Int? // Time taken to generate in seconds
+
+  // Analytics
+  views           Int                  @default(0)
+  clicks          Int                  @default(0)
+  shares          Int                  @default(0)
+  downloads       Int                  @default(0)
+
+  // Timestamps
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  // Foreign Keys
+  userId          String
+
+  // Relationships
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template        VideoTemplate?       @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  companies       VideoCampaignCompany[]
+  jobs            VideoGenerationJob[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([templateId])
+  @@index([createdAt])
+  @@index([videoSource])
+  @@map("video_campaigns")
+}
+
+// Video Campaign Company Association
+model VideoCampaignCompany {
+  campaignId String
+  companyId  String
+
+  // Tracking
+  sentAt     DateTime?
+  viewed     Boolean  @default(false)
+  clicked    Boolean  @default(false)
+  viewedAt   DateTime?
+  clickedAt  DateTime?
+  viewCount  Int      @default(0)
+
+  // Metadata
+  addedAt    DateTime @default(now())
+
+  // Relationships
+  campaign   VideoCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  company    Company       @relation("VideoCampaigns", fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([campaignId, companyId])
+  @@index([campaignId])
+  @@index([companyId])
+  @@map("video_campaign_companies")
+}
+
+// Video Generation Job Queue
+model VideoGenerationJob {
+  id           String   @id @default(cuid())
+  campaignId   String
+
+  // Job Status
+  status       String   @default("pending") // pending, processing, completed, failed
+  progress     Int      @default(0) // 0-100
+
+  // Job Details
+  startedAt    DateTime?
+  completedAt  DateTime?
+  errorMessage String?  @db.Text
+
+  // Queue metadata
+  queueId      String? // Bull queue job ID
+  attempts     Int      @default(0)
+  maxAttempts  Int      @default(3)
+
+  // Processing metadata
+  currentStep  String? // Which step is currently processing
+  logs         Json? // Processing logs array
+
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  campaign     VideoCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("video_generation_jobs")
 }

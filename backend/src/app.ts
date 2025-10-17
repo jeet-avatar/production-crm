@@ -47,6 +47,7 @@ import projectsRoutes from './routes/projects.routes';
 import ticketsRoutes from './routes/tickets.routes';
 import internalRoutes from './routes/internal.routes';
 import aiChatRoutes from './routes/ai-chat';
+import videoCampaignsRoutes from './routes/videoCampaigns';
 // import godaddyRoutes from './routes/godaddy'; // Disabled - service not implemented
 
 const app = express();
@@ -278,6 +279,7 @@ app.use('/api/projects', projectsRoutes);
 app.use('/api/tickets', ticketsRoutes);
 app.use('/api/internal', internalRoutes);
 app.use('/api/ai-chat', aiChatRoutes);
+app.use('/api/video-campaigns', videoCampaignsRoutes);
 // app.use('/api/godaddy', godaddyRoutes); // Disabled - service not implemented
 
 // 404 handler
