@@ -175,7 +175,7 @@ export function CreateVideoCampaignModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-xl max-w-6xl w-full my-8">
+      <div className="bg-white rounded-xl max-w-6xl w-full my-8 border-4 border-black shadow-2xl">
         {/* Header */}
         <div className="p-6 border-b sticky top-0 bg-white z-10 rounded-t-xl">
           <div className="flex items-center justify-between mb-4">
