@@ -205,8 +205,8 @@ export function VideoCampaignsPage() {
                     <div className="mb-3">
                       <VideoGenerationProgress
                         status={campaign.status}
-                        progress={50}
-                        currentStep="Processing video..."
+                        progress={campaign.jobs?.[0]?.progress || 0}
+                        currentStep={campaign.jobs?.[0]?.currentStep || 'Initializing...'}
                       />
                     </div>
                   )}

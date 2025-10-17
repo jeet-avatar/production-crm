@@ -417,6 +417,17 @@ router.get('/', async (req, res, next) => {
             },
           },
         },
+        jobs: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            id: true,
+            status: true,
+            progress: true,
+            currentStep: true,
+            errorMessage: true,
+          },
+        },
         _count: {
           select: {
             companies: true,
