@@ -11,7 +11,8 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
-  SparklesIcon
+  SparklesIcon,
+  VideoCameraIcon
 } from '@heroicons/react/24/outline';
 import { Logo } from './Logo';
 import type { User } from '../types';
@@ -30,6 +31,7 @@ const navigation = [
   { name: 'Analytics', href: '/analytics', icon: ChartBarSquareIcon },
   { name: 'Tags', href: '/tags', icon: TagIcon },
   { name: 'Campaigns', href: '/campaigns', icon: MegaphoneIcon },
+  { name: 'Video Campaigns', href: '/video-campaigns', icon: VideoCameraIcon },
   { name: 'Team', href: '/team', icon: UserCircleIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];

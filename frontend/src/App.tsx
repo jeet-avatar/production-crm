@@ -20,6 +20,8 @@ import { AnalyticsPage } from './pages/Analytics/AnalyticsPage';
 import { TagsPage } from './pages/Tags/TagsPage';
 import { CampaignsPage } from './pages/Campaigns/CampaignsPage';
 import CampaignAnalytics from './pages/Campaigns/CampaignAnalytics';
+import { VideoCampaignsPage } from './pages/VideoCampaigns/VideoCampaignsPage';
+import { VideoAnalytics } from './pages/VideoCampaigns/VideoAnalytics';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { TeamPage } from './pages/Team/TeamPage';
 import { AcceptInvitePage } from './pages/Auth/AcceptInvitePage';
@@ -111,6 +113,8 @@ function App() {
               <Route path="tags" element={<TagsPage />} />
               <Route path="campaigns" element={<CampaignsPage />} />
               <Route path="campaigns/:campaignId/analytics" element={<CampaignAnalytics />} />
+              <Route path="video-campaigns" element={<VideoCampaignsPage />} />
+              <Route path="video-campaigns/analytics" element={<VideoAnalytics />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="team" element={<TeamPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
