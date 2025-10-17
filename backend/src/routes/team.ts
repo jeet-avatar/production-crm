@@ -265,10 +265,10 @@ router.post('/invite', async (req, res, next) => {
     console.log(`SMTP_USER: ${process.env.SMTP_USER}`);
     console.log(`SMTP_PASS: ${process.env.SMTP_PASS ? '***configured***' : 'NOT SET'}`);
     try {
-      const { EmailService } = await import('../services/email.service');
-      console.log('EmailService imported successfully');
+      const { EmailService } = await import('../services/google-smtp.service');
+      console.log('Google SMTP EmailService imported successfully');
       const emailService = new EmailService();
-      console.log('EmailService instance created');
+      console.log('Google SMTP EmailService instance created');
 
       const inviteUrl = `${process.env.FRONTEND_URL || 'https://brandmonkz.com'}/accept-invite?token=${inviteToken}`;
 

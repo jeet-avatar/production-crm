@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { TwilioService } from '../services/twilio.service';
-import { EmailService } from '../services/email.service';
+import { EmailService } from '../services/google-smtp.service';
 import { GoogleCalendarService } from '../services/google-calendar.service';
 
 const router = Router();
