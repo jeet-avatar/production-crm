@@ -48,27 +48,21 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
       formData.append('name', file.name);
       formData.append('category', 'Custom');
 
-      // Simulate progress (replace with actual upload progress if backend supports it)
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 500);
+      const result = await videoService.uploadTemplate(formData, (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percentCompleted);
+        }
+      });
 
-      const result = await videoService.uploadTemplate(formData);
-
-      clearInterval(progressInterval);
       setUploadProgress(100);
 
       setTimeout(() => {
         onUploadComplete(result.videoUrl);
       }, 500);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to upload video');
+      console.error('Upload error:', err);
+      setError(err.response?.data?.error || err.message || 'Failed to upload video');
       setUploadProgress(0);
     } finally {
       setIsUploading(false);

@@ -148,13 +148,18 @@ class VideoService {
     return response.data;
   }
 
-  async uploadTemplate(formData: FormData): Promise<{ template: VideoTemplate; videoUrl: string }> {
+  async uploadTemplate(
+    formData: FormData,
+    onUploadProgress?: (progressEvent: any) => void
+  ): Promise<{ template: VideoTemplate; videoUrl: string }> {
     const token = localStorage.getItem('crmToken');
     const response = await axios.post(`${API_URL}/api/video-campaigns/templates/upload`, formData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress,
+      timeout: 300000, // 5 minutes timeout for large uploads
     });
     return response.data;
   }
