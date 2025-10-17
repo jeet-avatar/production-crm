@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { PhotoIcon, XMarkIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, XMarkIcon, ArrowUpTrayIcon, QuestionMarkCircleIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { videoService } from '../services/videoService';
 
 interface LogoUploaderProps {
   label: string;
@@ -7,6 +8,8 @@ interface LogoUploaderProps {
   onChange: (url: string) => void;
   placeholder?: string;
   accept?: string;
+  companyDomain?: string; // For auto logo fetch
+  helpText?: string;
 }
 
 export function LogoUploader({
@@ -15,12 +18,30 @@ export function LogoUploader({
   onChange,
   placeholder = 'Enter logo URL or upload image',
   accept = 'image/png,image/jpeg,image/jpg,image/svg+xml',
+  companyDomain,
+  helpText,
 }: LogoUploaderProps) {
   const [url, setUrl] = useState(value || '');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isFetchingLogo, setIsFetchingLogo] = useState(false);
   const [error, setError] = useState('');
+  const [showHelp, setShowHelp] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const defaultHelpText = `
+**How to add your logo:**
+
+1. **Upload a file** - Click or drag & drop a PNG, JPG, or SVG (max 5MB)
+2. **Paste a URL** - Enter a direct link to your logo image
+3. **Auto-fetch** - ${companyDomain ? 'Click the sparkle button to automatically fetch the logo from the company domain' : 'Provide a company domain to auto-fetch the logo'}
+
+**Tips:**
+- Use transparent PNG for best results
+- Recommended size: 500x500px or larger
+- Logo should be centered with padding
+- Avoid low-resolution images
+`;
 
   const handleUrlChange = (newUrl: string) => {
     setUrl(newUrl);
@@ -48,31 +69,59 @@ export function LogoUploader({
     setError('');
 
     try {
-      // Create a FormData object for upload
+      // Upload to S3 via backend
       const formData = new FormData();
       formData.append('logo', file);
+      formData.append('name', file.name);
 
-      // TODO: Upload to your backend/S3
-      // For now, create a local preview URL
+      const result = await videoService.uploadLogo(formData);
+      setUrl(result.logoUrl);
+      onChange(result.logoUrl);
+    } catch (err: any) {
+      // Fallback to local preview if upload fails
+      console.error('Upload error:', err);
       const previewUrl = URL.createObjectURL(file);
       setUrl(previewUrl);
       onChange(previewUrl);
-
-      // In production, you would upload to S3 and get the URL:
-      // const response = await fetch('/api/upload/logo', {
-      //   method: 'POST',
-      //   headers: { 'Authorization': `Bearer ${token}` },
-      //   body: formData,
-      // });
-      // const { url } = await response.json();
-      // setUrl(url);
-      // onChange(url);
-
-    } catch (err) {
-      setError('Failed to upload image');
-      console.error('Upload error:', err);
+      setError('Using local preview - upload to S3 failed');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleFetchLogo = async () => {
+    if (!companyDomain) {
+      setError('No company domain provided');
+      return;
+    }
+
+    setIsFetchingLogo(true);
+    setError('');
+
+    try {
+      // Try multiple sources in order
+      const sources = [
+        // Clearbit Logo API
+        `https://logo.clearbit.com/${companyDomain}`,
+        // Google Favicon (as fallback)
+        `https://www.google.com/s2/favicons?domain=${companyDomain}&sz=256`,
+      ];
+
+      // Try Clearbit first
+      const response = await fetch(sources[0]);
+      if (response.ok) {
+        setUrl(sources[0]);
+        onChange(sources[0]);
+      } else {
+        // Fallback to Google favicon
+        setUrl(sources[1]);
+        onChange(sources[1]);
+      }
+    } catch (err: any) {
+      setError('Failed to fetch logo. Please upload manually or enter URL.');
+      console.error('Logo fetch error:', err);
+    } finally {
+      setIsFetchingLogo(false);
     }
   };
 
@@ -112,9 +161,43 @@ export function LogoUploader({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-700">
-        {label}
-      </label>
+      {/* Label with Help Icon */}
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-semibold text-gray-700">
+          {label}
+        </label>
+        <button
+          type="button"
+          onClick={() => setShowHelp(!showHelp)}
+          className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+          title="Show help"
+        >
+          <QuestionMarkCircleIcon className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Help Panel */}
+      {showHelp && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm space-y-2">
+          <div className="flex items-start gap-2">
+            <QuestionMarkCircleIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <div className="prose prose-sm max-w-none text-gray-700">
+              {(helpText || defaultHelpText).split('\n').map((line, i) => {
+                if (line.startsWith('**') && line.endsWith('**')) {
+                  return <p key={i} className="font-semibold text-blue-900 mb-1 mt-2">{line.replace(/\*\*/g, '')}</p>;
+                }
+                if (line.trim().match(/^\d+\./)) {
+                  return <p key={i} className="ml-4 mb-1">{line}</p>;
+                }
+                if (line.trim().startsWith('-')) {
+                  return <p key={i} className="ml-4 mb-1 text-gray-600">{line}</p>;
+                }
+                return line.trim() ? <p key={i} className="mb-1">{line}</p> : null;
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Preview or Upload Area */}
       {url ? (
@@ -131,6 +214,7 @@ export function LogoUploader({
 
           {/* Remove Button */}
           <button
+            type="button"
             onClick={handleRemove}
             className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
             title="Remove logo"
@@ -140,6 +224,7 @@ export function LogoUploader({
 
           {/* Change URL */}
           <button
+            type="button"
             onClick={() => setUrl('')}
             className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
@@ -148,6 +233,19 @@ export function LogoUploader({
         </div>
       ) : (
         <div className="space-y-3">
+          {/* Auto-fetch button (if domain provided) */}
+          {companyDomain && (
+            <button
+              type="button"
+              onClick={handleFetchLogo}
+              disabled={isFetchingLogo}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+            >
+              <SparklesIcon className="w-5 h-5" />
+              {isFetchingLogo ? 'Fetching logo...' : `Auto-fetch logo from ${companyDomain}`}
+            </button>
+          )}
+
           {/* Drag & Drop Area */}
           <div
             onDrop={handleDrop}
@@ -217,9 +315,11 @@ export function LogoUploader({
       )}
 
       {/* Help Text */}
-      <p className="text-xs text-gray-500">
-        For best results, use a transparent PNG with your logo centered
-      </p>
+      {!showHelp && (
+        <p className="text-xs text-gray-500">
+          For best results, use a transparent PNG with your logo centered. Click the ? icon for help.
+        </p>
+      )}
     </div>
   );
 }

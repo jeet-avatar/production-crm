@@ -164,6 +164,18 @@ class VideoService {
     return response.data;
   }
 
+  async uploadLogo(formData: FormData): Promise<{ logoUrl: string }> {
+    const token = localStorage.getItem('crmToken');
+    const response = await axios.post(`${API_URL}/api/video-campaigns/upload-logo`, formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 60000, // 1 minute timeout
+    });
+    return response.data;
+  }
+
   async updateTemplate(id: string, data: {
     name?: string;
     description?: string;
