@@ -159,16 +159,16 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms', 
 
 // Rate limiting - compatible with iCloud Private Relay and privacy tools
 const limiter = rateLimit({
-  windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutes
-  max: Number.parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '1000'), // Increased from 100 to 1000
+  windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'), // 1 minute (reduced window)
+  max: Number.parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '5000'), // 5000 requests per minute
   message: {
     error: 'Too many requests, please try again later.',
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Skip failed requests to prevent iCloud Private Relay warnings
+  // Skip successful requests to only count failed/suspicious ones
   skipFailedRequests: false,
-  skipSuccessfulRequests: false,
+  skipSuccessfulRequests: true, // Only count failed requests
   // Use a custom key generator that handles missing IPs gracefully
   keyGenerator: (req) => {
     // Try to get IP from headers (behind proxy)
