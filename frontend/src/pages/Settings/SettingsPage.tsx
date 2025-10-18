@@ -391,12 +391,12 @@ export function SettingsPage() {
   };
 
   const tabs = [
-    { id: 'profile' as SettingsTab, name: 'Profile', icon: UserCircleIcon },
-    { id: 'account' as SettingsTab, name: 'Account', icon: EnvelopeIcon },
-    { id: 'notifications' as SettingsTab, name: 'Notifications', icon: BellIcon },
-    { id: 'security' as SettingsTab, name: 'Security', icon: ShieldCheckIcon },
-    { id: 'preferences' as SettingsTab, name: 'Preferences', icon: GlobeAltIcon },
-    { id: 'billing' as SettingsTab, name: 'Billing', icon: CreditCardIcon },
+    { id: 'profile' as SettingsTab, name: 'Profile', icon: UserCircleIcon, gradient: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/30' },
+    { id: 'account' as SettingsTab, name: 'Account', icon: EnvelopeIcon, gradient: 'from-green-500 to-emerald-600', shadow: 'shadow-green-500/30' },
+    { id: 'notifications' as SettingsTab, name: 'Notifications', icon: BellIcon, gradient: 'from-orange-500 to-red-600', shadow: 'shadow-orange-500/30' },
+    { id: 'security' as SettingsTab, name: 'Security', icon: ShieldCheckIcon, gradient: 'from-purple-500 to-indigo-600', shadow: 'shadow-purple-500/30' },
+    { id: 'preferences' as SettingsTab, name: 'Preferences', icon: GlobeAltIcon, gradient: 'from-pink-500 to-rose-600', shadow: 'shadow-pink-500/30' },
+    { id: 'billing' as SettingsTab, name: 'Billing', icon: CreditCardIcon, gradient: 'from-red-500 to-pink-600', shadow: 'shadow-red-500/30' },
   ];
 
   return (
@@ -428,7 +428,7 @@ export function SettingsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-lg ${tab.shadow}`
                       : 'text-gray-600 hover:bg-white/50 bg-white/30'
                   }`}
                 >
