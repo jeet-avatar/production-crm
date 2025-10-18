@@ -6,6 +6,7 @@ import { CompanyForm } from './CompanyForm';
 import { CampaignSelectModal } from '../../components/CampaignSelectModal';
 import { ImportCompaniesModal } from '../../components/ImportCompaniesModal';
 import { LeadDiscoveryModal } from '../../components/LeadDiscoveryModal';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface Contact {
   id: string;
@@ -36,6 +37,7 @@ interface Company {
 
 export function CompanyList() {
   const navigate = useNavigate();
+  const { gradients } = useTheme();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -209,14 +211,14 @@ export function CompanyList() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowLeadDiscovery(true)}
-              className="btn-secondary flex items-center gap-2"
+              className={`bg-gradient-to-r ${gradients.semantic.info.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
             >
               <SparklesIcon className="w-4 h-4" />
               Discover Leads
             </button>
             <button
               onClick={() => setShowImportModal(true)}
-              className="btn-primary flex items-center gap-2"
+              className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
             >
               <ArrowUpTrayIcon className="w-4 h-4" />
               Import Companies
@@ -224,14 +226,14 @@ export function CompanyList() {
             <button
               onClick={handleBulkEnrich}
               disabled={enriching}
-              className="btn-primary flex items-center gap-2"
+              className={`bg-gradient-to-r ${gradients.semantic.premium.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
             >
               <SparklesIcon className="w-4 h-4" />
               {enriching ? 'Enriching...' : 'AI Enrich Data'}
             </button>
             <button
               onClick={handleAddCompany}
-              className="btn-primary flex items-center gap-2"
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
             >
               <PlusIcon className="w-4 h-4" />
               Add Company
@@ -292,16 +294,16 @@ export function CompanyList() {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`px-4 py-2 flex items-center gap-2 rounded-lg font-semibold transition-all ${
+              className={`px-4 py-2 flex items-center gap-2 rounded-xl font-bold tracking-wide transition-all shadow-md ${
                 showFilters
-                  ? 'bg-blue-600 text-white'
+                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
                   : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
               <FunnelIcon className="w-4 h-4" />
               Filters
               {industryFilter && (
-                <span className="px-2 py-0.5 bg-white text-blue-600 rounded-full text-xs font-bold">
+                <span className="px-2 py-0.5 bg-white text-orange-600 rounded-full text-xs font-bold">
                   1
                 </span>
               )}
@@ -352,9 +354,9 @@ export function CompanyList() {
                       <button
                         key={ind}
                         onClick={() => setIndustryFilter(ind)}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                        className={`px-3 py-1.5 text-xs font-bold rounded-xl tracking-wide transition-all shadow-sm ${
                           industryFilter === ind
-                            ? 'bg-blue-600 text-white'
+                            ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -399,7 +401,7 @@ export function CompanyList() {
                     <p className="text-sm text-gray-400 mb-6">Get started by adding your first company</p>
                     <button
                       onClick={handleAddCompany}
-                      className="btn-primary flex items-center gap-2"
+                      className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
                     >
                       <PlusIcon className="h-5 w-5" />
                       Add your first company
@@ -415,7 +417,7 @@ export function CompanyList() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-blue-600 text-white font-semibold flex items-center justify-center text-sm">
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} text-white font-bold flex items-center justify-center text-sm shadow-md`}>
                             {company.name.substring(0, 2).toUpperCase()}
                           </div>
                           <div>
@@ -442,19 +444,19 @@ export function CompanyList() {
                       </td>
                       <td className="px-6 py-4">
                         {company.dataSource === 'csv_import' ? (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                          <span className="px-2 py-1 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold">
                             📄 Manual Research
                           </span>
                         ) : company.dataSource === 'apollo' ? (
-                          <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
+                          <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold">
                             ⚡ Apollo.io
                           </span>
                         ) : company.dataSource === 'lead_discovery' ? (
-                          <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                          <span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-bold">
                             🎯 Lead Discovery
                           </span>
                         ) : company.dataSource === 'manual_contact' ? (
-                          <span className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">
+                          <span className="px-2 py-1 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold">
                             👤 Added via Contact
                           </span>
                         ) : company.dataSource === 'socialflow' ? (
@@ -514,17 +516,17 @@ export function CompanyList() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="btn-secondary"
+                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   Previous
                 </button>
-                <div className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm shadow-md">
+                <div className={`px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold text-sm shadow-md`}>
                   Page {currentPage} of {totalPages}
                 </div>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="btn-secondary"
+                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   Next
                 </button>
