@@ -80,8 +80,8 @@ router.get('/config', async (req, res) => {
           ])),
           buttonText: process.env.PLAN_1_BUTTON_TEXT || 'Buy Now',
           buttonVariant: (process.env.PLAN_1_BUTTON_VARIANT || 'primary') as 'primary' | 'outline',
-          stripeMonthlyPriceId: process.env.STRIPE_STARTER_MONTHLY!,
-          stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL!,
+          stripeMonthlyPriceId: process.env.STRIPE_STARTER_MONTHLY_PRICE_ID || process.env.STRIPE_STARTER_MONTHLY!,
+          stripeAnnualPriceId: process.env.STRIPE_STARTER_ANNUAL_PRICE_ID || process.env.STRIPE_STARTER_ANNUAL!,
         },
         {
           id: 'professional',
@@ -113,8 +113,8 @@ router.get('/config', async (req, res) => {
           ])),
           buttonText: process.env.PLAN_2_BUTTON_TEXT || 'Buy Now',
           buttonVariant: (process.env.PLAN_2_BUTTON_VARIANT || 'primary') as 'primary' | 'outline',
-          stripeMonthlyPriceId: process.env.STRIPE_PROFESSIONAL_MONTHLY!,
-          stripeAnnualPriceId: process.env.STRIPE_PROFESSIONAL_ANNUAL!,
+          stripeMonthlyPriceId: process.env.STRIPE_PROFESSIONAL_MONTHLY_PRICE_ID || process.env.STRIPE_PROFESSIONAL_MONTHLY!,
+          stripeAnnualPriceId: process.env.STRIPE_PROFESSIONAL_ANNUAL_PRICE_ID || process.env.STRIPE_PROFESSIONAL_ANNUAL!,
         },
         {
           id: 'enterprise',
@@ -141,8 +141,8 @@ router.get('/config', async (req, res) => {
           ])),
           buttonText: process.env.PLAN_3_BUTTON_TEXT || 'Contact Sales',
           buttonVariant: (process.env.PLAN_3_BUTTON_VARIANT || 'outline') as 'primary' | 'outline',
-          stripeMonthlyPriceId: process.env.STRIPE_ENTERPRISE_MONTHLY!,
-          stripeAnnualPriceId: process.env.STRIPE_ENTERPRISE_ANNUAL!,
+          stripeMonthlyPriceId: process.env.STRIPE_ENTERPRISE_MONTHLY_PRICE_ID || process.env.STRIPE_ENTERPRISE_MONTHLY!,
+          stripeAnnualPriceId: process.env.STRIPE_ENTERPRISE_ANNUAL_PRICE_ID || process.env.STRIPE_ENTERPRISE_ANNUAL!,
         },
       ],
       faqs: JSON.parse(process.env.PRICING_FAQS || JSON.stringify([
