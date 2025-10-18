@@ -120,45 +120,52 @@ async function seedUIConfig() {
 
   // Seed default theme
   console.log('\n🎨 Creating default theme...');
-  await prisma.themeConfig.upsert({
-    where: { name: 'Default' },
-    create: {
-      name: 'Default',
-      primaryColor: '#3B82F6', // Blue
-      secondaryColor: '#8B5CF6', // Purple
-      accentColor: '#10B981', // Green
-      backgroundColor: '#FFFFFF',
-      textColor: '#111827',
-      sidebarColor: '#1F2937',
-      headerColor: '#FFFFFF',
-      fontFamily: 'Inter, system-ui, sans-serif',
-      fontSize: '14px',
-      borderRadius: '0.5rem',
-      isActive: true,
-      isDefault: true,
-      buttonStyles: {
-        primary: {
-          bg: '#3B82F6',
-          hover: '#2563EB',
-          text: '#FFFFFF',
-        },
-        secondary: {
-          bg: '#8B5CF6',
-          hover: '#7C3AED',
-          text: '#FFFFFF',
-        },
-        danger: {
-          bg: '#EF4444',
-          hover: '#DC2626',
-          text: '#FFFFFF',
+  const existingTheme = await prisma.themeConfig.findFirst({
+    where: { isActive: true },
+  });
+
+  // Only create Default theme if NO active theme exists
+  if (!existingTheme) {
+    await prisma.themeConfig.upsert({
+      where: { name: 'Default' },
+      create: {
+        name: 'Default',
+        primaryColor: '#3B82F6', // Blue
+        secondaryColor: '#8B5CF6', // Purple
+        accentColor: '#10B981', // Green
+        backgroundColor: '#FFFFFF',
+        textColor: '#111827',
+        sidebarColor: '#1F2937',
+        headerColor: '#FFFFFF',
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '14px',
+        borderRadius: '0.5rem',
+        isActive: true,
+        isDefault: true,
+        buttonStyles: {
+          primary: {
+            bg: '#3B82F6',
+            hover: '#2563EB',
+            text: '#FFFFFF',
+          },
+          secondary: {
+            bg: '#8B5CF6',
+            hover: '#7C3AED',
+            text: '#FFFFFF',
+          },
+          danger: {
+            bg: '#EF4444',
+            hover: '#DC2626',
+            text: '#FFFFFF',
+          },
         },
       },
-    },
-    update: {
-      isActive: true,
-    },
-  });
-  console.log('  ✅ Default theme created');
+      update: {},
+    });
+    console.log('  ✅ Default theme created');
+  } else {
+    console.log(`  ℹ️  Active theme "${existingTheme.name}" already exists, skipping Default theme creation`);
+  }
 
   // Seed dark theme
   console.log('\n🌙 Creating dark theme...');
