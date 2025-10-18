@@ -347,6 +347,14 @@ export function SettingsPage() {
   const handleUpgrade = async (plan: any) => {
     try {
       setIsSaving(true);
+
+      // Handle Free plan - no Stripe checkout needed
+      if (plan.id === 'free' || plan.monthlyPrice === 0) {
+        alert('You are already on the Free plan. Choose a paid plan to upgrade.');
+        setIsSaving(false);
+        return;
+      }
+
       const token = localStorage.getItem('crmToken');
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -993,7 +1001,7 @@ export function SettingsPage() {
                       <p className="text-gray-600 mt-4">Loading pricing plans...</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {pricingPlans.map((plan) => (
                         <div
                           key={plan.id}
