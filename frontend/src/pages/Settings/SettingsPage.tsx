@@ -1002,40 +1002,50 @@ export function SettingsPage() {
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {pricingPlans.map((plan) => (
+                      {pricingPlans.map((plan) => {
+                        // Define gradient colors for each plan
+                        const planGradients = {
+                          free: 'from-gray-100 to-gray-200',
+                          starter: 'from-blue-500 to-indigo-600',
+                          professional: 'from-red-500 to-pink-600',
+                          enterprise: 'from-purple-500 to-indigo-600',
+                        };
+                        const gradient = planGradients[plan.id as keyof typeof planGradients] || 'from-gray-500 to-gray-600';
+
+                        return (
                         <div
                           key={plan.id}
-                          className={`relative rounded-lg border-2 p-6 transition-all hover:shadow-lg ${
-                            plan.popular
-                              ? 'border-primary-500 shadow-md'
-                              : 'border-gray-200 hover:border-gray-300'
+                          className={`relative rounded-2xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 ${
+                            plan.popular ? 'shadow-lg' : 'shadow-md'
                           }`}
                         >
-                          {plan.popular && (
-                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                              <span className="bg-primary-500 text-white px-4 py-1 rounded-full text-xs font-semibold">
-                                Most Popular
-                              </span>
-                            </div>
-                          )}
-
-                          <div className="text-center mb-6">
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                            <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+                          {/* Gradient Header */}
+                          <div className={`bg-gradient-to-r ${gradient} px-6 py-8 text-white text-center`}>
+                            {plan.popular && (
+                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                                <span className="bg-white text-red-600 px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                                  ⭐ Most Popular
+                                </span>
+                              </div>
+                            )}
+                            <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                            <p className="text-sm opacity-90 mb-4">{plan.description}</p>
                             <div className="flex items-baseline justify-center gap-1">
-                              <span className="text-4xl font-bold text-gray-900">
+                              <span className="text-5xl font-bold">
                                 ${billingCycle === 'monthly' ? plan.monthlyPrice : Math.floor(plan.annualPrice / 12)}
                               </span>
-                              <span className="text-gray-600">/month</span>
+                              <span className="text-lg opacity-90">/mo</span>
                             </div>
-                            {billingCycle === 'annual' && (
-                              <p className="text-xs text-gray-500 mt-2">
+                            {billingCycle === 'annual' && plan.annualPrice > 0 && (
+                              <p className="text-xs opacity-75 mt-2">
                                 Billed ${plan.annualPrice} annually
                               </p>
                             )}
                           </div>
 
-                          <ul className="space-y-3 mb-6">
+                          {/* White Card Body */}
+                          <div className="bg-white p-6">
+                            <ul className="space-y-3 mb-6">
                             {plan.features.slice(0, 8).map((feature: any, idx: number) => (
                               <li key={idx} className="flex items-start gap-2 text-sm">
                                 {feature.included ? (
@@ -1053,16 +1063,20 @@ export function SettingsPage() {
                           <button
                             onClick={() => handleUpgrade(plan)}
                             disabled={isSaving}
-                            className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
-                              plan.popular
-                                ? 'bg-primary-600 text-white hover:bg-primary-700'
-                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                            className={`w-full py-3 px-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg ${
+                              plan.id === 'free'
+                                ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300'
+                                : plan.popular
+                                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700'
+                                : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
                             } disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             {isSaving ? 'Processing...' : plan.buttonText}
                           </button>
+                          </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
