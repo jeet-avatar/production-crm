@@ -11,6 +11,7 @@ import {
   XMarkIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline';
+import { useTheme } from '../../contexts/ThemeContext';
 
 type SettingsTab = 'profile' | 'account' | 'notifications' | 'security' | 'preferences' | 'billing';
 
@@ -36,6 +37,7 @@ interface UserData {
 }
 
 export function SettingsPage() {
+  const { gradients } = useTheme();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -422,29 +424,10 @@ export function SettingsPage() {
           <div className="flex gap-2 flex-wrap">
             {tabs.map((tab) => {
               const Icon = tab.icon;
-              // Get gradient classes based on tab id
-              let gradientClass = '';
-              let shadowClass = '';
-
-              if (tab.id === 'profile') {
-                gradientClass = 'bg-gradient-to-r from-blue-500 to-indigo-600';
-                shadowClass = 'shadow-blue-500/30';
-              } else if (tab.id === 'account') {
-                gradientClass = 'bg-gradient-to-r from-green-500 to-emerald-600';
-                shadowClass = 'shadow-green-500/30';
-              } else if (tab.id === 'notifications') {
-                gradientClass = 'bg-gradient-to-r from-orange-500 to-red-600';
-                shadowClass = 'shadow-orange-500/30';
-              } else if (tab.id === 'security') {
-                gradientClass = 'bg-gradient-to-r from-purple-500 to-indigo-600';
-                shadowClass = 'shadow-purple-500/30';
-              } else if (tab.id === 'preferences') {
-                gradientClass = 'bg-gradient-to-r from-pink-500 to-rose-600';
-                shadowClass = 'shadow-pink-500/30';
-              } else if (tab.id === 'billing') {
-                gradientClass = 'bg-gradient-to-r from-red-500 to-pink-600';
-                shadowClass = 'shadow-red-500/30';
-              }
+              // Get gradient classes from dynamic theme
+              const tabGradient = gradients.pages.settings[tab.id as keyof typeof gradients.pages.settings];
+              const gradientClass = `bg-gradient-to-r ${tabGradient.gradient}`;
+              const shadowClass = tabGradient.shadow;
 
               return (
                 <button
@@ -1036,6 +1019,11 @@ export function SettingsPage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {pricingPlans.map((plan) => {
+                        // Get dynamic gradient for this plan
+                        const planGradient = gradients.pages.pricing[plan.id as keyof typeof gradients.pages.pricing];
+                        const headerGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient}` : 'bg-gradient-to-r from-gray-500 to-gray-700';
+                        const buttonGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}` : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700';
+
                         return (
                         <div
                           key={plan.id}
@@ -1046,24 +1034,14 @@ export function SettingsPage() {
                           {/* Most Popular Badge */}
                           {plan.popular && (
                             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                              <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-xl whitespace-nowrap">
+                              <span className={`bg-gradient-to-r ${planGradient?.gradient || 'from-red-500 to-pink-600'} text-white px-6 py-2 rounded-full text-xs font-bold shadow-xl whitespace-nowrap`}>
                                 ⭐ Most Popular
                               </span>
                             </div>
                           )}
 
-                          {/* Gradient Header - Full class names for Tailwind JIT */}
-                          <div className={`px-6 py-8 text-white text-center flex-shrink-0 rounded-t-2xl ${
-                            plan.id === 'free'
-                              ? 'bg-gradient-to-r from-gray-600 to-gray-800'
-                              : plan.id === 'starter'
-                              ? 'bg-gradient-to-r from-blue-500 to-indigo-600'
-                              : plan.id === 'professional'
-                              ? 'bg-gradient-to-r from-red-500 to-pink-600'
-                              : plan.id === 'enterprise'
-                              ? 'bg-gradient-to-r from-purple-500 to-indigo-600'
-                              : 'bg-gradient-to-r from-gray-500 to-gray-700'
-                          }`}>
+                          {/* Gradient Header - Dynamic from database */}
+                          <div className={`px-6 py-8 text-white text-center flex-shrink-0 rounded-t-2xl ${headerGradientClass}`}>
                             <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                             <p className="text-sm opacity-90 mb-4">{plan.description}</p>
                             <div className="flex items-baseline justify-center gap-1">
@@ -1099,17 +1077,7 @@ export function SettingsPage() {
                             <button
                               onClick={() => handleUpgrade(plan)}
                               disabled={isSaving}
-                              className={`w-full py-3 px-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg mt-auto text-white disabled:opacity-50 disabled:cursor-not-allowed ${
-                                plan.id === 'free'
-                                  ? 'bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900'
-                                  : plan.id === 'starter'
-                                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
-                                  : plan.id === 'professional'
-                                  ? 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700'
-                                  : plan.id === 'enterprise'
-                                  ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700'
-                                  : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
-                              }`}
+                              className={`w-full py-3 px-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg mt-auto text-white disabled:opacity-50 disabled:cursor-not-allowed ${buttonGradientClass}`}
                             >
                               {isSaving ? 'Processing...' : plan.buttonText}
                             </button>
