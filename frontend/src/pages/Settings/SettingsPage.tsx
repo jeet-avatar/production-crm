@@ -1015,12 +1015,21 @@ export function SettingsPage() {
                         return (
                         <div
                           key={plan.id}
-                          className={`relative rounded-2xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 ${
-                            plan.popular ? 'shadow-lg' : 'shadow-md'
+                          className={`relative rounded-2xl overflow-visible transition-all hover:shadow-xl hover:-translate-y-1 ${
+                            plan.popular ? 'shadow-lg mt-8' : 'shadow-md mt-8'
                           } flex flex-col`}
                         >
+                          {/* Most Popular Badge */}
+                          {plan.popular && (
+                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                              <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-xl whitespace-nowrap">
+                                ⭐ Most Popular
+                              </span>
+                            </div>
+                          )}
+
                           {/* Gradient Header - Full class names for Tailwind JIT */}
-                          <div className={`px-6 py-8 text-white text-center flex-shrink-0 ${
+                          <div className={`px-6 py-8 text-white text-center flex-shrink-0 rounded-t-2xl ${
                             plan.id === 'free'
                               ? 'bg-gradient-to-r from-gray-600 to-gray-800'
                               : plan.id === 'starter'
@@ -1031,13 +1040,6 @@ export function SettingsPage() {
                               ? 'bg-gradient-to-r from-purple-500 to-indigo-600'
                               : 'bg-gradient-to-r from-gray-500 to-gray-700'
                           }`}>
-                            {plan.popular && (
-                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                                <span className="bg-white text-red-600 px-4 py-1 rounded-full text-xs font-bold shadow-lg">
-                                  ⭐ Most Popular
-                                </span>
-                              </div>
-                            )}
                             <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                             <p className="text-sm opacity-90 mb-4">{plan.description}</p>
                             <div className="flex items-baseline justify-center gap-1">
