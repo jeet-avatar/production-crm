@@ -89,7 +89,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       // Extract gradients from theme.buttonStyles if available
       if (data.theme?.buttonStyles?.gradients) {
-        setGradients(data.theme.buttonStyles.gradients);
+        // DEEP MERGE: Combine database gradients with defaults to avoid missing sections
+        const defaultGradients = getDefaultGradients();
+        const dbGradients = data.theme.buttonStyles.gradients;
+
+        const mergedGradients = {
+          brand: dbGradients.brand || defaultGradients.brand,
+          semantic: dbGradients.semantic || defaultGradients.semantic,
+          pages: {
+            settings: dbGradients.pages?.settings || defaultGradients.pages.settings,
+            dashboard: dbGradients.pages?.dashboard || defaultGradients.pages.dashboard,
+            campaigns: dbGradients.pages?.campaigns || defaultGradients.pages.campaigns,
+            pricing: dbGradients.pages?.pricing || defaultGradients.pages.pricing,
+          }
+        };
+
+        setGradients(mergedGradients as ThemeGradients);
         setTheme(data.theme);
       } else {
         // Use default gradients from brandColors.ts
