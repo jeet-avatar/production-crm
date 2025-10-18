@@ -7,6 +7,9 @@ import {
   GlobeAltIcon,
   CreditCardIcon,
   KeyIcon,
+  CheckIcon,
+  XMarkIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 
 type SettingsTab = 'profile' | 'account' | 'notifications' | 'security' | 'preferences' | 'billing';
@@ -20,6 +23,16 @@ interface UserData {
   timezone: string;
   role: string;
   avatar?: string;
+  emailNotifications?: boolean;
+  dealUpdates?: boolean;
+  newContacts?: boolean;
+  weeklyReport?: boolean;
+  marketingEmails?: boolean;
+  language?: string;
+  dateFormat?: string;
+  timeFormat?: string;
+  theme?: string;
+  compactView?: boolean;
 }
 
 export function SettingsPage() {
@@ -38,6 +51,11 @@ export function SettingsPage() {
     avatar: '',
   });
 
+  // Account settings
+  const [accountData, setAccountData] = useState({
+    forwardingEmail: '',
+  });
+
   // Notification settings
   const [notifications, setNotifications] = useState({
     emailNotifications: true,
@@ -47,10 +65,63 @@ export function SettingsPage() {
     marketingEmails: false,
   });
 
+  // Session information
+  const [sessionInfo, setSessionInfo] = useState({
+    browser: '',
+    os: '',
+    location: '',
+  });
+
+  // Display preferences
+  const [displayPreferences, setDisplayPreferences] = useState({
+    language: 'en',
+    dateFormat: 'MM/DD/YYYY',
+    timeFormat: '12h',
+    theme: 'light',
+    compactView: false,
+    timezone: 'America/New_York',
+  });
+
+  // Billing & Pricing Plans
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [pricingPlans, setPricingPlans] = useState<any[]>([]);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(true);
+  const [currentPlan, setCurrentPlan] = useState({
+    name: 'Free Trial',
+    status: 'active',
+    nextBillingDate: null,
+  });
+
   // Fetch user data on component mount
   useEffect(() => {
     fetchUserData();
+    detectSessionInfo();
+    fetchPricingPlans();
   }, []);
+
+  const detectSessionInfo = () => {
+    // Detect browser
+    const userAgent = navigator.userAgent;
+    let browser = 'Unknown';
+    if (userAgent.includes('Chrome')) browser = 'Chrome';
+    else if (userAgent.includes('Safari')) browser = 'Safari';
+    else if (userAgent.includes('Firefox')) browser = 'Firefox';
+    else if (userAgent.includes('Edge')) browser = 'Edge';
+
+    // Detect OS
+    let os = 'Unknown';
+    if (userAgent.includes('Mac')) os = 'macOS';
+    else if (userAgent.includes('Windows')) os = 'Windows';
+    else if (userAgent.includes('Linux')) os = 'Linux';
+    else if (userAgent.includes('Android')) os = 'Android';
+    else if (userAgent.includes('iOS')) os = 'iOS';
+
+    setSessionInfo({
+      browser,
+      os,
+      location: 'Location unavailable', // We'd need a geolocation API for this
+    });
+  };
 
   const fetchUserData = async () => {
     try {
@@ -79,6 +150,29 @@ export function SettingsPage() {
         timezone: user.timezone || 'America/New_York',
         avatar: user.avatar || '',
       });
+
+      // Load notification preferences from user data
+      if (user.emailNotifications !== undefined) {
+        setNotifications({
+          emailNotifications: user.emailNotifications ?? true,
+          dealUpdates: user.dealUpdates ?? true,
+          newContacts: user.newContacts ?? false,
+          weeklyReport: user.weeklyReport ?? true,
+          marketingEmails: user.marketingEmails ?? false,
+        });
+      }
+
+      // Load display preferences from user data
+      if (user.language !== undefined) {
+        setDisplayPreferences({
+          language: user.language ?? 'en',
+          dateFormat: user.dateFormat ?? 'MM/DD/YYYY',
+          timeFormat: user.timeFormat ?? '12h',
+          theme: user.theme ?? 'light',
+          compactView: user.compactView ?? false,
+          timezone: user.timezone ?? 'America/New_York',
+        });
+      }
     } catch (err) {
       console.error('Error fetching user data:', err);
     } finally {
@@ -125,7 +219,7 @@ export function SettingsPage() {
       setIsSaving(true);
       const token = localStorage.getItem('crmToken');
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${apiUrl}/api/preferences`, {
+      const response = await fetch(`${apiUrl}/api/users/me/preferences`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -136,10 +230,153 @@ export function SettingsPage() {
 
       if (!response.ok) throw new Error('Failed to update preferences');
 
-      alert('Notification preferences updated!');
+      const data = await response.json();
+      alert(data.message || 'Notification preferences updated!');
     } catch (err: any) {
       console.error('Error updating notifications:', err);
       alert('Failed to update notification preferences');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveAccount = async () => {
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem('crmToken');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/users/me/account`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          forwardingEmail: accountData.forwardingEmail,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to update account settings');
+
+      alert('Account settings updated successfully!');
+    } catch (err: any) {
+      console.error('Error updating account settings:', err);
+      alert('Failed to update account settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      return;
+    }
+
+    if (!confirm('This will permanently delete all your data. Are you absolutely sure?')) {
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem('crmToken');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/users/me`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to delete account');
+
+      alert('Account deleted successfully. You will be logged out.');
+      localStorage.removeItem('crmToken');
+      localStorage.removeItem('crmUser');
+      window.location.href = '/login';
+    } catch (err: any) {
+      console.error('Error deleting account:', err);
+      alert('Failed to delete account');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveDisplayPreferences = async () => {
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem('crmToken');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/users/me/display-preferences`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(displayPreferences),
+      });
+
+      if (!response.ok) throw new Error('Failed to update display preferences');
+
+      const data = await response.json();
+      alert(data.message || 'Preferences updated successfully!');
+    } catch (err: any) {
+      console.error('Error updating display preferences:', err);
+      alert('Failed to update preferences');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const fetchPricingPlans = async () => {
+    try {
+      setIsLoadingPlans(true);
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const response = await fetch(`${apiUrl}/api/pricing/config`);
+
+      if (!response.ok) throw new Error('Failed to fetch pricing plans');
+
+      const data = await response.json();
+      setPricingPlans(data.plans || []);
+    } catch (err: any) {
+      console.error('Error fetching pricing plans:', err);
+    } finally {
+      setIsLoadingPlans(false);
+    }
+  };
+
+  const handleUpgrade = async (plan: any) => {
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem('crmToken');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+      const priceId = billingCycle === 'monthly' ? plan.stripeMonthlyPriceId : plan.stripeAnnualPriceId;
+
+      const response = await fetch(`${apiUrl}/api/subscriptions/checkout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          priceId,
+          billingCycle,
+          planId: plan.id,
+          planName: plan.name,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to create checkout session');
+
+      const data = await response.json();
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err: any) {
+      console.error('Error creating checkout session:', err);
+      alert('Failed to start checkout process. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -293,34 +530,71 @@ export function SettingsPage() {
                 <p className="text-sm text-gray-600 mt-1">Manage your account configuration</p>
               </div>
               <div className="p-6 space-y-6">
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-4">Email Configuration</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Primary Email</label>
-                      <input type="email" value="demo@example.com" className="input" disabled />
-                      <p className="text-xs text-gray-500 mt-1">This is your login email and cannot be changed</p>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Forwarding Email</label>
-                      <input type="email" placeholder="forward@example.com" className="input" />
-                      <p className="text-xs text-gray-500 mt-1">Forward notifications to this email</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-t border-gray-100 pt-6">
-                  <h3 className="text-sm font-medium text-gray-900 mb-4">Account Status</h3>
-                  <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleSaveAccount(); }}>
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Email Configuration</h3>
+                    <div className="space-y-4">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">Account Active</div>
-                        <div className="text-xs text-gray-600">Your account is in good standing</div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Primary Email</label>
+                        <input
+                          type="email"
+                          value={profileData.email || ''}
+                          className="input bg-gray-50 cursor-not-allowed"
+                          disabled
+                        />
+                        <p className="text-xs text-gray-500 mt-1">This is your login email and cannot be changed</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Forwarding Email</label>
+                        <input
+                          type="email"
+                          value={accountData.forwardingEmail}
+                          onChange={(e) => setAccountData({ ...accountData, forwardingEmail: e.target.value })}
+                          placeholder="forward@example.com"
+                          className="input"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Forward notifications to this email</p>
                       </div>
                     </div>
                   </div>
-                </div>
+
+                  <div className="border-t border-gray-100 pt-6">
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Account Information</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">User ID</div>
+                          <div className="text-xs text-gray-600 font-mono">{profileData.email ? profileData.email.split('@')[0] : 'N/A'}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">Account Role</div>
+                          <div className="text-xs text-gray-600 capitalize">{profileData.role || 'Member'}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-6">
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Account Status</h3>
+                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">Account Active</div>
+                          <div className="text-xs text-gray-600">Your account is in good standing</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-6 border-t border-gray-100">
+                    <button type="submit" className="btn-primary" disabled={isSaving}>
+                      {isSaving ? 'Saving...' : 'Save Account Settings'}
+                    </button>
+                  </div>
+                </form>
 
                 <div className="border-t border-gray-100 pt-6">
                   <h3 className="text-sm font-medium text-red-600 mb-4">Danger Zone</h3>
@@ -330,7 +604,10 @@ export function SettingsPage() {
                         <div className="text-sm font-medium text-gray-900">Delete Account</div>
                         <div className="text-xs text-gray-600">Permanently delete your account and all data</div>
                       </div>
-                      <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700">
+                      <button
+                        onClick={handleDeleteAccount}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                      >
                         Delete Account
                       </button>
                     </div>
@@ -471,7 +748,9 @@ export function SettingsPage() {
                       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <div>
                           <div className="text-sm font-medium text-gray-900">Current Session</div>
-                          <div className="text-xs text-gray-600">macOS • Chrome • New York, USA</div>
+                          <div className="text-xs text-gray-600">
+                            {sessionInfo.os} • {sessionInfo.browser} • {sessionInfo.location}
+                          </div>
                         </div>
                         <span className="text-xs text-green-600 font-medium">Active Now</span>
                       </div>
@@ -482,16 +761,322 @@ export function SettingsPage() {
             </div>
           )}
 
-          {/* Other tabs placeholder */}
-          {(activeTab === 'preferences' || activeTab === 'billing') && (
+          {/* Preferences Tab */}
+          {activeTab === 'preferences' && (
             <div className="card">
-              <div className="p-12 text-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  {activeTab === 'preferences' && <GlobeAltIcon className="h-8 w-8 text-gray-400" />}
-                  {activeTab === 'billing' && <CreditCardIcon className="h-8 w-8 text-gray-400" />}
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-900">Display Preferences</h2>
+                <p className="text-sm text-gray-600 mt-1">Customize how you interact with the application</p>
+              </div>
+              <div className="p-6">
+                <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); handleSaveDisplayPreferences(); }}>
+                  {/* Language & Region */}
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Language & Region</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="label">Language</label>
+                        <select
+                          value={displayPreferences.language}
+                          onChange={(e) => setDisplayPreferences({ ...displayPreferences, language: e.target.value })}
+                          className="input"
+                        >
+                          <option value="en">English</option>
+                          <option value="es">Español</option>
+                          <option value="fr">Français</option>
+                          <option value="de">Deutsch</option>
+                          <option value="pt">Português</option>
+                          <option value="zh">中文</option>
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">Select your preferred language for the interface</p>
+                      </div>
+
+                      <div>
+                        <label className="label">Timezone</label>
+                        <select
+                          value={displayPreferences.timezone}
+                          onChange={(e) => setDisplayPreferences({ ...displayPreferences, timezone: e.target.value })}
+                          className="input"
+                        >
+                          <option value="America/New_York">Eastern Time (ET)</option>
+                          <option value="America/Chicago">Central Time (CT)</option>
+                          <option value="America/Denver">Mountain Time (MT)</option>
+                          <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                          <option value="America/Phoenix">Arizona</option>
+                          <option value="America/Anchorage">Alaska</option>
+                          <option value="Pacific/Honolulu">Hawaii</option>
+                          <option value="Europe/London">London (GMT)</option>
+                          <option value="Europe/Paris">Paris (CET)</option>
+                          <option value="Asia/Tokyo">Tokyo (JST)</option>
+                          <option value="Australia/Sydney">Sydney (AEDT)</option>
+                          <option value="UTC">UTC</option>
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">All times will be displayed in this timezone</p>
+                      </div>
+
+                      <div>
+                        <label className="label">Date Format</label>
+                        <select
+                          value={displayPreferences.dateFormat}
+                          onChange={(e) => setDisplayPreferences({ ...displayPreferences, dateFormat: e.target.value })}
+                          className="input"
+                        >
+                          <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2025)</option>
+                          <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2025)</option>
+                          <option value="YYYY-MM-DD">YYYY-MM-DD (2025-12-31)</option>
+                          <option value="MMM DD, YYYY">MMM DD, YYYY (Dec 31, 2025)</option>
+                          <option value="DD MMM YYYY">DD MMM YYYY (31 Dec 2025)</option>
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">Choose how dates are displayed throughout the app</p>
+                      </div>
+
+                      <div>
+                        <label className="label">Time Format</label>
+                        <select
+                          value={displayPreferences.timeFormat}
+                          onChange={(e) => setDisplayPreferences({ ...displayPreferences, timeFormat: e.target.value })}
+                          className="input"
+                        >
+                          <option value="12h">12-hour (2:30 PM)</option>
+                          <option value="24h">24-hour (14:30)</option>
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">Select your preferred time format</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Appearance */}
+                  <div className="border-t border-gray-100 pt-6">
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Appearance</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="label">Theme</label>
+                        <div className="grid grid-cols-3 gap-3">
+                          <button
+                            type="button"
+                            onClick={() => setDisplayPreferences({ ...displayPreferences, theme: 'light' })}
+                            className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
+                              displayPreferences.theme === 'light'
+                                ? 'border-primary-500 bg-primary-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="w-12 h-12 bg-white border-2 border-gray-300 rounded mb-2"></div>
+                            <span className="text-sm font-medium text-gray-900">Light</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDisplayPreferences({ ...displayPreferences, theme: 'dark' })}
+                            className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
+                              displayPreferences.theme === 'dark'
+                                ? 'border-primary-500 bg-primary-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="w-12 h-12 bg-gray-800 border-2 border-gray-600 rounded mb-2"></div>
+                            <span className="text-sm font-medium text-gray-900">Dark</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDisplayPreferences({ ...displayPreferences, theme: 'system' })}
+                            className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
+                              displayPreferences.theme === 'system'
+                                ? 'border-primary-500 bg-primary-50'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="w-12 h-12 bg-gradient-to-br from-white to-gray-800 border-2 border-gray-400 rounded mb-2"></div>
+                            <span className="text-sm font-medium text-gray-900">System</span>
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Choose your color theme preference (Note: Dark mode coming soon)</p>
+                      </div>
+
+                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">Compact View</div>
+                          <div className="text-xs text-gray-600">Reduce spacing and show more content</div>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={displayPreferences.compactView}
+                          onChange={(e) => setDisplayPreferences({ ...displayPreferences, compactView: e.target.checked })}
+                          className="w-4 h-4 text-primary-600 rounded"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-6 border-t border-gray-100">
+                    <button type="submit" className="btn-primary" disabled={isSaving}>
+                      {isSaving ? 'Saving...' : 'Save Preferences'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Billing Tab */}
+          {activeTab === 'billing' && (
+            <div className="space-y-6">
+              {/* Current Plan Section */}
+              <div className="card">
+                <div className="p-6 border-b border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900">Current Plan</h2>
+                  <p className="text-sm text-gray-600 mt-1">Manage your subscription and billing</p>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2 capitalize">{activeTab} Settings</h3>
-                <p className="text-gray-600">These settings will be available in a future update</p>
+                <div className="p-6">
+                  <div className="flex items-center justify-between p-6 bg-gradient-to-r from-primary-50 to-purple-50 rounded-lg border border-primary-100">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-white rounded-lg shadow-sm">
+                        <SparklesIcon className="h-8 w-8 text-primary-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{currentPlan.name}</h3>
+                        <p className="text-sm text-gray-600">Full access to all features</p>
+                        {currentPlan.nextBillingDate && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Next billing date: {new Date(currentPlan.nextBillingDate).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {currentPlan.status === 'active' ? 'Active' : currentPlan.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing Plans Section */}
+              <div className="card">
+                <div className="p-6 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">Available Plans</h2>
+                      <p className="text-sm text-gray-600 mt-1">Upgrade or change your plan anytime</p>
+                    </div>
+                    {/* Billing Cycle Toggle */}
+                    <div className="flex items-center gap-3 bg-gray-100 rounded-lg p-1">
+                      <button
+                        onClick={() => setBillingCycle('monthly')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          billingCycle === 'monthly'
+                            ? 'bg-white text-gray-900 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Monthly
+                      </button>
+                      <button
+                        onClick={() => setBillingCycle('annual')}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          billingCycle === 'annual'
+                            ? 'bg-white text-gray-900 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        Annual
+                        <span className="ml-2 text-xs text-green-600 font-semibold">Save 17%</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  {isLoadingPlans ? (
+                    <div className="text-center py-12">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary-600"></div>
+                      <p className="text-gray-600 mt-4">Loading pricing plans...</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {pricingPlans.map((plan) => (
+                        <div
+                          key={plan.id}
+                          className={`relative rounded-lg border-2 p-6 transition-all hover:shadow-lg ${
+                            plan.popular
+                              ? 'border-primary-500 shadow-md'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {plan.popular && (
+                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                              <span className="bg-primary-500 text-white px-4 py-1 rounded-full text-xs font-semibold">
+                                Most Popular
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="text-center mb-6">
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                            <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
+                            <div className="flex items-baseline justify-center gap-1">
+                              <span className="text-4xl font-bold text-gray-900">
+                                ${billingCycle === 'monthly' ? plan.monthlyPrice : Math.floor(plan.annualPrice / 12)}
+                              </span>
+                              <span className="text-gray-600">/month</span>
+                            </div>
+                            {billingCycle === 'annual' && (
+                              <p className="text-xs text-gray-500 mt-2">
+                                Billed ${plan.annualPrice} annually
+                              </p>
+                            )}
+                          </div>
+
+                          <ul className="space-y-3 mb-6">
+                            {plan.features.slice(0, 8).map((feature: any, idx: number) => (
+                              <li key={idx} className="flex items-start gap-2 text-sm">
+                                {feature.included ? (
+                                  <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                ) : (
+                                  <XMarkIcon className="h-5 w-5 text-gray-300 flex-shrink-0 mt-0.5" />
+                                )}
+                                <span className={feature.included ? 'text-gray-700' : 'text-gray-400'}>
+                                  {feature.text}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+
+                          <button
+                            onClick={() => handleUpgrade(plan)}
+                            disabled={isSaving}
+                            className={`w-full py-3 px-4 rounded-lg font-semibold transition-colors ${
+                              plan.popular
+                                ? 'bg-primary-600 text-white hover:bg-primary-700'
+                                : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {isSaving ? 'Processing...' : plan.buttonText}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment Method Section */}
+              <div className="card">
+                <div className="p-6 border-b border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
+                  <p className="text-sm text-gray-600 mt-1">Manage your payment information</p>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <CreditCardIcon className="h-6 w-6 text-gray-400" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">No payment method on file</div>
+                        <div className="text-xs text-gray-600">Add a payment method when you upgrade</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}

@@ -136,6 +136,20 @@ model User {
   passwordResetToken  String? // Reset token
   passwordResetExpiry DateTime? // Reset token expiry (1 hour)
 
+  // Notification Preferences
+  emailNotifications Boolean @default(true)
+  dealUpdates        Boolean @default(true)
+  newContacts        Boolean @default(false)
+  weeklyReport       Boolean @default(true)
+  marketingEmails    Boolean @default(false)
+
+  // User Preferences
+  language           String  @default("en") // Language preference (en, es, fr, etc.)
+  dateFormat         String  @default("MM/DD/YYYY") // Date format preference
+  timeFormat         String  @default("12h") // 12h or 24h
+  theme              String  @default("light") // light, dark, or system
+  compactView        Boolean @default(false) // Compact UI mode
+
   // Relationships
   contacts           Contact[]
   companies          Company[]
@@ -152,6 +166,8 @@ model User {
   leads              Lead[]
   videoTemplates     VideoTemplate[] @relation("VideoTemplates")
   videoCampaigns     VideoCampaign[]
+  activityLogs       ActivityLog[]
+  uiConfigs          UIConfig[]
 
   // Team relationships
   accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
@@ -1189,4 +1205,145 @@ model VideoGenerationJob {
   @@index([status])
   @@index([createdAt])
   @@map("video_generation_jobs")
+}
+
+// ===================================
+// ACTIVITY LOGS (AUDIT TRAIL)
+// ===================================
+
+enum ActivityLogAction {
+  USER_LOGIN
+  USER_LOGOUT
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+  CONTACT_CREATED
+  CONTACT_UPDATED
+  CONTACT_DELETED
+  COMPANY_CREATED
+  COMPANY_UPDATED
+  COMPANY_DELETED
+  DEAL_CREATED
+  DEAL_UPDATED
+  DEAL_DELETED
+  EMAIL_SENT
+  VIDEO_GENERATED
+  DATABASE_QUERY
+  SETTINGS_CHANGED
+  PASSWORD_RESET
+  API_KEY_ROTATED
+  TEAM_INVITE_SENT
+  TEAM_MEMBER_REMOVED
+}
+
+model ActivityLog {
+  id          String            @id @default(cuid())
+  action      ActivityLogAction
+  entityType  String? // contacts, companies, deals, users
+  entityId    String? // ID of the entity affected
+  description String? // Human-readable description
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json? // Additional context data
+  createdAt   DateTime          @default(now())
+
+  // Foreign keys
+  userId String?
+
+  // Relationships
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([entityType])
+  @@index([ipAddress])
+  @@map("activity_logs")
+}
+
+// UI Configuration Models for Super Admin
+model UIConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique // e.g., "navigation", "theme", "branding"
+  value       Json // Flexible JSON structure for any UI config
+  isActive    Boolean  @default(true)
+  version     Int      @default(1)
+  description String? // What this config controls
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+
+  user User? @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([key])
+  @@index([isActive])
+  @@map("ui_configs")
+}
+
+model NavigationItem {
+  id          String   @id @default(cuid())
+  label       String // Display name
+  path        String // Route path
+  icon        String? // Icon name
+  order       Int      @default(0) // Display order
+  isVisible   Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  parentId    String? // For nested navigation
+  roles       String[] // Which roles can see this (JSON array)
+  badge       String? // Optional badge text
+  badgeColor  String? // Badge color
+  metadata    Json? // Additional settings
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent   NavigationItem?  @relation("NavigationHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children NavigationItem[] @relation("NavigationHierarchy")
+
+  @@index([order])
+  @@index([isVisible])
+  @@index([parentId])
+  @@map("navigation_items")
+}
+
+model ThemeConfig {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  primaryColor    String // Hex color
+  secondaryColor  String
+  accentColor     String
+  backgroundColor String
+  textColor       String
+  sidebarColor    String?
+  headerColor     String?
+  buttonStyles    Json? // Custom button styles
+  fontFamily      String?
+  fontSize        String?
+  borderRadius    String?
+  customCSS       String? @db.Text // Additional custom CSS
+  isActive        Boolean  @default(false) // Only one active at a time
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("theme_configs")
+}
+
+model BrandingConfig {
+  id              String   @id @default(cuid())
+  companyName     String
+  logoUrl         String?
+  faviconUrl      String?
+  loginBgImage    String?
+  dashboardBanner String?
+  footerText      String?
+  supportEmail    String?
+  supportPhone    String?
+  socialLinks     Json? // Twitter, LinkedIn, etc.
+  metadata        Json? // Additional branding data
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("branding_configs")
 }
