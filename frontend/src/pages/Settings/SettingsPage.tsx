@@ -393,25 +393,25 @@ export function SettingsPage() {
   };
 
   const tabs = [
-    { id: 'profile' as SettingsTab, name: 'Profile', icon: UserCircleIcon, gradient: 'from-blue-500 to-indigo-600', shadow: 'shadow-blue-500/30' },
-    { id: 'account' as SettingsTab, name: 'Account', icon: EnvelopeIcon, gradient: 'from-green-500 to-emerald-600', shadow: 'shadow-green-500/30' },
-    { id: 'notifications' as SettingsTab, name: 'Notifications', icon: BellIcon, gradient: 'from-orange-500 to-red-600', shadow: 'shadow-orange-500/30' },
-    { id: 'security' as SettingsTab, name: 'Security', icon: ShieldCheckIcon, gradient: 'from-purple-500 to-indigo-600', shadow: 'shadow-purple-500/30' },
-    { id: 'preferences' as SettingsTab, name: 'Preferences', icon: GlobeAltIcon, gradient: 'from-pink-500 to-rose-600', shadow: 'shadow-pink-500/30' },
-    { id: 'billing' as SettingsTab, name: 'Billing', icon: CreditCardIcon, gradient: 'from-red-500 to-pink-600', shadow: 'shadow-red-500/30' },
+    { id: 'profile' as SettingsTab, name: 'Profile', icon: UserCircleIcon },
+    { id: 'account' as SettingsTab, name: 'Account', icon: EnvelopeIcon },
+    { id: 'notifications' as SettingsTab, name: 'Notifications', icon: BellIcon },
+    { id: 'security' as SettingsTab, name: 'Security', icon: ShieldCheckIcon },
+    { id: 'preferences' as SettingsTab, name: 'Preferences', icon: GlobeAltIcon },
+    { id: 'billing' as SettingsTab, name: 'Billing', icon: CreditCardIcon },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 p-8">
+    <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl">
+            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-xl`}>
               <UserCircleIcon className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold text-gray-900">
                 Settings
               </h1>
               <p className="text-gray-600 mt-1">Manage your account settings and preferences</p>
@@ -1034,7 +1034,7 @@ export function SettingsPage() {
                           {/* Most Popular Badge */}
                           {plan.popular && (
                             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                              <span className={`bg-gradient-to-r ${planGradient?.gradient || 'from-red-500 to-pink-600'} text-white px-6 py-2 rounded-full text-xs font-bold shadow-xl whitespace-nowrap`}>
+                              <span className={`bg-gradient-to-r ${planGradient?.gradient || gradients.semantic.premium.gradient} text-white px-6 py-2 rounded-full text-xs font-bold shadow-xl whitespace-nowrap`}>
                                 ⭐ Most Popular
                               </span>
                             </div>
