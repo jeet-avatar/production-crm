@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SwatchIcon, SparklesIcon, CheckIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import brandColors, { THEME_PRESETS, BRAND_COLORS, SEMANTIC_COLORS, PAGE_COLORS } from '../../config/brandColors';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * COLOR COMMAND CENTER - Super Admin Design System Control
@@ -10,8 +11,61 @@ import brandColors, { THEME_PRESETS, BRAND_COLORS, SEMANTIC_COLORS, PAGE_COLORS 
  */
 
 export function ColorCommandCenter() {
+  const { gradients, refreshTheme } = useTheme();
   const [selectedTheme, setSelectedTheme] = useState('default');
   const [previewMode, setPreviewMode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+
+  const handleApplyTheme = async () => {
+    try {
+      setIsSaving(true);
+      setSaveMessage('');
+
+      const token = localStorage.getItem('crmToken');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+      // Get the gradient configuration from brandColors based on selected theme
+      const themeConfig = {
+        name: THEME_PRESETS[selectedTheme as keyof typeof THEME_PRESETS].name,
+        primaryColor: '#3B82F6',
+        secondaryColor: '#8B5CF6',
+        gradients: {
+          brand: BRAND_COLORS,
+          semantic: SEMANTIC_COLORS,
+          pages: PAGE_COLORS,
+        },
+      };
+
+      const response = await fetch(`${apiUrl}/api/ui-config/theme`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(themeConfig),
+      });
+
+      if (!response.ok) throw new Error('Failed to save theme');
+
+      const data = await response.json();
+      setSaveMessage('✅ Theme applied successfully! Refreshing...');
+
+      // Refresh theme from server
+      await refreshTheme();
+
+      // Reload page to see changes
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+
+    } catch (error: any) {
+      console.error('Error applying theme:', error);
+      setSaveMessage('❌ Failed to apply theme. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 p-8">
@@ -103,18 +157,29 @@ export function ColorCommandCenter() {
               ))}
             </div>
 
-            <div className="mt-6 flex gap-4">
-              <button
-                onClick={() => setPreviewMode(!previewMode)}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-pink-700 transition-all"
-              >
-                <ArrowPathIcon className="w-5 h-5" />
-                {previewMode ? 'Exit Preview' : 'Preview Theme'}
-              </button>
-              <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-green-700 hover:to-emerald-700 transition-all">
-                <CheckIcon className="w-5 h-5" />
-                Apply Theme
-              </button>
+            <div className="mt-6 flex flex-col gap-4">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setPreviewMode(!previewMode)}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-purple-700 hover:to-pink-700 transition-all"
+                >
+                  <ArrowPathIcon className="w-5 h-5" />
+                  {previewMode ? 'Exit Preview' : 'Preview Theme'}
+                </button>
+                <button
+                  onClick={handleApplyTheme}
+                  disabled={isSaving}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckIcon className="w-5 h-5" />
+                  {isSaving ? 'Applying...' : 'Apply Theme'}
+                </button>
+              </div>
+              {saveMessage && (
+                <div className={`p-4 rounded-lg ${saveMessage.includes('✅') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                  {saveMessage}
+                </div>
+              )}
             </div>
           </div>
         </div>
