@@ -145,4 +145,101 @@ router.get('/navigation/:role?', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/ui-config/theme
+ * Super Admin only - Create or update theme configuration
+ */
+router.post('/theme', async (req, res) => {
+  try {
+    const { name, gradients, primaryColor, secondaryColor, ...otherFields } = req.body;
+
+    // Store gradients in buttonStyles for now (avoids DB migration)
+    const themeData = {
+      name: name || 'BrandMonkz Theme',
+      primaryColor: primaryColor || '#3B82F6',
+      secondaryColor: secondaryColor || '#8B5CF6',
+      accentColor: otherFields.accentColor || '#10B981',
+      backgroundColor: otherFields.backgroundColor || '#FFFFFF',
+      textColor: otherFields.textColor || '#111827',
+      buttonStyles: gradients ? { gradients } : otherFields.buttonStyles,
+      fontFamily: otherFields.fontFamily,
+      fontSize: otherFields.fontSize,
+      borderRadius: otherFields.borderRadius,
+      customCSS: otherFields.customCSS,
+    };
+
+    // Deactivate current active theme
+    await prisma.themeConfig.updateMany({
+      where: { isActive: true },
+      data: { isActive: false },
+    });
+
+    // Create or update theme
+    const theme = await prisma.themeConfig.upsert({
+      where: { name: themeData.name },
+      create: { ...themeData, isActive: true },
+      update: { ...themeData, isActive: true },
+    });
+
+    res.json({ success: true, theme });
+  } catch (error: any) {
+    console.error('Error saving theme:', error);
+    res.status(500).json({ error: 'Failed to save theme configuration' });
+  }
+});
+
+/**
+ * GET /api/ui-config/themes
+ * Get all theme configurations
+ */
+router.get('/themes', async (req, res) => {
+  try {
+    const themes = await prisma.themeConfig.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        primaryColor: true,
+        secondaryColor: true,
+        buttonStyles: true,
+        isActive: true,
+        isDefault: true,
+        createdAt: true,
+      },
+    });
+
+    res.json(themes);
+  } catch (error: any) {
+    console.error('Error fetching themes:', error);
+    res.status(500).json({ error: 'Failed to fetch themes' });
+  }
+});
+
+/**
+ * PUT /api/ui-config/theme/:id/activate
+ * Super Admin only - Activate a theme
+ */
+router.put('/theme/:id/activate', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Deactivate all themes
+    await prisma.themeConfig.updateMany({
+      where: { isActive: true },
+      data: { isActive: false },
+    });
+
+    // Activate selected theme
+    const theme = await prisma.themeConfig.update({
+      where: { id },
+      data: { isActive: true },
+    });
+
+    res.json({ success: true, theme });
+  } catch (error: any) {
+    console.error('Error activating theme:', error);
+    res.status(500).json({ error: 'Failed to activate theme' });
+  }
+});
+
 export default router;
