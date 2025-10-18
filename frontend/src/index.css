@@ -500,6 +500,11 @@ body {
 .from-indigo-50 { --tw-gradient-from: #EEF2FF; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(238, 242, 255, 0)); }
 .from-indigo-600 { --tw-gradient-from: #4F46E5; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(79, 70, 229, 0)); }
 .from-indigo-700 { --tw-gradient-from: #4338CA; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(67, 56, 202, 0)); }
+.from-emerald-600 { --tw-gradient-from: #059669; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(5, 150, 105, 0)); }
+.from-violet-600 { --tw-gradient-from: #7C3AED; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(124, 58, 237, 0)); }
+.from-amber-500 { --tw-gradient-from: #F59E0B; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(245, 158, 11, 0)); }
+.from-amber-600 { --tw-gradient-from: #D97706; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(217, 119, 6, 0)); }
+.from-yellow-500 { --tw-gradient-from: #EAB308; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(234, 179, 8, 0)); }
 .via-blue-50 { --tw-gradient-stops: var(--tw-gradient-from), #EFF6FF, var(--tw-gradient-to, rgba(239, 246, 255, 0)); }
 .to-white { --tw-gradient-to: #FFFFFF; }
 .to-gray-700 { --tw-gradient-to: #334155; }
@@ -519,6 +524,17 @@ body {
 .to-indigo-50 { --tw-gradient-to: #EEF2FF; }
 .to-indigo-600 { --tw-gradient-to: #4F46E5; }
 .to-indigo-700 { --tw-gradient-to: #4338CA; }
+.to-teal-600 { --tw-gradient-to: #0D9488; }
+.to-fuchsia-600 { --tw-gradient-to: #C026D3; }
+.to-purple-700 { --tw-gradient-to: #6D28D9; }
+.to-amber-500 { --tw-gradient-to: #F59E0B; }
+.to-amber-600 { --tw-gradient-to: #D97706; }
+.to-amber-700 { --tw-gradient-to: #B45309; }
+.to-yellow-500 { --tw-gradient-to: #EAB308; }
+.to-yellow-600 { --tw-gradient-to: #CA8A04; }
+.to-orange-400 { --tw-gradient-to: #FB923C; }
+.to-orange-500 { --tw-gradient-to: #F97316; }
+.to-orange-700 { --tw-gradient-to: #C2410C; }
 
 /* Transform utilities */
 .transform { transform: var(--tw-transform); }
