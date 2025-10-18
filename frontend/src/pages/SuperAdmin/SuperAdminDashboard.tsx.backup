@@ -1,0 +1,3914 @@
+import { useState, useEffect } from 'react';
+import {
+  UsersIcon,
+  BuildingOfficeIcon,
+  PhoneIcon,
+  CurrencyDollarIcon,
+  MegaphoneIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  MagnifyingGlassIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ShieldCheckIcon,
+  ServerIcon,
+  CircleStackIcon,
+  CommandLineIcon,
+  PlayIcon,
+  DocumentTextIcon,
+  ExclamationTriangleIcon,
+  ArrowTrendingUpIcon,
+  SparklesIcon,
+  ChartBarIcon,
+  CodeBracketIcon,
+  KeyIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  ClipboardDocumentListIcon,
+  EnvelopeIcon,
+  CogIcon,
+  ClockIcon,
+  PaintBrushIcon,
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  Bars3Icon,
+  TableCellsIcon,
+  CloudIcon,
+  LightBulbIcon,
+  PaperAirplaneIcon,
+} from '@heroicons/react/24/outline';
+import InlineChatBot from '../../components/InlineChatBot';
+
+interface DashboardStats {
+  totalUsers: number;
+  totalContacts: number;
+  totalCompanies: number;
+  totalDeals: number;
+  totalCampaigns: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  recentSignups: number;
+}
+
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  teamRole: string;
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
+  phone: string | null;
+  emailVerified: boolean;
+}
+
+interface UsersPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+interface QueryResult {
+  columns: string[];
+  rows: any[][];
+  rowCount: number;
+  executionTime: number;
+}
+
+interface APIRoute {
+  method: string;
+  path: string;
+  description: string;
+  category: string;
+}
+
+interface APITestResult {
+  method: string;
+  path: string;
+  status: string;
+  message: string;
+  timestamp: string;
+}
+
+interface ActivityLog {
+  id: string;
+  action: string;
+  entityType: string | null;
+  entityId: string | null;
+  description: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  metadata: any;
+  createdAt: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  } | null;
+}
+
+interface ActivityLogStats {
+  totalLogs: number;
+  logsLast24Hours: number;
+  logsLast7Days: number;
+  logsLast30Days: number;
+  topActions: { action: string; count: number }[];
+  topUsers: { userId: string; userName: string; email: string; count: number }[];
+  recentLogs: ActivityLog[];
+}
+
+interface EmailLog {
+  id: string;
+  toEmail: string;
+  fromEmail: string | null;
+  status: string;
+  sentAt: string | null;
+  openedAt: string | null;
+  clickedAt: string | null;
+  bouncedAt: string | null;
+  errorMessage: string | null;
+  metadata: any;
+  campaign: {
+    id: string;
+    name: string;
+  } | null;
+}
+
+interface EmailLogStats {
+  totalEmails: number;
+  emailsLast24Hours: number;
+  emailsLast7Days: number;
+  sentEmails: number;
+  deliveredEmails: number;
+  bouncedEmails: number;
+  openedEmails: number;
+  clickedEmails: number;
+  failedEmails: number;
+  deliveryRate: string;
+  bounceRate: string;
+  openRate: string;
+  clickRate: string;
+}
+
+interface BackgroundJob {
+  id: string;
+  campaignId: string;
+  status: string;
+  progress: number;
+  startedAt: string | null;
+  completedAt: string | null;
+  errorMessage: string | null;
+  queueId: string | null;
+  attempts: number;
+  maxAttempts: number;
+  currentStep: string | null;
+  logs: any;
+  createdAt: string;
+  updatedAt: string;
+  campaign: {
+    id: string;
+    name: string;
+  } | null;
+}
+
+interface BackgroundJobStats {
+  totalJobs: number;
+  pendingJobs: number;
+  processingJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  successRate: string;
+  failureRate: string;
+  recentJobs: BackgroundJob[];
+}
+
+interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+interface Theme {
+  id: string;
+  name: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  backgroundColor: string;
+  textColor: string;
+  sidebarColor: string | null;
+  headerColor: string | null;
+  buttonStyles: any;
+  fontFamily: string | null;
+  fontSize: string | null;
+  borderRadius: string | null;
+  customCSS: string | null;
+  isActive: boolean;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Branding {
+  id: string;
+  companyName: string;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  loginBgImage: string | null;
+  dashboardBanner: string | null;
+  footerText: string | null;
+  supportEmail: string | null;
+  supportPhone: string | null;
+  socialLinks: any;
+  metadata: any;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function SuperAdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [pagination, setPagination] = useState<UsersPagination>({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
+  const [selectedTab, setSelectedTab] = useState<'overview' | 'users' | 'ui-config' | 'database' | 'system' | 'apis' | 'credentials' | 'logs' | 'emails' | 'jobs'>('overview');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [activeFilter, setActiveFilter] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Database tab state
+  const [sqlQuery, setSqlQuery] = useState('');
+  const [queryResult, setQueryResult] = useState<QueryResult | null>(null);
+  const [queryLoading, setQueryLoading] = useState(false);
+  const [queryError, setQueryError] = useState<string | null>(null);
+
+  // Database browser state
+  const [dbTables, setDbTables] = useState<string[]>([]);
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [tableData, setTableData] = useState<any[]>([]);
+  const [tableSchema, setTableSchema] = useState<any[]>([]);
+  const [tablePagination, setTablePagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
+  const [editingCell, setEditingCell] = useState<{ rowId: string; column: string } | null>(null);
+  const [dbBrowserLoading, setDbBrowserLoading] = useState(false);
+
+  // API Monitor tab state
+  const [apiRoutes, setApiRoutes] = useState<APIRoute[]>([]);
+  const [groupedRoutes, setGroupedRoutes] = useState<Record<string, APIRoute[]>>({});
+  const [apiStats, setApiStats] = useState({ total: 0, categories: 0 });
+  const [testResults, setTestResults] = useState<Record<string, APITestResult>>({});
+  const [testingEndpoint, setTestingEndpoint] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  // Activity Logs tab state
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
+  const [activityLogStats, setActivityLogStats] = useState<ActivityLogStats | null>(null);
+  const [activityLogsPagination, setActivityLogsPagination] = useState<Pagination>({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
+  const [activityActionFilter, setActivityActionFilter] = useState('');
+  const [activityDateFilter, setActivityDateFilter] = useState('7d');
+  const [activityLogsLoading, setActivityLogsLoading] = useState(false);
+
+  // Email Monitor tab state
+  const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [emailLogStats, setEmailLogStats] = useState<EmailLogStats | null>(null);
+  const [emailLogsPagination, setEmailLogsPagination] = useState<Pagination>({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
+  const [emailStatusFilter, setEmailStatusFilter] = useState('');
+  const [emailRecipientFilter, setEmailRecipientFilter] = useState('');
+  const [emailLogsLoading, setEmailLogsLoading] = useState(false);
+
+  // Background Jobs tab state
+  const [backgroundJobs, setBackgroundJobs] = useState<BackgroundJob[]>([]);
+  const [backgroundJobStats, setBackgroundJobStats] = useState<BackgroundJobStats | null>(null);
+  const [jobsPagination, setJobsPagination] = useState<Pagination>({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
+  const [jobStatusFilter, setJobStatusFilter] = useState('');
+  const [jobsLoading, setJobsLoading] = useState(false);
+
+  // UI Configuration state
+  const [themes, setThemes] = useState<Theme[]>([]);
+  const [branding, setBranding] = useState<Branding | null>(null);
+  const [uiConfigLoading, setUiConfigLoading] = useState(false);
+  const [retryingJob, setRetryingJob] = useState<string | null>(null);
+  const [cancellingJob, setCancellingJob] = useState<string | null>(null);
+
+  // Tech Stack state
+  const [techStack, setTechStack] = useState<any>(null);
+  const [techStackLoading, setTechStackLoading] = useState(false);
+
+  // Load dashboard stats
+  const loadDashboardStats = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/dashboard/stats`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch dashboard statistics');
+      }
+
+      const data = await response.json();
+      setStats(data);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error loading dashboard stats:', err);
+      setError(err.message || 'Failed to load dashboard statistics');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load users with pagination and filters
+  const loadUsers = async (page: number = pagination.page) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('crmToken');
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: pagination.limit.toString(),
+      });
+
+      if (searchTerm) params.append('search', searchTerm);
+      if (roleFilter) params.append('role', roleFilter);
+      if (activeFilter) params.append('isActive', activeFilter);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/users?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      const data = await response.json();
+      setUsers(data.users);
+      setPagination(data.pagination);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error loading users:', err);
+      setError(err.message || 'Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load API routes
+  const loadApiRoutes = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/api-routes`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch API routes');
+      }
+
+      const data = await response.json();
+      setApiRoutes(data.routes);
+      setGroupedRoutes(data.grouped);
+      setApiStats({ total: data.total, categories: data.categories });
+      setError(null);
+    } catch (err: any) {
+      console.error('Error loading API routes:', err);
+      setError(err.message || 'Failed to load API routes');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Test API endpoint
+  const testEndpoint = async (route: APIRoute) => {
+    const key = `${route.method}:${route.path}`;
+    setTestingEndpoint(key);
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/api-routes/test`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ method: route.method, path: route.path }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Endpoint test failed');
+      }
+
+      const result = await response.json();
+      setTestResults((prev) => ({
+        ...prev,
+        [key]: result,
+      }));
+    } catch (err: any) {
+      console.error('Error testing endpoint:', err);
+      setTestResults((prev) => ({
+        ...prev,
+        [key]: {
+          method: route.method,
+          path: route.path,
+          status: 'error',
+          message: err.message || 'Test failed',
+          timestamp: new Date().toISOString(),
+        },
+      }));
+    } finally {
+      setTestingEndpoint(null);
+    }
+  };
+
+  // Execute SQL query
+  const executeQuery = async () => {
+    if (!sqlQuery.trim()) {
+      setQueryError('Please enter a SQL query');
+      return;
+    }
+
+    try {
+      setQueryLoading(true);
+      setQueryError(null);
+      const token = localStorage.getItem('crmToken');
+      const startTime = Date.now();
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/database/query`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ query: sqlQuery }),
+        }
+      );
+
+      const executionTime = Date.now() - startTime;
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Query execution failed');
+      }
+
+      const data = await response.json();
+      setQueryResult({
+        ...data,
+        executionTime,
+      });
+    } catch (err: any) {
+      console.error('Error executing query:', err);
+      setQueryError(err.message || 'Failed to execute query');
+      setQueryResult(null);
+    } finally {
+      setQueryLoading(false);
+    }
+  };
+
+  // Load Activity Logs
+  const loadActivityLogs = async (page: number = activityLogsPagination.page) => {
+    try {
+      setActivityLogsLoading(true);
+      const token = localStorage.getItem('crmToken');
+
+      // Calculate date range based on filter
+      let startDate = '';
+      const now = new Date();
+      if (activityDateFilter === '24h') {
+        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+      } else if (activityDateFilter === '7d') {
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      } else if (activityDateFilter === '30d') {
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      }
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: activityLogsPagination.limit.toString(),
+        ...(activityActionFilter && { action: activityActionFilter }),
+        ...(startDate && { startDate }),
+      });
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/activity-logs?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch activity logs');
+      }
+
+      const data = await response.json();
+      setActivityLogs(data.logs);
+      setActivityLogsPagination(data.pagination);
+    } catch (err: any) {
+      console.error('Error loading activity logs:', err);
+      setError(err.message || 'Failed to load activity logs');
+    } finally {
+      setActivityLogsLoading(false);
+    }
+  };
+
+  // Load Activity Log Stats
+  const loadActivityLogStats = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/activity-logs/stats`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch activity log stats');
+      }
+
+      const data = await response.json();
+      setActivityLogStats(data);
+    } catch (err: any) {
+      console.error('Error loading activity log stats:', err);
+    }
+  };
+
+  // Load Email Logs
+  const loadEmailLogs = async (page: number = emailLogsPagination.page) => {
+    try {
+      setEmailLogsLoading(true);
+      const token = localStorage.getItem('crmToken');
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: emailLogsPagination.limit.toString(),
+        ...(emailStatusFilter && { status: emailStatusFilter }),
+        ...(emailRecipientFilter && { recipientEmail: emailRecipientFilter }),
+      });
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/email-logs?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch email logs');
+      }
+
+      const data = await response.json();
+      setEmailLogs(data.logs);
+      setEmailLogsPagination(data.pagination);
+    } catch (err: any) {
+      console.error('Error loading email logs:', err);
+      setError(err.message || 'Failed to load email logs');
+    } finally {
+      setEmailLogsLoading(false);
+    }
+  };
+
+  // Load Email Log Stats
+  const loadEmailLogStats = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/email-logs/stats`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch email log stats');
+      }
+
+      const data = await response.json();
+      setEmailLogStats(data);
+    } catch (err: any) {
+      console.error('Error loading email log stats:', err);
+    }
+  };
+
+  // Load Background Jobs
+  const loadBackgroundJobs = async (page: number = jobsPagination.page) => {
+    try {
+      setJobsLoading(true);
+      const token = localStorage.getItem('crmToken');
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: jobsPagination.limit.toString(),
+        ...(jobStatusFilter && { status: jobStatusFilter }),
+      });
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/jobs?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch background jobs');
+      }
+
+      const data = await response.json();
+      setBackgroundJobs(data.jobs);
+      setJobsPagination(data.pagination);
+    } catch (err: any) {
+      console.error('Error loading background jobs:', err);
+      setError(err.message || 'Failed to load background jobs');
+    } finally {
+      setJobsLoading(false);
+    }
+  };
+
+  // Load Background Job Stats
+  const loadBackgroundJobStats = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/jobs/stats`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch job stats');
+      }
+
+      const data = await response.json();
+      setBackgroundJobStats(data);
+    } catch (err: any) {
+      console.error('Error loading job stats:', err);
+    }
+  };
+
+  // Retry a failed job
+  const retryJob = async (jobId: string) => {
+    try {
+      setRetryingJob(jobId);
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/jobs/${jobId}/retry`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to retry job');
+      }
+
+      await loadBackgroundJobs();
+      await loadBackgroundJobStats();
+      alert('Job queued for retry');
+    } catch (err: any) {
+      console.error('Error retrying job:', err);
+      alert(err.message || 'Failed to retry job');
+    } finally {
+      setRetryingJob(null);
+    }
+  };
+
+  // Cancel a job
+  const cancelJob = async (jobId: string) => {
+    if (!confirm('Are you sure you want to cancel this job?')) {
+      return;
+    }
+
+    try {
+      setCancellingJob(jobId);
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/jobs/${jobId}/cancel`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to cancel job');
+      }
+
+      await loadBackgroundJobs();
+      await loadBackgroundJobStats();
+      alert('Job cancelled successfully');
+    } catch (err: any) {
+      console.error('Error cancelling job:', err);
+      alert(err.message || 'Failed to cancel job');
+    } finally {
+      setCancellingJob(null);
+    }
+  };
+
+  // Load UI Configuration - Themes
+  const loadThemes = async () => {
+    try {
+      setUiConfigLoading(true);
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/themes`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch themes');
+      }
+
+      const data = await response.json();
+      setThemes(data);
+    } catch (err: any) {
+      console.error('Error loading themes:', err);
+      setError(err.message || 'Failed to load themes');
+    } finally {
+      setUiConfigLoading(false);
+    }
+  };
+
+  // Load UI Configuration - Branding
+  const loadBranding = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/branding`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch branding');
+      }
+
+      const data = await response.json();
+      setBranding(data);
+    } catch (err: any) {
+      console.error('Error loading branding:', err);
+    }
+  };
+
+  // Activate a theme
+  const activateTheme = async (themeId: string) => {
+    if (!confirm('Are you sure you want to activate this theme? It will apply immediately for all users.')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/themes/${themeId}/activate`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to activate theme');
+      }
+
+      await loadThemes();
+      alert('Theme activated successfully! Please refresh the page to see changes.');
+    } catch (err: any) {
+      console.error('Error activating theme:', err);
+      alert(err.message || 'Failed to activate theme');
+    }
+  };
+
+  // Load tech stack information
+  const loadTechStack = async () => {
+    try {
+      setTechStackLoading(true);
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/tech-stack`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to load tech stack information');
+      }
+
+      const data = await response.json();
+      setTechStack(data);
+    } catch (err: any) {
+      console.error('Error loading tech stack:', err);
+      alert(err.message || 'Failed to load tech stack information');
+    } finally {
+      setTechStackLoading(false);
+    }
+  };
+
+  // Database browser functions
+  const loadDatabaseTables = async () => {
+    try {
+      setDbBrowserLoading(true);
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/database/tables`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to load database tables');
+      }
+
+      const data = await response.json();
+      setDbTables(data.tables || []);
+    } catch (err: any) {
+      console.error('Error loading database tables:', err);
+      alert(err.message || 'Failed to load database tables');
+    } finally {
+      setDbBrowserLoading(false);
+    }
+  };
+
+  const loadTableData = async (tableName: string, page: number = 1) => {
+    try {
+      setDbBrowserLoading(true);
+      const token = localStorage.getItem('crmToken');
+
+      // Load schema and data in parallel
+      const [schemaResponse, dataResponse] = await Promise.all([
+        fetch(
+          `${import.meta.env.VITE_API_URL}/api/super-admin/database/tables/${tableName}/schema`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        ),
+        fetch(
+          `${import.meta.env.VITE_API_URL}/api/super-admin/database/tables/${tableName}/data?page=${page}&limit=${tablePagination.limit}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        ),
+      ]);
+
+      if (!schemaResponse.ok || !dataResponse.ok) {
+        throw new Error('Failed to load table data');
+      }
+
+      const schema = await schemaResponse.json();
+      const data = await dataResponse.json();
+
+      setTableSchema(schema.columns || []);
+      setTableData(data.rows || []);
+      setTablePagination({
+        page: data.pagination.page,
+        limit: data.pagination.limit,
+        total: data.pagination.total,
+        totalPages: data.pagination.totalPages,
+      });
+    } catch (err: any) {
+      console.error('Error loading table data:', err);
+      alert(err.message || 'Failed to load table data');
+    } finally {
+      setDbBrowserLoading(false);
+    }
+  };
+
+  const updateTableCell = async (rowId: string, column: string, value: any) => {
+    if (!selectedTable) return;
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/database/tables/${selectedTable}/rows/${rowId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ [column]: value }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update cell');
+      }
+
+      // Reload table data
+      await loadTableData(selectedTable, tablePagination.page);
+      setEditingCell(null);
+      alert('Cell updated successfully');
+    } catch (err: any) {
+      console.error('Error updating cell:', err);
+      alert(err.message || 'Failed to update cell');
+    }
+  };
+
+  const deleteTableRow = async (rowId: string) => {
+    if (!selectedTable) return;
+
+    if (!confirm('Are you sure you want to delete this record? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/database/tables/${selectedTable}/rows/${rowId}`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete row');
+      }
+
+      // Reload table data
+      await loadTableData(selectedTable, tablePagination.page);
+      alert('Record deleted successfully');
+    } catch (err: any) {
+      console.error('Error deleting row:', err);
+      alert(err.message || 'Failed to delete row');
+    }
+  };
+
+  // Update user role
+  const updateUserRole = async (userId: string, newRole: string) => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/users/${userId}/role`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ role: newRole }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update user role');
+      }
+
+      await loadUsers();
+      alert('User role updated successfully');
+    } catch (err: any) {
+      console.error('Error updating user role:', err);
+      alert(err.message || 'Failed to update user role');
+    }
+  };
+
+  // Toggle user active status
+  const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/users/${userId}/status`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ isActive: !currentStatus }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update user status');
+      }
+
+      await loadUsers();
+      alert(`User ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+    } catch (err: any) {
+      console.error('Error toggling user status:', err);
+      alert(err.message || 'Failed to update user status');
+    }
+  };
+
+  // Delete user
+  const deleteUser = async (userId: string, userEmail: string) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete user ${userEmail}? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/super-admin/users/${userId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete user');
+      }
+
+      await loadUsers();
+      alert('User permanently deleted from database');
+    } catch (err: any) {
+      console.error('Error deleting user:', err);
+      alert(err.message || 'Failed to delete user');
+    }
+  };
+
+  // Load data on mount and when filters change
+  useEffect(() => {
+    if (selectedTab === 'overview') {
+      loadDashboardStats();
+    } else if (selectedTab === 'users') {
+      loadUsers(1);
+    } else if (selectedTab === 'tech-stack') {
+      loadTechStack();
+    } else if (selectedTab === 'apis') {
+      loadApiRoutes();
+    } else if (selectedTab === 'logs') {
+      loadActivityLogs(1);
+      loadActivityLogStats();
+    } else if (selectedTab === 'emails') {
+      loadEmailLogs(1);
+      loadEmailLogStats();
+    } else if (selectedTab === 'jobs') {
+      loadBackgroundJobs(1);
+      loadBackgroundJobStats();
+    } else if (selectedTab === 'database') {
+      loadDatabaseTables();
+    } else if (selectedTab === 'ui-config') {
+      loadThemes();
+      loadBranding();
+    }
+  }, [selectedTab, searchTerm, roleFilter, activeFilter]);
+
+  // Load activity logs when filters change
+  useEffect(() => {
+    if (selectedTab === 'logs') {
+      loadActivityLogs(1);
+    }
+  }, [activityActionFilter, activityDateFilter]);
+
+  // Load email logs when filters change
+  useEffect(() => {
+    if (selectedTab === 'emails') {
+      loadEmailLogs(1);
+    }
+  }, [emailStatusFilter, emailRecipientFilter]);
+
+  // Load background jobs when filter changes
+  useEffect(() => {
+    if (selectedTab === 'jobs') {
+      loadBackgroundJobs(1);
+    }
+  }, [jobStatusFilter]);
+
+  // Load UI Config data when tab is selected
+  useEffect(() => {
+    if (selectedTab === 'ui-config') {
+      loadThemes();
+      loadBranding();
+    }
+  }, [selectedTab]);
+
+  // Stat Card Component - Small icons (16px) for better visual balance
+  const StatCard = ({ title, value, subtext, icon: Icon, gradient, iconBg, delay = 0 }: any) => {
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+      const timer = setTimeout(() => setIsVisible(true), delay);
+      return () => clearTimeout(timer);
+    }, [delay]);
+
+    return (
+      <div
+        className={`bg-gradient-to-br ${gradient} rounded-xl p-5 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 transform h-[140px] flex flex-col ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
+        style={{ transitionDelay: `${delay}ms` }}
+      >
+        <div className="flex items-start justify-between mb-3">
+          <div className={`w-8 h-8 rounded-lg ${iconBg} flex items-center justify-center shadow-sm flex-shrink-0`}>
+            <Icon className="w-4 h-4 text-white stroke-2" style={{ strokeWidth: 2 }} />
+          </div>
+          <SparklesIcon className="w-3 h-3 text-white/30 flex-shrink-0" style={{ strokeWidth: 2 }} />
+        </div>
+        <div className="flex-1 flex flex-col justify-between overflow-hidden">
+          <div className="mb-1">
+            <h3 className="text-[10px] font-bold text-white/90 uppercase tracking-wide mb-1 line-clamp-1 leading-tight">
+              {title}
+            </h3>
+            <p className="text-2xl font-bold text-white truncate leading-none">
+              {typeof value === 'string' && value.length > 15 ? value.substring(0, 15) + '...' : value}
+            </p>
+          </div>
+          {subtext && (
+            <p className="text-[10px] text-white/75 line-clamp-1 leading-tight font-medium">
+              {subtext}
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center shadow-xl">
+              <ShieldCheckIcon className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-red-800 to-pink-800 bg-clip-text text-transparent">
+                Super Admin Console
+              </h1>
+              <p className="text-gray-600 mt-1">Complete system control and database management</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="bg-white rounded-2xl shadow-lg mb-8 p-2">
+          <nav className="flex space-x-2">
+            {[
+              { id: 'overview', label: 'Overview', icon: ChartBarIcon },
+              { id: 'users', label: 'User Management', icon: UsersIcon },
+              { id: 'tech-stack', label: 'Tech Stack', icon: CogIcon },
+              { id: 'ui-config', label: 'UI Configuration', icon: PaintBrushIcon },
+              { id: 'database', label: 'Database', icon: CircleStackIcon },
+              { id: 'apis', label: 'API Monitor', icon: CodeBracketIcon },
+              { id: 'credentials', label: 'Credentials', icon: KeyIcon },
+              { id: 'logs', label: 'Activity Logs', icon: ClipboardDocumentListIcon },
+              { id: 'emails', label: 'Email Monitor', icon: EnvelopeIcon },
+              { id: 'jobs', label: 'Background Jobs', icon: ClockIcon },
+              { id: 'system', label: 'System Health', icon: ServerIcon },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedTab(tab.id as any)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                  selectedTab === tab.id
+                    ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg shadow-red-500/30'
+                    : 'text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3 shadow-lg">
+            <ExclamationTriangleIcon className="w-6 h-6 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Overview Tab */}
+        {selectedTab === 'overview' && (
+          <div>
+            {loading ? (
+              <div className="text-center py-24">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
+                <p className="mt-4 text-gray-600 font-medium">Loading statistics...</p>
+              </div>
+            ) : stats ? (
+              <>
+                {/* CRM Metrics */}
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <ChartBarIcon className="w-5 h-5 text-red-600" />
+                    CRM Metrics
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                      title="Total Users"
+                      value={stats.totalUsers}
+                      subtext={`${stats.activeUsers} active, ${stats.inactiveUsers} inactive`}
+                      icon={UsersIcon}
+                      gradient="from-blue-500 to-blue-600"
+                      iconBg="bg-blue-600"
+                      delay={0}
+                    />
+                    <StatCard
+                      title="Total Contacts"
+                      value={stats.totalContacts}
+                      icon={PhoneIcon}
+                      gradient="from-green-500 to-emerald-600"
+                      iconBg="bg-green-600"
+                      delay={50}
+                    />
+                    <StatCard
+                      title="Total Companies"
+                      value={stats.totalCompanies}
+                      icon={BuildingOfficeIcon}
+                      gradient="from-purple-500 to-purple-600"
+                      iconBg="bg-purple-600"
+                      delay={100}
+                    />
+                    <StatCard
+                      title="Total Deals"
+                      value={stats.totalDeals}
+                      icon={CurrencyDollarIcon}
+                      gradient="from-yellow-500 to-orange-600"
+                      iconBg="bg-yellow-600"
+                      delay={150}
+                    />
+                    <StatCard
+                      title="Total Campaigns"
+                      value={stats.totalCampaigns}
+                      icon={MegaphoneIcon}
+                      gradient="from-red-500 to-pink-600"
+                      iconBg="bg-red-600"
+                      delay={200}
+                    />
+                    <StatCard
+                      title="Recent Signups"
+                      value={stats.recentSignups}
+                      subtext={stats.recentSignupsSubtext}
+                      icon={ArrowTrendingUpIcon}
+                      gradient="from-teal-500 to-cyan-600"
+                      iconBg="bg-teal-600"
+                      delay={250}
+                    />
+                  </div>
+                </div>
+
+                {/* System Metrics */}
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <ServerIcon className="w-5 h-5 text-blue-600" />
+                    System & Infrastructure
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                      title="Tech Components"
+                      value={stats.techComponents}
+                      subtext={`${stats.healthyComponents} healthy`}
+                      icon={CogIcon}
+                      gradient="from-indigo-500 to-indigo-600"
+                      iconBg="bg-indigo-600"
+                      delay={300}
+                    />
+                    <StatCard
+                      title="Database Tables"
+                      value={stats.totalTables}
+                      subtext={stats.databaseSize}
+                      icon={CircleStackIcon}
+                      gradient="from-violet-500 to-violet-600"
+                      iconBg="bg-violet-600"
+                      delay={350}
+                    />
+                    <StatCard
+                      title="API Routes"
+                      value={stats.totalApiRoutes}
+                      subtext={`${stats.apiUptime} uptime`}
+                      icon={CodeBracketIcon}
+                      gradient="from-cyan-500 to-cyan-600"
+                      iconBg="bg-cyan-600"
+                      delay={400}
+                    />
+                    <StatCard
+                      title="System Status"
+                      value={stats.systemStatus.toUpperCase()}
+                      subtext={`${stats.uptime} uptime`}
+                      icon={ServerIcon}
+                      gradient="from-emerald-500 to-emerald-600"
+                      iconBg="bg-emerald-600"
+                      delay={450}
+                    />
+                  </div>
+                </div>
+
+                {/* Configuration & Monitoring */}
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <PaintBrushIcon className="w-5 h-5 text-purple-600" />
+                    Configuration & Monitoring
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                      title="UI Themes"
+                      value={stats.totalThemes}
+                      subtext={`${stats.activeTheme} active`}
+                      icon={PaintBrushIcon}
+                      gradient="from-fuchsia-500 to-fuchsia-600"
+                      iconBg="bg-fuchsia-600"
+                      delay={500}
+                    />
+                    <StatCard
+                      title="Credentials"
+                      value={stats.totalCredentials}
+                      subtext={stats.credentialsSubtext}
+                      icon={KeyIcon}
+                      gradient="from-amber-500 to-amber-600"
+                      iconBg="bg-amber-600"
+                      delay={550}
+                    />
+                    <StatCard
+                      title="Activity Logs"
+                      value={stats.recentActivityLogs}
+                      subtext={stats.recentActivityLogsSubtext}
+                      icon={ClipboardDocumentListIcon}
+                      gradient="from-slate-500 to-slate-600"
+                      iconBg="bg-slate-600"
+                      delay={600}
+                    />
+                    <StatCard
+                      title="Total Actions"
+                      value={stats.totalActivityActions}
+                      subtext={stats.totalActivityActionsSubtext}
+                      icon={ChartBarIcon}
+                      gradient="from-zinc-500 to-zinc-600"
+                      iconBg="bg-zinc-600"
+                      delay={650}
+                    />
+                  </div>
+                </div>
+
+                {/* Email & Jobs Performance */}
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <EnvelopeIcon className="w-5 h-5 text-green-600" />
+                    Email & Background Jobs
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                      title="Emails Sent"
+                      value={stats.emailsSent24h}
+                      subtext={stats.emailsSent24hSubtext}
+                      icon={EnvelopeIcon}
+                      gradient="from-lime-500 to-lime-600"
+                      iconBg="bg-lime-600"
+                      delay={700}
+                    />
+                    <StatCard
+                      title="Email Delivery"
+                      value={`${stats.emailDeliveryRate}%`}
+                      subtext={`${stats.failedEmails} failed`}
+                      icon={CheckCircleIcon}
+                      gradient="from-green-500 to-green-600"
+                      iconBg="bg-green-600"
+                      delay={750}
+                    />
+                    <StatCard
+                      title="Jobs Processed"
+                      value={stats.jobsProcessed24h}
+                      subtext={stats.jobsProcessed24hSubtext}
+                      icon={ClockIcon}
+                      gradient="from-rose-500 to-rose-600"
+                      iconBg="bg-rose-600"
+                      delay={800}
+                    />
+                    <StatCard
+                      title="Job Success Rate"
+                      value={`${stats.jobSuccessRate}%`}
+                      subtext={`${stats.pendingJobs} pending, ${stats.failedJobs} failed`}
+                      icon={CheckCircleIcon}
+                      gradient="from-sky-500 to-sky-600"
+                      iconBg="bg-sky-600"
+                      delay={850}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : null}
+
+            {/* AI Assistant for Overview */}
+            {stats && (
+              <div className="mt-6">
+                <InlineChatBot
+                  context="overview"
+                  title="Dashboard Analytics AI"
+                  contextData={stats}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Users Tab */}
+        {selectedTab === 'users' && (
+          <div>
+            {/* AI Assistant for Users */}
+            <div className="mb-6">
+              <InlineChatBot
+                context="users"
+                title="User Management AI"
+                contextData={{ totalUsers: users.length, filters: { searchTerm, roleFilter, activeFilter } }}
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="mb-6 bg-white rounded-2xl shadow-lg p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+                  <div className="relative">
+                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search by name or email..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-12 w-full rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-4 focus:ring-red-500/20 transition-all"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                  <select
+                    value={roleFilter}
+                    onChange={(e) => setRoleFilter(e.target.value)}
+                    className="w-full rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-4 focus:ring-red-500/20 transition-all"
+                  >
+                    <option value="">All Roles</option>
+                    <option value="SUPER_ADMIN">Super Admin</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="USER">User</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                  <select
+                    value={activeFilter}
+                    onChange={(e) => setActiveFilter(e.target.value)}
+                    className="w-full rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-4 focus:ring-red-500/20 transition-all"
+                  >
+                    <option value="">All Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Users Table */}
+            {loading ? (
+              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
+                <p className="mt-4 text-gray-600 font-medium">Loading users...</p>
+              </div>
+            ) : (
+              <>
+                <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            User
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Role
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Team Role
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Created
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-100">
+                        {users.map((user) => (
+                          <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+                                  <span className="text-white font-bold text-sm">
+                                    {user.firstName[0]}{user.lastName[0]}
+                                  </span>
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-semibold text-gray-900">
+                                    {user.firstName} {user.lastName}
+                                  </div>
+                                  <div className="text-sm text-gray-500">{user.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <select
+                                value={user.role}
+                                onChange={(e) => updateUserRole(user.id, e.target.value)}
+                                className="text-sm rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 font-medium px-3 py-2 transition-all hover:border-gray-300 shadow-sm"
+                              >
+                                <option value="USER">User</option>
+                                <option value="ADMIN">Admin</option>
+                                <option value="SUPER_ADMIN">Super Admin</option>
+                              </select>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="text-sm font-medium text-gray-900">{user.teamRole}</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <button
+                                onClick={() => toggleUserStatus(user.id, user.isActive)}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:scale-105 shadow-sm ${
+                                  user.isActive
+                                    ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
+                                    : 'bg-red-50 hover:bg-red-100 border-2 border-red-200'
+                                }`}
+                              >
+                                {user.isActive ? (
+                                  <>
+                                    <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                                    <span className="text-sm font-medium text-green-700">Active</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <XCircleIcon className="w-5 h-5 text-red-500" />
+                                    <span className="text-sm font-medium text-red-700">Inactive</span>
+                                  </>
+                                )}
+                              </button>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {new Date(user.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <button
+                                onClick={() => deleteUser(user.id, user.email)}
+                                className="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-900 font-semibold rounded-xl border-2 border-red-200 transition-all shadow-sm hover:shadow-md"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <div className="mt-6 flex items-center justify-between bg-white rounded-2xl shadow-lg px-6 py-4">
+                    <div className="text-sm text-gray-700 font-medium">
+                      Page {pagination.page} of {pagination.totalPages} • {pagination.total} total users
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => loadUsers(pagination.page - 1)}
+                        disabled={pagination.page === 1}
+                        className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl font-semibold text-gray-700 hover:from-gray-200 hover:to-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                      >
+                        <ChevronLeftIcon className="w-4 h-4" />
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => loadUsers(pagination.page + 1)}
+                        disabled={pagination.page === pagination.totalPages}
+                        className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl font-semibold text-white hover:from-red-600 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                      >
+                        Next
+                        <ChevronRightIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* AI Assistant for UI Config */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="ui-config"
+                title="UI Configuration AI"
+                contextData={{ themes, branding }}
+                actionMode={true}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Database Tab */}
+        {selectedTab === 'database' && (
+          <div className="space-y-6">
+            {/* Database Browser GUI */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <TableCellsIcon className="w-8 h-8 text-blue-600" />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Database Browser</h2>
+                  <p className="text-gray-600">View and edit database tables directly</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* Table Selector */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Select Table</label>
+                  <div className="flex gap-3">
+                    <select
+                      value={selectedTable || ''}
+                      onChange={(e) => {
+                        const tableName = e.target.value;
+                        setSelectedTable(tableName);
+                        if (tableName) {
+                          loadTableData(tableName, 1);
+                        } else {
+                          setTableData([]);
+                          setTableSchema([]);
+                        }
+                      }}
+                      className="flex-1 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all p-3"
+                    >
+                      <option value="">-- Select a table --</option>
+                      {dbTables.map((table) => (
+                        <option key={table} value={table}>
+                          {table}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={loadDatabaseTables}
+                      disabled={dbBrowserLoading}
+                      className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      {dbBrowserLoading ? 'Loading...' : 'Refresh Tables'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Loading State */}
+                {dbBrowserLoading && (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
+
+                {/* Table Data Grid */}
+                {!dbBrowserLoading && selectedTable && tableData.length > 0 && (
+                  <div className="space-y-4">
+                    {/* Stats */}
+                    <div className="flex items-center justify-between bg-blue-50 rounded-xl p-4">
+                      <div className="flex items-center gap-6">
+                        <div>
+                          <p className="text-sm text-blue-600 font-semibold">Total Records</p>
+                          <p className="text-2xl font-bold text-blue-900">{tablePagination.total}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-blue-600 font-semibold">Columns</p>
+                          <p className="text-2xl font-bold text-blue-900">{tableSchema.length}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-blue-600 font-semibold">Page</p>
+                          <p className="text-2xl font-bold text-blue-900">
+                            {tablePagination.page} / {tablePagination.totalPages}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => loadTableData(selectedTable, tablePagination.page)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all"
+                      >
+                        Refresh Data
+                      </button>
+                    </div>
+
+                    {/* Data Table */}
+                    <div className="overflow-x-auto border-2 border-gray-200 rounded-xl">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                              Actions
+                            </th>
+                            {tableSchema.map((column: any) => (
+                              <th
+                                key={column.column_name}
+                                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                              >
+                                <div className="flex flex-col">
+                                  <span>{column.column_name}</span>
+                                  <span className="text-gray-400 font-normal normal-case">
+                                    {column.data_type}
+                                  </span>
+                                </div>
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {tableData.map((row: any, rowIndex: number) => (
+                            <tr key={row.id || rowIndex} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <button
+                                  onClick={() => deleteTableRow(row.id)}
+                                  className="text-red-600 hover:text-red-800 font-semibold text-sm"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                              {tableSchema.map((column: any) => {
+                                const cellKey = `${row.id}-${column.column_name}`;
+                                const isEditing =
+                                  editingCell?.rowId === row.id &&
+                                  editingCell?.column === column.column_name;
+                                const cellValue = row[column.column_name];
+
+                                return (
+                                  <td
+                                    key={column.column_name}
+                                    className="px-4 py-3 text-sm text-gray-900"
+                                  >
+                                    {isEditing ? (
+                                      <input
+                                        type="text"
+                                        defaultValue={
+                                          cellValue === null
+                                            ? ''
+                                            : typeof cellValue === 'object'
+                                            ? JSON.stringify(cellValue)
+                                            : String(cellValue)
+                                        }
+                                        onBlur={(e) => {
+                                          updateTableCell(
+                                            row.id,
+                                            column.column_name,
+                                            e.target.value
+                                          );
+                                        }}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            updateTableCell(
+                                              row.id,
+                                              column.column_name,
+                                              (e.target as HTMLInputElement).value
+                                            );
+                                          } else if (e.key === 'Escape') {
+                                            setEditingCell(null);
+                                          }
+                                        }}
+                                        autoFocus
+                                        className="w-full px-2 py-1 border-2 border-blue-500 rounded focus:outline-none"
+                                      />
+                                    ) : (
+                                      <div
+                                        onClick={() =>
+                                          setEditingCell({
+                                            rowId: row.id,
+                                            column: column.column_name,
+                                          })
+                                        }
+                                        className="cursor-pointer hover:bg-blue-50 px-2 py-1 rounded min-h-[24px]"
+                                      >
+                                        {cellValue === null ? (
+                                          <span className="text-gray-400 italic">NULL</span>
+                                        ) : typeof cellValue === 'boolean' ? (
+                                          <span
+                                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                              cellValue
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
+                                            }`}
+                                          >
+                                            {cellValue ? 'true' : 'false'}
+                                          </span>
+                                        ) : typeof cellValue === 'object' ? (
+                                          <span className="font-mono text-xs text-gray-600">
+                                            {JSON.stringify(cellValue).substring(0, 50)}...
+                                          </span>
+                                        ) : cellValue instanceof Date ? (
+                                          <span className="text-gray-700">
+                                            {new Date(cellValue).toLocaleString()}
+                                          </span>
+                                        ) : (
+                                          <span className="text-gray-900">
+                                            {String(cellValue).substring(0, 100)}
+                                            {String(cellValue).length > 100 ? '...' : ''}
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
+                                  </td>
+                                );
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
+                      <div className="text-sm text-gray-600">
+                        Showing {(tablePagination.page - 1) * tablePagination.limit + 1} to{' '}
+                        {Math.min(
+                          tablePagination.page * tablePagination.limit,
+                          tablePagination.total
+                        )}{' '}
+                        of {tablePagination.total} records
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            loadTableData(selectedTable, tablePagination.page - 1)
+                          }
+                          disabled={tablePagination.page === 1}
+                          className="px-4 py-2 bg-white border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          onClick={() =>
+                            loadTableData(selectedTable, tablePagination.page + 1)
+                          }
+                          disabled={tablePagination.page >= tablePagination.totalPages}
+                          className="px-4 py-2 bg-white border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Instructions */}
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                      <p className="text-sm text-blue-800">
+                        <strong>💡 Tip:</strong> Click any cell to edit its value. Press Enter to save or Escape to cancel. Click "Delete" to remove a record.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {!dbBrowserLoading && selectedTable && tableData.length === 0 && (
+                  <div className="text-center py-12 bg-gray-50 rounded-xl">
+                    <TableCellsIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 font-semibold">No data found in this table</p>
+                  </div>
+                )}
+
+                {/* No Table Selected */}
+                {!selectedTable && (
+                  <div className="text-center py-12 bg-gray-50 rounded-xl">
+                    <TableCellsIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 font-semibold mb-2">Select a table to view data</p>
+                    <p className="text-gray-500 text-sm">
+                      Choose a table from the dropdown above to browse and edit records
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* SQL Query Interface */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <CommandLineIcon className="w-8 h-8 text-red-600" />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">SQL Query Console</h2>
+                  <p className="text-gray-600">Execute direct database queries with caution</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">SQL Query</label>
+                  <textarea
+                    value={sqlQuery}
+                    onChange={(e) => setSqlQuery(e.target.value)}
+                    placeholder="SELECT * FROM users WHERE email = 'example@domain.com';"
+                    rows={8}
+                    className="w-full rounded-xl border-2 border-gray-200 focus:border-red-500 focus:ring-4 focus:ring-red-500/20 font-mono text-sm transition-all p-4"
+                  />
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={executeQuery}
+                    disabled={queryLoading}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-red-600 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
+                    <PlayIcon className="w-5 h-5" />
+                    {queryLoading ? 'Executing...' : 'Execute Query'}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setSqlQuery('');
+                      setQueryResult(null);
+                      setQueryError(null);
+                    }}
+                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                {/* Warning */}
+                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 flex items-start gap-3">
+                  <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-yellow-800">
+                    <p className="font-semibold mb-1">⚠️ Warning: Direct Database Access</p>
+                    <p>You have direct access to the production database. Use extreme caution with UPDATE, DELETE, and DROP commands. Always backup data before making changes.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Query Error */}
+            {queryError && (
+              <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 shadow-lg">
+                <div className="flex items-start gap-3">
+                  <XCircleIcon className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-red-900 mb-1">Query Error</h3>
+                    <p className="text-red-700 font-mono text-sm">{queryError}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Query Results */}
+            {queryResult && (
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-white">
+                    <CheckCircleIcon className="w-6 h-6" />
+                    <span className="font-semibold">Query Executed Successfully</span>
+                  </div>
+                  <div className="text-white text-sm font-mono">
+                    {queryResult.rowCount} rows • {queryResult.executionTime}ms
+                  </div>
+                </div>
+
+                <div className="p-6 overflow-x-auto">
+                  {queryResult.rows.length > 0 ? (
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          {queryResult.columns.map((column, idx) => (
+                            <th
+                              key={idx}
+                              className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                            >
+                              {column}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-100">
+                        {queryResult.rows.map((row, rowIdx) => (
+                          <tr key={rowIdx} className="hover:bg-gray-50">
+                            {row.map((cell, cellIdx) => (
+                              <td key={cellIdx} className="px-6 py-4 text-sm text-gray-900 font-mono">
+                                {cell === null ? (
+                                  <span className="text-gray-400 italic">NULL</span>
+                                ) : typeof cell === 'boolean' ? (
+                                  <span className={cell ? 'text-green-600' : 'text-red-600'}>
+                                    {cell.toString()}
+                                  </span>
+                                ) : (
+                                  String(cell)
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      <DocumentTextIcon className="w-16 h-16 mx-auto mb-3 text-gray-300" />
+                      <p className="font-medium">Query executed but returned no results</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Quick Query Templates */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <SparklesIcon className="w-5 h-5 text-purple-600" />
+                Quick Query Templates
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {[
+                  { label: 'List all users', query: 'SELECT email, "firstName", "lastName", role, "isActive" FROM users ORDER BY "createdAt" DESC LIMIT 10;' },
+                  { label: 'Count users by role', query: 'SELECT role, COUNT(*) as count FROM users GROUP BY role ORDER BY count DESC;' },
+                  { label: 'Recent signups (7 days)', query: 'SELECT email, "firstName", "lastName", "createdAt" FROM users WHERE "createdAt" > NOW() - INTERVAL \'7 days\' ORDER BY "createdAt" DESC;' },
+                  { label: 'Active vs Inactive users', query: 'SELECT "isActive", COUNT(*) as count FROM users GROUP BY "isActive";' },
+                ].map((template, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSqlQuery(template.query)}
+                    className="text-left px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-all border-2 border-gray-200 hover:border-gray-300"
+                  >
+                    {template.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* AI Assistant for Database */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="database"
+                title="Database Management AI"
+                contextData={{ tables: dbTables }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* API Monitor Tab */}
+        {selectedTab === 'apis' && (
+          <div className="space-y-6">
+            {/* API Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <StatCard
+                title="Total API Routes"
+                value={apiStats.total}
+                icon={CodeBracketIcon}
+                gradient="from-indigo-500 to-purple-600"
+                iconBg="bg-indigo-600"
+                delay={0}
+              />
+              <StatCard
+                title="Categories"
+                value={apiStats.categories}
+                icon={ChartBarIcon}
+                gradient="from-blue-500 to-cyan-600"
+                iconBg="bg-blue-600"
+                delay={100}
+              />
+              <StatCard
+                title="Tests Run"
+                value={Object.keys(testResults).length}
+                icon={PlayIcon}
+                gradient="from-green-500 to-emerald-600"
+                iconBg="bg-green-600"
+                delay={200}
+              />
+            </div>
+
+            {/* Category Filter */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <CodeBracketIcon className="w-6 h-6 text-indigo-600" />
+                  <h3 className="text-lg font-bold text-gray-900">API Endpoints Monitor</h3>
+                </div>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all font-medium text-sm"
+                >
+                  <option value="all">All Categories</option>
+                  {Object.keys(groupedRoutes).sort().map((category) => (
+                    <option key={category} value={category}>
+                      {category} ({groupedRoutes[category].length})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Loading State */}
+            {loading ? (
+              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+                <p className="mt-4 text-gray-600 font-medium">Loading API routes...</p>
+              </div>
+            ) : (
+              <>
+                {/* API Routes by Category */}
+                {Object.keys(groupedRoutes)
+                  .sort()
+                  .filter((category) => selectedCategory === 'all' || selectedCategory === category)
+                  .map((category, catIdx) => (
+                    <div key={category} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                      {/* Category Header */}
+                      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                              <CodeBracketIcon className="w-6 h-6" />
+                            </div>
+                            {category}
+                          </h3>
+                          <span className="px-4 py-2 bg-white/20 rounded-full text-sm font-semibold text-white">
+                            {groupedRoutes[category].length} endpoints
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Routes Table */}
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full table-fixed">
+                          <colgroup>
+                            <col style={{ width: '110px' }} />
+                            <col style={{ width: 'auto' }} />
+                            <col style={{ width: '320px' }} />
+                            <col style={{ width: '140px' }} />
+                            <col style={{ width: '140px' }} />
+                          </colgroup>
+                          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                            <tr>
+                              <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                Method
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                Endpoint
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                Description
+                              </th>
+                              <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                Status
+                              </th>
+                              <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                Actions
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-100">
+                            {groupedRoutes[category].map((route, idx) => {
+                              const key = `${route.method}:${route.path}`;
+                              const testResult = testResults[key];
+                              const isTesting = testingEndpoint === key;
+
+                              return (
+                                <tr key={idx} className="hover:bg-indigo-50/30 transition-colors">
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex justify-center">
+                                      <span
+                                        className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-bold w-20 ${
+                                          route.method === 'GET'
+                                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                            : route.method === 'POST'
+                                            ? 'bg-green-100 text-green-700 border border-green-200'
+                                            : route.method === 'PUT' || route.method === 'PATCH'
+                                            ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                                            : route.method === 'DELETE'
+                                            ? 'bg-red-100 text-red-700 border border-red-200'
+                                            : 'bg-gray-100 text-gray-700 border border-gray-200'
+                                        }`}
+                                      >
+                                        {route.method}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <code className="text-xs font-mono text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 block truncate">
+                                      {route.path}
+                                    </code>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <span className="text-sm text-gray-700 block">{route.description}</span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex justify-center items-center h-full">
+                                      {testResult ? (
+                                        <div className="flex items-center gap-2">
+                                          {testResult.status === 'active' ? (
+                                            <>
+                                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                              <span className="text-xs font-bold text-green-700">Active</span>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                              <span className="text-xs font-bold text-red-700">Error</span>
+                                            </>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <span className="text-sm text-gray-400 font-medium">—</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex justify-center">
+                                      <button
+                                        onClick={() => {
+                                          console.log('Testing endpoint:', route.method, route.path);
+                                          testEndpoint(route);
+                                        }}
+                                        disabled={isTesting}
+                                        className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-xs font-bold hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg w-24"
+                                      >
+                                        {isTesting ? (
+                                          <>
+                                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <PlayIcon className="w-3.5 h-3.5" />
+                                            <span>Test</span>
+                                          </>
+                                        )}
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+              </>
+            )}
+
+            {/* AI Assistant for APIs */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="apis"
+                title="API Monitor AI"
+                contextData={{ logs: apiLogs }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Credentials Tab */}
+        {selectedTab === 'credentials' && (
+          <div className="space-y-6">
+            {/* Credentials Header */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <KeyIcon className="w-8 h-8 text-amber-600" />
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">System Credentials</h2>
+                  <p className="text-gray-600">Manage all external API keys, passwords, and authentication credentials</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning Alert */}
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-start gap-3">
+                <ExclamationTriangleIcon className="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-amber-800">
+                  <p className="font-semibold mb-1">⚠️ Security Warning</p>
+                  <p>These credentials provide access to critical systems. Only change them if you suspect a security breach or during scheduled rotation. Always backup current values before making changes.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* SMTP / Email Credentials */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-cyan-600 px-8 py-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <MegaphoneIcon className="w-6 h-6" />
+                    </div>
+                    Email / SMTP Credentials
+                  </h3>
+                  <span className="px-4 py-2 bg-white/20 rounded-full text-sm font-semibold text-white">
+                    Google Workspace
+                  </span>
+                </div>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP Host</label>
+                    <input
+                      type="text"
+                      value="smtp.gmail.com"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP Port</label>
+                    <input
+                      type="text"
+                      value="587"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP User / Email</label>
+                    <input
+                      type="text"
+                      value="support@brandmonkz.com"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP Password</label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value="••••••••••••••••"
+                        readOnly
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <EyeSlashIcon className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Stored in environment variable: SMTP_PASS</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Database Credentials */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <CircleStackIcon className="w-6 h-6" />
+                    </div>
+                    Database Credentials
+                  </h3>
+                  <span className="px-4 py-2 bg-white/20 rounded-full text-sm font-semibold text-white">
+                    PostgreSQL
+                  </span>
+                </div>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Host</label>
+                    <input
+                      type="text"
+                      value="brandmonkz-crm-database.••••••.us-east-1.rds.amazonaws.com"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Port</label>
+                    <input
+                      type="text"
+                      value="5432"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Name</label>
+                    <input
+                      type="text"
+                      value="brandmonkz_crm"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Database User</label>
+                    <input
+                      type="text"
+                      value="postgres"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Password</label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value="••••••••••••••••"
+                        readOnly
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <EyeSlashIcon className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Stored in environment variable: DATABASE_URL</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AWS Credentials */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-orange-500 to-red-600 px-8 py-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <ServerIcon className="w-6 h-6" />
+                    </div>
+                    AWS Credentials
+                  </h3>
+                  <span className="px-4 py-2 bg-white/20 rounded-full text-sm font-semibold text-white">
+                    SES, S3, EC2
+                  </span>
+                </div>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Region</label>
+                    <input
+                      type="text"
+                      value="us-east-1"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Account ID</label>
+                    <input
+                      type="text"
+                      value="••••••••3224"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Access Key ID</label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value="••••••••••••••••••••"
+                        readOnly
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <EyeSlashIcon className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Stored in AWS CLI configuration</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Secret Access Key</label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value="••••••••••••••••••••••••••••••••••••••••"
+                        readOnly
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <EyeSlashIcon className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Stored in AWS CLI configuration</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SSH Keys */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-indigo-600 px-8 py-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <KeyIcon className="w-6 h-6" />
+                    </div>
+                    SSH / Server Access
+                  </h3>
+                  <span className="px-4 py-2 bg-white/20 rounded-full text-sm font-semibold text-white">
+                    EC2 Access
+                  </span>
+                </div>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">EC2 Instance IP</label>
+                    <input
+                      type="text"
+                      value="100.24.213.224"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">SSH User</label>
+                    <input
+                      type="text"
+                      value="ec2-user"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">SSH Key File</label>
+                    <input
+                      type="text"
+                      value="~/.ssh/brandmonkz-crm.pem"
+                      readOnly
+                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Private key for SSH access to production server</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* JWT Secret */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-gradient-to-r from-pink-500 to-rose-600 px-8 py-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <ShieldCheckIcon className="w-6 h-6" />
+                    </div>
+                    Authentication Secrets
+                  </h3>
+                  <span className="px-4 py-2 bg-white/20 rounded-full text-sm font-semibold text-white">
+                    JWT & Session
+                  </span>
+                </div>
+              </div>
+              <div className="p-8 space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">JWT Secret Key</label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value="••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"
+                        readOnly
+                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                      />
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <EyeSlashIcon className="w-5 h-5" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Stored in environment variable: JWT_SECRET</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Instructions */}
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 border-2 border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <DocumentTextIcon className="w-6 h-6 text-gray-700" />
+                How to Update Credentials
+              </h3>
+              <div className="space-y-3 text-sm text-gray-700">
+                <p>1. <strong>SSH into the server:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">ssh -i ~/.ssh/brandmonkz-crm.pem ec2-user@100.24.213.224</code></p>
+                <p>2. <strong>Edit environment file:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">sudo nano /var/www/crm-backend/backend/.env</code></p>
+                <p>3. <strong>Update the credential</strong> you need to change</p>
+                <p>4. <strong>Restart the backend:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">pm2 restart crm-backend</code></p>
+                <p>5. <strong>Verify the change:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">pm2 logs crm-backend --lines 20</code></p>
+              </div>
+            </div>
+
+            {/* AI Assistant for Credentials */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="credentials"
+                title="Credentials Management AI"
+                contextData={{ credentials }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Activity Logs Tab */}
+        {selectedTab === 'logs' && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            {activityLogStats && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <StatCard
+                  title="Total Logs"
+                  value={activityLogStats.totalLogs.toLocaleString()}
+                  icon={ClipboardDocumentListIcon}
+                  gradient="from-purple-500 to-indigo-600"
+                  iconBg="bg-purple-600"
+                />
+                <StatCard
+                  title="Last 24 Hours"
+                  value={activityLogStats.logsLast24Hours.toLocaleString()}
+                  icon={ClockIcon}
+                  gradient="from-blue-500 to-cyan-600"
+                  iconBg="bg-blue-600"
+                  delay={100}
+                />
+                <StatCard
+                  title="Last 7 Days"
+                  value={activityLogStats.logsLast7Days.toLocaleString()}
+                  icon={ChartBarIcon}
+                  gradient="from-green-500 to-emerald-600"
+                  iconBg="bg-green-600"
+                  delay={200}
+                />
+                <StatCard
+                  title="Last 30 Days"
+                  value={activityLogStats.logsLast30Days.toLocaleString()}
+                  icon={ArrowTrendingUpIcon}
+                  gradient="from-orange-500 to-red-600"
+                  iconBg="bg-orange-600"
+                  delay={300}
+                />
+              </div>
+            )}
+
+            {/* Filters */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Action</label>
+                  <select
+                    value={activityActionFilter}
+                    onChange={(e) => setActivityActionFilter(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="">All Actions</option>
+                    <option value="USER_LOGIN">User Login</option>
+                    <option value="USER_LOGOUT">User Logout</option>
+                    <option value="CONTACT_CREATED">Contact Created</option>
+                    <option value="CONTACT_UPDATED">Contact Updated</option>
+                    <option value="CONTACT_DELETED">Contact Deleted</option>
+                    <option value="COMPANY_CREATED">Company Created</option>
+                    <option value="EMAIL_SENT">Email Sent</option>
+                    <option value="VIDEO_GENERATED">Video Generated</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Time Range</label>
+                  <select
+                    value={activityDateFilter}
+                    onChange={(e) => setActivityDateFilter(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="all">All Time</option>
+                    <option value="24h">Last 24 Hours</option>
+                    <option value="7d">Last 7 Days</option>
+                    <option value="30d">Last 30 Days</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Activity Logs Table */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="px-8 py-5 bg-gradient-to-r from-purple-500 to-indigo-600">
+                <h3 className="text-xl font-bold text-white">Activity Logs</h3>
+                <p className="text-purple-100 text-sm mt-1">
+                  {activityLogsPagination.total} total logs
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                {activityLogsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : activityLogs.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <ClipboardDocumentListIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p>No activity logs found</p>
+                  </div>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP Address</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {activityLogs.map((log) => (
+                        <tr key={log.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(log.createdAt).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            {log.user ? (
+                              <div>
+                                <p className="font-medium text-gray-900">
+                                  {log.user.firstName} {log.user.lastName}
+                                </p>
+                                <p className="text-gray-500 text-xs">{log.user.email}</p>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">System</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                              {log.action.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {log.description || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {log.ipAddress || '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* Pagination */}
+              {activityLogsPagination.totalPages > 1 && (
+                <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                  <p className="text-sm text-gray-700">
+                    Page {activityLogsPagination.page} of {activityLogsPagination.totalPages}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => loadActivityLogs(activityLogsPagination.page - 1)}
+                      disabled={activityLogsPagination.page === 1}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      <ChevronLeftIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => loadActivityLogs(activityLogsPagination.page + 1)}
+                      disabled={activityLogsPagination.page === activityLogsPagination.totalPages}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      <ChevronRightIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* AI Assistant for Activity Logs */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="logs"
+                title="Activity Logs AI"
+                contextData={{ logs: activityLogs, stats: activityLogStats }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Email Monitor Tab */}
+        {selectedTab === 'emails' && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            {emailLogStats && (
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <StatCard
+                  title="Total Emails"
+                  value={emailLogStats.totalEmails.toLocaleString()}
+                  subtext={`${emailLogStats.deliveryRate}% delivered`}
+                  icon={EnvelopeIcon}
+                  gradient="from-green-500 to-emerald-600"
+                  iconBg="bg-green-600"
+                />
+                <StatCard
+                  title="Delivered"
+                  value={emailLogStats.deliveredEmails.toLocaleString()}
+                  icon={CheckCircleIcon}
+                  gradient="from-blue-500 to-cyan-600"
+                  iconBg="bg-blue-600"
+                  delay={100}
+                />
+                <StatCard
+                  title="Opened"
+                  value={emailLogStats.openedEmails.toLocaleString()}
+                  subtext={`${emailLogStats.openRate}% rate`}
+                  icon={MagnifyingGlassIcon}
+                  gradient="from-purple-500 to-indigo-600"
+                  iconBg="bg-purple-600"
+                  delay={200}
+                />
+                <StatCard
+                  title="Bounced"
+                  value={emailLogStats.bouncedEmails.toLocaleString()}
+                  subtext={`${emailLogStats.bounceRate}% rate`}
+                  icon={ExclamationTriangleIcon}
+                  gradient="from-orange-500 to-red-600"
+                  iconBg="bg-orange-600"
+                  delay={300}
+                />
+                <StatCard
+                  title="Failed"
+                  value={emailLogStats.failedEmails.toLocaleString()}
+                  icon={XCircleIcon}
+                  gradient="from-red-500 to-pink-600"
+                  iconBg="bg-red-600"
+                  delay={400}
+                />
+              </div>
+            )}
+
+            {/* Filters */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+                  <select
+                    value={emailStatusFilter}
+                    onChange={(e) => setEmailStatusFilter(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">All Status</option>
+                    <option value="SENT">Sent</option>
+                    <option value="DELIVERED">Delivered</option>
+                    <option value="BOUNCED">Bounced</option>
+                    <option value="FAILED">Failed</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Search Recipient</label>
+                  <input
+                    type="text"
+                    value={emailRecipientFilter}
+                    onChange={(e) => setEmailRecipientFilter(e.target.value)}
+                    placeholder="Search by email..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Email Logs Table */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="px-8 py-5 bg-gradient-to-r from-green-500 to-emerald-600">
+                <h3 className="text-xl font-bold text-white">Email Logs</h3>
+                <p className="text-green-100 text-sm mt-1">
+                  {emailLogsPagination.total} total emails
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                {emailLogsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : emailLogs.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <EnvelopeIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p>No email logs found</p>
+                  </div>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent At</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipient</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Tracking</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {emailLogs.map((email) => (
+                        <tr key={email.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(email.sentAt).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {email.toEmail}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600">
+                            {email.metadata?.subject || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              email.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
+                              email.status === 'SENT' ? 'bg-blue-100 text-blue-800' :
+                              email.status === 'BOUNCED' ? 'bg-orange-100 text-orange-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {email.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              {email.openedAt && <CheckCircleIcon className="w-5 h-5 text-green-600" title="Opened" />}
+                              {email.clickedAt && <CheckCircleIcon className="w-5 h-5 text-blue-600" title="Clicked" />}
+                              {!email.openedAt && !email.clickedAt && <span className="text-gray-400 text-xs">-</span>}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* Pagination */}
+              {emailLogsPagination.totalPages > 1 && (
+                <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                  <p className="text-sm text-gray-700">
+                    Page {emailLogsPagination.page} of {emailLogsPagination.totalPages}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => loadEmailLogs(emailLogsPagination.page - 1)}
+                      disabled={emailLogsPagination.page === 1}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      <ChevronLeftIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => loadEmailLogs(emailLogsPagination.page + 1)}
+                      disabled={emailLogsPagination.page === emailLogsPagination.totalPages}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      <ChevronRightIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* AI Assistant for Email Monitor */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="emails"
+                title="Email Monitor AI"
+                contextData={{ logs: emailLogs, stats: emailLogStats }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Background Jobs Tab */}
+        {selectedTab === 'jobs' && (
+          <div className="space-y-6">
+            {/* Stats Cards */}
+            {backgroundJobStats && (
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                <StatCard
+                  title="Total Jobs"
+                  value={backgroundJobStats.totalJobs.toLocaleString()}
+                  icon={ClockIcon}
+                  gradient="from-orange-500 to-red-600"
+                  iconBg="bg-orange-600"
+                />
+                <StatCard
+                  title="Pending"
+                  value={backgroundJobStats.pendingJobs.toLocaleString()}
+                  icon={ClockIcon}
+                  gradient="from-yellow-500 to-orange-600"
+                  iconBg="bg-yellow-600"
+                  delay={100}
+                />
+                <StatCard
+                  title="Processing"
+                  value={backgroundJobStats.processingJobs.toLocaleString()}
+                  icon={CogIcon}
+                  gradient="from-blue-500 to-cyan-600"
+                  iconBg="bg-blue-600"
+                  delay={200}
+                />
+                <StatCard
+                  title="Completed"
+                  value={backgroundJobStats.completedJobs.toLocaleString()}
+                  subtext={`${backgroundJobStats.successRate}% success`}
+                  icon={CheckCircleIcon}
+                  gradient="from-green-500 to-emerald-600"
+                  iconBg="bg-green-600"
+                  delay={300}
+                />
+                <StatCard
+                  title="Failed"
+                  value={backgroundJobStats.failedJobs.toLocaleString()}
+                  subtext={`${backgroundJobStats.failureRate}% failure`}
+                  icon={XCircleIcon}
+                  gradient="from-red-500 to-pink-600"
+                  iconBg="bg-red-600"
+                  delay={400}
+                />
+              </div>
+            )}
+
+            {/* Filter */}
+            <div className="bg-white rounded-2xl shadow-lg p-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+              <select
+                value={jobStatusFilter}
+                onChange={(e) => setJobStatusFilter(e.target.value)}
+                className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              >
+                <option value="">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="FAILED">Failed</option>
+              </select>
+            </div>
+
+            {/* Background Jobs Table */}
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="px-8 py-5 bg-gradient-to-r from-orange-500 to-red-600">
+                <h3 className="text-xl font-bold text-white">Background Jobs</h3>
+                <p className="text-orange-100 text-sm mt-1">
+                  {jobsPagination.total} total jobs
+                </p>
+              </div>
+              <div className="overflow-x-auto">
+                {jobsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : backgroundJobs.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <ClockIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <p>No background jobs found</p>
+                  </div>
+                ) : (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Campaign</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Progress</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Error</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {backgroundJobs.map((job) => (
+                        <tr key={job.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(job.createdAt).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {job.campaign?.name || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              job.status === 'completed' ? 'bg-green-100 text-green-800' :
+                              job.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                              job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {job.status.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">{job.currentStep || '-'}</p>
+                              <p className="text-xs text-gray-400">Progress: {job.progress}%</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-red-600">
+                            {job.errorMessage ? job.errorMessage.substring(0, 50) + '...' : '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              {job.status === 'failed' && (
+                                <button
+                                  onClick={() => retryJob(job.id)}
+                                  disabled={retryingJob === job.id}
+                                  className="px-3 py-1 bg-green-600 text-white rounded-lg text-xs font-semibold hover:bg-green-700 disabled:opacity-50"
+                                >
+                                  {retryingJob === job.id ? 'Retrying...' : 'Retry'}
+                                </button>
+                              )}
+                              {(job.status === 'pending' || job.status === 'processing') && (
+                                <button
+                                  onClick={() => cancelJob(job.id)}
+                                  disabled={cancellingJob === job.id}
+                                  className="px-3 py-1 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 disabled:opacity-50"
+                                >
+                                  {cancellingJob === job.id ? 'Cancelling...' : 'Cancel'}
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* Pagination */}
+              {jobsPagination.totalPages > 1 && (
+                <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                  <p className="text-sm text-gray-700">
+                    Page {jobsPagination.page} of {jobsPagination.totalPages}
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => loadBackgroundJobs(jobsPagination.page - 1)}
+                      disabled={jobsPagination.page === 1}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      <ChevronLeftIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => loadBackgroundJobs(jobsPagination.page + 1)}
+                      disabled={jobsPagination.page === jobsPagination.totalPages}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      <ChevronRightIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Tech Stack Tab */}
+        {selectedTab === 'tech-stack' && (
+          <div className="space-y-6">
+            {techStackLoading ? (
+              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+                <p className="text-gray-600 mt-4">Loading tech stack information...</p>
+              </div>
+            ) : techStack ? (
+              <>
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
+                    <div className="flex items-center gap-3 mb-3">
+                      <CogIcon className="w-4 h-4" />
+                      <h3 className="font-semibold text-lg">Total Components</h3>
+                    </div>
+                    <p className="text-4xl font-bold">{techStack.summary.totalComponents}</p>
+                    <p className="text-blue-100 text-sm mt-2">Active technologies</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
+                    <div className="flex items-center gap-3 mb-3">
+                      <CheckCircleIcon className="w-4 h-4" />
+                      <h3 className="font-semibold text-lg">Healthy</h3>
+                    </div>
+                    <p className="text-4xl font-bold">{techStack.summary.healthyComponents}</p>
+                    <p className="text-green-100 text-sm mt-2">All systems operational</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+                    <div className="flex items-center gap-3 mb-3">
+                      <ServerIcon className="w-4 h-4" />
+                      <h3 className="font-semibold text-lg">Categories</h3>
+                    </div>
+                    <p className="text-4xl font-bold">{techStack.summary.categories}</p>
+                    <p className="text-purple-100 text-sm mt-2">Tech categories</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg p-6 text-white">
+                    <div className="flex items-center gap-3 mb-3">
+                      <ClockIcon className="w-4 h-4" />
+                      <h3 className="font-semibold text-lg">Last Updated</h3>
+                    </div>
+                    <p className="text-lg font-semibold">{new Date(techStack.summary.lastUpdated).toLocaleTimeString()}</p>
+                    <p className="text-orange-100 text-sm mt-2">{new Date(techStack.summary.lastUpdated).toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                {/* Infrastructure */}
+                {techStack.infrastructure && techStack.infrastructure.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <ServerIcon className="w-8 h-8 text-blue-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">Infrastructure</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {techStack.infrastructure.map((tech: any) => (
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-blue-500 transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
+                              <p className="text-sm text-gray-500">{tech.version}</p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {tech.status === 'healthy' ? '✓ Healthy' : '✗ Down'}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Purpose:</span>
+                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Connection:</span>
+                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                            </div>
+                            {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-600">{key}:</span>
+                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Backend */}
+                {techStack.backend && techStack.backend.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <CodeBracketIcon className="w-8 h-8 text-green-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">Backend Technologies</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {techStack.backend.map((tech: any) => (
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-green-500 transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
+                              <p className="text-sm text-gray-500">{tech.version}</p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {tech.status === 'healthy' ? '✓ Healthy' : '✗ Down'}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Purpose:</span>
+                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Connection:</span>
+                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                            </div>
+                            {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-600">{key}:</span>
+                                <span className="text-gray-900 font-medium text-right ml-2">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Frontend */}
+                {techStack.frontend && techStack.frontend.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <SparklesIcon className="w-8 h-8 text-purple-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">Frontend Technologies</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {techStack.frontend.map((tech: any) => (
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-purple-500 transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
+                              <p className="text-sm text-gray-500">{tech.version}</p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {tech.status === 'healthy' ? '✓ Healthy' : '✗ Down'}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Purpose:</span>
+                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Connection:</span>
+                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                            </div>
+                            {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-600">{key}:</span>
+                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Database */}
+                {techStack.database && techStack.database.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <CircleStackIcon className="w-8 h-8 text-indigo-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">Database & Caching</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {techStack.database.map((tech: any) => (
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-500 transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
+                              <p className="text-sm text-gray-500">{tech.version}</p>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {tech.status === 'healthy' ? '✓ Healthy' : '⚠ Degraded'}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Purpose:</span>
+                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Connection:</span>
+                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                            </div>
+                            {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-600">{key}:</span>
+                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Cloud Services */}
+                {techStack.cloud && techStack.cloud.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <CloudIcon className="w-8 h-8 text-sky-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">Cloud Services</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {techStack.cloud.map((tech: any) => (
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-sky-500 transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
+                              <p className="text-sm text-gray-500">{tech.version}</p>
+                            </div>
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                              ✓ Healthy
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Purpose:</span>
+                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Connection:</span>
+                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                            </div>
+                            {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-600">{key}:</span>
+                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Services */}
+                {techStack.ai && techStack.ai.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <SparklesIcon className="w-8 h-8 text-pink-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">AI & Machine Learning</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {techStack.ai.map((tech: any) => (
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-pink-500 transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
+                              <p className="text-sm text-gray-500">{tech.version}</p>
+                            </div>
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                              ✓ Healthy
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Purpose:</span>
+                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Connection:</span>
+                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                            </div>
+                            {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-600">{key}:</span>
+                                <span className="text-gray-900 font-medium">{String(value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Monitoring & Security */}
+                {techStack.monitoring && techStack.monitoring.length > 0 && (
+                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <ShieldCheckIcon className="w-8 h-8 text-red-600" />
+                      <h2 className="text-2xl font-bold text-gray-900">Monitoring & Security</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {techStack.monitoring.map((tech: any) => (
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-red-500 transition-all">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
+                              <p className="text-sm text-gray-500">{tech.version}</p>
+                            </div>
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                              ✓ Healthy
+                            </span>
+                          </div>
+                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
+                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Purpose:</span>
+                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Connection:</span>
+                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                            </div>
+                            {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex justify-between">
+                                <span className="text-gray-600">{key}:</span>
+                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* AI Assistant for Tech Stack */}
+                <div className="mt-6">
+                  <InlineChatBot
+                    context="tech-stack"
+                    title="Technology Stack AI"
+                    contextData={techStack}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+                <CogIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 font-semibold mb-2">No tech stack data available</p>
+                <button
+                  onClick={loadTechStack}
+                  className="mt-4 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all"
+                >
+                  Load Tech Stack
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* UI Configuration Tab */}
+        {selectedTab === 'ui-config' && (
+          <div>
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <PaintBrushIcon className="w-8 h-8 text-purple-600" />
+                <h2 className="text-2xl font-bold text-gray-900">UI Configuration</h2>
+              </div>
+              <p className="text-gray-600 mb-8">
+                Manage navigation, themes, and branding across your entire application. Changes apply instantly to all users.
+              </p>
+
+              <div className="space-y-8">
+                {/* Navigation Manager */}
+                <div className="border border-gray-200 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <Bars3Icon className="w-6 h-6 text-blue-600" />
+                      <h3 className="text-xl font-bold text-gray-900">Navigation Manager</h3>
+                    </div>
+                    <button
+                      onClick={() => alert('Navigation editor coming soon!\n\nFor now, use API:\nPOST /api/super-admin/navigation\n\nExample:\n{\n  "label": "My Custom Page",\n  "path": "/custom",\n  "icon": "StarIcon",\n  "order": 13,\n  "roles": ["SUPER_ADMIN"]\n}')}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                    >
+                      <PlusIcon className="w-5 h-5" />
+                      Add Navigation Item
+                    </button>
+                  </div>
+                  <p className="text-gray-600 mb-4">
+                    Configure sidebar navigation items, order, visibility, and role-based access.
+                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-700">
+                      <strong>Coming Soon:</strong> Drag-and-drop navigation editor with live preview. For now, navigation is managed via API endpoints.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Theme Manager */}
+                <div className="border border-gray-200 rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <PaintBrushIcon className="w-6 h-6 text-purple-600" />
+                      <h3 className="text-xl font-bold text-gray-900">Theme Manager</h3>
+                    </div>
+                    <button
+                      onClick={() => alert('Theme creator coming soon!\n\nFor now, use API:\nPOST /api/super-admin/themes\n\nExample:\n{\n  "name": "Ocean Blue",\n  "primaryColor": "#0EA5E9",\n  "secondaryColor": "#06B6D4",\n  "accentColor": "#14B8A6",\n  "backgroundColor": "#FFFFFF",\n  "textColor": "#0F172A"\n}')}
+                      className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
+                    >
+                      <PlusIcon className="w-5 h-5" />
+                      Create Theme
+                    </button>
+                  </div>
+                  <p className="text-gray-600 mb-4">
+                    Create and manage color themes, typography, and custom CSS.
+                  </p>
+                  {uiConfigLoading ? (
+                    <div className="text-center py-12">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-purple-600 border-t-transparent"></div>
+                      <p className="mt-4 text-gray-600">Loading themes...</p>
+                    </div>
+                  ) : themes.length === 0 ? (
+                    <div className="text-center py-12 text-gray-500">
+                      <PaintBrushIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p>No themes found</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {themes.map((theme) => (
+                        <div
+                          key={theme.id}
+                          className={`rounded-lg p-4 ${
+                            theme.isActive
+                              ? 'border-2 border-green-500 bg-gradient-to-br from-blue-50 to-purple-50'
+                              : theme.backgroundColor === '#111827' || theme.backgroundColor.includes('gray')
+                              ? 'border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-900 text-white'
+                              : 'border border-gray-300 bg-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className={`font-bold ${theme.isActive || theme.backgroundColor.includes('111') ? '' : 'text-gray-900'}`}>
+                              {theme.name}
+                            </h4>
+                            <span
+                              className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                theme.isActive
+                                  ? 'bg-green-600 text-white'
+                                  : 'bg-gray-200 text-gray-700'
+                              }`}
+                            >
+                              {theme.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                          <div className="flex gap-2 mb-3">
+                            <div
+                              className="w-8 h-8 rounded-full border-2 border-white shadow"
+                              style={{ backgroundColor: theme.primaryColor }}
+                              title={`Primary: ${theme.primaryColor}`}
+                            />
+                            <div
+                              className="w-8 h-8 rounded-full border-2 border-white shadow"
+                              style={{ backgroundColor: theme.secondaryColor }}
+                              title={`Secondary: ${theme.secondaryColor}`}
+                            />
+                            <div
+                              className="w-8 h-8 rounded-full border-2 border-white shadow"
+                              style={{ backgroundColor: theme.accentColor }}
+                              title={`Accent: ${theme.accentColor}`}
+                            />
+                          </div>
+                          <p className={`text-sm mb-3 ${theme.backgroundColor.includes('111') ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {theme.fontFamily || 'System font'} • {theme.fontSize || '14px'}
+                          </p>
+                          <div className="flex gap-2">
+                            {!theme.isActive && (
+                              <button
+                                onClick={() => activateTheme(theme.id)}
+                                className="flex-1 px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 cursor-pointer transition-colors"
+                              >
+                                Activate
+                              </button>
+                            )}
+                            <button
+                              onClick={() => alert('Theme editing UI coming soon! For now, use API: POST /api/super-admin/themes/' + theme.id)}
+                              className="flex-1 px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 cursor-pointer transition-colors"
+                            >
+                              Edit
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Branding Manager */}
+                <div className="border border-gray-200 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <BuildingOfficeIcon className="w-6 h-6 text-orange-600" />
+                    <h3 className="text-xl font-bold text-gray-900">Branding Configuration</h3>
+                  </div>
+                  <p className="text-gray-600 mb-4">
+                    Customize company branding, logos, and contact information.
+                  </p>
+                  {branding ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Company Name
+                          </label>
+                          <input
+                            type="text"
+                            value={branding.companyName}
+                            disabled
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Support Email
+                          </label>
+                          <input
+                            type="email"
+                            value={branding.supportEmail || 'Not configured'}
+                            disabled
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                          />
+                        </div>
+                      </div>
+                      {branding.supportPhone && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Support Phone
+                          </label>
+                          <input
+                            type="text"
+                            value={branding.supportPhone}
+                            disabled
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Footer Text
+                        </label>
+                        <input
+                          type="text"
+                          value={branding.footerText || 'Not configured'}
+                          disabled
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                        />
+                      </div>
+                      {(branding.logoUrl || branding.faviconUrl) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {branding.logoUrl && (
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Logo URL
+                              </label>
+                              <input
+                                type="text"
+                                value={branding.logoUrl}
+                                disabled
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                              />
+                            </div>
+                          )}
+                          {branding.faviconUrl && (
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Favicon URL
+                              </label>
+                              <input
+                                type="text"
+                                value={branding.faviconUrl}
+                                disabled
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <p className="text-sm text-orange-700">
+                          <strong>Info:</strong> Branding is configured via database. Use the API endpoints to modify these values programmatically.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      <BuildingOfficeIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                      <p>No branding configuration found</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* API Information */}
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+                  <div className="flex items-center gap-3 mb-4">
+                    <CodeBracketIcon className="w-6 h-6 text-indigo-600" />
+                    <h3 className="text-xl font-bold text-gray-900">API Endpoints</h3>
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    Use these endpoints to programmatically manage UI configuration:
+                  </p>
+                  <div className="space-y-2 font-mono text-sm">
+                    <div className="bg-white rounded p-3 border border-indigo-200">
+                      <span className="text-green-600 font-bold">GET</span> /api/super-admin/navigation
+                    </div>
+                    <div className="bg-white rounded p-3 border border-indigo-200">
+                      <span className="text-blue-600 font-bold">POST</span> /api/super-admin/navigation
+                    </div>
+                    <div className="bg-white rounded p-3 border border-indigo-200">
+                      <span className="text-green-600 font-bold">GET</span> /api/super-admin/themes
+                    </div>
+                    <div className="bg-white rounded p-3 border border-indigo-200">
+                      <span className="text-blue-600 font-bold">POST</span> /api/super-admin/themes/:id/activate
+                    </div>
+                    <div className="bg-white rounded p-3 border border-indigo-200">
+                      <span className="text-green-600 font-bold">GET</span> /api/super-admin/branding
+                    </div>
+                    <div className="bg-white rounded p-3 border border-indigo-200">
+                      <span className="text-blue-600 font-bold">POST</span> /api/super-admin/branding
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-4">
+                    Full API documentation is available in the implementation guide.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Assistant for Background Jobs */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="jobs"
+                title="Background Jobs AI"
+                contextData={{ jobs: backgroundJobs, stats: backgroundJobStats }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* System Health Tab */}
+        {selectedTab === 'system' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-green-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                    <ServerIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                  <CheckCircleIcon className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-1">Backend API</h3>
+                <p className="text-sm text-green-700 font-medium">All systems operational</p>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-green-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                    <CircleStackIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                  <CheckCircleIcon className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-1">Database Connection</h3>
+                <p className="text-sm text-green-700 font-medium">Connected and responsive</p>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-green-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                    <MegaphoneIcon className="w-6 h-6 text-green-600" />
+                  </div>
+                  <CheckCircleIcon className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-1">Email Service</h3>
+                <p className="text-sm text-green-700 font-medium">Google Workspace SMTP active</p>
+              </div>
+            </div>
+
+            {/* AI Assistant for System Health */}
+            <div className="mt-6">
+              <InlineChatBot
+                context="system"
+                title="System Health AI"
+                contextData={{ systemStatus: 'operational' }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
