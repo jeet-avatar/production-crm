@@ -1012,15 +1012,6 @@ export function SettingsPage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {pricingPlans.map((plan) => {
-                        // Define gradient colors for each plan - all dark enough for white text
-                        const planGradients = {
-                          free: 'from-slate-600 to-gray-700',
-                          starter: 'from-blue-500 to-indigo-600',
-                          professional: 'from-red-500 to-pink-600',
-                          enterprise: 'from-purple-500 to-indigo-600',
-                        };
-                        const gradient = planGradients[plan.id as keyof typeof planGradients] || 'from-gray-500 to-gray-600';
-
                         return (
                         <div
                           key={plan.id}
@@ -1028,8 +1019,18 @@ export function SettingsPage() {
                             plan.popular ? 'shadow-lg' : 'shadow-md'
                           } flex flex-col`}
                         >
-                          {/* Gradient Header */}
-                          <div className={`bg-gradient-to-r ${gradient} px-6 py-8 text-white text-center flex-shrink-0`}>
+                          {/* Gradient Header - Full class names for Tailwind JIT */}
+                          <div className={`px-6 py-8 text-white text-center flex-shrink-0 ${
+                            plan.id === 'free'
+                              ? 'bg-gradient-to-r from-gray-600 to-gray-800'
+                              : plan.id === 'starter'
+                              ? 'bg-gradient-to-r from-blue-500 to-indigo-600'
+                              : plan.id === 'professional'
+                              ? 'bg-gradient-to-r from-red-500 to-pink-600'
+                              : plan.id === 'enterprise'
+                              ? 'bg-gradient-to-r from-purple-500 to-indigo-600'
+                              : 'bg-gradient-to-r from-gray-500 to-gray-700'
+                          }`}>
                             {plan.popular && (
                               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                                 <span className="bg-white text-red-600 px-4 py-1 rounded-full text-xs font-bold shadow-lg">
@@ -1072,13 +1073,17 @@ export function SettingsPage() {
                             <button
                               onClick={() => handleUpgrade(plan)}
                               disabled={isSaving}
-                              className={`w-full py-3 px-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg mt-auto ${
+                              className={`w-full py-3 px-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg mt-auto text-white disabled:opacity-50 disabled:cursor-not-allowed ${
                                 plan.id === 'free'
-                                  ? 'bg-gradient-to-r from-slate-600 to-gray-700 text-white hover:from-slate-700 hover:to-gray-800'
-                                  : plan.popular
-                                  ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700'
-                                  : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
-                              } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                  ? 'bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900'
+                                  : plan.id === 'starter'
+                                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
+                                  : plan.id === 'professional'
+                                  ? 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700'
+                                  : plan.id === 'enterprise'
+                                  ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700'
+                                  : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700'
+                              }`}
                             >
                               {isSaving ? 'Processing...' : plan.buttonText}
                             </button>
