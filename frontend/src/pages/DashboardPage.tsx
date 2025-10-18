@@ -15,6 +15,7 @@ import {
   FireIcon,
   PlusIcon
 } from '@heroicons/react/24/outline';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface DashboardStats {
   totalContacts: number;
@@ -197,6 +198,7 @@ function Sparkline({ data, color = '#3B82F6' }: { data: number[]; color?: string
 
 export function DashboardPage() {
   const navigate = useNavigate();
+  const { gradients } = useTheme();
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -265,11 +267,13 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
+    <div className="p-8 bg-gradient-to-br from-gray-50 to-white min-h-screen">
       {/* Header with subtle shadow */}
       <div className="mb-8 pb-6 border-b border-gray-200 bg-white/50 backdrop-blur-sm -mx-8 px-8 -mt-8 pt-8 shadow-sm">
         <div className="flex items-center gap-3 mb-2">
-          <SparklesIcon className="h-8 w-8 text-blue-600" />
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md`}>
+            <SparklesIcon className="h-6 w-6 text-white" />
+          </div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
         </div>
         <p className="text-sm font-medium text-gray-700">Welcome back! Here's what's happening with your business today.</p>
@@ -281,24 +285,24 @@ export function DashboardPage() {
           title="Total Revenue"
           value={formatCurrency(stats.totalRevenue)}
           icon={CurrencyDollarIcon}
-          gradient="from-emerald-50 to-white"
-          iconColor="bg-gradient-to-br from-emerald-500 to-emerald-600"
+          gradient="from-orange-50 to-white"
+          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.deals.gradient}`}
           delay={0}
         />
         <StatCard
           title="Active Deals"
           value={stats.activeDeals}
           icon={ChartBarIcon}
-          gradient="from-blue-50 to-white"
-          iconColor="bg-gradient-to-br from-blue-500 to-blue-600"
+          gradient="from-amber-50 to-white"
+          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.contacts.gradient}`}
           delay={100}
         />
         <StatCard
           title="Total Contacts"
           value={formatNumber(stats.totalContacts)}
           icon={UserGroupIcon}
-          gradient="from-purple-50 to-white"
-          iconColor="bg-gradient-to-br from-purple-500 to-purple-600"
+          gradient="from-yellow-50 to-white"
+          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.companies.gradient}`}
           delay={200}
         />
         <StatCard
@@ -306,13 +310,13 @@ export function DashboardPage() {
           value={stats.totalCompanies}
           icon={BuildingOfficeIcon}
           gradient="from-orange-50 to-white"
-          iconColor="bg-gradient-to-br from-orange-500 to-orange-600"
+          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.activities.gradient}`}
           delay={300}
         />
       </div>
 
       {/* Quick Actions Bar - Elegant and Less Tall */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200">
+      <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200`}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <RocketLaunchIcon className="h-6 w-6" />
@@ -400,7 +404,9 @@ export function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <FireIcon className="h-6 w-6 text-orange-500" />
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradients.semantic.warning.gradient} flex items-center justify-center`}>
+                  <FireIcon className="h-5 w-5 text-white" />
+                </div>
                 Sales Pipeline
               </h3>
               <p className="text-xs font-medium text-gray-600 mt-1">Deal distribution by stage</p>
@@ -476,13 +482,24 @@ export function DashboardPage() {
         {/* Top Deals with Company Initials */}
         <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            <ChartBarIcon className="h-6 w-6 text-blue-600" />
+            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center`}>
+              <ChartBarIcon className="h-5 w-5 text-white" />
+            </div>
             Top Deals
           </h3>
           <div className="space-y-3">
             {stats.topDeals.map((deal, index) => {
-              const colors = ['bg-blue-500', 'bg-purple-500', 'bg-orange-500'];
-              const bgColors = ['bg-blue-50', 'bg-purple-50', 'bg-orange-50'];
+              const dealGradients = [
+                gradients.pages.dashboard.deals.gradient,
+                gradients.pages.dashboard.contacts.gradient,
+                gradients.pages.dashboard.companies.gradient
+              ];
+              const colors = [
+                `bg-gradient-to-br ${dealGradients[0]}`,
+                `bg-gradient-to-br ${dealGradients[1]}`,
+                `bg-gradient-to-br ${dealGradients[2]}`
+              ];
+              const bgColors = ['bg-orange-50', 'bg-amber-50', 'bg-yellow-50'];
 
               return (
                 <div
@@ -497,7 +514,7 @@ export function DashboardPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-medium ${colors[index].replace('bg-', 'text-')} bg-white px-2 py-0.5 rounded-full shadow-sm`}>
+                        <span className="text-xs font-medium text-orange-600 bg-white px-2 py-0.5 rounded-full shadow-sm">
                           #{index + 1}
                         </span>
                         <h4 className="text-sm font-medium text-gray-900">{deal.company}</h4>
@@ -543,7 +560,9 @@ export function DashboardPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-              <ClockIcon className="h-6 w-6 text-blue-500" />
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradients.semantic.info.gradient} flex items-center justify-center`}>
+                <ClockIcon className="h-5 w-5 text-white" />
+              </div>
               Recent Activity
             </h3>
             <p className="text-sm text-gray-500 mt-1">Latest updates from your team</p>
@@ -563,7 +582,7 @@ export function DashboardPage() {
               className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200 hover:shadow-sm group"
               onClick={() => navigate('/activities')}
             >
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
+              <div className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200`}>
                 <span className="text-2xl">{getActivityIcon(activity.type)}</span>
               </div>
               <div className="flex-1 min-w-0">
