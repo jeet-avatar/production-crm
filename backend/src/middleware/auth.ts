@@ -185,3 +185,28 @@ const checkResourceSharing = async (
       return false;
   }
 };
+
+/**
+ * Alias for authenticate middleware (for compatibility)
+ */
+export const authenticateToken = authenticate;
+
+/**
+ * Super Admin Middleware
+ * Ensures the user has SUPER_ADMIN role
+ */
+export const requireSuperAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  if (!req.user) {
+    throw new AppError('Authentication required', 401);
+  }
+
+  if (req.user.role !== 'SUPER_ADMIN') {
+    throw new AppError('Super admin access required', 403);
+  }
+
+  next();
+};

@@ -39,6 +39,10 @@
   "exclude": [
     "node_modules",
     "dist",
-    "tests"
+    "tests",
+    "src/routes/tasks.routes.ts",
+    "src/routes/projects.routes.ts",
+    "src/routes/tickets.routes.ts",
+    "src/routes/internal.routes.ts"
   ]
 }

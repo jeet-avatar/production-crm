@@ -488,17 +488,16 @@ Remember: You are a smart, efficient assistant. Be direct, be intelligent, take 
   private async sendEmail(data: any, userId: string) {
     try {
       // Import email service
-      const { sendEmailViaSES } = await import('./awsSES');
+      const { EmailService } = await import('./google-smtp.service'); const emailService = new EmailService();
 
       const results = [];
 
       for (const recipient of data.recipients) {
         try {
-          await sendEmailViaSES({
+          await emailService.sendEmail({
             to: [recipient.email],
             subject: data.subject,
             html: data.html,
-            from: process.env.SES_FROM_EMAIL || 'noreply@brandmonkz.com',
           });
 
           results.push({ email: recipient.email, status: 'sent' });

@@ -15,6 +15,7 @@ import passport from './config/passport';
 import { applyAllSecurityHeaders } from './middleware/securityHeaders';
 import { applyAllSecurityGuards, fileUploadGuard } from './middleware/securityGuards';
 import { getCsrfToken, csrfProtection } from './middleware/csrfProtection';
+import activityLoggerMiddleware from './middleware/activityLogger';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -33,7 +34,7 @@ import emailComposerRoutes from './routes/emailComposer';
 import csvImportRoutes from './routes/csvImport';
 import positionRoutes from './routes/positions';
 import emailServerRoutes from './routes/emailServers';
-import emailTrackingRoutes from "./routes/emailTracking";
+// import emailTrackingRoutes from "./routes/emailTracking";
 import analyticsRoutes from './routes/analytics';
 import subscriptionRoutes from './routes/subscriptions';
 import pricingRoutes from './routes/pricing';
@@ -42,12 +43,16 @@ import verificationRoutes from './routes/verification';
 import teamRoutes from './routes/team';
 import sharingRoutes from './routes/sharing';
 import leadsRoutes from './routes/leads.routes';
-import tasksRoutes from './routes/tasks.routes';
-import projectsRoutes from './routes/projects.routes';
-import ticketsRoutes from './routes/tickets.routes';
-import internalRoutes from './routes/internal.routes';
+// DISABLED: These routes reference non-existent Prisma models
+// import tasksRoutes from './routes/tasks.routes';
+// import projectsRoutes from './routes/projects.routes';
+// import ticketsRoutes from './routes/tickets.routes';
+// import internalRoutes from './routes/internal.routes';
 import aiChatRoutes from './routes/ai-chat';
 import videoCampaignsRoutes from './routes/videoCampaigns';
+import superAdminRoutes from './routes/super-admin';
+import uiConfigRoutes from './routes/ui-config';
+import aiCodeRoutes from './routes/ai-code';
 // import godaddyRoutes from './routes/godaddy'; // Disabled - service not implemented
 
 const app = express();
@@ -203,6 +208,9 @@ app.use(applyAllSecurityHeaders());
 // Apply all security guards to API routes
 app.use('/api', applyAllSecurityGuards());
 
+// Activity logger middleware - logs all user activities
+app.use('/api', activityLoggerMiddleware);
+
 // CSRF token endpoint (for frontend to get token)
 app.get('/api/csrf-token', getCsrfToken);
 
@@ -265,7 +273,7 @@ app.use('/api/email-composer', emailComposerRoutes);
 app.use('/api/csv-import', csvImportRoutes);
 app.use('/api/positions', positionRoutes);
 app.use('/api/email-servers', emailServerRoutes);
-app.use('/api/tracking', emailTrackingRoutes);
+// app.use("/api/tracking", emailTrackingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/pricing', pricingRoutes);
@@ -274,12 +282,16 @@ app.use('/api/verification', verificationRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/sharing', sharingRoutes);
 app.use('/api/leads', leadsRoutes);
-app.use('/api/tasks', tasksRoutes);
-app.use('/api/projects', projectsRoutes);
-app.use('/api/tickets', ticketsRoutes);
-app.use('/api/internal', internalRoutes);
+// DISABLED: These routes reference non-existent Prisma models
+// app.use('/api/tasks', tasksRoutes);
+// app.use('/api/projects', projectsRoutes);
+// app.use('/api/tickets', ticketsRoutes);
+// app.use('/api/internal', internalRoutes);
 app.use('/api/ai-chat', aiChatRoutes);
 app.use('/api/video-campaigns', videoCampaignsRoutes);
+app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/ui-config', uiConfigRoutes); // Public UI configuration endpoint
+app.use('/api/ai-code', passport.authenticate('jwt', { session: false }), aiCodeRoutes); // AI Code Assistant - ethan@brandmonkz.com only
 // app.use('/api/godaddy', godaddyRoutes); // Disabled - service not implemented
 
 // 404 handler

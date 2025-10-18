@@ -54,6 +54,11 @@ export function sqlInjectionGuard(req: Request, res: Response, next: NextFunctio
       return next();
     }
 
+    // Skip super-admin database query endpoint - it's intentionally for SQL queries
+    if (req.path === '/super-admin/database/query' && req.method === 'POST') {
+      return next();
+    }
+
     const suspiciousPatterns = [
       /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE)\b)/gi,
       /(--|\*\/|\/\*)/g, // SQL comments
