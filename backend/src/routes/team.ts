@@ -292,7 +292,7 @@ router.post('/invite', async (req, res, next) => {
             </div>
             <div class="content">
               <p>Hi ${firstName},</p>
-              <p>${req.user?.firstName || 'Your team lead'} has invited you to join their team on <strong>Brandmonkz CRM</strong>!</p>
+              <p>${req.user?.firstName || 'Your team lead'} ${req.user?.lastName || ''} has invited you to join their team on <strong>BrandMonkz Intelligent CRM</strong>!</p>
               <p>Click the button below to accept the invitation and set up your password:</p>
               <p style="text-align: center;">
                 <a href="${inviteUrl}" class="button">Accept Invitation</a>
@@ -308,7 +308,7 @@ router.post('/invite', async (req, res, next) => {
               <p>If you have any questions, please reach out to your team lead.</p>
             </div>
             <div class="footer">
-              <p>© 2025 Brandmonkz CRM. All rights reserved.</p>
+              <p>© 2025 BrandMonkz Intelligent CRM. All rights reserved.</p>
               <p>If you didn't expect this invitation, please ignore this email.</p>
             </div>
           </div>
@@ -319,7 +319,7 @@ router.post('/invite', async (req, res, next) => {
       await emailService.sendEmail({
         from: process.env.SMTP_USER || 'noreply@brandmonkz.com',
         to: [email],
-        subject: `You're invited to join ${req.user?.firstName || 'the'} team on Brandmonkz CRM`,
+        subject: `${req.user?.firstName || ''} ${req.user?.lastName || ''} invites you to BrandMonkz Intelligent CRM`,
         html: emailHtml,
       });
 

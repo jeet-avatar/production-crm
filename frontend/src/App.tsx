@@ -27,6 +27,7 @@ import { TeamPage } from './pages/Team/TeamPage';
 import { AcceptInvitePage } from './pages/Auth/AcceptInvitePage';
 import PricingPage from './pages/Pricing/PricingPage';
 import { SubscriptionSuccess } from './pages/Subscription/SubscriptionSuccess';
+import { SuperAdminDashboard } from './pages/SuperAdmin/SuperAdminDashboard';
 import type { User } from './types';
 
 // Create a client
@@ -117,6 +118,7 @@ function App() {
               <Route path="video-campaigns/analytics" element={<VideoAnalytics />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="team" element={<TeamPage />} />
+              <Route path="super-admin" element={<SuperAdminDashboard />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           )}

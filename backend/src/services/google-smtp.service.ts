@@ -405,25 +405,137 @@ If you didn't request a password reset, you can safely ignore this email. Your p
     inviteUrl: string
   ): Promise<boolean> {
     try {
-      const htmlContent = GoogleSMTPService.generateHtmlTemplate(
-        `
-        <p>Hi there,</p>
-        <p><strong>${inviterName}</strong> has invited you to join the team <strong>${teamName}</strong> on BrandMonkz CRM.</p>
-        <p>Click the link below to accept the invitation and create your account:</p>
-        <p style="text-align: center; margin: 30px 0;">
-          <a href="${inviteUrl}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 40px; border-radius: 8px; font-weight: 600; display: inline-block;">Accept Invitation</a>
-        </p>
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; font-family: monospace; background: #f3f4f6; padding: 12px; border-radius: 4px;">${inviteUrl}</p>
-        <p>This invitation link will expire in 7 days.</p>
-        `,
-        'Team Invitation'
-      );
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Invited to BrandMonkz!</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #f5f7fa;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f7fa; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
+
+          <!-- Hero Header with Gradient -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 48px 40px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0 0 12px 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">🎉 You're Invited!</h1>
+              <p style="color: rgba(255,255,255,0.95); margin: 0; font-size: 18px; font-weight: 500;">Join ${teamName} on BrandMonkz CRM</p>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 48px 40px;">
+              <!-- Personalized Greeting -->
+              <p style="font-size: 18px; line-height: 1.6; color: #1a1a1a; margin: 0 0 24px 0;">
+                Hi there! 👋
+              </p>
+
+              <p style="font-size: 16px; line-height: 1.7; color: #4a5568; margin: 0 0 32px 0;">
+                <strong style="color: #667eea;">${inviterName}</strong> has invited you to collaborate on <strong>${teamName}</strong>.
+                You're about to experience a whole new way to manage customer relationships!
+              </p>
+
+              <!-- Value Proposition Card -->
+              <div style="background: linear-gradient(135deg, #f6f8fb 0%, #f0f4f8 100%); border-left: 4px solid #FF6B35; padding: 24px; margin: 32px 0; border-radius: 8px;">
+                <h3 style="color: #1a1a1a; margin: 0 0 16px 0; font-size: 20px; font-weight: 600;">🚀 What You'll Get:</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #4a5568; line-height: 2;">
+                  <li><strong>Smart Contact Management</strong> – Organize customers effortlessly</li>
+                  <li><strong>Video Campaigns</strong> – Create engaging AI-powered videos</li>
+                  <li><strong>Email Automation</strong> – Save time with intelligent workflows</li>
+                  <li><strong>Real-time Analytics</strong> – Track performance at a glance</li>
+                  <li><strong>Team Collaboration</strong> – Work together seamlessly</li>
+                </ul>
+              </div>
+
+              <!-- CTA Button -->
+              <div style="text-align: center; margin: 40px 0;">
+                <a href="${inviteUrl}" style="background: linear-gradient(135deg, #FF6B35 0%, #f54d23 100%); color: white; text-decoration: none; padding: 18px 48px; border-radius: 12px; font-weight: 700; font-size: 18px; display: inline-block; box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4); transition: transform 0.2s;">
+                  Accept Invitation →
+                </a>
+              </div>
+
+              <p style="font-size: 14px; color: #718096; text-align: center; margin: 24px 0 0 0;">
+                Or copy this link to your browser:
+              </p>
+              <div style="background: #f7fafc; border: 2px dashed #e2e8f0; padding: 16px; border-radius: 8px; margin: 12px 0 32px 0; text-align: center;">
+                <a href="${inviteUrl}" style="color: #667eea; word-break: break-all; font-size: 13px; text-decoration: none;">${inviteUrl}</a>
+              </div>
+
+              <!-- Urgency Note -->
+              <div style="background: #fff8e1; border-left: 4px solid #ffd54f; padding: 16px 20px; margin: 32px 0; border-radius: 6px;">
+                <p style="margin: 0; font-size: 14px; color: #856404;">
+                  <strong>⏰ Act Fast!</strong> This invitation expires in <strong>7 days</strong>. Don't miss out!
+                </p>
+              </div>
+
+              <!-- Social Proof / Trust -->
+              <p style="font-size: 15px; line-height: 1.7; color: #4a5568; margin: 32px 0 0 0; text-align: center;">
+                Join thousands of teams already using BrandMonkz to grow their business. <br>
+                <strong style="color: #667eea;">Start collaborating today!</strong>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background: #f8fafc; padding: 32px 40px; border-top: 1px solid #e2e8f0;">
+              <p style="margin: 0 0 12px 0; font-size: 14px; color: #718096; text-align: center;">
+                <strong style="color: #1a1a1a;">BrandMonkz CRM</strong><br>
+                Empowering teams to build better customer relationships
+              </p>
+              <p style="margin: 12px 0 0 0; font-size: 12px; color: #a0aec0; text-align: center;">
+                Need help? Contact us at <a href="mailto:support@brandmonkz.com" style="color: #667eea; text-decoration: none;">support@brandmonkz.com</a>
+              </p>
+              <p style="margin: 16px 0 0 0; font-size: 11px; color: #cbd5e0; text-align: center;">
+                © ${new Date().getFullYear()} BrandMonkz. All rights reserved.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+      `;
+
+      const textContent = `
+🎉 You're Invited to ${teamName}!
+
+Hi there!
+
+${inviterName} has invited you to collaborate on ${teamName} using BrandMonkz CRM.
+
+What You'll Get:
+• Smart Contact Management – Organize customers effortlessly
+• Video Campaigns – Create engaging AI-powered videos
+• Email Automation – Save time with intelligent workflows
+• Real-time Analytics – Track performance at a glance
+• Team Collaboration – Work together seamlessly
+
+Accept your invitation now:
+${inviteUrl}
+
+⏰ This invitation expires in 7 days.
+
+Join thousands of teams already using BrandMonkz to grow their business!
+
+Need help? Contact us at support@brandmonkz.com
+
+© ${new Date().getFullYear()} BrandMonkz. All rights reserved.
+      `;
 
       await this.sendEmail({
         to: [email],
-        subject: `${inviterName} invited you to ${teamName} on BrandMonkz CRM`,
+        subject: `🎉 ${inviterName} invited you to ${teamName}!`,
         html: htmlContent,
+        text: textContent,
       });
 
       console.log(`✅ Team invitation sent to ${email}`);

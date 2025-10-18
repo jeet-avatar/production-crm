@@ -12,7 +12,9 @@ import {
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
   SparklesIcon,
-  VideoCameraIcon
+  VideoCameraIcon,
+  ShieldCheckIcon,
+  CodeBracketIcon
 } from '@heroicons/react/24/outline';
 import { Logo } from './Logo';
 import type { User } from '../types';
@@ -20,6 +22,7 @@ import type { User } from '../types';
 interface SidebarProps {
   user: User;
   onLogout: () => void;
+  onOpenChat?: () => void;
 }
 
 const navigation = [
@@ -36,7 +39,7 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];
 
-export function Sidebar({ user, onLogout }: SidebarProps) {
+export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-gray-200 flex flex-col shadow-lg">
       {/* BrandMonkz Logo */}
@@ -66,7 +69,48 @@ export function Sidebar({ user, onLogout }: SidebarProps) {
             )}
           </NavLink>
         ))}
+
+        {/* Super Admin Link - Only for ethan@brandmonkz.com */}
+        {user.email === 'ethan@brandmonkz.com' && (
+          <>
+            <div className="my-4 border-t border-gray-200"></div>
+            <NavLink
+              to="/super-admin"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer group ${
+                  isActive
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/30 scale-105'
+                    : 'text-red-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-700 hover:shadow-sm hover:scale-105 border border-transparent hover:border-red-200'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <ShieldCheckIcon className={`h-5 w-5 flex-shrink-0 ${isActive ? '' : 'group-hover:scale-110'} transition-transform`} />
+                  <span className="font-semibold text-sm">Super Admin</span>
+                </>
+              )}
+            </NavLink>
+          </>
+        )}
       </nav>
+
+      {/* AI ChatGPT Button - Positioned below Super Admin for ethan */}
+      {user.email === 'ethan@brandmonkz.com' && onOpenChat && (
+        <div className="px-4 py-3">
+          <button
+            onClick={onOpenChat}
+            className="w-full flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
+            title="ChatGPT AI Assistant - Campaign & Contact Help"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+            <span className="font-semibold text-sm">AI Assistant</span>
+            <SparklesIcon className="w-4 h-4 ml-auto animate-pulse" />
+          </button>
+        </div>
+      )}
 
       {/* User Profile Section */}
       <div className="border-t-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white">
