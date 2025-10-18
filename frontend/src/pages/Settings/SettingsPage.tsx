@@ -400,27 +400,36 @@ export function SettingsPage() {
   ];
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-        <p className="text-gray-600">Manage your account settings and preferences</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-xl">
+              <UserCircleIcon className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-indigo-800 bg-clip-text text-transparent">
+                Settings
+              </h1>
+              <p className="text-gray-600 mt-1">Manage your account settings and preferences</p>
+            </div>
+          </div>
+        </div>
 
-      <div className="flex gap-8">
-        {/* Sidebar Navigation */}
-        <div className="w-64 flex-shrink-0">
-          <nav className="space-y-1">
+        {/* Top Tab Navigation - Super Admin Style */}
+        <div className="mb-8">
+          <div className="flex gap-2 flex-wrap">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+                      : 'text-gray-600 hover:bg-white/50 bg-white/30'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -428,11 +437,11 @@ export function SettingsPage() {
                 </button>
               );
             })}
-          </nav>
+          </div>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1">
+        <div>
           {/* Profile Settings */}
           {activeTab === 'profile' && (
             <div className="card">
@@ -1003,9 +1012,9 @@ export function SettingsPage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {pricingPlans.map((plan) => {
-                        // Define gradient colors for each plan
+                        // Define gradient colors for each plan - all dark enough for white text
                         const planGradients = {
-                          free: 'from-gray-100 to-gray-200',
+                          free: 'from-slate-600 to-gray-700',
                           starter: 'from-blue-500 to-indigo-600',
                           professional: 'from-red-500 to-pink-600',
                           enterprise: 'from-purple-500 to-indigo-600',
@@ -1017,10 +1026,10 @@ export function SettingsPage() {
                           key={plan.id}
                           className={`relative rounded-2xl overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 ${
                             plan.popular ? 'shadow-lg' : 'shadow-md'
-                          }`}
+                          } flex flex-col`}
                         >
                           {/* Gradient Header */}
-                          <div className={`bg-gradient-to-r ${gradient} px-6 py-8 text-white text-center`}>
+                          <div className={`bg-gradient-to-r ${gradient} px-6 py-8 text-white text-center flex-shrink-0`}>
                             {plan.popular && (
                               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                                 <span className="bg-white text-red-600 px-4 py-1 rounded-full text-xs font-bold shadow-lg">
@@ -1044,8 +1053,8 @@ export function SettingsPage() {
                           </div>
 
                           {/* White Card Body */}
-                          <div className="bg-white p-6">
-                            <ul className="space-y-3 mb-6">
+                          <div className="bg-white p-6 flex-1 flex flex-col">
+                            <ul className="space-y-3 mb-6 flex-1">
                             {plan.features.slice(0, 8).map((feature: any, idx: number) => (
                               <li key={idx} className="flex items-start gap-2 text-sm">
                                 {feature.included ? (
@@ -1060,19 +1069,19 @@ export function SettingsPage() {
                             ))}
                           </ul>
 
-                          <button
-                            onClick={() => handleUpgrade(plan)}
-                            disabled={isSaving}
-                            className={`w-full py-3 px-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg ${
-                              plan.id === 'free'
-                                ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300'
-                                : plan.popular
-                                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700'
-                                : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
-                          >
-                            {isSaving ? 'Processing...' : plan.buttonText}
-                          </button>
+                            <button
+                              onClick={() => handleUpgrade(plan)}
+                              disabled={isSaving}
+                              className={`w-full py-3 px-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg mt-auto ${
+                                plan.id === 'free'
+                                  ? 'bg-gradient-to-r from-slate-600 to-gray-700 text-white hover:from-slate-700 hover:to-gray-800'
+                                  : plan.popular
+                                  ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white hover:from-red-600 hover:to-pink-700'
+                                  : 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700'
+                              } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            >
+                              {isSaving ? 'Processing...' : plan.buttonText}
+                            </button>
                           </div>
                         </div>
                         );
