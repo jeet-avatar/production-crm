@@ -422,14 +422,38 @@ export function SettingsPage() {
           <div className="flex gap-2 flex-wrap">
             {tabs.map((tab) => {
               const Icon = tab.icon;
+              // Get gradient classes based on tab id
+              let gradientClass = '';
+              let shadowClass = '';
+
+              if (tab.id === 'profile') {
+                gradientClass = 'bg-gradient-to-r from-blue-500 to-indigo-600';
+                shadowClass = 'shadow-blue-500/30';
+              } else if (tab.id === 'account') {
+                gradientClass = 'bg-gradient-to-r from-green-500 to-emerald-600';
+                shadowClass = 'shadow-green-500/30';
+              } else if (tab.id === 'notifications') {
+                gradientClass = 'bg-gradient-to-r from-orange-500 to-red-600';
+                shadowClass = 'shadow-orange-500/30';
+              } else if (tab.id === 'security') {
+                gradientClass = 'bg-gradient-to-r from-purple-500 to-indigo-600';
+                shadowClass = 'shadow-purple-500/30';
+              } else if (tab.id === 'preferences') {
+                gradientClass = 'bg-gradient-to-r from-pink-500 to-rose-600';
+                shadowClass = 'shadow-pink-500/30';
+              } else if (tab.id === 'billing') {
+                gradientClass = 'bg-gradient-to-r from-red-500 to-pink-600';
+                shadowClass = 'shadow-red-500/30';
+              }
+
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-medium transition-all duration-200 text-white ${gradientClass} ${
                     activeTab === tab.id
-                      ? `bg-gradient-to-r ${tab.gradient} text-white shadow-lg ${tab.shadow}`
-                      : 'text-gray-600 hover:bg-white/50 bg-white/30'
+                      ? `shadow-lg ${shadowClass}`
+                      : 'opacity-60 hover:opacity-80 shadow-md'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
