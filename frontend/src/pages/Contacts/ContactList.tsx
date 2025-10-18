@@ -7,6 +7,7 @@ import { contactsApi, companiesApi } from '../../services/api';
 import { ContactForm } from './ContactForm';
 import { CSVImportModal } from '../../components/CSVImportModal';
 import { LeadDiscoveryModal } from '../../components/LeadDiscoveryModal';
+import { useTheme } from '../../contexts/ThemeContext';
 // Commented out modal imports - uncomment when needed
 // import { ApolloImportModal } from '../../components/ApolloImportModal';
 // import { RemoveDuplicatesModal } from '../../components/RemoveDuplicatesModal';
@@ -49,6 +50,7 @@ const statusColors = {
 
 export function ContactList() {
   const navigate = useNavigate();
+  const { gradients } = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -253,14 +255,14 @@ export function ContactList() {
             </button> */}
             <button
               onClick={() => setShowLeadDiscovery(true)}
-              className="apple-button-secondary flex items-center gap-2"
+              className={`bg-gradient-to-r ${gradients.semantic.info.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <SparklesIcon className="h-5 w-5" />
               <span>Discover Leads</span>
             </button>
             <button
               onClick={() => setShowAICSVImport(true)}
-              className="apple-button-green flex items-center gap-2"
+              className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <DocumentArrowUpIcon className="h-5 w-5" />
               <span>AI CSV Import</span>
@@ -274,7 +276,7 @@ export function ContactList() {
             </button> */}
             <button
               onClick={handleAddContact}
-              className="apple-button-primary flex items-center gap-2"
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <PlusIcon className="h-5 w-5" />
               <span>Add Contact</span>
@@ -350,14 +352,14 @@ export function ContactList() {
                     <div className="flex items-center justify-center gap-3">
                       <button
                         onClick={handleAddContact}
-                        className="apple-button-primary flex items-center gap-2"
+                        className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
                       >
                         <PlusIcon className="h-5 w-5" />
                         Add Contact
                       </button>
                       <button
                         onClick={() => setShowAICSVImport(true)}
-                        className="apple-button-green flex items-center gap-2"
+                        className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
                       >
                         <DocumentArrowUpIcon className="h-5 w-5" />
                         Import CSV
@@ -399,7 +401,7 @@ export function ContactList() {
                               {displayContact.firstName?.[0] || '?'}{displayContact.lastName?.[0] || '?'}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900 cursor-pointer hover:text-blue-600" onClick={() => navigate(`/contacts/${displayContact.id}`)}>
+                              <div className="font-medium text-gray-900 cursor-pointer hover:text-orange-600" onClick={() => navigate(`/contacts/${displayContact.id}`)}>
                                 {displayContact.firstName || 'No'} {displayContact.lastName || 'Name'}
                                 {hasMultipleContacts && (
                                   <span className="ml-2 text-xs text-gray-500">
@@ -485,7 +487,7 @@ export function ContactList() {
                                 {contact.firstName?.[0] || '?'}{contact.lastName?.[0] || '?'}
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900 cursor-pointer hover:text-blue-600" onClick={() => navigate(`/contacts/${contact.id}`)}>
+                                <div className="font-medium text-gray-900 cursor-pointer hover:text-orange-600" onClick={() => navigate(`/contacts/${contact.id}`)}>
                                   {contact.firstName || 'No'} {contact.lastName || 'Name'}
                                 </div>
                                 <div className="text-gray-500 text-sm flex items-center">
@@ -587,7 +589,7 @@ export function ContactList() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="apple-button-secondary"
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 Previous
               </button>
@@ -597,7 +599,7 @@ export function ContactList() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="apple-button-secondary"
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 Next
               </button>
