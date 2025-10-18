@@ -328,7 +328,7 @@ export function DashboardPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/contacts')}
-              className="btn-secondary flex items-center gap-2"
+              className="bg-white/20 hover:bg-white/30 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 border border-white/30 hover:border-white/50 hover:shadow-lg"
             >
               <UserGroupIcon className="w-4 h-4" />
               Add Contact
@@ -336,7 +336,7 @@ export function DashboardPage() {
 
             <button
               onClick={() => navigate('/companies')}
-              className="btn-secondary flex items-center gap-2"
+              className="bg-white/20 hover:bg-white/30 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 border border-white/30 hover:border-white/50 hover:shadow-lg"
             >
               <BuildingOfficeIcon className="w-4 h-4" />
               Add Company
@@ -344,7 +344,7 @@ export function DashboardPage() {
 
             <button
               onClick={() => navigate('/deals')}
-              className="btn-primary flex items-center gap-2"
+              className="bg-white text-orange-600 hover:bg-orange-50 font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
             >
               <BoltIcon className="w-4 h-4" />
               Create Deal
@@ -413,7 +413,7 @@ export function DashboardPage() {
             </div>
             <button
               onClick={() => navigate('/deals')}
-              className="btn-secondary"
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               View All
             </button>
@@ -569,7 +569,7 @@ export function DashboardPage() {
           </div>
           <button
             onClick={() => navigate('/activities')}
-            className="btn-secondary"
+            className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
           >
             View All
           </button>
