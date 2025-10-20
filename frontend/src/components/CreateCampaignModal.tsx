@@ -302,7 +302,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="bg-white border-4 border-black rounded-2xl shadow-2xl max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Gradient */}
