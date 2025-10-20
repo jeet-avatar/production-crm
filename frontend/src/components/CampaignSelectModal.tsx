@@ -205,7 +205,7 @@ export function CampaignSelectModal({ isOpen, onClose, companyId, companyName, o
               <select
                 value={selectedCampaignId}
                 onChange={(e) => setSelectedCampaignId(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
                 disabled={loading || !!success}
               >
                 <option value="">Choose a campaign...</option>
@@ -218,7 +218,7 @@ export function CampaignSelectModal({ isOpen, onClose, companyId, companyName, o
 
               <button
                 onClick={() => setShowCreateNew(true)}
-                className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all"
+                className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 font-medium transition-all"
                 disabled={loading || !!success}
               >
                 <PlusIcon className="w-5 h-5" />
@@ -235,7 +235,7 @@ export function CampaignSelectModal({ isOpen, onClose, companyId, companyName, o
                 value={newCampaignName}
                 onChange={(e) => setNewCampaignName(e.target.value)}
                 placeholder="e.g., Q1 Enterprise Outreach"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all mb-4"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all mb-4"
                 disabled={loading || !!success}
               />
 
@@ -247,7 +247,7 @@ export function CampaignSelectModal({ isOpen, onClose, companyId, companyName, o
                 value={newCampaignSubject}
                 onChange={(e) => setNewCampaignSubject(e.target.value)}
                 placeholder="e.g., Partnership Opportunity"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
                 disabled={loading || !!success}
               />
 
@@ -277,7 +277,7 @@ export function CampaignSelectModal({ isOpen, onClose, companyId, companyName, o
           <button
             onClick={showCreateNew ? handleCreateAndAdd : handleAddToCampaign}
             disabled={showCreateNew ? (!newCampaignName.trim() || loading || !!success) : (!selectedCampaignId || loading || !!success)}
-            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm inline-flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-all shadow-sm inline-flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

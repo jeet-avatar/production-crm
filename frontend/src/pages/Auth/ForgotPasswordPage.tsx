@@ -38,7 +38,7 @@ export function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="bg-white rounded-2xl shadow-xl p-8">
             {/* Success Message */}
@@ -64,7 +64,7 @@ export function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <button
                 onClick={() => setSuccess(false)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                className="text-sm text-orange-600 hover:text-rose-600 font-medium"
               >
                 Didn't receive the email? Try again
               </button>
@@ -76,7 +76,7 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
@@ -141,7 +141,7 @@ export function ForgotPasswordPage() {
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
             Need help?{' '}
-            <a href="mailto:support@brandmonkz.com" className="text-blue-600 hover:text-blue-700 font-medium">
+            <a href="mailto:support@brandmonkz.com" className="text-orange-600 hover:text-rose-600 font-medium">
               Contact Support
             </a>
           </p>

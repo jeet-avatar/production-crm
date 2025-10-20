@@ -41,7 +41,7 @@ export function TextLayoverEditor({ overlays, onChange, maxDuration = 30 }: Text
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-gray-900">Text Overlays</h3>
-        <button onClick={addOverlay} className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+        <button onClick={addOverlay} className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg text-sm font-medium hover:from-orange-700 hover:to-rose-700">
           <PlusIcon className="w-4 h-4" /> Add Overlay
         </button>
       </div>
@@ -51,7 +51,7 @@ export function TextLayoverEditor({ overlays, onChange, maxDuration = 30 }: Text
       ) : (
         <div className="space-y-3">
           {overlays.map((overlay, index) => (
-            <div key={index} className={`border-2 rounded-lg p-4 ${editingIndex === index ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+            <div key={index} className={`border-2 rounded-lg p-4 ${editingIndex === index ? 'border-orange-500 bg-orange-50' : 'border-gray-200'}`}>
               <div className="flex items-start justify-between mb-3">
                 <input type="text" value={overlay.text} onChange={(e) => updateOverlay(index, { text: e.target.value })} className="flex-1 px-3 py-2 border border-gray-300 rounded-lg font-medium" />
                 <button onClick={() => removeOverlay(index)} className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded-lg">

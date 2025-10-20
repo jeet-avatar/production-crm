@@ -326,32 +326,32 @@ const PricingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-tl from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-orange-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-gradient-to-tr from-orange-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-tl from-orange-400/20 to-rose-400/20 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       {/* Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 relative z-10">
         <div className="text-center">
           {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-blue-100 rounded-full shadow-sm mb-6">
-            <Sparkles className="w-4 h-4 text-blue-600" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-orange-100 rounded-full shadow-sm mb-6">
+            <Sparkles className="w-4 h-4 text-orange-600" />
             <span className="text-sm font-medium text-gray-700">{config.trustBadgeText}</span>
           </div>
 
           <h1 className="text-5xl font-extrabold text-gray-900 sm:text-6xl md:text-7xl tracking-tight">
             <span className="block">Simple, transparent</span>
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-orange-600 via-rose-600 to-rose-700 bg-clip-text text-transparent">
               {config.headline.split(' ').slice(-3).join(' ')}
             </span>
           </h1>
           <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             {config.subheadline}
-            <span className="block mt-2 font-semibold text-blue-600">No credit card required.</span>
+            <span className="block mt-2 font-semibold text-orange-600">No credit card required.</span>
           </p>
 
           {/* Skip for Now Button */}
@@ -360,7 +360,7 @@ const PricingPage = () => {
               type="button"
               onClick={handleSkipForNow}
               disabled={isLoading}
-              className="inline-flex justify-center items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base font-semibold rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="inline-flex justify-center items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-base font-semibold rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isLoading ? (
                 <>
@@ -387,7 +387,7 @@ const PricingPage = () => {
               onClick={() => setBillingCycle('monthly')}
               className={`relative px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
                 billingCycle === 'monthly'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-md'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
@@ -398,7 +398,7 @@ const PricingPage = () => {
               onClick={() => setBillingCycle('annual')}
               className={`relative px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
                 billingCycle === 'annual'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                  ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-md'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
@@ -421,18 +421,18 @@ const PricingPage = () => {
                 key={plan.id}
                 className={`group relative rounded-2xl ${
                   plan.popular
-                    ? 'border-2 border-blue-500 shadow-xl scale-105 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30'
+                    ? 'border-2 border-orange-500 shadow-xl scale-105 bg-gradient-to-br from-white via-orange-50/30 to-rose-50/30'
                     : 'border-2 border-gray-200 shadow-lg bg-white'
                 } p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
               >
                 {/* Glow Effect for Popular Plan */}
                 {plan.popular && (
-                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-400/20 to-purple-400/20 blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-orange-400/20 to-rose-400/20 blur-xl opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
                 )}
 
                 {plan.popular && (
                   <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                    <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-1.5 text-xs font-bold text-white shadow-lg">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-600 to-rose-600 px-4 py-1.5 text-xs font-bold text-white shadow-lg">
                       <Star className="w-3.5 h-3.5 fill-white" />
                       <span>Most Popular</span>
                     </div>
@@ -442,7 +442,7 @@ const PricingPage = () => {
                 <div className="relative z-10 text-center">
                   <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl shadow-md transition-all duration-300 ${
                     plan.popular
-                      ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white'
+                      ? 'bg-gradient-to-br from-orange-600 to-rose-600 text-white'
                       : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700'
                   }`}>
                     <IconComponent className="w-7 h-7" />
@@ -471,8 +471,8 @@ const PricingPage = () => {
                     disabled={selectedPlan === plan.id}
                     className={`mt-8 w-full flex justify-center items-center gap-2 px-6 py-3.5 text-base font-semibold rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                       plan.buttonVariant === 'primary'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-xl hover:scale-105 active:scale-95'
-                        : 'bg-white text-gray-900 border-2 border-gray-300 hover:border-blue-500 hover:bg-gray-50 hover:scale-105 active:scale-95'
+                        ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:shadow-xl hover:scale-105 active:scale-95'
+                        : 'bg-white text-gray-900 border-2 border-gray-300 hover:border-orange-500 hover:bg-gray-50 hover:scale-105 active:scale-95'
                     }`}
                   >
                     {selectedPlan === plan.id ? (
@@ -525,8 +525,8 @@ const PricingPage = () => {
             </div>
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               {faqs.map((faq, index) => (
-                <div key={index} className="group p-6 bg-white rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all duration-300">
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{faq.question}</h3>
+                <div key={index} className="group p-6 bg-white rounded-xl border-2 border-gray-200 hover:border-orange-500 hover:shadow-lg transition-all duration-300">
+                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{faq.question}</h3>
                   <p className="mt-2 text-sm text-gray-600 leading-relaxed">
                     {replaceTemplateVars(faq.answer)}
                   </p>
@@ -537,9 +537,9 @@ const PricingPage = () => {
         )}
 
         {/* CTA Section */}
-        <div className="mt-20 relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 p-12 text-center shadow-xl">
+        <div className="mt-20 relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-600 via-rose-600 to-rose-700 p-12 text-center shadow-xl">
           {/* Decorative Elements */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 backdrop-blur-3xl"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-rose-400/20 backdrop-blur-3xl"></div>
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
           <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
 
@@ -563,7 +563,7 @@ const PricingPage = () => {
                   const professionalPlan = plans.find(p => p.name === 'Professional' || p.popular);
                   if (professionalPlan) handleSelectPlan(professionalPlan);
                 }}
-                className="inline-flex justify-center items-center gap-2 px-8 py-3.5 bg-white text-blue-600 rounded-xl font-semibold text-base shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                className="inline-flex justify-center items-center gap-2 px-8 py-3.5 bg-white text-orange-600 rounded-xl font-semibold text-base shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
               >
                 <span>Start Your Free Trial</span>
                 <ArrowRight className="w-5 h-5" />

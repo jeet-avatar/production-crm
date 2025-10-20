@@ -12,9 +12,11 @@ import {
   SparklesIcon,
   XMarkIcon,
   PencilIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import CreateCampaignModal from '../../components/CreateCampaignModal';
 import { EditCampaignModal } from '../../components/EditCampaignModal';
+import { CampaignsHelpGuide } from '../../components/CampaignsHelpGuide';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface Campaign {
@@ -48,6 +50,7 @@ export function CampaignsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editCampaign, setEditCampaign] = useState<Campaign | null>(null);
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
 
   useEffect(() => {
     loadCampaigns();
@@ -153,13 +156,25 @@ export function CampaignsPage() {
             </div>
             <p className="text-lg text-black font-medium">Create and manage email marketing campaigns</p>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-white text-black border-2 border-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide"
-          >
-            <PlusIcon className="h-5 w-5" />
-            Create Campaign
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowHelpGuide(true)}
+              className="flex items-center gap-2 px-4 py-3 bg-white bg-opacity-20 text-black border-2 border-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide"
+              title="Open Campaigns Help Guide"
+            >
+              <QuestionMarkCircleIcon className="h-5 w-5" />
+              Help
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-white text-black border-2 border-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide"
+            >
+              <PlusIcon className="h-5 w-5" />
+              Create Campaign
+            </button>
+          </div>
         </div>
       </div>
 
@@ -402,6 +417,11 @@ export function CampaignsPage() {
             loadCampaigns();
           }}
         />
+      )}
+
+      {/* Help Guide */}
+      {showHelpGuide && (
+        <CampaignsHelpGuide onClose={() => setShowHelpGuide(false)} />
       )}
     </div>
   );

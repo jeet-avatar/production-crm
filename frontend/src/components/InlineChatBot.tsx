@@ -161,10 +161,10 @@ export default function InlineChatBot({
   };
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-xl border-2 border-purple-200 overflow-hidden shadow-lg">
+    <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border-2 border-orange-200 overflow-hidden shadow-lg">
       {/* Header */}
       <div
-        className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 flex items-center justify-between cursor-pointer hover:from-purple-700 hover:to-blue-700 transition-all"
+        className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-4 flex items-center justify-between cursor-pointer hover:from-orange-700 hover:to-rose-700 transition-all"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
@@ -173,7 +173,7 @@ export default function InlineChatBot({
           </div>
           <div>
             <h3 className="font-bold text-sm">{title}</h3>
-            <p className="text-xs text-purple-100">
+            <p className="text-xs text-orange-900">
               {actionMode ? '⚡ AI Assistant - Action Mode (Approval Required)' : 'AI Learning Assistant - Read Only'}
             </p>
           </div>
@@ -198,7 +198,7 @@ export default function InlineChatBot({
           <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
             {messages.length === 0 && (
               <div className="text-center py-6">
-                <SparklesIcon className="w-12 h-12 text-purple-300 mx-auto mb-3" />
+                <SparklesIcon className="w-12 h-12 text-orange-300 mx-auto mb-3" />
                 <p className="text-sm text-gray-600 font-semibold mb-1">
                   {actionMode ? 'AI Ready to Assist' : 'AI Observing & Learning'}
                 </p>
@@ -234,14 +234,14 @@ export default function InlineChatBot({
                   <div
                     className={`max-w-[85%] rounded-xl px-4 py-2 ${
                       message.role === 'user'
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-900 border border-purple-100'
+                        ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black'
+                        : 'bg-gray-100 text-gray-900 border border-orange-100'
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     <p
                       className={`text-xs mt-1 ${
-                        message.role === 'user' ? 'text-purple-100' : 'text-gray-500'
+                        message.role === 'user' ? 'text-orange-900' : 'text-gray-500'
                       }`}
                     >
                       {message.timestamp.toLocaleTimeString()}
@@ -251,11 +251,11 @@ export default function InlineChatBot({
 
                 {/* Code Suggestion Card */}
                 {message.suggestion && (
-                  <div className="ml-4 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-300 rounded-xl p-4 shadow-md">
+                  <div className="ml-4 bg-gradient-to-br from-orange-50 to-rose-50 border-2 border-orange-300 rounded-xl p-4 shadow-md">
                     <div className="flex items-center gap-2 mb-3">
-                      <CodeBracketIcon className="w-5 h-5 text-blue-600" />
+                      <CodeBracketIcon className="w-5 h-5 text-orange-600" />
                       <h4 className="font-bold text-sm text-gray-900">Suggested Change</h4>
-                      <span className="ml-auto px-2 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                      <span className="ml-auto px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
                         Requires Approval
                       </span>
                     </div>
@@ -306,15 +306,15 @@ export default function InlineChatBot({
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-xl px-4 py-2 border border-purple-100">
+                <div className="bg-gray-100 rounded-xl px-4 py-2 border border-orange-100">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-purple-600 font-medium">
+                    <span className="text-xs text-orange-600 font-medium">
                       {actionMode ? 'Analyzing UI & generating suggestions...' : 'Analyzing...'}
                     </span>
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" />
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce [animation-delay:100ms]" />
-                      <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce [animation-delay:200ms]" />
+                      <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce" />
+                      <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce [animation-delay:100ms]" />
+                      <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce [animation-delay:200ms]" />
                     </div>
                   </div>
                 </div>
@@ -325,7 +325,7 @@ export default function InlineChatBot({
           </div>
 
           {/* Input */}
-          <div className="border-t border-purple-200 p-3 bg-gray-50">
+          <div className="border-t border-orange-200 p-3 bg-gray-50">
             <div className="flex items-end gap-2">
               <textarea
                 value={inputMessage}
@@ -337,14 +337,14 @@ export default function InlineChatBot({
                     : 'Ask about this section...'
                 }
                 rows={2}
-                className="flex-1 resize-none rounded-lg border-2 border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all p-2 text-sm"
+                className="flex-1 resize-none rounded-lg border-2 border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all p-2 text-sm"
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || isLoading}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-2 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-2 rounded-lg hover:shadow-lg hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 aria-label="Send message"
                 title="Send message"
               >

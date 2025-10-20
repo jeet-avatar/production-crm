@@ -102,7 +102,7 @@ export function TeamPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -192,12 +192,12 @@ export function TeamPage() {
                       </div>
                       <div className="text-xs text-gray-500">
                         {member.teamRole === 'OWNER' ? (
-                          <span className="font-semibold text-blue-600">OWNER</span>
+                          <span className="font-semibold text-orange-600">OWNER</span>
                         ) : (
                           <select
                             value={member.teamRole}
                             onChange={(e) => handleRoleChange(member.id, e.target.value as 'MEMBER' | 'ADMIN', `${member.firstName} ${member.lastName}`)}
-                            className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
                           >
                             <option value="MEMBER">MEMBER</option>
                             <option value="ADMIN">ADMIN</option>
@@ -260,7 +260,7 @@ export function TeamPage() {
                     required
                     value={inviteData.email}
                     onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="member@company.com"
                   />
                 </div>
@@ -274,7 +274,7 @@ export function TeamPage() {
                     required
                     value={inviteData.firstName}
                     onChange={(e) => setInviteData({ ...inviteData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="John"
                   />
                 </div>
@@ -288,7 +288,7 @@ export function TeamPage() {
                     required
                     value={inviteData.lastName}
                     onChange={(e) => setInviteData({ ...inviteData, lastName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="Doe"
                   />
                 </div>

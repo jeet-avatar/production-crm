@@ -232,7 +232,7 @@ export function CreateVideoCampaignModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Welcome Video - Q1 2025"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
               </div>
 
@@ -276,7 +276,7 @@ export function CreateVideoCampaignModal({
                   onChange={(e) => setScript(e.target.value)}
                   placeholder="Enter the narration script for your video..."
                   rows={8}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Keep it between 100-150 words (30-60 seconds when spoken)
@@ -371,7 +371,7 @@ export function CreateVideoCampaignModal({
                   value={bgmUrl}
                   onChange={(e) => setBgmUrl(e.target.value)}
                   placeholder="https://example.com/music.mp3"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Leave empty to use default background music

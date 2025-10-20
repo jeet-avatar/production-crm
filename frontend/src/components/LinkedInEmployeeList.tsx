@@ -144,7 +144,7 @@ export function LinkedInEmployeeList({
           <UserGroupIcon className="w-5 h-5 text-gray-500" />
           <h3 className="text-lg font-semibold text-gray-900">LinkedIn Employees</h3>
           {hasLoaded && (
-            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+            <span className="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">
               {employees.length} found
             </span>
           )}
@@ -154,7 +154,7 @@ export function LinkedInEmployeeList({
           type="button"
           onClick={fetchEmployees}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black text-sm font-medium rounded-lg hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <>
@@ -199,7 +199,7 @@ export function LinkedInEmployeeList({
                 type="checkbox"
                 checked={selectedEmployees.size === employees.length}
                 onChange={selectAllEmployees}
-                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                className="w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
               />
               <span className="text-sm text-gray-700">
                 {selectedEmployees.size} of {employees.length} selected
@@ -224,13 +224,13 @@ export function LinkedInEmployeeList({
             {employees.map((employee) => (
               <div
                 key={employee.linkedinUrl}
-                className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
+                className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-colors"
               >
                 <input
                   type="checkbox"
                   checked={selectedEmployees.has(employee.linkedinUrl)}
                   onChange={() => toggleEmployeeSelection(employee.linkedinUrl)}
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
                 />
 
                 {employee.profilePicture ? (
@@ -261,7 +261,7 @@ export function LinkedInEmployeeList({
                   href={employee.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 text-sm font-medium flex-shrink-0"
+                  className="text-orange-600 hover:text-orange-700 text-sm font-medium flex-shrink-0"
                 >
                   View Profile →
                 </a>

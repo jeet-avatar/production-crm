@@ -57,9 +57,9 @@ export function SubscriptionSuccess() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600 mx-auto mb-4"></div>
           <p className="text-lg text-gray-700">Verifying your subscription...</p>
         </div>
       </div>
@@ -68,7 +68,7 @@ export function SubscriptionSuccess() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,7 +79,7 @@ export function SubscriptionSuccess() {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => navigate('/pricing')}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-medium rounded-lg hover:from-orange-700 hover:to-rose-700 transition-colors"
           >
             Return to Pricing
             <ArrowRightIcon className="w-4 h-4" />
@@ -90,7 +90,7 @@ export function SubscriptionSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center">
           {/* Success Icon */}
@@ -107,7 +107,7 @@ export function SubscriptionSuccess() {
           </p>
 
           {/* Features List */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 mb-8 text-left">
+          <div className="bg-orange-50 border border-orange-100 rounded-xl p-6 mb-8 text-left">
             <h3 className="font-semibold text-gray-900 mb-4 text-center">What's included:</h3>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
@@ -132,7 +132,7 @@ export function SubscriptionSuccess() {
           {/* CTA Button */}
           <button
             onClick={handleContinue}
-            className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
+            className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-semibold rounded-lg hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
           >
             Go to Dashboard
             <ArrowRightIcon className="w-5 h-5" />
@@ -148,7 +148,7 @@ export function SubscriptionSuccess() {
         <div className="mt-6 bg-white rounded-xl shadow p-6 text-center">
           <p className="text-sm text-gray-600">
             Need help getting started?{' '}
-            <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
+            <a href="#" className="text-orange-600 hover:text-orange-700 font-medium">
               Check out our quick start guide
             </a>
           </p>

@@ -51,15 +51,15 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex">
       {/* Left side - Form */}
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           {/* Logo */}
           <div>
             <div className="flex items-center mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">C</span>
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-black font-bold text-2xl">C</span>
               </div>
               <span className="ml-3 text-2xl font-bold tracking-tight text-gray-900">CRM Pro</span>
             </div>
@@ -160,7 +160,7 @@ export function LoginPage() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm font-medium text-gray-700">
                     Remember me
@@ -168,7 +168,7 @@ export function LoginPage() {
                 </div>
 
                 <div className="text-sm">
-                  <a href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-700">
+                  <a href="/forgot-password" className="font-medium text-orange-600 hover:text-rose-600">
                     Forgot password?
                   </a>
                 </div>
@@ -187,7 +187,7 @@ export function LoginPage() {
             {/* Sign Up Link */}
             <p className="mt-6 text-center text-base font-medium text-gray-700">
               Don't have an account?{' '}
-              <a href="/signup" className="text-blue-600 hover:text-purple-600 font-bold transition-colors">
+              <a href="/signup" className="text-orange-600 hover:text-rose-600 font-bold transition-colors">
                 Sign up for free
               </a>
             </p>
@@ -197,13 +197,13 @@ export function LoginPage() {
 
       {/* Right side - Branding */}
       <div className="hidden lg:block relative w-0 flex-1">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-rose-500 to-rose-600">
           <div className="h-full w-full flex flex-col items-center justify-center p-12 text-white">
             <div className="max-w-md">
               <h1 className="text-4xl font-bold tracking-tight mb-6">
                 Manage Your Business Like a Pro
               </h1>
-              <p className="text-lg text-blue-100 mb-8">
+              <p className="text-lg text-orange-100 mb-8">
                 Streamline your customer relationships, boost sales, and grow your business with our powerful CRM platform.
               </p>
               <div className="space-y-4">
@@ -215,7 +215,7 @@ export function LoginPage() {
                   </div>
                   <div>
                     <p className="font-semibold">360° Customer View</p>
-                    <p className="text-sm text-blue-100">Track every interaction and deal in one place</p>
+                    <p className="text-sm text-orange-100">Track every interaction and deal in one place</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -226,7 +226,7 @@ export function LoginPage() {
                   </div>
                   <div>
                     <p className="font-semibold">AI-Powered Insights</p>
-                    <p className="text-sm text-blue-100">Get smart recommendations to close more deals</p>
+                    <p className="text-sm text-orange-100">Get smart recommendations to close more deals</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -237,7 +237,7 @@ export function LoginPage() {
                   </div>
                   <div>
                     <p className="font-semibold">Seamless Integration</p>
-                    <p className="text-sm text-blue-100">Connect with Google, Outlook, and more</p>
+                    <p className="text-sm text-orange-100">Connect with Google, Outlook, and more</p>
                   </div>
                 </div>
               </div>

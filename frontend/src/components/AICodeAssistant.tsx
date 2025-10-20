@@ -206,7 +206,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
       }}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-pink-600 to-purple-600 text-white p-4 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-white p-4 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <span className="text-2xl">💻</span>
@@ -249,7 +249,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
 
               {/* Code Changes Preview */}
               {message.requiresApproval && message.codeChanges && pendingChanges && (
-                <div className="mt-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg p-4">
+                <div className="mt-4 bg-gradient-to-r from-green-50 to-orange-50 border-2 border-green-300 rounded-lg p-4">
                   <div className="text-sm font-bold text-green-800 mb-3 flex items-center">
                     <span className="text-lg mr-2">📝</span>
                     Code Changes Ready for Approval

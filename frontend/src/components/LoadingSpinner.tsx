@@ -38,7 +38,7 @@ export function LoadingSpinner({
     <div className="flex flex-col items-center justify-center gap-4">
       <div className="relative">
         <div
-          className={`${sizeClasses[size]} ${borderClasses[size]} border-blue-200 border-t-blue-600 rounded-full animate-spin`}
+          className={`${sizeClasses[size]} ${borderClasses[size]} border-orange-200 border-t-orange-600 rounded-full animate-spin`}
         />
       </div>
       {message && (
@@ -99,7 +99,7 @@ export function ProgressLoader({
       {message && <p className="text-sm text-gray-700 font-medium">{message}</p>}
       <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-300 ease-out"
+          className="h-full bg-gradient-to-r from-orange-500 to-rose-600 rounded-full transition-all duration-300 ease-out"
           style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
         />
       </div>

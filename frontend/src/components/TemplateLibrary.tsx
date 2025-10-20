@@ -94,7 +94,7 @@ export function TemplateLibrary({
         {showUploadButton && onUploadClick && (
           <button
             onClick={onUploadClick}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl"
           >
             <PlusIcon className="w-5 h-5" />
             Upload Custom
@@ -112,7 +112,7 @@ export function TemplateLibrary({
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search templates..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
           />
         </div>
 
@@ -124,7 +124,7 @@ export function TemplateLibrary({
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
                 selectedCategory === category
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                  ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-lg'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -141,7 +141,7 @@ export function TemplateLibrary({
               type="checkbox"
               checked={showSystemOnly}
               onChange={(e) => setShowSystemOnly(e.target.checked)}
-              className="rounded text-blue-600 focus:ring-blue-500"
+              className="rounded text-orange-600 focus:ring-orange-500"
             />
             <span className="text-sm text-gray-700">System templates only</span>
           </label>
@@ -164,7 +164,7 @@ export function TemplateLibrary({
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={loadTemplates}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg hover:from-orange-700 hover:to-rose-700 transition-colors"
           >
             Retry
           </button>
@@ -175,7 +175,7 @@ export function TemplateLibrary({
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-orange-600 hover:text-orange-700 font-medium"
             >
               Clear search
             </button>
@@ -247,7 +247,7 @@ export function TemplateLibrary({
                   onSelectTemplate(previewTemplate);
                   setPreviewTemplate(null);
                 }}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
+                className="flex-1 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg"
               >
                 Use This Template
               </button>

@@ -497,7 +497,7 @@ export function ActivitiesPage() {
     switch (type.toUpperCase()) {
       case 'EMAIL': return 'bg-orange-50 text-orange-700';
       case 'CALL': case 'SMS': return 'bg-green-50 text-green-700';
-      case 'MEETING': return 'bg-purple-50 text-purple-700';
+      case 'MEETING': return 'bg-rose-50 text-rose-700';
       case 'NOTE': return 'bg-amber-50 text-amber-700';
       case 'TASK': return 'bg-orange-100 text-orange-800';
       default: return 'bg-gray-50 text-gray-700';
@@ -559,7 +559,7 @@ export function ActivitiesPage() {
           <button
             type="button"
             onClick={() => setShowHelpGuide(true)}
-            className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
+            className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
             title="Show Help Guide"
           >
             <QuestionMarkCircleIcon className="h-5 w-5" />

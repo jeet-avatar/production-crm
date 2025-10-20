@@ -237,8 +237,8 @@
 }
 
 .apple-badge-blue {
-  background: rgba(0, 122, 255, 0.1);
-  color: var(--apple-blue-dark);
+  background: rgba(249, 115, 22, 0.1);
+  color: #EA580C;
 }
 
 .apple-badge-green {
@@ -257,8 +257,8 @@
 }
 
 .apple-badge-purple {
-  background: rgba(175, 82, 222, 0.1);
-  color: #8944AB;
+  background: rgba(244, 63, 94, 0.1);
+  color: #E11D48;
 }
 
 /* Apple Avatar */

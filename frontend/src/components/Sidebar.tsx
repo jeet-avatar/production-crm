@@ -58,8 +58,8 @@ export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer group ${
                 isActive
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 scale-105'
-                  : 'text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-blue-600 hover:shadow-sm hover:scale-105 border border-transparent hover:border-gray-200'
+                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-black shadow-lg shadow-orange-500/30 scale-105'
+                  : 'text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-rose-50 hover:text-orange-600 hover:shadow-sm hover:scale-105 border border-transparent hover:border-gray-200'
               }`
             }
           >
@@ -102,7 +102,7 @@ export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
         <div className="px-4 py-3">
           <button
             onClick={onOpenChat}
-            className="w-full flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 cursor-pointer"
+            className="w-full flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-xl shadow-lg hover:shadow-xl hover:scale-105 hover:from-orange-700 hover:to-rose-700 transition-all duration-200 cursor-pointer"
             title="ChatGPT AI Assistant - Campaign & Contact Help"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -121,8 +121,8 @@ export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
           <div className="bg-white border-2 border-gray-200 rounded-xl p-3 mb-3 shadow-sm">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-md">
-                  <span className="text-white font-bold text-sm">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-orange-600 to-rose-600 flex items-center justify-center shadow-md">
+                  <span className="text-black font-bold text-sm">
                     {user.firstName[0]}{user.lastName[0]}
                   </span>
                 </div>

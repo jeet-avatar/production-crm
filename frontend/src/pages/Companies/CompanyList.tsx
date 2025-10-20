@@ -212,7 +212,7 @@ export function CompanyList() {
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
+                className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
                 title="Show Help Guide"
               >
                 <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -279,7 +279,7 @@ export function CompanyList() {
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
                 title="Your preference is automatically saved"
               >
                 <option value="createdAt">Recently Added</option>
@@ -460,7 +460,7 @@ export function CompanyList() {
                             📄 Manual Research
                           </span>
                         ) : company.dataSource === 'apollo' ? (
-                          <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold">
+                          <span className="px-2 py-1 bg-rose-50 text-rose-700 rounded-lg text-xs font-bold">
                             ⚡ Apollo.io
                           </span>
                         ) : company.dataSource === 'lead_discovery' ? (
@@ -490,7 +490,7 @@ export function CompanyList() {
                               setSelectedCompany(company);
                               setShowCampaignModal(true);
                             }}
-                            className="px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+                            className="px-3 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-xs font-bold rounded-lg hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
                             title="Add to campaign"
                           >
                             <PaperAirplaneIcon className="h-3.5 w-3.5" />

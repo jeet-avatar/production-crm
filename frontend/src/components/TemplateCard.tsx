@@ -23,11 +23,11 @@ export function TemplateCard({
   const [isHovered, setIsHovered] = useState(false);
 
   const categoryColors: Record<string, string> = {
-    Business: 'bg-blue-100 text-blue-800',
-    Tech: 'bg-purple-100 text-purple-800',
+    Business: 'bg-orange-100 text-orange-800',
+    Tech: 'bg-rose-100 text-rose-800',
     Creative: 'bg-pink-100 text-pink-800',
     Minimal: 'bg-gray-100 text-gray-800',
-    Abstract: 'bg-indigo-100 text-indigo-800',
+    Abstract: 'bg-orange-100 text-orange-800',
   };
 
   const categoryColor = categoryColors[template.category] || 'bg-gray-100 text-gray-800';
@@ -47,7 +47,7 @@ export function TemplateCard({
     <div
       className={`relative group rounded-xl overflow-hidden transition-all duration-300 ${
         isSelected
-          ? 'ring-4 ring-blue-500 shadow-2xl scale-105'
+          ? 'ring-4 ring-orange-500 shadow-2xl scale-105'
           : 'hover:shadow-xl hover:scale-105 shadow-md'
       } bg-white`}
       onMouseEnter={() => setIsHovered(true)}
@@ -88,7 +88,7 @@ export function TemplateCard({
                   e.stopPropagation();
                   onSelect(template);
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
+                className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg"
               >
                 {isSelected ? 'Selected' : 'Select'}
               </button>
@@ -186,8 +186,8 @@ export function TemplateCard({
             onClick={() => onSelect(template)}
             className={`mt-3 w-full py-2 rounded-lg font-semibold transition-all ${
               isSelected
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:text-white'
+                ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black'
+                : 'bg-gray-100 text-gray-700 hover:bg-gradient-to-r hover:from-orange-600 hover:to-rose-600 hover:text-white'
             }`}
           >
             {isSelected ? '✓ Selected' : 'Select Template'}

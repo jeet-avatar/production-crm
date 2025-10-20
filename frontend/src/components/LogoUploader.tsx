@@ -169,7 +169,7 @@ export function LogoUploader({
         <button
           type="button"
           onClick={() => setShowHelp(!showHelp)}
-          className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+          className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
           title="Show help"
         >
           <QuestionMarkCircleIcon className="w-5 h-5" />
@@ -178,13 +178,13 @@ export function LogoUploader({
 
       {/* Help Panel */}
       {showHelp && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm space-y-2">
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm space-y-2">
           <div className="flex items-start gap-2">
-            <QuestionMarkCircleIcon className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+            <QuestionMarkCircleIcon className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
             <div className="prose prose-sm max-w-none text-gray-700">
               {(helpText || defaultHelpText).split('\n').map((line, i) => {
                 if (line.startsWith('**') && line.endsWith('**')) {
-                  return <p key={i} className="font-semibold text-blue-900 mb-1 mt-2">{line.replace(/\*\*/g, '')}</p>;
+                  return <p key={i} className="font-semibold text-orange-900 mb-1 mt-2">{line.replace(/\*\*/g, '')}</p>;
                 }
                 if (line.trim().match(/^\d+\./)) {
                   return <p key={i} className="ml-4 mb-1">{line}</p>;
@@ -226,7 +226,7 @@ export function LogoUploader({
           <button
             type="button"
             onClick={() => setUrl('')}
-            className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            className="mt-2 text-sm text-orange-600 hover:text-orange-700 font-medium"
           >
             Change logo
           </button>
@@ -239,7 +239,7 @@ export function LogoUploader({
               type="button"
               onClick={handleFetchLogo}
               disabled={isFetchingLogo}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
             >
               <SparklesIcon className="w-5 h-5" />
               {isFetchingLogo ? 'Fetching logo...' : `Auto-fetch logo from ${companyDomain}`}
@@ -253,21 +253,21 @@ export function LogoUploader({
             onDragLeave={handleDragLeave}
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer ${
               isDragging
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                ? 'border-orange-500 bg-orange-50'
+                : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50'
             }`}
             onClick={() => fileInputRef.current?.click()}
           >
             {isUploading ? (
               <div className="flex flex-col items-center gap-2">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
                 <p className="text-sm text-gray-600">Uploading...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
                 <ArrowUpTrayIcon className="w-10 h-10 text-gray-400" />
                 <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-blue-600">Click to upload</span> or drag and drop
+                  <span className="font-semibold text-orange-600">Click to upload</span> or drag and drop
                 </p>
                 <p className="text-xs text-gray-500">PNG, JPG, or SVG (max 5MB)</p>
               </div>
@@ -300,7 +300,7 @@ export function LogoUploader({
               value={url}
               onChange={(e) => handleUrlChange(e.target.value)}
               placeholder={placeholder}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
             />
           </div>
         </div>

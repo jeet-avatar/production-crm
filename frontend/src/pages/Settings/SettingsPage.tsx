@@ -951,7 +951,7 @@ export function SettingsPage() {
                   <p className="text-sm text-gray-600 mt-1">Manage your subscription and billing</p>
                 </div>
                 <div className="p-6">
-                  <div className="flex items-center justify-between p-6 bg-gradient-to-r from-primary-50 to-purple-50 rounded-lg border border-primary-100">
+                  <div className="flex items-center justify-between p-6 bg-gradient-to-r from-orange-50 to-rose-50 rounded-lg border border-primary-100">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-white rounded-lg shadow-sm">
                         <SparklesIcon className="h-8 w-8 text-primary-600" />
@@ -1022,7 +1022,7 @@ export function SettingsPage() {
                         // Get dynamic gradient for this plan
                         const planGradient = gradients.pages.pricing[plan.id as keyof typeof gradients.pages.pricing];
                         const headerGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient}` : 'bg-gradient-to-r from-gray-500 to-gray-700';
-                        const buttonGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}` : 'bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700';
+                        const buttonGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}` : 'bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-700 hover:to-rose-700';
 
                         return (
                         <div

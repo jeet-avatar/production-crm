@@ -315,7 +315,7 @@ export function CompanyDetail() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-6">
             {/* Company logo */}
-            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white text-3xl font-bold flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-orange-600 to-rose-600 text-black text-3xl font-bold flex items-center justify-center shadow-lg">
               {company.logo ? (
                 <img src={company.logo} alt={company.name} className="w-full h-full rounded-xl object-cover" />
               ) : (
@@ -350,8 +350,8 @@ export function CompanyDetail() {
               <div className="mt-3">
                 <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
                   company.dataSource === 'apollo'
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-blue-100 text-blue-700'
+                    ? 'bg-rose-100 text-rose-700'
+                    : 'bg-orange-100 text-orange-700'
                 }`}>
                   <span>{dataSourceInfo.icon}</span>
                   {dataSourceInfo.label}
@@ -378,7 +378,7 @@ export function CompanyDetail() {
                 type="button"
                 onClick={handleEnrich}
                 disabled={enriching}
-                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-sm font-semibold rounded-lg hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 title={!company.website ? "AI will search the web and LinkedIn to find company information" : "AI Enrich Data - Scrape website and find key contacts"}
               >
                 {enriching ? (
@@ -419,7 +419,7 @@ export function CompanyDetail() {
             <button
               type="button"
               onClick={() => setShowCampaignModal(true)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-sm font-semibold rounded-lg hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
               title="Add to campaign"
             >
               <PaperAirplaneIcon className="w-4 h-4" />
@@ -461,9 +461,9 @@ export function CompanyDetail() {
 
           {/* Enriching Status */}
           {company.enrichmentStatus === 'enriching' && (
-            <div className="bg-blue-50 rounded-lg p-4 flex items-center gap-3 border border-blue-200">
-              <ArrowPathIcon className="w-5 h-5 animate-spin text-blue-600" />
-              <span className="text-blue-800 font-medium">
+            <div className="bg-orange-50 rounded-lg p-4 flex items-center gap-3 border border-orange-200">
+              <ArrowPathIcon className="w-5 h-5 animate-spin text-orange-600" />
+              <span className="text-orange-800 font-medium">
                 AI is analyzing this company's website and gathering intelligence...
               </span>
             </div>
@@ -471,9 +471,9 @@ export function CompanyDetail() {
 
           {/* AI Intelligence Section */}
           {company.enrichmentStatus === 'enriched' && company.aiDescription && (
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-200">
+            <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-xl p-6 border border-orange-200">
               <div className="flex items-center gap-2 mb-4">
-                <SparklesIcon className="w-5 h-5 text-purple-600" />
+                <SparklesIcon className="w-5 h-5 text-orange-600" />
                 <h2 className="text-xl font-bold text-gray-900">AI Company Intelligence</h2>
                 {company.enrichedAt && (
                   <span className="text-sm text-gray-500 ml-auto">
@@ -494,7 +494,7 @@ export function CompanyDetail() {
                   <h3 className="font-semibold text-gray-700 mb-2">Type & Industry</h3>
                   <div className="flex flex-wrap gap-2">
                     {company.aiCompanyType && (
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                      <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
                         {company.aiCompanyType}
                       </span>
                     )}
@@ -542,7 +542,7 @@ export function CompanyDetail() {
                     <h3 className="font-semibold text-gray-700 mb-2">Tech Stack</h3>
                     <div className="flex flex-wrap gap-2">
                       {company.aiTechStack.map((tech, i) => (
-                        <span key={i} className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+                        <span key={i} className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
                           {tech}
                         </span>
                       ))}
@@ -581,13 +581,13 @@ export function CompanyDetail() {
 
           {/* 🚀 PREMIUM: SocialFlow Data Display */}
           {company.socialFlowEnriched && company.socialFlowData && (
-            <div className="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6 rounded-xl shadow-lg border-2 border-yellow-400 mb-6">
+            <div className="bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 p-6 rounded-xl shadow-lg border-2 border-yellow-400 mb-6">
               <div className="flex items-center gap-2 mb-4">
-                <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-6 h-6 text-rose-600" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
                   <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-4a1 1 0 01-1-1V6a1 1 0 011-1z"/>
                 </svg>
-                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+                <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-rose-600 to-rose-700">
                   SocialFlow Premium Intelligence ⭐
                 </h2>
                 <span className="ml-auto text-xs text-gray-500">
@@ -596,7 +596,7 @@ export function CompanyDetail() {
                 <button
                   onClick={handleSocialFlow}
                   disabled={socialFlowing}
-                  className="ml-2 px-3 py-1 text-xs bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50"
+                  className="ml-2 px-3 py-1 text-xs bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg hover:from-orange-700 hover:to-rose-700 transition-colors disabled:opacity-50"
                   title="Re-enrich with latest data"
                 >
                   {socialFlowing ? 'Re-enriching...' : '🔄 Re-enrich'}
@@ -655,13 +655,13 @@ export function CompanyDetail() {
                     <div className="space-y-2">
                       {company.socialFlowData.socialMedia.twitter && (
                         <a href={company.socialFlowData.socialMedia.twitter} target="_blank" rel="noopener noreferrer"
-                           className="flex items-center gap-2 text-blue-600 hover:text-blue-800 hover:underline">
+                           className="flex items-center gap-2 text-orange-600 hover:text-orange-800 hover:underline">
                           <span>🐦 Twitter/X</span>
                         </a>
                       )}
                       {company.socialFlowData.socialMedia.facebook && (
                         <a href={company.socialFlowData.socialMedia.facebook} target="_blank" rel="noopener noreferrer"
-                           className="flex items-center gap-2 text-blue-700 hover:text-blue-900 hover:underline">
+                           className="flex items-center gap-2 text-orange-700 hover:text-orange-900 hover:underline">
                           <span>👥 Facebook</span>
                         </a>
                       )}
@@ -695,7 +695,7 @@ export function CompanyDetail() {
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {company.socialFlowData.technographics.map((tech, i) => (
-                        <span key={i} className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                        <span key={i} className="px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-sm font-medium">
                           {tech}
                         </span>
                       ))}
@@ -738,7 +738,7 @@ export function CompanyDetail() {
                     <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
                       👥 Employee Information
                     </h3>
-                    <p className="text-2xl font-bold text-purple-600">{company.socialFlowData.employees}</p>
+                    <p className="text-2xl font-bold text-rose-600">{company.socialFlowData.employees}</p>
                     <p className="text-gray-500 text-sm">Estimated employees</p>
                   </div>
                 )}
@@ -758,9 +758,9 @@ export function CompanyDetail() {
           )}
 
           {company.hiringInfo && (
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200 p-6">
+            <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-rose-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <BriefcaseIcon className="w-5 h-5 text-purple-600" />
+                <BriefcaseIcon className="w-5 h-5 text-rose-600" />
                 Recent Hiring Activity
               </h2>
               <p className="text-gray-700 leading-relaxed">{company.hiringInfo}</p>
@@ -769,29 +769,29 @@ export function CompanyDetail() {
 
           {/* Additional AI Insights */}
           {(company.hiringIntent || company.techStack || company.aiPitch) && (
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+            <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-orange-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <ExclamationCircleIcon className="w-5 h-5 text-blue-600" />
+                <ExclamationCircleIcon className="w-5 h-5 text-orange-600" />
                 AI Insights
               </h2>
 
               <div className="space-y-4">
                 {company.hiringIntent && (
                   <div>
-                    <div className="text-sm font-semibold text-blue-700 mb-2">Hiring Intent Analysis</div>
+                    <div className="text-sm font-semibold text-orange-700 mb-2">Hiring Intent Analysis</div>
                     <p className="text-gray-700 text-sm whitespace-pre-wrap">{company.hiringIntent}</p>
                   </div>
                 )}
 
                 {company.techStack && (
                   <div>
-                    <div className="text-sm font-semibold text-blue-700 mb-2">Technology Stack</div>
+                    <div className="text-sm font-semibold text-orange-700 mb-2">Technology Stack</div>
                     <p className="text-gray-700 text-sm whitespace-pre-wrap">{company.techStack}</p>
                   </div>
                 )}
 
                 {company.aiPitch && (
-                  <div className="bg-white rounded-lg p-4 border border-blue-200">
+                  <div className="bg-white rounded-lg p-4 border border-orange-200">
                     <div className="text-sm font-semibold text-green-700 mb-2">AI Solution Pitch</div>
                     <p className="text-gray-700 text-sm whitespace-pre-wrap">{company.aiPitch}</p>
                   </div>
@@ -825,7 +825,7 @@ export function CompanyDetail() {
                     onClick={() => navigate(`/contacts/${contact.id}`)}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-blue-600 text-white font-semibold flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-600 to-rose-600 text-black font-semibold flex items-center justify-center">
                         {(contact.firstName?.[0] || '?').toUpperCase()}{(contact.lastName?.[0] || '?').toUpperCase()}
                       </div>
                       <div>
@@ -854,8 +854,8 @@ export function CompanyDetail() {
                             contact.status === 'CUSTOMER'
                               ? 'bg-green-100 text-green-700'
                               : contact.status === 'PROSPECT'
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'bg-blue-100 text-blue-700'
+                              ? 'bg-rose-100 text-rose-700'
+                              : 'bg-orange-100 text-orange-700'
                           }`}>
                             {contact.status}
                           </span>
@@ -901,7 +901,7 @@ export function CompanyDetail() {
                     href={company.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline text-sm break-all"
+                    className="text-orange-600 hover:underline text-sm break-all"
                   >
                     {company.domain || new URL(company.website).hostname}
                   </a>
@@ -950,7 +950,7 @@ export function CompanyDetail() {
                     href={company.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline text-sm flex items-center gap-1"
+                    className="text-orange-600 hover:underline text-sm flex items-center gap-1"
                   >
                     View Profile
                     <GlobeAltIcon className="w-3 h-3" />
@@ -1024,7 +1024,7 @@ export function CompanyDetail() {
                 {company.technologies.map((tech, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium"
+                    className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium"
                   >
                     {tech}
                   </span>

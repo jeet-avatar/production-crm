@@ -653,7 +653,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                 <UserGroupIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Select Target Companies</h3>
                 <p className="text-gray-600 mb-6">Choose which companies to include in this campaign</p>
-                <p className="text-sm text-blue-600 font-medium">
+                <p className="text-sm text-orange-600 font-medium">
                   You can add companies from the Companies page after creating the campaign
                 </p>
               </div>
@@ -767,7 +767,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                 </div>
               </div>
 
-              <div className={`bg-gradient-to-r ${gradients.semantic.info?.gradient || gradients.brand.primary.gradient} bg-opacity-10 border-2 border-blue-200 rounded-xl p-4`}>
+              <div className={`bg-gradient-to-r ${gradients.semantic.info?.gradient || gradients.brand.primary.gradient} bg-opacity-10 border-2 border-orange-200 rounded-xl p-4`}>
                 <p className="text-sm text-gray-800">
                   <strong>Note:</strong> You can add companies to this campaign from the Companies page after creation.
                 </p>

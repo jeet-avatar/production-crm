@@ -222,51 +222,56 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-4">
+      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-600 to-rose-600 p-6 text-white">
-          <div className="flex justify-between items-start mb-4">
+        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-3xl">
+          <div className="flex justify-between items-start mb-3">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Analytics Guide</h2>
-              <p className="text-orange-100 text-sm">Make data-driven decisions with powerful insights</p>
+              <h2 className="text-4xl font-bold text-black mb-3">Analytics Guide</h2>
+              <p className="text-lg text-black/90">Make data-driven decisions with powerful insights</p>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all"
+              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
+              aria-label="Close guide"
             >
-              <XMarkIcon className="h-6 w-6" />
+              <XMarkIcon className="h-6 w-6 text-black" />
             </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2">
+          <div className="flex gap-3 mt-6">
             <button
+              type="button"
               onClick={() => setActiveTab('quickstart')}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+              className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'quickstart'
-                  ? 'bg-white text-orange-600 shadow-lg'
-                  : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
+                  : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
               Quick Start
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('features')}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+              className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'features'
-                  ? 'bg-white text-orange-600 shadow-lg'
-                  : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
+                  : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
               Features
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('tips')}
-              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+              className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'tips'
-                  ? 'bg-white text-orange-600 shadow-lg'
-                  : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
+                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
+                  : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
               Pro Tips
@@ -275,69 +280,53 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-8 space-y-6">
           {activeTab === 'quickstart' && (
-            <div className="space-y-4">
-              <p className="text-gray-600 mb-6">
+            <>
+              <p className="text-lg text-black mb-6">
                 Learn how to read and interpret your CRM analytics for better business decisions.
               </p>
 
               {quickStartSteps.map((step, index) => {
                 const Icon = step.icon;
-                const isActive = activeStep === index;
 
                 return (
                   <div
                     key={index}
-                    className={`border-2 rounded-xl overflow-hidden transition-all cursor-pointer ${
-                      isActive
-                        ? 'border-orange-500 shadow-lg'
-                        : 'border-gray-200 hover:border-orange-300'
-                    }`}
-                    onClick={() => setActiveStep(index)}
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
-                    <div className="p-4 bg-gradient-to-r from-orange-50 to-rose-50">
-                      <div className="flex items-start gap-4">
-                        <div
-                          className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-r ${step.gradient}`}
-                        >
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-gray-900 mb-1">
-                            {index + 1}. {step.title}
-                          </h3>
-                          <p className="text-sm text-gray-600">{step.description}</p>
-                        </div>
+                    <div className="flex items-start gap-4">
+                      <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
+                        <span className="text-2xl font-bold text-black">{index + 1}</span>
                       </div>
-                    </div>
-
-                    {isActive && (
-                      <div className="p-4 bg-white border-t-2 border-orange-100">
-                        <ul className="space-y-2 mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-2xl font-bold text-black mb-2">{step.title}</h3>
+                        <p className="text-black/80 mb-4">{step.description}</p>
+                        <ul className="space-y-2 mb-6">
                           {step.details.map((detail, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                              <CheckCircleIcon className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                            <li key={idx} className="flex items-start gap-2 text-black/80">
+                              <CheckCircleIcon className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
                               <span>{detail}</span>
                             </li>
                           ))}
                         </ul>
                         <button
-                          className={`w-full px-4 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r ${step.gradient} hover:shadow-lg transition-all`}
+                          type="button"
+                          className="w-full mt-6 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all"
                         >
                           {step.buttonLabel}
                         </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
-            </div>
+            </>
           )}
 
           {activeTab === 'features' && (
-            <div className="space-y-4">
-              <p className="text-gray-600 mb-6">
+            <>
+              <p className="text-lg text-black mb-6">
                 Discover powerful analytics features to track performance and grow your business.
               </p>
 
@@ -347,29 +336,27 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
                   return (
                     <div
                       key={index}
-                      className="border-2 border-gray-200 rounded-xl p-5 hover:border-orange-300 hover:shadow-lg transition-all"
+                      className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                     >
                       <div className="flex items-start gap-4">
-                        <div
-                          className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-r ${feature.gradient}`}
-                        >
-                          <Icon className="h-6 w-6 text-white" />
+                        <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
+                          <Icon className="h-6 w-6 text-black" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
-                          <p className="text-sm text-gray-600">{feature.description}</p>
+                          <h3 className="text-xl font-bold text-black mb-2">{feature.title}</h3>
+                          <p className="text-black/80">{feature.description}</p>
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-            </div>
+            </>
           )}
 
           {activeTab === 'tips' && (
-            <div className="space-y-4">
-              <p className="text-gray-600 mb-6">
+            <>
+              <p className="text-lg text-black mb-6">
                 Master analytics best practices to drive revenue growth and business success.
               </p>
 
@@ -378,39 +365,33 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="border-2 border-gray-200 rounded-xl p-5 hover:border-orange-300 hover:shadow-lg transition-all bg-gradient-to-r from-orange-50 to-rose-50"
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
-                      <div
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-r ${tip.gradient}`}
-                      >
-                        <Icon className="h-6 w-6 text-white" />
+                      <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
+                        <Icon className="h-6 w-6 text-black" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">{tip.title}</h3>
-                        <p className="text-sm text-gray-600">{tip.description}</p>
+                        <h3 className="text-xl font-bold text-black mb-2">{tip.title}</h3>
+                        <p className="text-black/80">{tip.description}</p>
                       </div>
                     </div>
                   </div>
                 );
               })}
-            </div>
+            </>
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-gradient-to-r from-orange-50 to-rose-50 border-t-2 border-orange-100">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">
-              Need more help? Contact support or check our documentation.
-            </p>
-            <button
-              onClick={onClose}
-              className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
-            >
-              Got it!
-            </button>
-          </div>
+        <div className="border-t-2 border-black bg-gray-50 p-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+          >
+            Got it, thanks!
+          </button>
         </div>
       </div>
     </div>

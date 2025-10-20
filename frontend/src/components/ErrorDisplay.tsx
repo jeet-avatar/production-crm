@@ -67,10 +67,10 @@ export function ErrorDisplay({
         if (code === 404) {
           return {
             icon: DocumentTextIcon,
-            gradient: "from-purple-500 to-purple-600",
-            bg: "bg-purple-50",
-            border: "border-purple-300",
-            iconColor: "text-purple-500",
+            gradient: "from-orange-500 to-rose-600",
+            bg: "bg-rose-50",
+            border: "border-rose-300",
+            iconColor: "text-rose-500",
             title: title || "Not Found",
             defaultMessage: message || "The requested resource could not be found.",
           };
@@ -114,7 +114,7 @@ export function ErrorDisplay({
 
   return (
     <div className={`min-h-[400px] flex items-center justify-center p-8 ${className}`}>
-      <div className={`max-w-2xl w-full ${config.bg} border-2 ${config.border} rounded-2xl shadow-lg overflow-hidden`}>
+      <div className={`max-w-2xl w-full ${config.bg} border-2 ${config.border} rounded-2xl shadow-lg`}>
         {/* Header */}
         <div className={`bg-gradient-to-r ${config.gradient} px-8 py-6`}>
           <div className="flex items-center justify-between">
@@ -164,9 +164,9 @@ export function ErrorDisplay({
           )}
 
           {/* Common Solutions */}
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-800 mb-2">Suggested Solutions:</h4>
-            <ul className="text-sm text-blue-700 space-y-1">
+          <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
+            <h4 className="font-semibold text-orange-800 mb-2">Suggested Solutions:</h4>
+            <ul className="text-sm text-orange-700 space-y-1">
               {code === 400 && (
                 <>
                   <li>• Check that all required fields are filled correctly</li>
@@ -230,7 +230,7 @@ export function ErrorDisplay({
           <div className="text-center text-sm text-gray-500 pt-4 border-t-2 border-gray-200">
             <p>
               Need help?{" "}
-              <a href="mailto:support@brandmonkz.com" className="text-blue-600 hover:underline font-medium">
+              <a href="mailto:support@brandmonkz.com" className="text-orange-600 hover:underline font-medium">
                 Contact Support
               </a>
             </p>

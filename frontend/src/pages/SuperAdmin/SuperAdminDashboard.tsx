@@ -2748,7 +2748,7 @@ export function SuperAdminDashboard() {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
                               {log.action.replace(/_/g, ' ')}
                             </span>
                           </td>
@@ -3757,32 +3757,32 @@ export function SuperAdminDashboard() {
                 </div>
 
                 {/* API Information */}
-                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-orange-200">
                   <div className="flex items-center gap-3 mb-4">
-                    <CodeBracketIcon className="w-6 h-6 text-indigo-600" />
+                    <CodeBracketIcon className="w-6 h-6 text-orange-600" />
                     <h3 className="text-xl font-bold text-gray-900">API Endpoints</h3>
                   </div>
                   <p className="text-gray-700 mb-4">
                     Use these endpoints to programmatically manage UI configuration:
                   </p>
                   <div className="space-y-2 font-mono text-sm">
-                    <div className="bg-white rounded p-3 border border-indigo-200">
+                    <div className="bg-white rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/navigation
                     </div>
-                    <div className="bg-white rounded p-3 border border-indigo-200">
-                      <span className="text-blue-600 font-bold">POST</span> /api/super-admin/navigation
+                    <div className="bg-white rounded p-3 border border-orange-200">
+                      <span className="text-orange-600 font-bold">POST</span> /api/super-admin/navigation
                     </div>
-                    <div className="bg-white rounded p-3 border border-indigo-200">
+                    <div className="bg-white rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/themes
                     </div>
-                    <div className="bg-white rounded p-3 border border-indigo-200">
-                      <span className="text-blue-600 font-bold">POST</span> /api/super-admin/themes/:id/activate
+                    <div className="bg-white rounded p-3 border border-orange-200">
+                      <span className="text-orange-600 font-bold">POST</span> /api/super-admin/themes/:id/activate
                     </div>
-                    <div className="bg-white rounded p-3 border border-indigo-200">
+                    <div className="bg-white rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/branding
                     </div>
-                    <div className="bg-white rounded p-3 border border-indigo-200">
-                      <span className="text-blue-600 font-bold">POST</span> /api/super-admin/branding
+                    <div className="bg-white rounded p-3 border border-orange-200">
+                      <span className="text-orange-600 font-bold">POST</span> /api/super-admin/branding
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 mt-4">

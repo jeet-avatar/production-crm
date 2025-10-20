@@ -269,15 +269,15 @@ export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplat
 
             {/* Detected Variables */}
             {detectedVariables.length > 0 && (
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl">
-                <p className="text-sm font-bold text-blue-900 mb-2">
+              <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-xl">
+                <p className="text-sm font-bold text-orange-900 mb-2">
                   Detected Variables ({detectedVariables.length}):
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {detectedVariables.map((variable, index) => (
                     <span
                       key={index}
-                      className="inline-block px-3 py-1 rounded-lg text-xs font-bold text-blue-700 bg-blue-100"
+                      className="inline-block px-3 py-1 rounded-lg text-xs font-bold text-orange-700 bg-orange-100"
                     >
                       {`{{${variable}}}`}
                     </span>
