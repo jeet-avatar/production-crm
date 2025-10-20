@@ -103,7 +103,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         'Click "Save" to update',
       ],
       buttonLabel: 'Edit Contact',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
   ];
 
@@ -136,7 +136,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
       icon: FunnelIcon,
       title: 'Smart Filtering',
       description: 'Filter contacts by status, tags, company, assigned user, or custom fields for targeted views.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: UserGroupIcon,
@@ -166,7 +166,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
       icon: TrashIcon,
       title: 'Safe Deletion',
       description: 'Delete contacts with confirmation prompts. Deleted contacts can be restored from archive.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
   ];
 
@@ -199,7 +199,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Use AI Discovery for Lead Generation',
       description: 'Instead of buying lead lists, use AI Discovery to find prospects matching your ideal customer profile. Higher quality, lower cost.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: LightBulbIcon,

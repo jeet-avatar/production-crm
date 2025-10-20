@@ -87,7 +87,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
         'Use to forecast closing deals',
       ],
       buttonLabel: 'View Pipeline',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       title: 'Track Lead Sources',
@@ -136,7 +136,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
       icon: CurrencyDollarIcon,
       title: 'Deal Performance',
       description: 'Track won/lost/pending deals, conversion rates, average deal size, and sales velocity for performance insights.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: DocumentChartBarIcon,
@@ -166,7 +166,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
       icon: AdjustmentsHorizontalIcon,
       title: 'Customizable Views',
       description: 'Filter and segment data by time range, team member, product, or custom fields for targeted insights.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
   ];
 
@@ -199,7 +199,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Set Revenue Goals',
       description: 'Use historical data to set realistic revenue targets. Track progress daily. Adjust sales tactics if trending below goal mid-month.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: LightBulbIcon,

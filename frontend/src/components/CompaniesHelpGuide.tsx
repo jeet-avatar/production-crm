@@ -87,7 +87,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
         'Enriched data appears instantly in company profiles',
       ],
       buttonLabel: 'AI Enrich Data',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       title: 'Search, Sort & Filter',
@@ -136,7 +136,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
       icon: SparklesIcon,
       title: 'AI Enrichment',
       description: 'Automatically enhance company data with AI-powered enrichment from Apollo.io and web sources.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: PhoneIcon,
@@ -166,7 +166,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
       icon: EnvelopeIcon,
       title: 'Email Campaigns',
       description: 'Send targeted email campaigns to companies based on filters and segments.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
   ];
 
@@ -199,7 +199,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Use Status for Pipeline Stages',
       description: 'Update company status (Prospect → Qualified → Customer) to track progression through your sales pipeline.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: LightBulbIcon,
