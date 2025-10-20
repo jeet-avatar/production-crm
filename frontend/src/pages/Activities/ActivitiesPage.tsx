@@ -579,7 +579,7 @@ export function ActivitiesPage() {
                 onClick={() => setFilterType(type.value)}
                 className={`inline-flex items-center px-4 py-2.5 rounded-xl font-bold text-sm transition-all tracking-wide shadow-sm ${
                   filterType === type.value
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl hover:scale-105`
                     : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                 }`}
               >
@@ -591,7 +591,7 @@ export function ActivitiesPage() {
         </div>
         <button
           onClick={() => { setModalType('create'); setShowModal(true); }}
-          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
         >
           <PlusIcon className="h-5 w-5" />
           Create Activity
@@ -610,7 +610,7 @@ export function ActivitiesPage() {
               </p>
               <button
                 onClick={() => { setModalType('create'); setShowModal(true); }}
-                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide inline-flex`}
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide inline-flex`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Create Activity
@@ -689,7 +689,7 @@ export function ActivitiesPage() {
                             {isEmail && !activity.emailStatus && (
                               <button
                                 onClick={() => handleOpenModal('email', activity)}
-                                className={`inline-flex items-center px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide`}
+                                className={`inline-flex items-center px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide`}
                               >
                                 <PaperAirplaneIcon className="h-4 w-4 mr-1.5" />
                                 Send

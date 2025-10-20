@@ -207,7 +207,7 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-white rounded-t-xl`}>
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-black rounded-t-xl`}>
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold">Send Email</h2>
@@ -248,7 +248,7 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
                 onClick={() => setSendMode('contacts')}
                 className={`flex-1 px-4 py-2.5 rounded-lg font-bold transition-all ${
                   sendMode === 'contacts'
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-md`
                     : 'text-gray-600 hover:bg-gray-200'
                 }`}
               >
@@ -260,7 +260,7 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
                 onClick={() => setSendMode('test')}
                 className={`flex-1 px-4 py-2.5 rounded-lg font-bold transition-all ${
                   sendMode === 'test'
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-md`
                     : 'text-gray-600 hover:bg-gray-200'
                 }`}
               >
@@ -391,7 +391,7 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
               type="button"
               onClick={sendMode === 'contacts' ? handleSendToContacts : handleSendTest}
               disabled={isSending || (sendMode === 'contacts' && selectedContacts.length === 0)}
-              className={`inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               <PaperAirplaneIcon className="h-5 w-5" />
               {isSending ? 'Sending...' : sendMode === 'contacts' ? `Send to ${selectedContacts.length} Contact${selectedContacts.length !== 1 ? 's' : ''}` : 'Send Test Email'}

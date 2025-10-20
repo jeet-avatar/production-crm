@@ -218,7 +218,7 @@ export function EmailTemplatesPage() {
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+            className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
           >
             <PlusIcon className="h-5 w-5" />
             Create Template
@@ -245,7 +245,7 @@ export function EmailTemplatesPage() {
             {!searchQuery && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Create Template
@@ -265,10 +265,9 @@ export function EmailTemplatesPage() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3 flex-1">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center shadow-md"
-                      style={{ background: `linear-gradient(135deg, #F97316 0%, #FB923C 100%)` }}
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-br ${gradients.brand.primary.gradient}`}
                     >
-                      <EnvelopeIcon className="h-6 w-6 text-white" />
+                      <EnvelopeIcon className="h-6 w-6 text-black" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-bold text-gray-900 truncate">{template.name}</h3>
@@ -320,7 +319,7 @@ export function EmailTemplatesPage() {
                 <div className="border-t-2 border-gray-100 pt-4 flex gap-2">
                   <button
                     onClick={() => handleSendEmail(template)}
-                    className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-md hover:shadow-lg hover:scale-105 transition-all text-sm`}
+                    className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-md hover:shadow-lg hover:scale-105 transition-all text-sm`}
                   >
                     <PaperAirplaneIcon className="h-4 w-4" />
                     Send

@@ -139,7 +139,7 @@ export function DealBoard() {
         <button
           type="button"
           onClick={handleAddDeal}
-          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
         >
           <PlusIcon className="h-5 w-5" />
           <span>Add Deal</span>

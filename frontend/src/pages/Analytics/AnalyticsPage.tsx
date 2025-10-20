@@ -117,7 +117,7 @@ export function AnalyticsPage() {
           <p className="text-red-700">{error}</p>
           <button
             onClick={fetchAnalytics}
-            className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg font-bold tracking-wide shadow-md`}
+            className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg font-bold tracking-wide shadow-md`}
           >
             Try Again
           </button>
@@ -164,7 +164,7 @@ export function AnalyticsPage() {
               onClick={() => setTimeRange(range)}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all tracking-wide ${
                 timeRange === range
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
+                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl hover:scale-105`
                   : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 shadow-sm'
               }`}
             >

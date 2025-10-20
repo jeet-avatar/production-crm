@@ -365,7 +365,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   <button
                     onClick={generateCampaignBasics}
                     disabled={aiGenerating}
-                    className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all whitespace-nowrap`}
+                    className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all whitespace-nowrap`}
                   >
                     {aiGenerating ? (
                       <>
@@ -419,7 +419,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                       onClick={() => setAiTone(tone.value as any)}
                       className={`px-4 py-3 rounded-xl font-semibold transition-all border-2 ${
                         aiTone === tone.value
-                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
+                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-transparent shadow-lg`
                           : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                       }`}
                     >
@@ -442,7 +442,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   <button
                     onClick={generateAISubject}
                     disabled={aiGenerating || !campaignGoal}
-                    className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
+                    className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                   >
                     {aiGenerating ? (
                       <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -588,7 +588,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     <button
                       onClick={generateAIContent}
                       disabled={aiGenerating || !campaignGoal || !subject}
-                      className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-medium rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
+                      className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-medium rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                     >
                       {aiGenerating ? (
                         <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -670,7 +670,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     onClick={() => setSendTime('immediate')}
                     className={`w-full px-4 py-4 rounded-xl font-semibold transition-all border-2 flex items-center gap-3 ${
                       sendTime === 'immediate'
-                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
+                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-transparent shadow-lg`
                         : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                     }`}
                   >
@@ -687,7 +687,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     onClick={() => setSendTime('scheduled')}
                     className={`w-full px-4 py-4 rounded-xl font-semibold transition-all border-2 flex items-center gap-3 ${
                       sendTime === 'scheduled'
-                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
+                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-transparent shadow-lg`
                         : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                     }`}
                   >
@@ -709,7 +709,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     <button
                       onClick={optimizeSendTime}
                       disabled={aiGenerating}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-xs font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-xs font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                     >
                       {aiGenerating ? (
                         <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -794,7 +794,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   (currentStep === 'basics' && (!campaignName || !campaignGoal)) ||
                   (currentStep === 'content' && (!subject || !emailContent))
                 }
-                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
+                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
               >
                 Next Step
               </button>
@@ -802,7 +802,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
               <button
                 onClick={handleCreateCampaign}
                 disabled={loading || !campaignName || !subject || !emailContent}
-                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
+                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
               >
                 {loading ? (
                   <>

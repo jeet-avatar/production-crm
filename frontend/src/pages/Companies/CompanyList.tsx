@@ -245,7 +245,7 @@ export function CompanyList() {
             </button>
             <button
               onClick={handleAddCompany}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
             >
               <PlusIcon className="w-4 h-4" />
               Add Company
@@ -308,7 +308,7 @@ export function CompanyList() {
               onClick={() => setShowFilters(!showFilters)}
               className={`px-4 py-2 flex items-center gap-2 rounded-xl font-bold tracking-wide transition-all shadow-md ${
                 showFilters
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
+                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black`
                   : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
@@ -368,7 +368,7 @@ export function CompanyList() {
                         onClick={() => setIndustryFilter(ind)}
                         className={`px-3 py-1.5 text-xs font-bold rounded-xl tracking-wide transition-all shadow-sm ${
                           industryFilter === ind
-                            ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
+                            ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black`
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -413,7 +413,7 @@ export function CompanyList() {
                     <p className="text-sm text-gray-400 mb-6">Get started by adding your first company</p>
                     <button
                       onClick={handleAddCompany}
-                      className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+                      className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
                     >
                       <PlusIcon className="h-5 w-5" />
                       Add your first company
@@ -429,7 +429,7 @@ export function CompanyList() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} text-white font-bold flex items-center justify-center text-sm shadow-md`}>
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} text-black font-bold flex items-center justify-center text-sm shadow-md`}>
                             {company.name.substring(0, 2).toUpperCase()}
                           </div>
                           <div>
@@ -528,17 +528,17 @@ export function CompanyList() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   Previous
                 </button>
-                <div className={`px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold text-sm shadow-md`}>
+                <div className={`px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold text-sm shadow-md`}>
                   Page {currentPage} of {totalPages}
                 </div>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   Next
                 </button>
