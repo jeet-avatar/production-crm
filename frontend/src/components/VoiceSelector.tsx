@@ -152,14 +152,21 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
 
     setIsUploading(true);
     try {
+      console.log('Uploading voice file:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
       const voiceUrl = await onCustomVoiceUpload(file);
+      console.log('Voice uploaded successfully:', voiceUrl);
       setCustomFile(file);
       setSelectedVoice(voiceUrl);
       setIsCustom(true);
       onChange(voiceUrl, true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Voice upload failed:', error);
-      alert('Failed to upload voice file. Please try again.');
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to upload voice file. Please try again.';
+      alert(errorMessage);
     } finally {
       setIsUploading(false);
     }
@@ -201,15 +208,65 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(voice.preview);
 
-      // Try to match voice to accent
-      const voices = window.speechSynthesis.getVoices();
-      const matchingVoice = voices.find(v =>
-        v.lang.startsWith('en') &&
-        (v.name.includes(voice.accent) || v.lang.includes(voice.id.split('-')[2]))
-      );
+      // Get all available voices
+      const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
+
+      // Match voice based on ID pattern and accent
+      let matchingVoice = null;
+
+      // Map voice IDs to specific voice names
+      if (voice.id === 'natural-en-us-male-1') {
+        matchingVoice = voices.find(v => v.name.includes('Alex') || (v.lang === 'en-US' && v.name.includes('Male')));
+      } else if (voice.id === 'natural-en-us-female-1') {
+        matchingVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Victoria') || (v.lang === 'en-US' && !v.name.includes('Male')));
+      } else if (voice.id === 'natural-en-uk-male-1') {
+        matchingVoice = voices.find(v => v.name.includes('Daniel') || (v.lang === 'en-GB' && v.name.includes('Male')));
+      } else if (voice.id === 'natural-en-uk-female-1') {
+        matchingVoice = voices.find(v => v.name.includes('Kate') || v.name.includes('Serena') || (v.lang === 'en-GB' && !v.name.includes('Male')));
+      } else if (voice.id === 'natural-en-au-female-1') {
+        matchingVoice = voices.find(v => v.name.includes('Karen') || v.lang === 'en-AU');
+      } else if (voice.id === 'natural-en-in-female-1') {
+        matchingVoice = voices.find(v => v.name.includes('Veena') || v.lang === 'en-IN');
+      } else if (voice.id === 'natural-en-us-male-2') {
+        matchingVoice = voices.find(v => v.name.includes('Tom') || v.name.includes('Fred') || (v.lang === 'en-US' && v.name.includes('Male')));
+      } else if (voice.id === 'natural-en-us-female-2') {
+        matchingVoice = voices.find(v => v.name.includes('Victoria') || v.name.includes('Allison') || (v.lang === 'en-US' && !v.name.includes('Male')));
+      } else if (voice.id === 'natural-en-ie-male-1') {
+        matchingVoice = voices.find(v => v.name.includes('Moira') || v.lang === 'en-IE');
+      } else if (voice.id === 'natural-fr-fr-female-1') {
+        matchingVoice = voices.find(v => v.lang === 'fr-FR' || v.lang.startsWith('fr'));
+      } else if (voice.id === 'natural-de-de-male-1') {
+        matchingVoice = voices.find(v => v.lang === 'de-DE' || v.lang.startsWith('de'));
+      } else if (voice.id === 'natural-es-es-female-1') {
+        matchingVoice = voices.find(v => v.lang === 'es-ES' || v.lang.startsWith('es'));
+      }
+
+      // Fallback: try to match by language code from voice.accent
+      if (!matchingVoice) {
+        if (voice.accent.includes('American')) {
+          matchingVoice = voices.find(v => v.lang === 'en-US');
+        } else if (voice.accent.includes('British')) {
+          matchingVoice = voices.find(v => v.lang === 'en-GB');
+        } else if (voice.accent.includes('Australian')) {
+          matchingVoice = voices.find(v => v.lang === 'en-AU');
+        } else if (voice.accent.includes('Indian')) {
+          matchingVoice = voices.find(v => v.lang === 'en-IN');
+        } else if (voice.accent.includes('Irish')) {
+          matchingVoice = voices.find(v => v.lang === 'en-IE');
+        } else if (voice.accent.includes('French')) {
+          matchingVoice = voices.find(v => v.lang.startsWith('fr'));
+        } else if (voice.accent.includes('German')) {
+          matchingVoice = voices.find(v => v.lang.startsWith('de'));
+        } else if (voice.accent.includes('Spanish')) {
+          matchingVoice = voices.find(v => v.lang.startsWith('es'));
+        }
+      }
 
       if (matchingVoice) {
         utterance.voice = matchingVoice;
+        console.log('Using voice:', matchingVoice.name, matchingVoice.lang);
+      } else {
+        console.warn('No matching voice found for:', voice.name, voice.accent);
       }
 
       utterance.onend = () => setPlayingVoice(null);
