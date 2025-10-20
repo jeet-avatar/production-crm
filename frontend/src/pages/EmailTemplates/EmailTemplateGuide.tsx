@@ -21,7 +21,7 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
 
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-rose-500 p-8 relative">
@@ -50,7 +50,7 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
               type="button"
               onClick={() => setActiveTab('basics')}
               className={activeTab === 'basics'
-                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg "
                 : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
               }
             >
@@ -60,7 +60,7 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
               type="button"
               onClick={() => setActiveTab('variables')}
               className={activeTab === 'variables'
-                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg "
                 : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
               }
             >
@@ -70,7 +70,7 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
               type="button"
               onClick={() => setActiveTab('tips')}
               className={activeTab === 'tips'
-                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg "
                 : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
               }
             >
@@ -80,7 +80,7 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
               type="button"
               onClick={() => setActiveTab('ai')}
               className={activeTab === 'ai'
-                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg "
                 : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
               }
             >
@@ -472,7 +472,7 @@ Best regards,
         </div>
 
         {/* Footer */}
-        <div className="border-t-2 border-black bg-gray-50 p-6">
+        <div className="bg-gray-50 p-6">
           <button
             type="button"
             onClick={onClose}

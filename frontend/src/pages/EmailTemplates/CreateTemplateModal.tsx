@@ -143,7 +143,7 @@ export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplat
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div
-        className="bg-white rounded-2xl shadow-2xl border-4 border-black max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

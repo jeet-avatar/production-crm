@@ -218,7 +218,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-4">
-      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col mx-auto">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-3xl">
           <div className="flex justify-between items-start mb-3">
@@ -243,7 +243,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('quickstart')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'quickstart'
-                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
+                  ? 'bg-white text-black font-bold shadow-lg'
                   : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
@@ -254,7 +254,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('features')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'features'
-                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
+                  ? 'bg-white text-black font-bold shadow-lg'
                   : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
@@ -265,7 +265,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('tips')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'tips'
-                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
+                  ? 'bg-white text-black font-bold shadow-lg'
                   : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
@@ -288,7 +288,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -331,7 +331,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
                   return (
                     <div
                       key={index}
-                      className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                      className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                     >
                       <div className="flex items-start gap-4">
                         <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -360,7 +360,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -379,7 +379,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
         </div>
 
         {/* Footer */}
-        <div className="border-t-2 border-black bg-gray-50 p-6">
+        <div className="bg-gray-50 p-6">
           <button
             type="button"
             onClick={onClose}
