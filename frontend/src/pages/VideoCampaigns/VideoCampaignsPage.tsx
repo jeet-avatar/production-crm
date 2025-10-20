@@ -10,9 +10,10 @@ import {
 import { CreateVideoCampaignModal } from '../../components/CreateVideoCampaignModal';
 import { VideoGenerationProgress } from '../../components/VideoGenerationProgress';
 import { videoService, type VideoCampaign } from '../../services/videoService';
-import { buttonStyles } from '../../config/ui';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export function VideoCampaignsPage() {
+  const { gradients } = useTheme();
   const [campaigns, setCampaigns] = useState<VideoCampaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -61,16 +62,16 @@ export function VideoCampaignsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'READY':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-50 text-green-800 border-2 border-green-300';
       case 'GENERATING':
       case 'PROCESSING':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-orange-50 text-orange-800 border-2 border-orange-300';
       case 'FAILED':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-50 text-red-800 border-2 border-red-300';
       case 'DRAFT':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-50 text-gray-800 border-2 border-gray-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-50 text-gray-800 border-2 border-gray-300';
     }
   };
 
@@ -90,9 +91,9 @@ export function VideoCampaignsPage() {
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className={`flex items-center gap-2 ${buttonStyles.gradient.primary}`}
+              className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
             >
-              <PlusIcon className="w-5 h-5" />
+              <PlusIcon className="w-4 h-4" />
               Create Campaign
             </button>
           </div>
@@ -103,10 +104,10 @@ export function VideoCampaignsPage() {
               <button
                 key={status}
                 onClick={() => setSelectedStatus(status)}
-                className={`px-4 py-2 rounded-lg font-medium capitalize transition-all ${
+                className={`px-4 py-2.5 rounded-xl font-bold capitalize transition-all tracking-wide ${
                   selectedStatus === status
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                    : `${buttonStyles.secondary}`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl hover:scale-105`
+                    : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 shadow-sm'
                 }`}
               >
                 {status === 'all' ? 'All' : status.toLowerCase()}
@@ -126,18 +127,18 @@ export function VideoCampaignsPage() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-white rounded-xl p-6 animate-pulse">
-                <div className="aspect-video bg-gray-200 rounded-lg mb-4"></div>
-                <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div key={i} className="bg-white rounded-xl p-6 animate-pulse border-2 border-gray-200 shadow-md">
+                <div className="aspect-video bg-gradient-to-br from-orange-100 to-rose-100 rounded-lg mb-4"></div>
+                <div className="h-6 bg-gradient-to-r from-orange-200 to-rose-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gradient-to-r from-orange-100 to-rose-100 rounded w-1/2"></div>
               </div>
             ))}
           </div>
         ) : filteredCampaigns.length === 0 ? (
           /* Empty State */
           <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-6">
-              <VideoCameraIcon className="w-12 h-12 text-blue-600" />
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-100 to-rose-100 rounded-full mb-6 shadow-lg">
+              <VideoCameraIcon className="w-12 h-12 text-orange-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               No video campaigns yet
@@ -148,9 +149,9 @@ export function VideoCampaignsPage() {
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className={`inline-flex items-center gap-2 ${buttonStyles.gradient.primary}`}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
             >
-              <PlusIcon className="w-5 h-5" />
+              <PlusIcon className="w-4 h-4" />
               Create Your First Campaign
             </button>
           </div>
@@ -232,14 +233,14 @@ export function VideoCampaignsPage() {
                       <>
                         <button
                           onClick={() => window.open(campaign.videoUrl, '_blank')}
-                          className={`flex-1 flex items-center justify-center gap-2 ${buttonStyles.primary} text-sm`}
+                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
                         >
                           <PlayIcon className="w-4 h-4" />
                           Play
                         </button>
                         <button
                           onClick={() => handleDownload(campaign.videoUrl!, campaign.name)}
-                          className={`flex items-center justify-center px-3 py-2 ${buttonStyles.secondary}`}
+                          className="flex items-center justify-center px-4 py-2.5 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 shadow-sm transition-all"
                           title="Download"
                         >
                           <ArrowDownTrayIcon className="w-4 h-4" />
@@ -248,7 +249,7 @@ export function VideoCampaignsPage() {
                     )}
                     <button
                       onClick={() => handleDelete(campaign.id)}
-                      className="flex items-center justify-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors border-2 border-red-200"
+                      className="flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-all border-2 border-red-300 shadow-sm"
                       title="Delete"
                     >
                       <TrashIcon className="w-4 h-4" />

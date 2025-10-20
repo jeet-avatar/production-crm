@@ -6,6 +6,7 @@ import { LogoUploader } from './LogoUploader';
 import { TextLayoverEditor } from './TextLayoverEditor';
 import { VoiceSelector } from './VoiceSelector';
 import { videoService, type VideoTemplate, type TextOverlay } from '../services/videoService';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface CreateVideoCampaignModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function CreateVideoCampaignModal({
   onSuccess,
   companyIds = [],
 }: CreateVideoCampaignModalProps) {
+  const { gradients } = useTheme();
   const [step, setStep] = useState<StepType>('basics');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -199,13 +201,13 @@ export function CreateVideoCampaignModal({
                   <div
                     className={`h-2 rounded-full transition-all ${
                       index <= currentStepIndex
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600'
+                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient}`
                         : 'bg-gray-200'
                     }`}
                   />
                   <p
                     className={`text-xs mt-1 font-medium ${
-                      index <= currentStepIndex ? 'text-blue-600' : 'text-gray-400'
+                      index <= currentStepIndex ? 'text-orange-600' : 'text-gray-400'
                     }`}
                   >
                     {s.label}
@@ -243,9 +245,9 @@ export function CreateVideoCampaignModal({
                     <button
                       key={t}
                       onClick={() => setTone(t)}
-                      className={`px-4 py-2 rounded-lg font-medium capitalize transition-all ${
+                      className={`px-4 py-2.5 rounded-xl font-bold capitalize transition-all tracking-wide ${
                         tone === t
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl`
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -263,7 +265,7 @@ export function CreateVideoCampaignModal({
                   <button
                     onClick={handleGenerateScript}
                     disabled={generatingScript || !name}
-                    className="flex items-center gap-2 px-3 py-1 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     <SparklesIcon className="w-4 h-4" />
                     {generatingScript ? 'Generating...' : 'AI Generate'}
@@ -314,9 +316,9 @@ export function CreateVideoCampaignModal({
               <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
                 <button
                   onClick={() => setVideoSource('template')}
-                  className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
+                  className={`flex-1 py-2.5 px-4 rounded-xl font-bold transition-all tracking-wide ${
                     videoSource === 'template'
-                      ? 'bg-white text-blue-600 shadow-sm'
+                      ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg`
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -324,9 +326,9 @@ export function CreateVideoCampaignModal({
                 </button>
                 <button
                   onClick={() => setVideoSource('upload')}
-                  className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
+                  className={`flex-1 py-2.5 px-4 rounded-xl font-bold transition-all tracking-wide ${
                     videoSource === 'upload'
-                      ? 'bg-white text-blue-600 shadow-sm'
+                      ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg`
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -388,7 +390,7 @@ export function CreateVideoCampaignModal({
           {/* Step 5: Preview */}
           {step === 'preview' && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-blue-200">
+              <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl p-6 border-2 border-orange-200 shadow-lg">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Campaign Summary</h3>
                 <dl className="space-y-3">
                   <div>
@@ -467,14 +469,14 @@ export function CreateVideoCampaignModal({
               <button
                 onClick={handleCreateCampaign}
                 disabled={loading}
-                className="px-8 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
+                className={`px-8 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {loading ? 'Creating...' : '🎬 Create & Generate'}
               </button>
             ) : (
               <button
                 onClick={handleNext}
-                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all"
+                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 Next →
               </button>
