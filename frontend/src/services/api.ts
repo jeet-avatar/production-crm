@@ -107,8 +107,8 @@ export const companiesApi = {
     return response.data;
   },
 
-  checkProxycurlCredits: async () => {
-    const response = await apiClient.get('/companies/proxycurl/credits');
+  checkRapidAPIUsage: async () => {
+    const response = await apiClient.get('/companies/rapidapi/usage');
     return response.data;
   },
 };
