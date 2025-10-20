@@ -1206,6 +1206,36 @@ export function SuperAdminDashboard() {
     );
   };
 
+  // 🔒 AUTHORIZATION: Only Ethan can access Super Admin Dashboard
+  if (currentUserEmail !== 'ethan@brandmonkz.com') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center mx-auto mb-6`}>
+              <ShieldCheckIcon className="w-10 h-10 text-black" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+              Access Restricted
+            </h1>
+            <p className="text-gray-600 mb-6">
+              This page is restricted to super administrators only.
+            </p>
+            <p className="text-sm text-gray-500 mb-6">
+              Current user: <span className="font-mono text-gray-700">{currentUserEmail || 'Not logged in'}</span>
+            </p>
+            <button
+              onClick={() => window.location.href = '/'}
+              className={`w-full bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold py-3 px-6 rounded-xl hover:shadow-lg transition-all duration-200`}
+            >
+              Return to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
