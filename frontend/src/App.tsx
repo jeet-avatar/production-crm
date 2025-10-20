@@ -30,6 +30,7 @@ import { AcceptInvitePage } from './pages/Auth/AcceptInvitePage';
 import PricingPage from './pages/Pricing/PricingPage';
 import { SubscriptionSuccess } from './pages/Subscription/SubscriptionSuccess';
 import { SuperAdminDashboard } from './pages/SuperAdmin/SuperAdminDashboard';
+import { SystemTemplates } from './pages/SuperAdmin/SystemTemplates';
 import type { User } from './types';
 
 // Create a client
@@ -123,6 +124,7 @@ function App() {
               <Route path="settings" element={<SettingsPage />} />
               <Route path="team" element={<TeamPage />} />
               <Route path="super-admin" element={<SuperAdminDashboard />} />
+              <Route path="super-admin/system-templates" element={<SystemTemplates />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           )}
