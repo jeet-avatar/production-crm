@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   DocumentTextIcon,
   SparklesIcon,
-  XMarkIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
   LightBulbIcon,
@@ -25,15 +24,6 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
 
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-rose-500 p-8 relative">
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
-            aria-label="Close guide"
-          >
-            <XMarkIcon className="w-6 h-6 text-black" />
-          </button>
-
           <div className="flex items-center gap-3 mb-3">
             <DocumentTextIcon className="w-12 h-12 text-black" />
             <h2 className="text-4xl font-bold text-black">

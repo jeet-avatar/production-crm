@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  XMarkIcon,
   PlusIcon,
   DocumentArrowUpIcon,
   MagnifyingGlassIcon,
@@ -24,13 +23,6 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
 
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-3xl">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
-          >
-            <XMarkIcon className="w-6 h-6 text-black" />
-          </button>
-
           <div className="flex items-center gap-3 mb-3">
             <UserGroupIcon className="w-12 h-12 text-black" />
             <h2 className="text-4xl font-bold text-black">

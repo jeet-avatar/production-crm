@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  XMarkIcon,
+
   VideoCameraIcon,
   SparklesIcon,
   PlayIcon,
@@ -96,14 +96,6 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
               <h2 className="text-4xl font-bold text-black mb-3">Video Campaigns Guide</h2>
               <p className="text-lg text-black/90">Create and manage AI-powered personalized video campaigns</p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
-              aria-label="Close guide"
-            >
-              <XMarkIcon className="h-6 w-6 text-black" />
-            </button>
           </div>
 
           {/* Tabs */}
