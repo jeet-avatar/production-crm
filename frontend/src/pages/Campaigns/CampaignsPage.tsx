@@ -160,7 +160,7 @@ export function CampaignsPage() {
             <button
               type="button"
               onClick={() => setShowHelpGuide(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-white bg-opacity-20 text-black border-2 border-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide"
+              className="flex items-center gap-2 px-4 py-3 bg-white bg-opacity-20 text-black  rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide"
               title="Open Campaigns Help Guide"
             >
               <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -169,7 +169,7 @@ export function CampaignsPage() {
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-white text-black border-2 border-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide"
+              className="flex items-center gap-2 px-6 py-3 bg-white text-black  rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide"
             >
               <PlusIcon className="h-5 w-5" />
               Create Campaign
