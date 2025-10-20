@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  QuestionMarkCircleIcon,
   XMarkIcon,
-  SparklesIcon,
   PlusIcon,
   DocumentArrowUpIcon,
   MagnifyingGlassIcon,
+  SparklesIcon,
+  UserGroupIcon,
+  TagIcon,
   PencilIcon,
   TrashIcon,
   FunnelIcon,
+  ArrowPathIcon,
   LightBulbIcon,
-  RocketLaunchIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 
@@ -26,13 +27,15 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
     {
       title: 'Add Your First Contact',
       icon: PlusIcon,
-      description: 'Click the "Add Contact" button in the top right to create a new contact manually.',
+      description: 'Click "Add Contact" to manually create a new contact in your CRM.',
       details: [
-        'Enter contact details: First Name, Last Name, Email',
-        'Optionally add phone number, role, and company',
-        'Select a status (Lead, Prospect, Customer, etc.)',
-        'Add tags to categorize your contact',
-        'Click "Save" to add the contact to your CRM',
+        'Click the "Add Contact" button',
+        'Enter required fields: First Name, Last Name, Email',
+        'Add optional details: Phone, Role, Company',
+        'Select contact status (Lead, Prospect, Customer, etc.)',
+        'Add tags for categorization (e.g., "VIP", "Hot Lead")',
+        'Add notes or additional information',
+        'Click "Save" to add contact to CRM',
       ],
       buttonLabel: 'Add Contact',
       gradient: 'from-orange-600 to-rose-600',
@@ -40,13 +43,16 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
     {
       title: 'Import Contacts in Bulk',
       icon: DocumentArrowUpIcon,
-      description: 'Use AI CSV Import to upload multiple contacts at once from a spreadsheet.',
+      description: 'Upload CSV files to import hundreds of contacts at once with AI mapping.',
       details: [
         'Click "AI CSV Import" button',
-        'Upload your CSV file (Excel or Google Sheets export)',
-        'AI will automatically map columns to contact fields',
-        'Review the mapping and make adjustments if needed',
-        'Import all contacts with one click',
+        'Prepare CSV with columns: Name, Email, Phone, Company',
+        'Upload your CSV file',
+        'AI automatically maps columns to CRM fields',
+        'Review and adjust field mappings if needed',
+        'Preview imported data',
+        'Click "Import" to add all contacts',
+        'System auto-deduplicates by email',
       ],
       buttonLabel: 'AI CSV Import',
       gradient: 'from-amber-600 to-orange-600',
@@ -54,108 +60,158 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
     {
       title: 'Discover New Leads',
       icon: SparklesIcon,
-      description: 'Use AI-powered lead discovery to find potential customers based on your criteria.',
+      description: 'Use AI to find and add potential customers matching your ideal profile.',
       details: [
         'Click "Discover Leads" button',
         'Describe your ideal customer profile',
-        'AI will search and suggest relevant leads',
-        'Review suggested contacts',
-        'Add promising leads to your CRM',
+        'Set filters: Industry, company size, location',
+        'AI searches database for matching prospects',
+        'Review AI-suggested leads',
+        'Select leads to add to CRM',
+        'Click "Add Selected" to import',
       ],
       buttonLabel: 'Discover Leads',
       gradient: 'from-rose-600 to-pink-600',
     },
     {
-      title: 'Search & Filter Contacts',
+      title: 'Search and Filter Contacts',
       icon: MagnifyingGlassIcon,
-      description: 'Quickly find contacts using search and filters.',
+      description: 'Quickly find specific contacts using search and advanced filters.',
       details: [
-        'Use the search bar to find contacts by name, email, or company',
-        'Filter by status: Lead, Prospect, Customer, etc.',
-        'Contacts are grouped by company for easy organization',
-        'Click on a company to expand and see all contacts',
-        'View contact details by clicking on any contact name',
+        'Use search bar to find by name, email, or company',
+        'Click status filter: All, Lead, Prospect, Customer',
+        'Filter by tags (VIP, Hot Lead, Follow-up)',
+        'Filter by assigned team member',
+        'Contacts grouped by company automatically',
+        'Click company name to expand/collapse',
+        'Results update in real-time',
       ],
-      buttonLabel: 'Search',
+      buttonLabel: 'Try Search',
       gradient: 'from-orange-500 to-amber-500',
+    },
+    {
+      title: 'Edit and Manage Contacts',
+      icon: PencilIcon,
+      description: 'Update contact information, change status, and manage relationships.',
+      details: [
+        'Click pencil icon next to contact name',
+        'Update any contact field',
+        'Change contact status as relationship progresses',
+        'Add or remove tags',
+        'Link contact to deals and campaigns',
+        'View activity history timeline',
+        'Click "Save" to update',
+      ],
+      buttonLabel: 'Edit Contact',
+      gradient: 'from-purple-600 to-rose-600',
     },
   ];
 
   const features = [
     {
       icon: PlusIcon,
-      title: 'Add Contact',
-      description: 'Create a new contact manually with full details',
-      howTo: 'Click the blue "Add Contact" button → Fill in the form → Click Save',
-    },
-    {
-      icon: DocumentArrowUpIcon,
-      title: 'AI CSV Import',
-      description: 'Import multiple contacts from a CSV file with AI-powered field mapping',
-      howTo: 'Click "AI CSV Import" → Upload CSV → Review AI mapping → Import',
-    },
-    {
-      icon: SparklesIcon,
-      title: 'Discover Leads',
-      description: 'Use AI to find and suggest new potential customers',
-      howTo: 'Click "Discover Leads" → Describe ideal customer → Review suggestions → Add to CRM',
-    },
-    {
-      icon: MagnifyingGlassIcon,
-      title: 'Search Contacts',
-      description: 'Instantly search across all contact fields',
-      howTo: 'Type in the search box → Results filter in real-time',
-    },
-    {
-      icon: FunnelIcon,
-      title: 'Filter by Status',
-      description: 'View contacts by their current status (Lead, Prospect, Customer, etc.)',
-      howTo: 'Use the "All Statuses" dropdown → Select desired status',
-    },
-    {
-      icon: PencilIcon,
-      title: 'Edit Contact',
-      description: 'Update contact information, status, or tags',
-      howTo: 'Click the pencil icon next to any contact → Update details → Save',
-    },
-    {
-      icon: TrashIcon,
-      title: 'Delete Contact',
-      description: 'Remove contacts from your CRM',
-      howTo: 'Click the trash icon → Confirm deletion',
-    },
-  ];
-
-  const tips = [
-    {
-      icon: LightBulbIcon,
-      title: 'Use Tags for Organization',
-      tip: 'Add tags like "VIP", "Hot Lead", or "Follow-up" to quickly categorize and filter contacts.',
+      title: 'Manual Contact Creation',
+      description: 'Add contacts one-by-one with full control over all fields, tags, and status settings.',
       gradient: 'from-orange-600 to-rose-600',
     },
     {
-      icon: SparklesIcon,
-      title: 'Let AI Do the Work',
-      tip: 'Use "Discover Leads" to automatically find potential customers that match your ideal profile.',
+      icon: DocumentArrowUpIcon,
+      title: 'AI-Powered CSV Import',
+      description: 'Import bulk contacts from CSV files with automatic field mapping and duplicate detection.',
       gradient: 'from-amber-600 to-orange-600',
     },
     {
-      icon: DocumentArrowUpIcon,
-      title: 'Bulk Import Saves Time',
-      tip: 'Have a list of contacts in Excel or Google Sheets? Use AI CSV Import to add hundreds of contacts in seconds.',
+      icon: SparklesIcon,
+      title: 'AI Lead Discovery',
+      description: 'Find new prospects automatically based on your ideal customer profile and industry filters.',
       gradient: 'from-rose-600 to-pink-600',
     },
     {
-      icon: RocketLaunchIcon,
-      title: 'Update Status Regularly',
-      tip: 'Move contacts through stages: Lead → Prospect → Customer. This helps track your sales pipeline.',
+      icon: MagnifyingGlassIcon,
+      title: 'Advanced Search',
+      description: 'Search contacts by name, email, company, or any field with instant results and fuzzy matching.',
       gradient: 'from-orange-500 to-amber-500',
     },
     {
-      icon: CheckCircleIcon,
-      title: 'Group by Company',
-      tip: 'Contacts are automatically grouped by company. Expand companies to see all decision-makers in one place.',
+      icon: FunnelIcon,
+      title: 'Smart Filtering',
+      description: 'Filter contacts by status, tags, company, assigned user, or custom fields for targeted views.',
       gradient: 'from-purple-600 to-rose-600',
+    },
+    {
+      icon: UserGroupIcon,
+      title: 'Company Grouping',
+      description: 'Contacts automatically organized by company. Expand to see all decision-makers in one view.',
+      gradient: 'from-orange-600 to-rose-600',
+    },
+    {
+      icon: TagIcon,
+      title: 'Tag Management',
+      description: 'Organize contacts with custom tags like "VIP", "Hot Lead", "Follow-up" for easy segmentation.',
+      gradient: 'from-amber-600 to-orange-600',
+    },
+    {
+      icon: PencilIcon,
+      title: 'Quick Edit',
+      description: 'Update contact details, status, tags, and relationships with inline editing and auto-save.',
+      gradient: 'from-rose-600 to-pink-600',
+    },
+    {
+      icon: ArrowPathIcon,
+      title: 'Auto-Sync',
+      description: 'Contacts sync with email, calendar, and other integrations to keep data always up-to-date.',
+      gradient: 'from-orange-500 to-amber-500',
+    },
+    {
+      icon: TrashIcon,
+      title: 'Safe Deletion',
+      description: 'Delete contacts with confirmation prompts. Deleted contacts can be restored from archive.',
+      gradient: 'from-purple-600 to-rose-600',
+    },
+  ];
+
+  const proTips = [
+    {
+      icon: LightBulbIcon,
+      title: 'Always Link Contacts to Companies',
+      description: 'Associate every contact with their company. This creates powerful organizational views and helps you see all decision-makers at each account.',
+      gradient: 'from-orange-600 to-rose-600',
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Use Tags for Segmentation',
+      description: 'Create tags like "VIP", "Hot Lead", "Needs Follow-up" to quickly filter and target specific contact groups for campaigns.',
+      gradient: 'from-amber-600 to-orange-600',
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Update Status as Relationships Progress',
+      description: 'Move contacts through stages: Lead → Prospect → Customer. This helps track pipeline and conversion rates accurately.',
+      gradient: 'from-rose-600 to-pink-600',
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Import Bulk, Not Manual Entry',
+      description: 'Have contacts in Excel or Google Sheets? Use CSV import instead of manual entry. It\'s 10x faster and AI handles field mapping.',
+      gradient: 'from-orange-500 to-amber-500',
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Use AI Discovery for Lead Generation',
+      description: 'Instead of buying lead lists, use AI Discovery to find prospects matching your ideal customer profile. Higher quality, lower cost.',
+      gradient: 'from-purple-600 to-rose-600',
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Keep Contact Data Clean',
+      description: 'Regularly review and merge duplicate contacts. Clean data = better reporting, more accurate campaigns, and higher email deliverability.',
+      gradient: 'from-orange-600 to-rose-600',
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Add Notes After Every Interaction',
+      description: 'Log call notes, meeting outcomes, and key details immediately. Future you (or team members) will thank you for the context.',
+      gradient: 'from-amber-600 to-orange-600',
     },
   ];
 
@@ -163,115 +219,147 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-white p-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <QuestionMarkCircleIcon className="h-8 w-8" />
+        <div className="bg-gradient-to-r from-orange-600 to-rose-600 p-6 text-white">
+          <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="text-2xl font-bold">Contacts Page Guide</h2>
-              <p className="text-orange-100 text-sm mt-1">Learn how to manage your contacts effectively</p>
+              <h2 className="text-3xl font-bold mb-2">Contacts Guide</h2>
+              <p className="text-orange-100 text-sm">Master contact management and relationship building</p>
             </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all"
+              title="Close guide"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all"
-            title="Close guide"
-          >
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
 
-        {/* Tabs */}
-        <div className="border-b border-gray-200 bg-gray-50">
-          <div className="flex gap-1 p-2">
+          {/* Tabs */}
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('quickstart')}
-              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
                 activeTab === 'quickstart'
-                  ? 'bg-white text-orange-600 shadow-md'
-                  : 'text-gray-600 hover:bg-white hover:bg-opacity-50'
+                  ? 'bg-white text-orange-600 shadow-lg'
+                  : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
               }`}
             >
-              🚀 Quick Start
+              Quick Start
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('features')}
-              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
                 activeTab === 'features'
-                  ? 'bg-white text-orange-600 shadow-md'
-                  : 'text-gray-600 hover:bg-white hover:bg-opacity-50'
+                  ? 'bg-white text-orange-600 shadow-lg'
+                  : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
               }`}
             >
-              ⚡ Features
+              Features
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('tips')}
-              className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
                 activeTab === 'tips'
-                  ? 'bg-white text-orange-600 shadow-md'
-                  : 'text-gray-600 hover:bg-white hover:bg-opacity-50'
+                  ? 'bg-white text-orange-600 shadow-lg'
+                  : 'bg-white bg-opacity-20 text-white hover:bg-opacity-30'
               }`}
             >
-              💡 Pro Tips
+              Pro Tips
             </button>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* Quick Start Tab */}
           {activeTab === 'quickstart' && (
-            <div className="space-y-6">
-              <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-l-4 border-orange-600 p-4 rounded-r-lg">
-                <p className="text-gray-700">
-                  Follow these steps to get started with managing your contacts effectively
-                </p>
-              </div>
+            <div className="space-y-4">
+              <p className="text-gray-600 mb-6">
+                Follow these steps to effectively manage your contacts and build strong relationships.
+              </p>
 
-              {/* Steps */}
-              <div className="space-y-4">
-                {quickStartSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  const isActive = activeStep === index;
+              {quickStartSteps.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = activeStep === index;
+
+                return (
+                  <div
+                    key={index}
+                    className={`border-2 rounded-xl overflow-hidden transition-all cursor-pointer ${
+                      isActive
+                        ? 'border-orange-500 shadow-lg'
+                        : 'border-gray-200 hover:border-orange-300'
+                    }`}
+                    onClick={() => setActiveStep(index)}
+                  >
+                    <div className="p-4 bg-gradient-to-r from-orange-50 to-rose-50">
+                      <div className="flex items-start gap-4">
+                        <div
+                          className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-r ${step.gradient}`}
+                        >
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">
+                            {index + 1}. {step.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">{step.description}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {isActive && (
+                      <div className="p-4 bg-white border-t-2 border-orange-100">
+                        <ul className="space-y-2 mb-4">
+                          {step.details.map((detail, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+                              <CheckCircleIcon className="h-5 w-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                              <span>{detail}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          type="button"
+                          className={`w-full px-4 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r ${step.gradient} hover:shadow-lg transition-all`}
+                        >
+                          {step.buttonLabel}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {activeTab === 'features' && (
+            <div className="space-y-4">
+              <p className="text-gray-600 mb-6">
+                Explore powerful contact management features to organize and grow your relationships.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {features.map((feature, index) => {
+                  const Icon = feature.icon;
                   return (
                     <div
                       key={index}
-                      className={`border rounded-xl overflow-hidden transition-all cursor-pointer ${
-                        isActive ? 'border-orange-500 shadow-lg' : 'border-gray-200 hover:border-orange-300'
-                      }`}
-                      onClick={() => setActiveStep(index)}
+                      className="border-2 border-gray-200 rounded-xl p-5 hover:border-orange-300 hover:shadow-lg transition-all"
                     >
-                      <div className="p-4 bg-gray-50 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg bg-gradient-to-r ${step.gradient} text-white`}>
-                            <Icon className="h-6 w-6" />
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-gray-900">Step {index + 1}: {step.title}</h3>
-                            <p className="text-sm text-gray-600">{step.description}</p>
-                          </div>
+                      <div className="flex items-start gap-4">
+                        <div
+                          className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-r ${feature.gradient}`}
+                        >
+                          <Icon className="h-6 w-6 text-white" />
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${step.gradient} text-white`}>
-                          {step.buttonLabel}
-                        </span>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-900 mb-2">{feature.title}</h3>
+                          <p className="text-sm text-gray-600">{feature.description}</p>
+                        </div>
                       </div>
-
-                      {isActive && (
-                        <div className="p-4 bg-white border-t border-gray-200">
-                          <h4 className="font-semibold text-gray-900 mb-3">How to do it:</h4>
-                          <ul className="space-y-2">
-                            {step.details.map((detail, idx) => (
-                              <li key={idx} className="flex items-start gap-2">
-                                <CheckCircleIcon className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                                <span className="text-gray-700">{detail}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -279,58 +367,28 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
             </div>
           )}
 
-          {/* Features Tab */}
-          {activeTab === 'features' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {features.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-xl p-5 hover:border-orange-400 hover:shadow-lg transition-all"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 bg-gradient-to-br from-orange-100 to-rose-100 rounded-lg">
-                        <Icon className="h-6 w-6 text-orange-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-bold text-gray-900 mb-1">{feature.title}</h3>
-                        <p className="text-sm text-gray-600 mb-3">{feature.description}</p>
-                        <div className="bg-orange-50 border-l-4 border-orange-400 p-3 rounded-r">
-                          <p className="text-xs font-semibold text-orange-900">How to use:</p>
-                          <p className="text-sm text-orange-800 mt-1">{feature.howTo}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Tips Tab */}
           {activeTab === 'tips' && (
             <div className="space-y-4">
-              <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
-                <p className="text-gray-700">
-                  <strong>Pro tips</strong> to help you get the most out of the Contacts page
-                </p>
-              </div>
+              <p className="text-gray-600 mb-6">
+                Master these best practices to maximize your contact management effectiveness.
+              </p>
 
-              {tips.map((tip, index) => {
+              {proTips.map((tip, index) => {
                 const Icon = tip.icon;
                 return (
                   <div
                     key={index}
-                    className="border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all"
+                    className="border-2 border-gray-200 rounded-xl p-5 hover:border-orange-300 hover:shadow-lg transition-all bg-gradient-to-r from-orange-50 to-rose-50"
                   >
                     <div className="flex items-start gap-4">
-                      <div className={`p-3 bg-gradient-to-r ${tip.gradient} rounded-lg text-white`}>
-                        <Icon className="h-6 w-6" />
+                      <div
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-r ${tip.gradient}`}
+                      >
+                        <Icon className="h-6 w-6 text-white" />
                       </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900 mb-2">{tip.title}</h3>
-                        <p className="text-gray-700">{tip.tip}</p>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">{tip.title}</h3>
+                        <p className="text-sm text-gray-600">{tip.description}</p>
                       </div>
                     </div>
                   </div>
@@ -341,17 +399,19 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 bg-gray-50 p-4 flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Need more help? Check our documentation or contact support
-          </p>
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-6 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
-          >
-            Got it!
-          </button>
+        <div className="p-4 bg-gradient-to-r from-orange-50 to-rose-50 border-t-2 border-orange-100">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">
+              Need more help? Contact support or check our documentation.
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-lg font-medium hover:shadow-lg transition-all"
+            >
+              Got it!
+            </button>
+          </div>
         </div>
       </div>
     </div>
