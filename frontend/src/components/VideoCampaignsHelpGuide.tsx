@@ -113,7 +113,7 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('quickstart')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'quickstart'
-                  ? 'bg-white text-black font-bold shadow-lg'
+                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
                   : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
@@ -124,7 +124,7 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('features')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'features'
-                  ? 'bg-white text-black font-bold shadow-lg'
+                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
                   : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
@@ -135,7 +135,7 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('tips')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'tips'
-                  ? 'bg-white text-black font-bold shadow-lg'
+                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
                   : 'bg-white/40 text-black/70 hover:bg-white/60'
               }`}
             >
@@ -157,7 +157,7 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -194,7 +194,7 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
                   return (
                     <div
                       key={index}
-                      className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                      className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                     >
                       <div className="flex items-start gap-4">
                         <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -223,7 +223,7 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -242,7 +242,7 @@ export function VideoCampaignsHelpGuide({ onClose }: HelpGuideProps) {
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 p-6">
+        <div className="bg-gray-50 border-t-2 border-black p-6">
           <button
             type="button"
             onClick={onClose}

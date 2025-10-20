@@ -21,7 +21,7 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
 
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-rose-500 p-8 relative">
