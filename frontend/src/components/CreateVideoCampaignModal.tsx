@@ -32,7 +32,7 @@ export function CreateVideoCampaignModal({
   const [name, setName] = useState('');
   const [script, setScript] = useState('');
   const [tone, setTone] = useState('professional');
-  const [voiceId, setVoiceId] = useState('gtts-en-us');
+  const [voiceId, setVoiceId] = useState('natural-en-us-male-1');
   const [customVoiceUrl, setCustomVoiceUrl] = useState('');
   const [isCustomVoice, setIsCustomVoice] = useState(false);
   const [videoSource, setVideoSource] = useState<'template' | 'upload'>('template');
