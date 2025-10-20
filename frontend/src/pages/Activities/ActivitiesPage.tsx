@@ -11,8 +11,10 @@ import {
   XCircleIcon,
   VideoCameraIcon,
   SparklesIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
+import { ActivitiesHelpGuide } from '../../components/ActivitiesHelpGuide';
 
 interface EmailTemplate {
   id: string;
@@ -75,6 +77,7 @@ export function ActivitiesPage() {
   const [modalType, setModalType] = useState<'email' | 'call' | 'meeting' | 'task' | 'create'>('create');
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
 
   // Email templates state
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
@@ -551,8 +554,18 @@ export function ActivitiesPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Activities</h1>
-        <p className="text-gray-600">Track emails, calls, meetings, and tasks across your CRM</p>
+        <div className="flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-gray-900">Activities</h1>
+          <button
+            type="button"
+            onClick={() => setShowHelpGuide(true)}
+            className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
+            title="Show Help Guide"
+          >
+            <QuestionMarkCircleIcon className="h-5 w-5" />
+          </button>
+        </div>
+        <p className="text-gray-600 mt-1">Track emails, calls, meetings, and tasks across your CRM • Click ? for help</p>
       </div>
 
       {/* Filters and Actions */}
@@ -1074,6 +1087,11 @@ export function ActivitiesPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Help Guide */}
+      {showHelpGuide && (
+        <ActivitiesHelpGuide onClose={() => setShowHelpGuide(false)} />
       )}
     </div>
   );
