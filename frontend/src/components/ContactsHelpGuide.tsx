@@ -35,7 +35,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         'Click "Save" to add the contact to your CRM',
       ],
       buttonLabel: 'Add Contact',
-      gradient: 'from-blue-600 to-purple-600',
+      gradient: 'from-orange-600 to-rose-600',
     },
     {
       title: 'Import Contacts in Bulk',
@@ -49,7 +49,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         'Import all contacts with one click',
       ],
       buttonLabel: 'AI CSV Import',
-      gradient: 'from-green-600 to-emerald-600',
+      gradient: 'from-amber-600 to-orange-600',
     },
     {
       title: 'Discover New Leads',
@@ -63,7 +63,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         'Add promising leads to your CRM',
       ],
       buttonLabel: 'Discover Leads',
-      gradient: 'from-indigo-600 to-blue-600',
+      gradient: 'from-rose-600 to-pink-600',
     },
     {
       title: 'Search & Filter Contacts',
@@ -77,7 +77,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         'View contact details by clicking on any contact name',
       ],
       buttonLabel: 'Search',
-      gradient: 'from-gray-600 to-slate-600',
+      gradient: 'from-orange-500 to-amber-500',
     },
   ];
 
@@ -131,31 +131,31 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Use Tags for Organization',
       tip: 'Add tags like "VIP", "Hot Lead", or "Follow-up" to quickly categorize and filter contacts.',
-      gradient: 'from-yellow-500 to-orange-500',
+      gradient: 'from-orange-600 to-rose-600',
     },
     {
       icon: SparklesIcon,
       title: 'Let AI Do the Work',
       tip: 'Use "Discover Leads" to automatically find potential customers that match your ideal profile.',
-      gradient: 'from-purple-500 to-pink-500',
+      gradient: 'from-amber-600 to-orange-600',
     },
     {
       icon: DocumentArrowUpIcon,
       title: 'Bulk Import Saves Time',
       tip: 'Have a list of contacts in Excel or Google Sheets? Use AI CSV Import to add hundreds of contacts in seconds.',
-      gradient: 'from-green-500 to-emerald-500',
+      gradient: 'from-rose-600 to-pink-600',
     },
     {
       icon: RocketLaunchIcon,
       title: 'Update Status Regularly',
       tip: 'Move contacts through stages: Lead → Prospect → Customer. This helps track your sales pipeline.',
-      gradient: 'from-blue-500 to-indigo-500',
+      gradient: 'from-orange-500 to-amber-500',
     },
     {
       icon: CheckCircleIcon,
       title: 'Group by Company',
       tip: 'Contacts are automatically grouped by company. Expand companies to see all decision-makers in one place.',
-      gradient: 'from-teal-500 to-cyan-500',
+      gradient: 'from-purple-600 to-rose-600',
     },
   ];
 
@@ -163,17 +163,19 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-white p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <QuestionMarkCircleIcon className="h-8 w-8" />
             <div>
               <h2 className="text-2xl font-bold">Contacts Page Guide</h2>
-              <p className="text-blue-100 text-sm mt-1">Learn how to manage your contacts effectively</p>
+              <p className="text-orange-100 text-sm mt-1">Learn how to manage your contacts effectively</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all"
+            title="Close guide"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -183,30 +185,33 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         <div className="border-b border-gray-200 bg-gray-50">
           <div className="flex gap-1 p-2">
             <button
+              type="button"
               onClick={() => setActiveTab('quickstart')}
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 activeTab === 'quickstart'
-                  ? 'bg-white text-blue-600 shadow-md'
+                  ? 'bg-white text-orange-600 shadow-md'
                   : 'text-gray-600 hover:bg-white hover:bg-opacity-50'
               }`}
             >
               🚀 Quick Start
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('features')}
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 activeTab === 'features'
-                  ? 'bg-white text-blue-600 shadow-md'
+                  ? 'bg-white text-orange-600 shadow-md'
                   : 'text-gray-600 hover:bg-white hover:bg-opacity-50'
               }`}
             >
               ⚡ Features
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('tips')}
               className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all ${
                 activeTab === 'tips'
-                  ? 'bg-white text-blue-600 shadow-md'
+                  ? 'bg-white text-orange-600 shadow-md'
                   : 'text-gray-600 hover:bg-white hover:bg-opacity-50'
               }`}
             >
@@ -220,7 +225,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
           {/* Quick Start Tab */}
           {activeTab === 'quickstart' && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-blue-600 p-4 rounded-r-lg">
+              <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-l-4 border-orange-600 p-4 rounded-r-lg">
                 <p className="text-gray-700">
                   Follow these steps to get started with managing your contacts effectively
                 </p>
@@ -235,7 +240,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
                     <div
                       key={index}
                       className={`border rounded-xl overflow-hidden transition-all cursor-pointer ${
-                        isActive ? 'border-blue-500 shadow-lg' : 'border-gray-200 hover:border-blue-300'
+                        isActive ? 'border-orange-500 shadow-lg' : 'border-gray-200 hover:border-orange-300'
                       }`}
                       onClick={() => setActiveStep(index)}
                     >
@@ -282,18 +287,18 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="border border-gray-200 rounded-xl p-5 hover:border-blue-400 hover:shadow-lg transition-all"
+                    className="border border-gray-200 rounded-xl p-5 hover:border-orange-400 hover:shadow-lg transition-all"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="p-3 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg">
-                        <Icon className="h-6 w-6 text-blue-600" />
+                      <div className="p-3 bg-gradient-to-br from-orange-100 to-rose-100 rounded-lg">
+                        <Icon className="h-6 w-6 text-orange-600" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-gray-900 mb-1">{feature.title}</h3>
                         <p className="text-sm text-gray-600 mb-3">{feature.description}</p>
-                        <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r">
-                          <p className="text-xs font-semibold text-blue-900">How to use:</p>
-                          <p className="text-sm text-blue-800 mt-1">{feature.howTo}</p>
+                        <div className="bg-orange-50 border-l-4 border-orange-400 p-3 rounded-r">
+                          <p className="text-xs font-semibold text-orange-900">How to use:</p>
+                          <p className="text-sm text-orange-800 mt-1">{feature.howTo}</p>
                         </div>
                       </div>
                     </div>
@@ -306,7 +311,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
           {/* Tips Tab */}
           {activeTab === 'tips' && (
             <div className="space-y-4">
-              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+              <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
                 <p className="text-gray-700">
                   <strong>Pro tips</strong> to help you get the most out of the Contacts page
                 </p>
@@ -341,8 +346,9 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
             Need more help? Check our documentation or contact support
           </p>
           <button
+            type="button"
             onClick={onClose}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
+            className="px-6 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all"
           >
             Got it!
           </button>
