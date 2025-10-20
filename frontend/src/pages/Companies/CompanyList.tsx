@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, BuildingOfficeIcon, PaperAirplaneIcon, ArrowUpTrayIcon, SparklesIcon, PencilIcon, FunnelIcon, XMarkIcon, ArrowsUpDownIcon, ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, BuildingOfficeIcon, PaperAirplaneIcon, ArrowUpTrayIcon, SparklesIcon, PencilIcon, FunnelIcon, XMarkIcon, ArrowsUpDownIcon, ChevronUpIcon, ChevronDownIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { companiesApi, enrichmentApi } from '../../services/api';
 import { CompanyForm } from './CompanyForm';
 import { CampaignSelectModal } from '../../components/CampaignSelectModal';
 import { ImportCompaniesModal } from '../../components/ImportCompaniesModal';
 import { LeadDiscoveryModal } from '../../components/LeadDiscoveryModal';
+import { CompaniesHelpGuide } from '../../components/CompaniesHelpGuide';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface Contact {
@@ -52,6 +53,7 @@ export function CompanyList() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showLeadDiscovery, setShowLeadDiscovery] = useState(false);
   const [enriching, setEnriching] = useState(false);
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
 
   // Load preferences from localStorage or use defaults
   const [sortBy, setSortBy] = useState<string>(() => {
@@ -205,8 +207,18 @@ export function CompanyList() {
         {/* Header */}
         <div className="flex justify-between items-center p-8 border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Companies</h1>
-            <p className="text-sm font-medium text-gray-600 mt-1">Manage your business relationships</p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Companies</h1>
+              <button
+                type="button"
+                onClick={() => setShowHelpGuide(true)}
+                className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
+                title="Show Help Guide"
+              >
+                <QuestionMarkCircleIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="text-sm font-medium text-gray-600 mt-1">Manage your business relationships • Click ? for help</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -579,6 +591,11 @@ export function CompanyList() {
             loadCompanies();
           }}
         />
+      )}
+
+      {/* Help Guide */}
+      {showHelpGuide && (
+        <CompaniesHelpGuide onClose={() => setShowHelpGuide(false)} />
       )}
     </div>
   );
