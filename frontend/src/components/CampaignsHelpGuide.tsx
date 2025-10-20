@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  XMarkIcon,
+
   EnvelopeIcon,
   UserGroupIcon,
   ChartBarIcon,
@@ -101,14 +101,6 @@ export function CampaignsHelpGuide({ onClose }: HelpGuideProps) {
               <h2 className="text-4xl font-bold text-black mb-3">Email Campaigns Guide</h2>
               <p className="text-lg text-black/90">Create and manage automated email campaigns to engage your contacts</p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
-              aria-label="Close guide"
-            >
-              <XMarkIcon className="h-6 w-6 text-black" />
-            </button>
           </div>
 
           {/* Tabs */}
