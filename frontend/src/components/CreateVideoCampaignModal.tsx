@@ -71,7 +71,9 @@ export function CreateVideoCampaignModal({
       });
       setScript(result.script);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to generate script');
+      console.error('Video AI Generation Error:', err.response?.data);
+      const errorDetails = err.response?.data?.details || err.response?.data?.error || 'Failed to generate script';
+      setError(errorDetails);
     } finally {
       setGeneratingScript(false);
     }
