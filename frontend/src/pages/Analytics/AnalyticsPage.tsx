@@ -5,8 +5,10 @@ import {
   ArrowTrendingDownIcon,
   CurrencyDollarIcon,
   BuildingOfficeIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
+import { AnalyticsHelpGuide } from '../../components/AnalyticsHelpGuide';
 
 interface AnalyticsData {
   revenue: {
@@ -39,6 +41,7 @@ export function AnalyticsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
 
   useEffect(() => {
     fetchAnalytics();
@@ -140,13 +143,24 @@ export function AnalyticsPage() {
       {/* Header */}
       <div className="mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Analytics</h1>
-          <p className="text-gray-600">Real-time insights from your CRM data</p>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
+            <button
+              type="button"
+              onClick={() => setShowHelpGuide(true)}
+              className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
+              title="Show Help Guide"
+            >
+              <QuestionMarkCircleIcon className="h-5 w-5" />
+            </button>
+          </div>
+          <p className="text-gray-600 mt-1">Real-time insights from your CRM data • Click ? for help</p>
         </div>
         <div className="flex gap-2">
           {(['7d', '30d', '90d', '1y'] as const).map((range) => (
             <button
               key={range}
+              type="button"
               onClick={() => setTimeRange(range)}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all tracking-wide ${
                 timeRange === range
@@ -332,6 +346,11 @@ export function AnalyticsPage() {
           </div>
         </div>
       </div>
+
+      {/* Help Guide */}
+      {showHelpGuide && (
+        <AnalyticsHelpGuide onClose={() => setShowHelpGuide(false)} />
+      )}
     </div>
   );
 }
