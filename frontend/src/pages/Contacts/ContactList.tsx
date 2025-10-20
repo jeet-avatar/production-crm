@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 // Commented out unused imports
 // import { SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { contactsApi, companiesApi } from '../../services/api';
 import { ContactForm } from './ContactForm';
 import { CSVImportModal } from '../../components/CSVImportModal';
 import { LeadDiscoveryModal } from '../../components/LeadDiscoveryModal';
+import { ContactsHelpGuide } from '../../components/ContactsHelpGuide';
 import { useTheme } from '../../contexts/ThemeContext';
 // Commented out modal imports - uncomment when needed
 // import { ApolloImportModal } from '../../components/ApolloImportModal';
@@ -62,6 +63,7 @@ export function ContactList() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [showAICSVImport, setShowAICSVImport] = useState(false);
   const [showLeadDiscovery, setShowLeadDiscovery] = useState(false);
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
   // Commented out modal state variables - uncomment when needed
   // const [showApolloImport, setShowApolloImport] = useState(false);
   // const [showRemoveDuplicates, setShowRemoveDuplicates] = useState(false);
@@ -241,8 +243,18 @@ export function ContactList() {
         {/* Header */}
         <div className="flex justify-between items-center p-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
           <div>
-            <h1 className="apple-heading-1">Contacts</h1>
-            <p className="apple-caption mt-1">Manage your customer relationships</p>
+            <div className="flex items-center gap-3">
+              <h1 className="apple-heading-1">Contacts</h1>
+              <button
+                type="button"
+                onClick={() => setShowHelpGuide(true)}
+                className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg"
+                title="Show Help Guide"
+              >
+                <QuestionMarkCircleIcon className="h-5 w-5" />
+              </button>
+            </div>
+            <p className="apple-caption mt-1">Manage your customer relationships • Click ? for help</p>
           </div>
           <div className="flex items-center gap-3">
             {/* Commented out import buttons - uncomment when modals are needed */}
@@ -659,6 +671,11 @@ export function ContactList() {
           loadContacts();
         }}
       /> */}
+
+      {/* Help Guide */}
+      {showHelpGuide && (
+        <ContactsHelpGuide onClose={() => setShowHelpGuide(false)} />
+      )}
     </div>
   );
 }
