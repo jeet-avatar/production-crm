@@ -8,6 +8,7 @@ import {
   ChartBarSquareIcon,
   TagIcon,
   MegaphoneIcon,
+  EnvelopeIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
@@ -35,6 +36,7 @@ const navigation = [
   { name: 'Tags', href: '/tags', icon: TagIcon },
   { name: 'Campaigns', href: '/campaigns', icon: MegaphoneIcon },
   { name: 'Video Campaigns', href: '/video-campaigns', icon: VideoCameraIcon },
+  { name: 'Email Templates', href: '/email-templates', icon: EnvelopeIcon },
   { name: 'Team', href: '/team', icon: UserCircleIcon },
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];

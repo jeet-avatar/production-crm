@@ -474,15 +474,18 @@ model Activity {
 }
 
 model EmailTemplate {
-  id          String   @id @default(cuid())
-  name        String
-  subject     String
-  htmlContent String
-  textContent String?
-  variables   Json? // Array of variable names like ["firstName", "companyName"]
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  subject      String
+  htmlContent  String
+  textContent  String?
+  variables    Json? // Array of variable names like ["firstName", "companyName"]
+  templateType String   @default("custom") // welcome, followup, reminder, custom
+  fromEmail    String   @default("support@brandmonkz.com")
+  fromName     String   @default("BrandMonkz")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   // Foreign keys
   userId String
@@ -492,6 +495,7 @@ model EmailTemplate {
   campaigns Campaign[]
 
   @@index([userId])
+  @@index([templateType])
   @@map("email_templates")
 }
 

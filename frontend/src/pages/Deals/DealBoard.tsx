@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { PlusIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import { dealsApi } from '../../services/api';
 import { DealForm } from './DealForm';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface Deal {
   id: string;
@@ -24,15 +25,16 @@ interface Deal {
 }
 
 const dealStages = [
-  { id: 'PROSPECTING', name: 'Prospecting', color: 'bg-gray-100 border-gray-300' },
-  { id: 'QUALIFICATION', name: 'Qualification', color: 'bg-blue-100 border-blue-300' },
-  { id: 'PROPOSAL', name: 'Proposal', color: 'bg-yellow-100 border-yellow-300' },
-  { id: 'NEGOTIATION', name: 'Negotiation', color: 'bg-orange-100 border-orange-300' },
-  { id: 'CLOSED_WON', name: 'Closed Won', color: 'bg-green-100 border-green-300' },
-  { id: 'CLOSED_LOST', name: 'Closed Lost', color: 'bg-red-100 border-red-300' },
+  { id: 'PROSPECTING', name: 'Prospecting', color: 'bg-orange-50 border-orange-200' },
+  { id: 'QUALIFICATION', name: 'Qualification', color: 'bg-orange-50 border-orange-300' },
+  { id: 'PROPOSAL', name: 'Proposal', color: 'bg-amber-50 border-amber-300' },
+  { id: 'NEGOTIATION', name: 'Negotiation', color: 'bg-orange-100 border-orange-400' },
+  { id: 'CLOSED_WON', name: 'Closed Won', color: 'bg-green-50 border-green-400' },
+  { id: 'CLOSED_LOST', name: 'Closed Lost', color: 'bg-red-50 border-red-300' },
 ];
 
 export function DealBoard() {
+  const { gradients } = useTheme();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -109,7 +111,7 @@ export function DealBoard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -124,7 +126,7 @@ export function DealBoard() {
         </div>
         <button
           onClick={handleAddDeal}
-          className="btn-secondary flex items-center gap-2"
+          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
         >
           <PlusIcon className="h-5 w-5" />
           <span>Add Deal</span>
@@ -133,7 +135,7 @@ export function DealBoard() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
+        <div className="bg-red-50 border-2 border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 font-medium">
           {error}
         </div>
       )}
@@ -143,12 +145,21 @@ export function DealBoard() {
         {dealStages.map((stage) => {
           const stageDeals = getDealsByStage(stage.id);
           const totalValue = getTotalValue(stage.id);
-          
+
           return (
-            <div key={stage.id} className="card p-4">
-              <div className="text-sm font-medium text-gray-600 mb-1">{stage.name}</div>
-              <div className="text-2xl font-bold text-gray-900">{stageDeals.length}</div>
-              <div className="text-sm text-gray-500">{formatCurrency(totalValue)}</div>
+            <div key={stage.id} className={`card p-6 ${stage.color} hover:shadow-lg hover:-translate-y-1 transition-all duration-200`}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-12 h-12 bg-gradient-to-br ${
+                  stage.id === 'CLOSED_WON' ? 'from-green-500 to-green-600' :
+                  stage.id === 'CLOSED_LOST' ? 'from-red-500 to-red-600' :
+                  `from-orange-500 to-orange-600`
+                } rounded-xl flex items-center justify-center shadow-md`}>
+                  <CurrencyDollarIcon className="h-6 w-6 text-white" />
+                </div>
+                <div className="text-3xl font-bold text-gray-900">{stageDeals.length}</div>
+              </div>
+              <p className="text-sm font-bold text-gray-900 mb-1">{stage.name}</p>
+              <p className="text-sm font-medium text-gray-700">{formatCurrency(totalValue)}</p>
             </div>
           );
         })}
@@ -162,29 +173,29 @@ export function DealBoard() {
           return (
             <div key={stage.id} className="flex flex-col">
               {/* Stage Header */}
-              <div className={`p-4 rounded-t-lg border-2 ${stage.color}`}>
+              <div className={`p-4 rounded-t-xl border-2 ${stage.color}`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900">{stage.name}</h3>
-                  <span className="text-sm text-gray-600">
+                  <h3 className="font-bold text-gray-900">{stage.name}</h3>
+                  <span className="text-sm text-gray-600 font-medium">
                     {stageDeals.length}
                   </span>
                 </div>
-                <div className="text-sm text-gray-600 mt-1">
+                <div className="text-sm text-gray-600 mt-1 font-medium">
                   {formatCurrency(getTotalValue(stage.id))}
                 </div>
               </div>
 
               {/* Deal Cards */}
-              <div className={`flex-1 p-3 bg-gray-50 rounded-b-lg border-x-2 border-b-2 ${stage.color.replace('bg-', 'border-').split(' ')[1]} min-h-96`}>
+              <div className={`flex-1 p-3 bg-gray-50 rounded-b-xl border-x-2 border-b-2 ${stage.color.replace('bg-', 'border-').split(' ')[1]} min-h-96`}>
                 <div className="space-y-3">
                   {stageDeals.map((deal) => (
                     <div
                       key={deal.id}
-                      className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                      className="bg-white p-4 rounded-xl shadow-md border-2 border-gray-200 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
                       onClick={() => handleEditDeal(deal)}
                     >
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-medium text-gray-900 text-sm leading-tight">
+                        <h4 className="font-bold text-gray-900 text-sm leading-tight">
                           {deal.title}
                         </h4>
                         <div className="text-xs text-gray-500 ml-2">
@@ -192,9 +203,9 @@ export function DealBoard() {
                         </div>
                       </div>
                       
-                      <div className="flex items-center text-primary-600 mb-2">
+                      <div className="flex items-center text-orange-600 mb-2">
                         <CurrencyDollarIcon className="h-4 w-4 mr-1" />
-                        <span className="font-semibold text-sm">
+                        <span className="font-bold text-sm">
                           {formatCurrency(deal.value)}
                         </span>
                       </div>

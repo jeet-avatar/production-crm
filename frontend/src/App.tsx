@@ -23,6 +23,7 @@ import { CampaignsPage } from './pages/Campaigns/CampaignsPage';
 import CampaignAnalytics from './pages/Campaigns/CampaignAnalytics';
 import { VideoCampaignsPage } from './pages/VideoCampaigns/VideoCampaignsPage';
 import { VideoAnalytics } from './pages/VideoCampaigns/VideoAnalytics';
+import { EmailTemplatesPage } from './pages/EmailTemplates/EmailTemplatesPage';
 import { SettingsPage } from './pages/Settings/SettingsPage';
 import { TeamPage } from './pages/Team/TeamPage';
 import { AcceptInvitePage } from './pages/Auth/AcceptInvitePage';
@@ -118,6 +119,7 @@ function App() {
               <Route path="campaigns/:campaignId/analytics" element={<CampaignAnalytics />} />
               <Route path="video-campaigns" element={<VideoCampaignsPage />} />
               <Route path="video-campaigns/analytics" element={<VideoAnalytics />} />
+              <Route path="email-templates" element={<EmailTemplatesPage />} />
               <Route path="settings" element={<SettingsPage />} />
               <Route path="team" element={<TeamPage />} />
               <Route path="super-admin" element={<SuperAdminDashboard />} />

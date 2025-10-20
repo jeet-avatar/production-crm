@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { UserPlusIcon, TrashIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
 import apiClient from '../../services/api';
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface TeamMember {
   id: string;
@@ -14,6 +15,7 @@ interface TeamMember {
 }
 
 export function TeamPage() {
+  const { gradients } = useTheme();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -118,7 +120,7 @@ export function TeamPage() {
           </div>
           <button
             onClick={() => setShowInviteModal(true)}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+            className={`inline-flex items-center px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold rounded-xl hover:shadow-xl hover:scale-105 transition-all shadow-lg tracking-wide`}
           >
             <UserPlusIcon className="w-5 h-5 mr-2" />
             Invite Team Member
@@ -308,7 +310,7 @@ export function TeamPage() {
                 <button
                   type="submit"
                   disabled={inviting}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center"
+                  className={`px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center font-bold tracking-wide shadow-md`}
                 >
                   {inviting ? (
                     <>

@@ -14,20 +14,20 @@
  */
 
 // ============================================================================
-// CORE BRAND COLORS - Main brand identity
+// CORE BRAND COLORS - Main brand identity (BrandMonkz Vibrant Coral Theme)
 // ============================================================================
 export const BRAND_COLORS = {
   primary: {
     name: 'Primary Brand',
-    gradient: 'from-blue-600 to-purple-600',
-    hover: 'hover:from-blue-700 hover:to-purple-700',
-    solid: 'bg-blue-600',
-    text: 'text-blue-600',
-    border: 'border-blue-600',
-    ring: 'ring-blue-600',
-    shadow: 'shadow-blue-500/30',
-    lightBg: 'from-blue-50 to-purple-50',
-    description: 'Main brand gradient - Innovation & Technology'
+    gradient: 'from-orange-400 to-rose-500',
+    hover: 'hover:from-orange-500 hover:to-rose-600',
+    solid: 'bg-orange-400',
+    text: 'text-orange-500',
+    border: 'border-orange-400',
+    ring: 'ring-orange-400',
+    shadow: 'shadow-orange-400/30',
+    lightBg: 'from-orange-50 to-rose-50',
+    description: 'Main brand gradient - Vibrant Coral Energy'
   },
 
   secondary: {

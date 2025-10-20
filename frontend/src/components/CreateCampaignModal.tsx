@@ -11,6 +11,7 @@ import {
   ArrowPathIcon,
   EyeIcon,
 } from '@heroicons/react/24/outline';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface Props {
   isOpen: boolean;
@@ -21,6 +22,7 @@ interface Props {
 type CampaignStep = 'basics' | 'content' | 'audience' | 'schedule' | 'review';
 
 export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
+  const { gradients } = useTheme();
   const [currentStep, setCurrentStep] = useState<CampaignStep>('basics');
   const [loading, setLoading] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
@@ -300,25 +302,25 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-white rounded-2xl shadow-2xl border-4 border-black max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Gradient */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-black`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-black bg-opacity-10 rounded-xl flex items-center justify-center">
                 {(() => {
                   const StepIcon = stepConfig[currentStep]?.icon;
-                  return StepIcon ? <StepIcon className="w-6 h-6" /> : null;
+                  return StepIcon ? <StepIcon className="w-6 h-6 text-black" /> : null;
                 })()}
               </div>
               <div>
-                <h2 className="text-2xl font-bold">Create AI-Powered Campaign</h2>
-                <p className="text-blue-100 text-sm">{stepConfig[currentStep]?.title}</p>
+                <h2 className="text-2xl font-bold text-black">Create AI-Powered Campaign</h2>
+                <p className="text-black text-sm font-semibold">{stepConfig[currentStep]?.title}</p>
               </div>
             </div>
-            <button onClick={onClose} className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-all">
+            <button onClick={onClose} className="text-black hover:bg-black hover:bg-opacity-10 p-2 rounded-lg transition-all">
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
@@ -329,7 +331,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
               <div
                 key={step}
                 className={`flex-1 h-2 rounded-full transition-all ${
-                  step === currentStep ? 'bg-white' : index < (['basics', 'content', 'audience', 'schedule', 'review'] as CampaignStep[]).indexOf(currentStep) ? 'bg-white bg-opacity-60' : 'bg-white bg-opacity-20'
+                  step === currentStep ? 'bg-black' : index < (['basics', 'content', 'audience', 'schedule', 'review'] as CampaignStep[]).indexOf(currentStep) ? 'bg-black bg-opacity-60' : 'bg-black bg-opacity-20'
                 }`}
               />
             ))}
@@ -339,13 +341,13 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
         {/* Content */}
         <div className="flex-1 p-6 overflow-y-auto"  style={{ maxHeight: 'calc(90vh - 240px)' }}>
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+            <div className={`mb-4 bg-gradient-to-r ${gradients.semantic.error?.gradient || 'from-red-500 to-red-600'} bg-opacity-10 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm font-semibold`}>
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
+            <div className={`mb-4 bg-gradient-to-r ${gradients.semantic.success?.gradient || 'from-green-500 to-green-600'} bg-opacity-10 border-2 border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm font-semibold`}>
               {success}
             </div>
           )}
@@ -354,7 +356,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
           {currentStep === 'basics' && (
             <div className="space-y-6">
               {/* AI Generate Basics Button */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-4">
+              <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} bg-opacity-10 border-2 border-orange-200 rounded-xl p-4`}>
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-semibold text-gray-900 text-sm">Let AI Create Your Campaign</h3>
@@ -363,7 +365,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   <button
                     onClick={generateCampaignBasics}
                     disabled={aiGenerating}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all whitespace-nowrap"
+                    className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all whitespace-nowrap`}
                   >
                     {aiGenerating ? (
                       <>
@@ -387,7 +389,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   value={campaignName}
                   onChange={(e) => setCampaignName(e.target.value)}
                   placeholder="e.g., Q1 Product Launch"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
                 />
               </div>
 
@@ -398,7 +400,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   onChange={(e) => setCampaignGoal(e.target.value)}
                   placeholder="Describe what you want to achieve with this campaign..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-2">AI will use this to generate personalized content</p>
               </div>
@@ -417,8 +419,8 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                       onClick={() => setAiTone(tone.value as any)}
                       className={`px-4 py-3 rounded-xl font-semibold transition-all border-2 ${
                         aiTone === tone.value
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-lg'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'
+                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                       }`}
                     >
                       <span className="mr-2">{tone.icon}</span>
@@ -440,7 +442,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   <button
                     onClick={generateAISubject}
                     disabled={aiGenerating || !campaignGoal}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all"
+                    className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                   >
                     {aiGenerating ? (
                       <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -455,7 +457,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="Enter subject line..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
                 />
               </div>
 
@@ -466,7 +468,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     type="checkbox"
                     checked={enableABTest}
                     onChange={(e) => setEnableABTest(e.target.checked)}
-                    className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="mt-1 w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                   />
                   <div>
                     <label className="text-sm font-semibold text-gray-900">Enable A/B Testing</label>
@@ -478,14 +480,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
               {enableABTest && (
                 <div className="bg-gray-50 rounded-xl p-5">
                   <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <SparklesIcon className="h-5 w-5 text-purple-600" />
+                    <SparklesIcon className="h-5 w-5 text-orange-600" />
                     A/B Test Setup
                   </h3>
 
                   {/* Show variants if generated */}
                   {subjectVariants.length > 0 && (
-                    <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                      <p className="text-xs font-semibold text-purple-700 mb-2">AI Generated Variants</p>
+                    <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                      <p className="text-xs font-semibold text-orange-700 mb-2">AI Generated Variants</p>
                       <div className="space-y-1">
                         {subjectVariants.map((variant, index) => (
                           <button
@@ -501,7 +503,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                                 setSelectedVariantA(index);
                               }
                             }}
-                            className="w-full text-left px-3 py-2 bg-white rounded-lg text-xs text-gray-700 hover:bg-purple-100 transition-all border border-transparent hover:border-purple-300"
+                            className="w-full text-left px-3 py-2 bg-white rounded-lg text-xs text-gray-700 hover:bg-orange-100 transition-all border border-transparent hover:border-orange-300"
                           >
                             {index + 1}. {variant}
                           </button>
@@ -511,24 +513,24 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   )}
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="border-2 border-blue-500 rounded-lg p-4 bg-white">
-                      <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Variant A</span>
+                    <div className="border-2 border-orange-500 rounded-lg p-4 bg-white">
+                      <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Variant A</span>
                       <input
                         type="text"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
                         placeholder="Subject line A"
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all text-sm"
                       />
                     </div>
-                    <div className="border-2 border-purple-500 rounded-lg p-4 bg-white">
-                      <span className="text-xs font-bold text-purple-600 uppercase tracking-wide">Variant B</span>
+                    <div className="border-2 border-orange-600 rounded-lg p-4 bg-white">
+                      <span className="text-xs font-bold text-orange-700 uppercase tracking-wide">Variant B</span>
                       <input
                         type="text"
                         value={subjectVariantB}
                         onChange={(e) => setSubjectVariantB(e.target.value)}
                         placeholder="Subject line B"
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-sm"
+                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all text-sm"
                       />
                     </div>
                   </div>
@@ -548,7 +550,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                           step="5"
                           value={abTestSplit}
                           onChange={(e) => setAbTestSplit(parseInt(e.target.value))}
-                          className="w-full h-2 bg-gradient-to-r from-blue-200 to-purple-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                          className="w-full h-2 bg-gradient-to-r from-orange-200 to-orange-300 rounded-lg appearance-none cursor-pointer accent-orange-600"
                         />
                       </div>
                     </div>
@@ -567,7 +569,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   value={previewText}
                   onChange={(e) => setPreviewText(e.target.value)}
                   placeholder="Text shown in inbox preview..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
                 />
               </div>
 
@@ -586,7 +588,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     <button
                       onClick={generateAIContent}
                       disabled={aiGenerating || !campaignGoal || !subject}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm font-medium rounded-lg hover:shadow-lg disabled:opacity-50 transition-all"
+                      className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-medium rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                     >
                       {aiGenerating ? (
                         <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -617,7 +619,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   {/* Live Preview */}
                   {showPreview && (
                     <div>
-                      <div className="bg-blue-600 px-4 py-2 border-b border-blue-700">
+                      <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} px-4 py-2 border-b border-orange-700`}>
                         <span className="text-xs text-white font-semibold">Live Preview</span>
                       </div>
                       <div
@@ -629,12 +631,12 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl">
+              <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl">
                 <input
                   type="checkbox"
                   checked={enablePersonalization}
                   onChange={(e) => setEnablePersonalization(e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  className="w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
                 />
                 <div>
                   <label className="text-sm font-semibold text-gray-900">Enable AI Personalization</label>
@@ -668,14 +670,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     onClick={() => setSendTime('immediate')}
                     className={`w-full px-4 py-4 rounded-xl font-semibold transition-all border-2 flex items-center gap-3 ${
                       sendTime === 'immediate'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-lg'
-                        : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'
+                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                     }`}
                   >
                     <BoltIcon className="h-6 w-6" />
                     <div className="text-left">
                       <div className="font-bold">Send Immediately</div>
-                      <div className={`text-sm ${sendTime === 'immediate' ? 'text-blue-100' : 'text-gray-500'}`}>
+                      <div className={`text-sm ${sendTime === 'immediate' ? 'text-white opacity-90' : 'text-gray-500'}`}>
                         Campaign will be sent right away
                       </div>
                     </div>
@@ -685,14 +687,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     onClick={() => setSendTime('scheduled')}
                     className={`w-full px-4 py-4 rounded-xl font-semibold transition-all border-2 flex items-center gap-3 ${
                       sendTime === 'scheduled'
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white border-transparent shadow-lg'
-                        : 'bg-white text-gray-700 border-gray-200 hover:border-blue-300'
+                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                     }`}
                   >
                     <ClockIcon className="h-6 w-6" />
                     <div className="text-left">
                       <div className="font-bold">Schedule for Later</div>
-                      <div className={`text-sm ${sendTime === 'scheduled' ? 'text-blue-100' : 'text-gray-500'}`}>
+                      <div className={`text-sm ${sendTime === 'scheduled' ? 'text-white opacity-90' : 'text-gray-500'}`}>
                         Choose the best time to send
                       </div>
                     </div>
@@ -707,7 +709,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     <button
                       onClick={optimizeSendTime}
                       disabled={aiGenerating}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all"
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-xs font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                     >
                       {aiGenerating ? (
                         <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -721,7 +723,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     type="datetime-local"
                     value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
               )}
@@ -731,7 +733,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
           {/* Step: Review */}
           {currentStep === 'review' && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Campaign Summary</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
@@ -745,7 +747,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   {enableABTest && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">A/B Testing:</span>
-                      <span className="font-semibold text-purple-600">Enabled</span>
+                      <span className="font-semibold text-orange-600">Enabled</span>
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -765,8 +767,8 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                 </div>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-                <p className="text-sm text-yellow-800">
+              <div className={`bg-gradient-to-r ${gradients.semantic.info?.gradient || gradients.brand.primary.gradient} bg-opacity-10 border-2 border-blue-200 rounded-xl p-4`}>
+                <p className="text-sm text-gray-800">
                   <strong>Note:</strong> You can add companies to this campaign from the Companies page after creation.
                 </p>
               </div>
@@ -792,7 +794,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   (currentStep === 'basics' && (!campaignName || !campaignGoal)) ||
                   (currentStep === 'content' && (!subject || !emailContent))
                 }
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all"
+                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
               >
                 Next Step
               </button>
@@ -800,7 +802,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
               <button
                 onClick={handleCreateCampaign}
                 disabled={loading || !campaignName || !subject || !emailContent}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all"
+                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
               >
                 {loading ? (
                   <>

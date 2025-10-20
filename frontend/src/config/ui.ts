@@ -54,7 +54,7 @@ export const buttonStyles = {
 
   // Gradient buttons (for special cases)
   gradient: {
-    primary: 'px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 active:scale-95 transition-all shadow-lg',
+    primary: 'px-4 py-2.5 bg-gradient-to-r from-orange-400 to-rose-500 text-black font-bold rounded-xl hover:from-orange-500 hover:to-rose-600 active:scale-95 transition-all shadow-lg tracking-wide',
     success: 'px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-500 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md active:scale-95',
     danger: 'px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white border-2 border-red-500 rounded-xl font-semibold hover:from-red-700 hover:to-orange-700 transition-all shadow-md active:scale-95',
     apollo: 'px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-2 border-purple-500 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-md active:scale-95',

@@ -10,19 +10,8 @@ import {
   CheckCircleIcon,
   XCircleIcon,
   VideoCameraIcon,
-  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
-
-interface EmailTemplate {
-  id: string;
-  name: string;
-  subject: string;
-  htmlContent: string;
-  textContent: string | null;
-  variables: string[];
-  isActive: boolean;
-}
 
 interface Activity {
   id: string;
@@ -75,11 +64,6 @@ export function ActivitiesPage() {
   const [modalType, setModalType] = useState<'email' | 'call' | 'meeting' | 'task' | 'create'>('create');
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
-
-  // Email templates state
-  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
-  const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
 
   // Email form state
   const [emailForm, setEmailForm] = useState({
@@ -194,67 +178,6 @@ export function ActivitiesPage() {
     }
   };
 
-  const fetchEmailTemplates = async () => {
-    try {
-      setIsLoadingTemplates(true);
-      const token = localStorage.getItem('crmToken');
-      if (!token) return;
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/email-templates`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setEmailTemplates(data.templates || []);
-      }
-    } catch (err) {
-      console.error('Error fetching email templates:', err);
-    } finally {
-      setIsLoadingTemplates(false);
-    }
-  };
-
-  const handleTemplateSelect = (templateId: string) => {
-    setSelectedTemplateId(templateId);
-
-    if (!templateId) return;
-
-    const template = emailTemplates.find(t => t.id === templateId);
-    if (!template) return;
-
-    // Replace variables with contact data if available
-    let subject = template.subject;
-    let htmlContent = template.htmlContent;
-
-    if (selectedActivity?.contact) {
-      const contact = selectedActivity.contact;
-      const replacements: Record<string, string> = {
-        firstName: contact.firstName || '',
-        lastName: contact.lastName || '',
-        email: contact.email || '',
-        phone: contact.phone || '',
-        companyName: '', // Could be enhanced with company data
-        position: '', // Could be enhanced with position data
-      };
-
-      Object.entries(replacements).forEach(([key, value]) => {
-        const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-        subject = subject.replace(regex, value);
-        htmlContent = htmlContent.replace(regex, value);
-      });
-    }
-
-    setEmailForm(prev => ({
-      ...prev,
-      subject,
-      htmlContent,
-    }));
-  };
-
   const handleOpenModal = (type: 'email' | 'call' | 'meeting' | 'task', activity: Activity) => {
     setModalType(type);
     setSelectedActivity(activity);
@@ -267,8 +190,6 @@ export function ActivitiesPage() {
         subject: activity.subject || 'Follow-up',
         htmlContent: activity.description || '',
       });
-      setSelectedTemplateId('');
-      fetchEmailTemplates(); // Fetch templates when opening email modal
     } else if (type === 'call') {
       setCallForm({
         phoneNumber: activity.contact?.phone || '',
@@ -564,10 +485,10 @@ export function ActivitiesPage() {
               <button
                 key={type.value}
                 onClick={() => setFilterType(type.value)}
-                className={`inline-flex items-center px-4 py-2.5 rounded-xl font-bold text-sm transition-all tracking-wide shadow-sm ${
+                className={`inline-flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                   filterType === type.value
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
-                    : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
                 }`}
               >
                 <Icon className="h-4 w-4 mr-2" />
@@ -662,7 +583,7 @@ export function ActivitiesPage() {
                                   href={activity.meetingLink}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-50 text-orange-800 hover:bg-orange-100 shadow-sm tracking-wide"
+                                  className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-50 text-purple-800 hover:bg-purple-100 shadow-sm tracking-wide"
                                 >
                                   <VideoCameraIcon className="h-4 w-4 mr-1.5" />
                                   Join Meeting
@@ -703,9 +624,9 @@ export function ActivitiesPage() {
                             {isTask && !activity.isCompleted && (
                               <button
                                 onClick={() => handleCompleteTask(activity.id)}
-                                className={`inline-flex items-center px-4 py-2 bg-gradient-to-r ${gradients.semantic.success.gradient} text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide`}
+                                className="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white text-sm font-medium rounded-md hover:bg-orange-700"
                               >
-                                <CheckCircleIcon className="h-4 w-4 mr-1.5" />
+                                <CheckCircleIcon className="h-4 w-4 mr-1" />
                                 Complete
                               </button>
                             )}
@@ -779,14 +700,14 @@ export function ActivitiesPage() {
                 <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-bold tracking-wide shadow-sm"
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateActivity}
                     disabled={isSending}
-                    className={`px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide disabled:opacity-50`}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
                   >
                     {isSending ? 'Creating...' : 'Create Activity'}
                   </button>
@@ -801,43 +722,6 @@ export function ActivitiesPage() {
                   <p className="text-sm text-gray-500 mt-1">Activity: {selectedActivity.subject}</p>
                 </div>
                 <div className="p-6 space-y-4">
-                  {/* Email Template Selector */}
-                  <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-2 border-orange-200 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <SparklesIcon className="h-5 w-5 text-orange-600" />
-                      <label className="block text-sm font-bold text-orange-900">
-                        Use Email Template (Optional)
-                      </label>
-                    </div>
-                    {isLoadingTemplates ? (
-                      <p className="text-sm text-orange-700">Loading templates...</p>
-                    ) : emailTemplates.length === 0 ? (
-                      <p className="text-sm text-orange-700">
-                        No templates available. Create templates in the{' '}
-                        <a href="/email-templates" className="underline font-bold">Email Templates</a> page.
-                      </p>
-                    ) : (
-                      <select
-                        value={selectedTemplateId}
-                        onChange={(e) => handleTemplateSelect(e.target.value)}
-                        className="w-full px-3 py-2 border-2 border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white"
-                        aria-label="Select email template"
-                      >
-                        <option value="">-- Select a template --</option>
-                        {emailTemplates.filter(t => t.isActive).map((template) => (
-                          <option key={template.id} value={template.id}>
-                            {template.name}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    {selectedTemplateId && (
-                      <p className="text-xs text-orange-700 mt-2">
-                        ✓ Template loaded. Variables have been replaced with contact data.
-                      </p>
-                    )}
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">To *</label>
                     {emailForm.to.map((email, index) => (
@@ -861,7 +745,7 @@ export function ActivitiesPage() {
                     ))}
                     <button
                       onClick={() => addField('to')}
-                      className="text-sm text-orange-600 hover:text-orange-700 font-bold"
+                      className="text-sm text-blue-600 hover:text-blue-700"
                     >
                       + Add recipient
                     </button>
@@ -892,7 +776,7 @@ export function ActivitiesPage() {
                 <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-bold tracking-wide shadow-sm"
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                     disabled={isSending}
                   >
                     Cancel
@@ -900,7 +784,7 @@ export function ActivitiesPage() {
                   <button
                     onClick={handleSendEmail}
                     disabled={isSending}
-                    className={`inline-flex items-center px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide disabled:opacity-50`}
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
                   >
                     {isSending ? 'Sending...' : (
                       <>
@@ -920,8 +804,8 @@ export function ActivitiesPage() {
                   <p className="text-sm text-gray-500 mt-1">Activity: {selectedActivity.subject}</p>
                 </div>
                 <div className="p-6 space-y-4">
-                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-                    <p className="text-sm text-orange-800 font-medium">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-sm text-yellow-800">
                       Note: SMS/Call functionality requires a Twilio phone number. This is a simulation for now.
                     </p>
                   </div>
@@ -949,14 +833,14 @@ export function ActivitiesPage() {
                 <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-bold tracking-wide shadow-sm"
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleMakeFakeCall}
                     disabled={isSending}
-                    className={`inline-flex items-center px-6 py-2.5 bg-gradient-to-r ${gradients.semantic.success.gradient} text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-bold tracking-wide shadow-md`}
+                    className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
                   >
                     {isSending ? 'Calling...' : (
                       <>
@@ -976,8 +860,8 @@ export function ActivitiesPage() {
                   <p className="text-sm text-gray-500 mt-1">Activity: {selectedActivity.subject}</p>
                 </div>
                 <div className="p-6 space-y-4">
-                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-                    <p className="text-sm text-orange-800 font-medium">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-800">
                       Note: Google Calendar integration requires OAuth setup. Meeting link is a placeholder.
                     </p>
                   </div>
@@ -1034,7 +918,7 @@ export function ActivitiesPage() {
                     ))}
                     <button
                       onClick={() => addField('attendees')}
-                      className="text-sm text-orange-600 hover:text-orange-700 font-bold"
+                      className="text-sm text-blue-600 hover:text-blue-700"
                     >
                       + Add attendee
                     </button>
@@ -1053,14 +937,14 @@ export function ActivitiesPage() {
                 <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-bold tracking-wide shadow-sm"
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreateMeeting}
                     disabled={isSending}
-                    className={`inline-flex items-center px-6 py-2.5 bg-gradient-to-r ${gradients.semantic.premium.gradient} text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide disabled:opacity-50`}
+                    className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
                   >
                     {isSending ? 'Creating...' : (
                       <>
