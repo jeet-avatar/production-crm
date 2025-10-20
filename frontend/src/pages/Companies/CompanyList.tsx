@@ -212,7 +212,7 @@ export function CompanyList() {
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
+                className="p-3 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-white hover:from-orange-600 hover:via-orange-700 hover:to-rose-600 transition-all shadow-xl hover:shadow-2xl border-2 border-black"
                 title="Show Help Guide"
               >
                 <QuestionMarkCircleIcon className="h-5 w-5" />
