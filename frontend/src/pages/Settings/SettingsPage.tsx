@@ -339,25 +339,8 @@ export function SettingsPage() {
       setPricingPlans(data.plans || []);
     } catch (err: any) {
       console.error('Error fetching pricing plans:', err);
-      // Set default plans if API fails
-      setPricingPlans([
-        {
-          id: 'free',
-          name: 'Free',
-          description: 'Get started with basic features',
-          monthlyPrice: 0,
-          annualPrice: 0,
-          popular: false,
-          features: [
-            { text: '100 contacts', included: true },
-            { text: '10 companies', included: true },
-            { text: 'Basic features', included: true },
-          ],
-          buttonText: 'Current Plan',
-          stripeMonthlyPriceId: '',
-          stripeAnnualPriceId: '',
-        }
-      ]);
+      // Set empty array if API fails - show error to user instead of outdated fallback
+      setPricingPlans([]);
     } finally {
       setIsLoadingPlans(false);
     }
@@ -1104,6 +1087,17 @@ export function SettingsPage() {
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary-600"></div>
                       <p className="text-gray-600 mt-4">Loading pricing plans...</p>
                     </div>
+                  ) : pricingPlans.length === 0 ? (
+                    <div className="text-center py-12">
+                      <p className="text-red-600 font-semibold mb-2">Failed to load pricing plans</p>
+                      <p className="text-gray-600 mb-4">Please try refreshing the page</p>
+                      <button
+                        onClick={fetchPricingPlans}
+                        className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-lg hover:from-orange-700 hover:to-rose-700"
+                      >
+                        Retry
+                      </button>
+                    </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {pricingPlans.map((plan) => {
@@ -1147,15 +1141,15 @@ export function SettingsPage() {
 
                           {/* White Card Body */}
                           <div className="bg-white p-6 flex-1 flex flex-col">
-                            <ul className="space-y-3 mb-6 flex-1">
-                            {plan.features.slice(0, 8).map((feature: any, idx: number) => (
+                            <ul className="space-y-2 mb-6 flex-1 max-h-96 overflow-y-auto pr-2">
+                            {plan.features.map((feature: any, idx: number) => (
                               <li key={idx} className="flex items-start gap-2 text-sm">
                                 {feature.included ? (
-                                  <CheckIcon className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                                  <CheckIcon className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
                                 ) : (
-                                  <XMarkIcon className="h-5 w-5 text-gray-300 flex-shrink-0 mt-0.5" />
+                                  <XMarkIcon className="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" />
                                 )}
-                                <span className={feature.included ? 'text-gray-700' : 'text-gray-400'}>
+                                <span className={feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}>
                                   {feature.text}
                                 </span>
                               </li>
