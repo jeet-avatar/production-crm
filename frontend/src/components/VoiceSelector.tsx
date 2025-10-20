@@ -636,11 +636,111 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Upload Voice Sample
+              Record or Upload Voice Sample
             </label>
             <p className="text-xs text-gray-600 mb-3">
-              Record 10-15 seconds of clear speech. This voice will be saved and can be reused in all your future video campaigns.
+              Record or upload 10-15 seconds of clear speech. This voice will be saved and can be reused in all your future video campaigns.
             </p>
+
+            {/* Recording in Progress */}
+            {isRecording ? (
+              <div className="flex flex-col items-center gap-3 p-6 border-2 border-red-600 bg-red-50 rounded-lg">
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center animate-pulse">
+                    <MicrophoneIcon className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="absolute inset-0 rounded-full border-4 border-red-500 animate-ping opacity-75"></div>
+                </div>
+                <div className="text-lg font-bold text-red-600">{formatRecordingTime(recordingTime)}</div>
+                <p className="text-sm text-gray-700 font-medium">Recording your voice for cloning...</p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (mediaRecorderRef.current && isRecording) {
+                      // Get voice name
+                      const voiceNameInput = document.getElementById('voice-name-input') as HTMLInputElement;
+                      const voiceName = voiceNameInput?.value || 'My Voice';
+
+                      // Stop recording and process
+                      mediaRecorderRef.current.addEventListener('stop', async () => {
+                        const audioBlob = new Blob(audioChunksRef.current, {
+                          type: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg'
+                        });
+                        const audioFile = new File([audioBlob], `${voiceName}-${Date.now()}.webm`, {
+                          type: audioBlob.type
+                        });
+
+                        // Reset recording state
+                        setIsRecording(false);
+                        setRecordingTime(0);
+                        if (recordingTimerRef.current) {
+                          clearInterval(recordingTimerRef.current);
+                          recordingTimerRef.current = null;
+                        }
+
+                        // Upload for cloning
+                        await handleCloneVoice(audioFile, voiceName);
+                      }, { once: true });
+
+                      mediaRecorderRef.current.stop();
+                    }
+                  }}
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                >
+                  Stop & Clone Voice
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {/* Record Button */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+                      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+
+                      audioChunksRef.current = [];
+
+                      mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                          audioChunksRef.current.push(event.data);
+                        }
+                      };
+
+                      mediaRecorderRef.current = mediaRecorder;
+                      mediaRecorder.start();
+                      setIsRecording(true);
+                      setRecordingTime(0);
+
+                      recordingTimerRef.current = window.setInterval(() => {
+                        setRecordingTime((prev) => prev + 1);
+                      }, 1000);
+                    } catch (error) {
+                      console.error('Recording failed:', error);
+                      alert('Failed to start recording. Please check microphone permissions.');
+                    }
+                  }}
+                  disabled={isCloningVoice}
+                  className="flex flex-col items-center gap-2 px-4 py-4 bg-gradient-to-r from-red-400 to-pink-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <MicrophoneIcon className="w-6 h-6" />
+                  Record Voice
+                </button>
+
+                {/* Upload Button */}
+                <button
+                  type="button"
+                  onClick={() => cloneFileInputRef.current?.click()}
+                  disabled={isCloningVoice}
+                  className="flex flex-col items-center gap-2 px-4 py-4 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <ArrowUpTrayIcon className="w-6 h-6" />
+                  {isCloningVoice ? 'Cloning...' : 'Upload File'}
+                </button>
+              </div>
+            )}
 
             <input
               ref={cloneFileInputRef}
@@ -669,21 +769,12 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
               }}
               className="hidden"
             />
-
-            <button
-              type="button"
-              onClick={() => cloneFileInputRef.current?.click()}
-              disabled={isCloningVoice}
-              className="w-full px-4 py-3 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isCloningVoice ? 'Cloning Voice...' : 'Upload Voice Sample'}
-            </button>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-gray-700">
             <strong>💡 How it works:</strong>
             <ul className="mt-2 ml-4 space-y-1">
-              <li>• Upload a 10-15 second recording of your voice</li>
+              <li>• Record or upload a 10-15 second sample of your voice</li>
               <li>• Your voice will be saved securely in your account</li>
               <li>• Use this voice in unlimited video campaigns</li>
               <li>• No need to re-record for each video!</li>
