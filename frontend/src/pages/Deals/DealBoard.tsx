@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { PlusIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, CurrencyDollarIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import { dealsApi } from '../../services/api';
 import { DealForm } from './DealForm';
+import { DealsHelpGuide } from '../../components/DealsHelpGuide';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface Deal {
@@ -40,6 +41,7 @@ export function DealBoard() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
 
   const loadDeals = async () => {
     try {
@@ -121,10 +123,21 @@ export function DealBoard() {
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Deals Pipeline</h1>
-          <p className="text-gray-600 mt-1">Track and manage your sales opportunities</p>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-900">Deals Pipeline</h1>
+            <button
+              type="button"
+              onClick={() => setShowHelpGuide(true)}
+              className="p-2 rounded-lg bg-gradient-to-r from-orange-500 to-rose-500 text-white hover:from-orange-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
+              title="Show Help Guide"
+            >
+              <QuestionMarkCircleIcon className="h-5 w-5" />
+            </button>
+          </div>
+          <p className="text-gray-600 mt-1">Track and manage your sales opportunities • Click ? for help</p>
         </div>
         <button
+          type="button"
           onClick={handleAddDeal}
           className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
         >
@@ -267,6 +280,11 @@ export function DealBoard() {
           deal={editingDeal}
           onClose={handleModalClose}
         />
+      )}
+
+      {/* Help Guide */}
+      {showHelpGuide && (
+        <DealsHelpGuide onClose={() => setShowHelpGuide(false)} />
       )}
     </div>
   );
