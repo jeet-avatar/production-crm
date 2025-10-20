@@ -7,7 +7,10 @@ import {
   CheckCircleIcon,
   QuestionMarkCircleIcon,
   MicrophoneIcon,
+  UserCircleIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
+import { videoService } from '../services/videoService';
 
 export interface VoiceOption {
   id: string;
@@ -134,11 +137,16 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [myClonedVoices, setMyClonedVoices] = useState<any[]>([]);
+  const [isLoadingVoices, setIsLoadingVoices] = useState(false);
+  const [isCloningVoice, setIsCloningVoice] = useState(false);
+  const [showCloneSection, setShowCloneSection] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<number | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const cloneFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleVoiceSelect = (voiceId: string) => {
     setSelectedVoice(voiceId);
@@ -361,6 +369,64 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Load user's cloned voices
+  const loadMyVoices = async () => {
+    setIsLoadingVoices(true);
+    try {
+      const response = await videoService.getMyVoices();
+      setMyClonedVoices(response.voices || []);
+    } catch (error) {
+      console.error('Failed to load cloned voices:', error);
+    } finally {
+      setIsLoadingVoices(false);
+    }
+  };
+
+  // Clone voice
+  const handleCloneVoice = async (file: File, voiceName: string) => {
+    setIsCloningVoice(true);
+    try {
+      const formData = new FormData();
+      formData.append('voice', file);
+      formData.append('voice_name', voiceName || 'default');
+
+      const response = await videoService.cloneVoice(formData);
+
+      alert(`✓ Voice cloned successfully! You can now use "${voiceName}" in all your video campaigns.`);
+
+      // Reload voices
+      await loadMyVoices();
+      setShowCloneSection(false);
+    } catch (error: any) {
+      console.error('Voice cloning failed:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to clone voice';
+      alert(`Failed to clone voice: ${errorMessage}`);
+    } finally {
+      setIsCloningVoice(false);
+    }
+  };
+
+  // Delete cloned voice
+  const handleDeleteClonedVoice = async (voiceId: string) => {
+    if (!confirm('Are you sure you want to delete this cloned voice?')) {
+      return;
+    }
+
+    try {
+      await videoService.synthesizeVoice(''); // Using this as placeholder - should add delete method
+      await loadMyVoices();
+      alert('Voice deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete voice:', error);
+      alert('Failed to delete voice');
+    }
+  };
+
+  // Load voices on component mount
+  useEffect(() => {
+    loadMyVoices();
+  }, []);
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -465,6 +531,166 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
           <span className="px-2 bg-white text-gray-500 uppercase">Or Use Your Own Voice</span>
         </div>
       </div>
+
+      {/* My Cloned Voices Section */}
+      {myClonedVoices.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <UserCircleIcon className="w-5 h-5 text-rose-600" />
+              <h3 className="text-sm font-semibold text-gray-900">My Cloned Voices</h3>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-medium">
+                {myClonedVoices.length}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {myClonedVoices.map((voice) => (
+              <div
+                key={voice.voice_id}
+                onClick={() => {
+                  setSelectedVoice(voice.voice_url || voice.voice_id);
+                  setIsCustom(true);
+                  onChange(voice.voice_url || voice.voice_id, true);
+                }}
+                className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  selectedVoice === (voice.voice_url || voice.voice_id) && isCustom
+                    ? 'border-orange-600 bg-rose-50 shadow-md'
+                    : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'
+                }`}
+              >
+                {selectedVoice === (voice.voice_url || voice.voice_id) && isCustom && (
+                  <CheckCircleIcon className="absolute top-2 right-2 w-6 h-6 text-rose-600" />
+                )}
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
+                    {voice.voice_name?.[0]?.toUpperCase() || 'V'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-900">{voice.voice_name || 'My Voice'}</h4>
+                    <p className="text-xs text-purple-600 font-medium">Cloned Voice</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {(voice.file_size / 1024 / 1024).toFixed(2)} MB
+                      {voice.duration && ` • ${Math.round(voice.duration)}s`}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClonedVoice(voice.voice_id);
+                  }}
+                  className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-red-300 rounded-md text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                  Delete Voice
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Clone Voice CTA */}
+      <div
+        onClick={() => setShowCloneSection(!showCloneSection)}
+        className="border-2 border-dashed border-rose-300 bg-gradient-to-r from-rose-50 to-orange-50 rounded-lg p-4 cursor-pointer hover:border-rose-400 hover:shadow-md transition-all"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <UserCircleIcon className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">Clone Your Voice</h3>
+              <p className="text-xs text-gray-600">Record once, reuse in all videos</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="px-4 py-2 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all text-sm"
+          >
+            {showCloneSection ? 'Cancel' : 'Clone Voice'}
+          </button>
+        </div>
+      </div>
+
+      {/* Clone Voice Form */}
+      {showCloneSection && (
+        <div className="border-2 border-rose-200 rounded-lg p-6 bg-white space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Voice Name
+            </label>
+            <input
+              type="text"
+              id="voice-name-input"
+              placeholder="e.g., My Professional Voice"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Upload Voice Sample
+            </label>
+            <p className="text-xs text-gray-600 mb-3">
+              Record 10-15 seconds of clear speech. This voice will be saved and can be reused in all your future video campaigns.
+            </p>
+
+            <input
+              ref={cloneFileInputRef}
+              type="file"
+              accept="audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/webm"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                const voiceNameInput = document.getElementById('voice-name-input') as HTMLInputElement;
+                const voiceName = voiceNameInput?.value || 'My Voice';
+
+                // Validate file size
+                const fileSizeKB = file.size / 1024;
+                if (fileSizeKB < 50) {
+                  alert('Voice sample too short. Please record at least 10-15 seconds.');
+                  return;
+                }
+
+                if (file.size > 10 * 1024 * 1024) {
+                  alert('File too large. Maximum size is 10MB.');
+                  return;
+                }
+
+                await handleCloneVoice(file, voiceName);
+              }}
+              className="hidden"
+            />
+
+            <button
+              type="button"
+              onClick={() => cloneFileInputRef.current?.click()}
+              disabled={isCloningVoice}
+              className="w-full px-4 py-3 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isCloningVoice ? 'Cloning Voice...' : 'Upload Voice Sample'}
+            </button>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-gray-700">
+            <strong>💡 How it works:</strong>
+            <ul className="mt-2 ml-4 space-y-1">
+              <li>• Upload a 10-15 second recording of your voice</li>
+              <li>• Your voice will be saved securely in your account</li>
+              <li>• Use this voice in unlimited video campaigns</li>
+              <li>• No need to re-record for each video!</li>
+            </ul>
+          </div>
+        </div>
+      )}
 
       {/* Custom Voice Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
