@@ -1267,7 +1267,7 @@ export function SuperAdminDashboard() {
 
         {/* Tab Navigation */}
         <div className="bg-white rounded-2xl shadow-lg mb-8 p-2">
-          <nav className="flex space-x-2">
+          <nav className="grid grid-cols-6 gap-2">
             {[
               { id: 'overview', label: 'Overview', icon: ChartBarIcon },
               { id: 'users', label: 'User Management', icon: UsersIcon },
@@ -1284,14 +1284,14 @@ export function SuperAdminDashboard() {
               <button
                 key={tab.id}
                 onClick={() => setSelectedTab(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-200 ${
+                className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-200 ${
                   selectedTab === tab.id
                     ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg`
                     : 'bg-white text-gray-700 border-2 border-gray-300'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <span className="hidden lg:inline">{tab.label}</span>
               </button>
             ))}
           </nav>
