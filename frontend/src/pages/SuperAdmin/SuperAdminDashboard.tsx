@@ -1254,6 +1254,17 @@ export function SuperAdminDashboard() {
           </div>
         </div>
 
+        {/* Quick Actions */}
+        <div className="mb-6 flex gap-4">
+          <button
+            onClick={() => window.location.href = '/super-admin/system-templates'}
+            className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold rounded-xl hover:shadow-lg transition-all duration-200`}
+          >
+            <EnvelopeIcon className="w-5 h-5" />
+            Manage System Email Templates
+          </button>
+        </div>
+
         {/* Tab Navigation */}
         <div className="bg-white rounded-2xl shadow-lg mb-8 p-2">
           <nav className="flex space-x-2">
