@@ -78,7 +78,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
               </p>
 
               {/* Step 1 */}
-              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                 <div className="flex items-start gap-4">
                   <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-black">1</span>
@@ -128,7 +128,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
               </div>
 
               {/* Step 2 */}
-              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                 <div className="flex items-start gap-4">
                   <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-black">2</span>
@@ -172,7 +172,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
               </div>
 
               {/* Step 3 */}
-              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                 <div className="flex items-start gap-4">
                   <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-black">3</span>
@@ -203,37 +203,37 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                   <MagnifyingGlassIcon className="w-8 h-8 text-orange-600 mb-3" />
                   <h4 className="text-xl font-bold text-black mb-2">Smart Search</h4>
                   <p className="text-black/80">Search by company name, domain, industry, or location</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                   <TagIcon className="w-8 h-8 text-rose-600 mb-3" />
                   <h4 className="text-xl font-bold text-black mb-2">Tags & Filters</h4>
                   <p className="text-black/80">Organize companies with custom tags and advanced filters</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                   <SparklesIcon className="w-8 h-8 text-amber-600 mb-3" />
                   <h4 className="text-xl font-bold text-black mb-2">AI Enrichment</h4>
                   <p className="text-black/80">Automatically discover company info, revenue, employees, and tech stack</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                   <UsersIcon className="w-8 h-8 text-green-600 mb-3" />
                   <h4 className="text-xl font-bold text-black mb-2">Contact Linking</h4>
                   <p className="text-black/80">View all contacts and deals associated with each company</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                   <ChartBarIcon className="w-8 h-8 text-orange-600 mb-3" />
                   <h4 className="text-xl font-bold text-black mb-2">Analytics</h4>
                   <p className="text-black/80">Track company engagement, deal value, and relationship strength</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all">
+                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
                   <ArrowUpTrayIcon className="w-8 h-8 text-rose-600 mb-3" />
                   <h4 className="text-xl font-bold text-black mb-2">Bulk Operations</h4>
                   <p className="text-black/80">Import, export, and bulk update company records</p>
