@@ -74,8 +74,8 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { bg: string; text: string; icon: any }> = {
       SENT: { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircleIcon },
-      DELIVERED: { bg: 'bg-blue-100', text: 'text-blue-700', icon: CheckCircleIcon },
-      OPENED: { bg: 'bg-purple-100', text: 'text-purple-700', icon: EyeIcon },
+      DELIVERED: { bg: 'bg-orange-100', text: 'text-orange-700', icon: CheckCircleIcon },
+      OPENED: { bg: 'bg-rose-100', text: 'text-rose-700', icon: EyeIcon },
       CLICKED: { bg: 'bg-orange-100', text: 'text-orange-700', icon: CursorArrowRaysIcon },
       BOUNCED: { bg: 'bg-red-100', text: 'text-red-700', icon: ExclamationCircleIcon },
       PENDING: { bg: 'bg-gray-100', text: 'text-gray-700', icon: ClockIcon },
@@ -126,11 +126,11 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-t-2xl flex-shrink-0">
+        <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-6 rounded-t-2xl flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2">Email Delivery Report</h2>
-              <p className="text-blue-100 text-lg">{campaignName}</p>
+              <p className="text-orange-100 text-lg">{campaignName}</p>
             </div>
             <button
               onClick={onClose}
@@ -152,9 +152,9 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
               <div className="text-xs text-green-700 font-medium uppercase mb-1">Sent</div>
               <div className="text-3xl font-bold text-green-600">{stats.sent}</div>
             </div>
-            <div className="bg-purple-50 rounded-xl p-4 border-2 border-purple-200">
-              <div className="text-xs text-purple-700 font-medium uppercase mb-1">Opened</div>
-              <div className="text-3xl font-bold text-purple-600">{stats.opened}</div>
+            <div className="bg-rose-50 rounded-xl p-4 border-2 border-rose-200">
+              <div className="text-xs text-rose-700 font-medium uppercase mb-1">Opened</div>
+              <div className="text-3xl font-bold text-rose-600">{stats.opened}</div>
             </div>
             <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200">
               <div className="text-xs text-orange-700 font-medium uppercase mb-1">Clicked</div>
@@ -172,16 +172,16 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
 
           {/* Server Usage Stats */}
           {Object.keys(serverStats).length > 0 && (
-            <div className="mt-4 bg-white rounded-xl p-4 border-2 border-blue-200">
+            <div className="mt-4 bg-white rounded-xl p-4 border-2 border-orange-200">
               <div className="flex items-center gap-2 mb-3">
-                <ServerIcon className="h-5 w-5 text-blue-600" />
+                <ServerIcon className="h-5 w-5 text-orange-600" />
                 <h3 className="text-sm font-bold text-gray-900">Email Servers Used</h3>
               </div>
               <div className="flex flex-wrap gap-3">
                 {Object.entries(serverStats).map(([server, count]) => (
-                  <div key={server} className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div key={server} className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-lg">
                     <span className="text-sm font-semibold text-gray-900">{server}</span>
-                    <span className="text-xs text-blue-600 font-bold bg-blue-100 px-2 py-0.5 rounded-full">{count} emails</span>
+                    <span className="text-xs text-orange-600 font-bold bg-orange-100 px-2 py-0.5 rounded-full">{count} emails</span>
                   </div>
                 ))}
               </div>
@@ -199,7 +199,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
                   onClick={() => setFilterStatus(status)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                     filterStatus === status
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                      ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-md'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -213,12 +213,12 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by email, name, or company..."
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
               />
             </div>
             <button
               onClick={loadEmailLogs}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 transition-all"
             >
               <ArrowPathIcon className="h-4 w-4" />
               Refresh
@@ -230,7 +230,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
             </div>
           ) : filteredLogs.length === 0 ? (
             <div className="text-center py-12">
@@ -257,8 +257,8 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
                     <tr key={log.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <span className="text-blue-600 font-bold text-sm">
+                          <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <span className="text-orange-600 font-bold text-sm">
                               {log.contact.firstName[0]}{log.contact.lastName[0]}
                             </span>
                           </div>
@@ -282,13 +282,13 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-1 text-sm text-gray-700">
-                          <EnvelopeIcon className="h-4 w-4 text-blue-500" />
+                          <EnvelopeIcon className="h-4 w-4 text-orange-500" />
                           <span>{log.fromEmail || '-'}</span>
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         {log.serverUsed ? (
-                          <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-200 rounded-md text-xs font-medium text-blue-700">
+                          <div className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 border border-orange-200 rounded-md text-xs font-medium text-orange-700">
                             <ServerIcon className="h-3 w-3" />
                             {log.serverUsed}
                           </div>
@@ -335,7 +335,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
           </div>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
+            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
           >
             Close Report
           </button>

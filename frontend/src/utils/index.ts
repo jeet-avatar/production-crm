@@ -44,12 +44,12 @@ export function truncateText(text: string, maxLength: number): string {
 export function generateAvatarColor(name: string): string {
   const colors = [
     'bg-red-500',
-    'bg-blue-500',
+    'bg-gradient-to-r from-orange-500 to-rose-500',
     'bg-green-500',
     'bg-yellow-500',
-    'bg-purple-500',
+    'bg-gradient-to-r from-orange-500 to-rose-500',
     'bg-pink-500',
-    'bg-indigo-500',
+    'bg-gradient-to-r from-orange-500 to-rose-500',
     'bg-gray-500',
   ];
   

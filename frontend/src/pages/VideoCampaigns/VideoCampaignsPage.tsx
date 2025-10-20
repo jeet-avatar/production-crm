@@ -6,9 +6,11 @@ import {
   TrashIcon,
   ArrowDownTrayIcon,
   PlayIcon,
+  QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import { CreateVideoCampaignModal } from '../../components/CreateVideoCampaignModal';
 import { VideoGenerationProgress } from '../../components/VideoGenerationProgress';
+import { VideoCampaignsHelpGuide } from '../../components/VideoCampaignsHelpGuide';
 import { videoService, type VideoCampaign } from '../../services/videoService';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -18,6 +20,7 @@ export function VideoCampaignsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showHelpGuide, setShowHelpGuide] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('all');
 
   useEffect(() => {
@@ -89,13 +92,24 @@ export function VideoCampaignsPage() {
                 Create personalized marketing videos with AI
               </p>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
-            >
-              <PlusIcon className="w-4 h-4" />
-              Create Campaign
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowHelpGuide(true)}
+                className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
+                title="Show Help Guide"
+              >
+                <QuestionMarkCircleIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+              >
+                <PlusIcon className="w-4 h-4" />
+                Create Campaign
+              </button>
+            </div>
           </div>
 
           {/* Status Filter */}
@@ -103,6 +117,7 @@ export function VideoCampaignsPage() {
             {['all', 'DRAFT', 'GENERATING', 'READY', 'FAILED'].map((status) => (
               <button
                 key={status}
+                type="button"
                 onClick={() => setSelectedStatus(status)}
                 className={`px-4 py-2.5 rounded-xl font-bold capitalize transition-all tracking-wide ${
                   selectedStatus === status
@@ -148,6 +163,7 @@ export function VideoCampaignsPage() {
               professional overlays
             </p>
             <button
+              type="button"
               onClick={() => setShowCreateModal(true)}
               className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
             >
@@ -232,6 +248,7 @@ export function VideoCampaignsPage() {
                     {campaign.videoUrl && campaign.status === 'READY' && (
                       <>
                         <button
+                          type="button"
                           onClick={() => window.open(campaign.videoUrl, '_blank')}
                           className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
                         >
@@ -239,6 +256,7 @@ export function VideoCampaignsPage() {
                           Play
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDownload(campaign.videoUrl!, campaign.name)}
                           className="flex items-center justify-center px-4 py-2.5 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 shadow-sm transition-all"
                           title="Download"
@@ -248,6 +266,7 @@ export function VideoCampaignsPage() {
                       </>
                     )}
                     <button
+                      type="button"
                       onClick={() => handleDelete(campaign.id)}
                       className="flex items-center justify-center px-4 py-2.5 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition-all border-2 border-red-300 shadow-sm"
                       title="Delete"
@@ -289,6 +308,11 @@ export function VideoCampaignsPage() {
         onClose={() => setShowCreateModal(false)}
         onSuccess={loadCampaigns}
       />
+
+      {/* Help Guide */}
+      {showHelpGuide && (
+        <VideoCampaignsHelpGuide onClose={() => setShowHelpGuide(false)} />
+      )}
     </div>
   );
 }

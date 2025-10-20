@@ -103,7 +103,7 @@ export function AssignmentDropdown({
           value={currentAssignedToId || ''}
           onChange={(e) => handleAssign(e.target.value)}
           disabled={assigning || loading}
-          className="text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="text-sm rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           onClick={(e) => e.stopPropagation()} // Prevent row click when clicking dropdown
         >
           <option value="">Unassigned</option>
@@ -114,7 +114,7 @@ export function AssignmentDropdown({
           ))}
         </select>
         {assigning && (
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-600"></div>
         )}
       </div>
     );
@@ -156,7 +156,7 @@ export function AssignmentDropdown({
             </div>
           ) : teamMembers.length === 0 ? (
             <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-md">
-              No team members available. <a href="/team" className="text-blue-600 hover:text-blue-800">Invite team members</a> to enable assignment.
+              No team members available. <a href="/team" className="text-orange-600 hover:text-orange-800">Invite team members</a> to enable assignment.
             </div>
           ) : (
             <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export function AssignmentDropdown({
                 value={currentAssignedToId || ''}
                 onChange={(e) => handleAssign(e.target.value)}
                 disabled={assigning}
-                className="flex-1 block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="flex-1 block rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="">Unassigned</option>
                 {teamMembers.map((member) => (
@@ -186,15 +186,15 @@ export function AssignmentDropdown({
               )}
 
               {assigning && (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-600"></div>
               )}
             </div>
           )}
         </div>
 
         {currentAssignedTo && (
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-            <div className="flex items-center gap-2 text-sm text-blue-800">
+          <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
+            <div className="flex items-center gap-2 text-sm text-orange-800">
               <UserIcon className="h-4 w-4" />
               <span>
                 Currently assigned to: <strong>{currentAssignedTo.firstName} {currentAssignedTo.lastName}</strong>

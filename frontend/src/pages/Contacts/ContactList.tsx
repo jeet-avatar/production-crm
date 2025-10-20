@@ -248,7 +248,7 @@ export function ContactList() {
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg"
+                className="p-3 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-white hover:from-orange-600 hover:via-orange-700 hover:to-rose-600 transition-all shadow-xl hover:shadow-2xl border-2 border-black"
                 title="Show Help Guide"
               >
                 <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -260,7 +260,7 @@ export function ContactList() {
             {/* Commented out import buttons - uncomment when modals are needed */}
             {/* <button
               onClick={() => setShowApolloImport(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-2 border-purple-500 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-md active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-orange-500 rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-md active:scale-95"
             >
               <SparklesIcon className="h-5 w-5" />
               <span>Import from Apollo</span>

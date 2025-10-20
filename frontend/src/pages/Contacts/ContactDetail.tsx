@@ -247,7 +247,7 @@ export function ContactDetail() {
           <button
             onClick={handleEnrich}
             disabled={enriching}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <SparklesIcon className="h-4 w-4" />
             <span>{enriching ? 'Enriching...' : 'AI Enrich'}</span>
@@ -280,8 +280,8 @@ export function ContactDetail() {
       <div className="mb-6">
         <div className="grid grid-cols-4 gap-4">
           {[
-            { id: 'overview', name: 'Overview', icon: UserIcon, gradient: 'from-blue-500 to-blue-600' },
-            { id: 'activities', name: 'Activities', icon: ClockIcon, gradient: 'from-purple-500 to-purple-600' },
+            { id: 'overview', name: 'Overview', icon: UserIcon, gradient: 'from-orange-500 to-rose-600' },
+            { id: 'activities', name: 'Activities', icon: ClockIcon, gradient: 'from-orange-500 to-rose-600' },
             { id: 'deals', name: 'Deals', icon: CurrencyDollarIcon, gradient: 'from-green-500 to-green-600' },
             { id: 'notes', name: 'Notes', icon: ChatBubbleLeftIcon, gradient: 'from-orange-500 to-orange-600' },
           ].map((tab) => {

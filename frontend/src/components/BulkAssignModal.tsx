@@ -105,7 +105,7 @@ export function BulkAssignModal({
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <UserGroupIcon className="h-6 w-6 text-blue-600" />
+              <UserGroupIcon className="h-6 w-6 text-orange-600" />
               <h3 className="text-lg font-medium text-gray-900">
                 Bulk Assign {resourcesLabel}
               </h3>
@@ -121,8 +121,8 @@ export function BulkAssignModal({
           {/* Content */}
           <div className="space-y-4">
             {/* Summary */}
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-              <p className="text-sm text-blue-800">
+            <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
+              <p className="text-sm text-orange-800">
                 You're about to assign <strong>{selectedIds.length}</strong> {selectedIds.length === 1 ? resourceLabel.toLowerCase() : resourcesLabel.toLowerCase()} to a team member.
               </p>
             </div>
@@ -150,7 +150,7 @@ export function BulkAssignModal({
                   <p className="mb-2">No team members available.</p>
                   <a
                     href="/team"
-                    className="text-blue-600 hover:text-blue-800 font-medium"
+                    className="text-orange-600 hover:text-orange-800 font-medium"
                   >
                     Invite team members →
                   </a>
@@ -160,7 +160,7 @@ export function BulkAssignModal({
                   value={selectedMemberId}
                   onChange={(e) => setSelectedMemberId(e.target.value)}
                   disabled={assigning}
-                  className="w-full block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full block rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 >
                   <option value="">Select team member...</option>
                   {teamMembers.map((member) => (
@@ -197,14 +197,14 @@ export function BulkAssignModal({
             <button
               onClick={onClose}
               disabled={assigning}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               onClick={handleAssign}
               disabled={assigning || !selectedMemberId || loading || teamMembers.length === 0}
-              className="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-700 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {assigning ? (
                 <>

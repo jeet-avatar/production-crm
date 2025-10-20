@@ -5,12 +5,12 @@
  * Change colors here and they will automatically apply across ALL pages.
  *
  * Design Philosophy:
- * - Primary: Blue-Purple (Innovation, Technology, Trust)
+ * - Primary: Orange-Rose (Energy, Innovation, Vibrant)
  * - Success: Green-Emerald (Growth, Success, Prosperity)
  * - Warning: Orange-Red (Energy, Urgency, Attention)
- * - Info: Blue-Indigo (Information, Clarity, Professionalism)
- * - Danger: Red-Pink (Critical, Important, Action Required)
- * - Premium: Purple-Pink (Luxury, Premium, Exclusive)
+ * - Info: Orange-Rose (Information, Clarity, Energy)
+ * - Danger: Red-Orange (Critical, Important, Action Required)
+ * - Premium: Orange-Rose (Luxury, Premium, Exclusive)
  */
 
 // ============================================================================
@@ -32,15 +32,15 @@ export const BRAND_COLORS = {
 
   secondary: {
     name: 'Secondary Accent',
-    gradient: 'from-indigo-600 to-purple-600',
-    hover: 'hover:from-indigo-700 hover:to-purple-700',
-    solid: 'bg-indigo-600',
-    text: 'text-indigo-600',
-    border: 'border-indigo-600',
-    ring: 'ring-indigo-600',
-    shadow: 'shadow-indigo-500/30',
-    lightBg: 'from-indigo-50 to-purple-50',
-    description: 'Secondary brand accent - Depth & Sophistication'
+    gradient: 'from-orange-600 to-rose-600',
+    hover: 'hover:from-orange-700 hover:to-rose-700',
+    solid: 'bg-orange-600',
+    text: 'text-orange-600',
+    border: 'border-orange-600',
+    ring: 'ring-orange-600',
+    shadow: 'shadow-orange-500/30',
+    lightBg: 'from-orange-50 to-rose-50',
+    description: 'Secondary brand accent - Vibrant Energy'
   }
 } as const;
 
@@ -89,27 +89,27 @@ export const SEMANTIC_COLORS = {
 
   info: {
     name: 'Information',
-    gradient: 'from-blue-500 to-indigo-600',
-    hover: 'hover:from-blue-600 hover:to-indigo-700',
-    solid: 'bg-blue-500',
-    text: 'text-blue-600',
-    border: 'border-blue-500',
-    ring: 'ring-blue-500',
-    shadow: 'shadow-blue-500/30',
-    lightBg: 'from-blue-50 to-indigo-50',
+    gradient: 'from-orange-500 to-rose-600',
+    hover: 'hover:from-orange-600 hover:to-rose-700',
+    solid: 'bg-orange-500',
+    text: 'text-orange-600',
+    border: 'border-orange-500',
+    ring: 'ring-orange-500',
+    shadow: 'shadow-orange-500/30',
+    lightBg: 'from-orange-50 to-rose-50',
     description: 'Information & Clarity'
   },
 
   premium: {
     name: 'Premium',
-    gradient: 'from-purple-600 to-pink-600',
-    hover: 'hover:from-purple-700 hover:to-pink-700',
-    solid: 'bg-purple-600',
-    text: 'text-purple-600',
-    border: 'border-purple-600',
-    ring: 'ring-purple-600',
-    shadow: 'shadow-purple-500/30',
-    lightBg: 'from-purple-50 to-pink-50',
+    gradient: 'from-orange-600 to-rose-600',
+    hover: 'hover:from-orange-700 hover:to-rose-700',
+    solid: 'bg-orange-600',
+    text: 'text-orange-600',
+    border: 'border-orange-600',
+    ring: 'ring-orange-600',
+    shadow: 'shadow-orange-500/30',
+    lightBg: 'from-orange-50 to-rose-50',
     description: 'Premium & Exclusive features'
   }
 } as const;
@@ -121,8 +121,8 @@ export const PAGE_COLORS = {
   // Settings Page Tabs
   settings: {
     profile: {
-      gradient: 'from-blue-500 to-indigo-600',
-      shadow: 'shadow-blue-500/30',
+      gradient: 'from-orange-500 to-rose-600',
+      shadow: 'shadow-orange-500/30',
       description: 'Profile - Professional & Trustworthy'
     },
     account: {
@@ -136,17 +136,17 @@ export const PAGE_COLORS = {
       description: 'Notifications - Attention & Alerts'
     },
     security: {
-      gradient: 'from-purple-500 to-indigo-600',
-      shadow: 'shadow-purple-500/30',
+      gradient: 'from-orange-500 to-rose-600',
+      shadow: 'shadow-orange-500/30',
       description: 'Security - Protection & Trust'
     },
     preferences: {
-      gradient: 'from-pink-500 to-rose-600',
-      shadow: 'shadow-pink-500/30',
+      gradient: 'from-orange-400 to-rose-600',
+      shadow: 'shadow-orange-500/30',
       description: 'Preferences - Personal & Custom'
     },
     billing: {
-      gradient: 'from-red-500 to-pink-600',
+      gradient: 'from-red-500 to-orange-600',
       shadow: 'shadow-red-500/30',
       description: 'Billing - Financial & Important'
     }
@@ -168,11 +168,11 @@ export const PAGE_COLORS = {
       description: 'Deals - Revenue & Success'
     },
     contacts: {
-      gradient: 'from-blue-500 to-blue-600',
+      gradient: 'from-orange-500 to-orange-600',
       description: 'Contacts - Network & Connections'
     },
     companies: {
-      gradient: 'from-purple-500 to-purple-600',
+      gradient: 'from-orange-500 to-rose-600',
       description: 'Companies - Business & Growth'
     },
     activities: {
@@ -184,8 +184,8 @@ export const PAGE_COLORS = {
   // Campaign Stats
   campaigns: {
     sent: {
-      gradient: 'from-blue-500 to-blue-600',
-      lightBg: 'from-blue-50 to-blue-100',
+      gradient: 'from-orange-500 to-orange-600',
+      lightBg: 'from-orange-50 to-orange-100',
       description: 'Sent - Delivered & Completed'
     },
     opened: {
@@ -194,8 +194,8 @@ export const PAGE_COLORS = {
       description: 'Opened - Engagement & Interest'
     },
     clicked: {
-      gradient: 'from-purple-500 to-purple-600',
-      lightBg: 'from-purple-50 to-purple-100',
+      gradient: 'from-orange-500 to-rose-600',
+      lightBg: 'from-orange-50 to-rose-100',
       description: 'Clicked - Action & Conversion'
     },
     bounced: {
@@ -213,21 +213,21 @@ export const PAGE_COLORS = {
       description: 'Free - Entry Level'
     },
     starter: {
-      gradient: 'from-blue-500 to-indigo-600',
-      hover: 'hover:from-blue-600 hover:to-indigo-700',
-      shadow: 'shadow-blue-500/30',
+      gradient: 'from-orange-500 to-rose-600',
+      hover: 'hover:from-orange-600 hover:to-rose-700',
+      shadow: 'shadow-orange-500/30',
       description: 'Starter - Getting Started'
     },
     professional: {
-      gradient: 'from-red-500 to-pink-600',
-      hover: 'hover:from-red-600 hover:to-pink-700',
+      gradient: 'from-red-500 to-orange-600',
+      hover: 'hover:from-red-600 hover:to-orange-700',
       shadow: 'shadow-red-500/30',
       description: 'Professional - Most Popular'
     },
     enterprise: {
-      gradient: 'from-purple-500 to-indigo-600',
-      hover: 'hover:from-purple-600 hover:to-indigo-700',
-      shadow: 'shadow-purple-500/30',
+      gradient: 'from-orange-500 to-rose-600',
+      hover: 'hover:from-orange-600 hover:to-rose-700',
+      shadow: 'shadow-orange-500/30',
       description: 'Enterprise - Premium & Unlimited'
     }
   },
@@ -235,11 +235,11 @@ export const PAGE_COLORS = {
   // AI Assistant
   aiAssistant: {
     header: {
-      gradient: 'from-pink-600 to-purple-600',
+      gradient: 'from-orange-600 to-rose-600',
       description: 'AI - Intelligence & Innovation'
     },
     success: {
-      lightBg: 'from-green-50 to-blue-50',
+      lightBg: 'from-green-50 to-orange-50',
       description: 'AI Success state'
     }
   }
@@ -250,7 +250,7 @@ export const PAGE_COLORS = {
 // ============================================================================
 export const NEUTRAL_COLORS = {
   background: {
-    page: 'from-gray-50 via-blue-50/30 to-purple-50/30',
+    page: 'from-gray-50 via-orange-50/30 to-rose-50/30',
     card: 'bg-white',
     subtle: 'from-gray-50 to-gray-100',
     description: 'Page backgrounds - Clean & Professional'
@@ -259,7 +259,7 @@ export const NEUTRAL_COLORS = {
   border: {
     default: 'border-gray-200',
     hover: 'hover:border-gray-300',
-    focus: 'focus:border-blue-500',
+    focus: 'focus:border-orange-500',
     description: 'Borders & Dividers'
   },
 
@@ -281,7 +281,7 @@ export const NEUTRAL_COLORS = {
  */
 export function getButtonGradient(type: keyof typeof BRAND_COLORS | keyof typeof SEMANTIC_COLORS) {
   const color = (BRAND_COLORS[type as keyof typeof BRAND_COLORS] || SEMANTIC_COLORS[type as keyof typeof SEMANTIC_COLORS]);
-  return `bg-gradient-to-r ${color.gradient} ${color.hover} text-white shadow-lg ${color.shadow} hover:shadow-xl transition-all duration-200`;
+  return `bg-gradient-to-r ${color.gradient} ${color.hover} text-black shadow-lg ${color.shadow} hover:shadow-xl transition-all duration-200`;
 }
 
 /**

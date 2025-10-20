@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  QuestionMarkCircleIcon,
+  DocumentTextIcon,
   SparklesIcon,
   XMarkIcon,
   CheckCircleIcon,
@@ -8,7 +8,6 @@ import {
   LightBulbIcon,
   ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
-import { useTheme } from '../../contexts/ThemeContext';
 
 interface GuideProps {
   isOpen: boolean;
@@ -16,92 +15,82 @@ interface GuideProps {
 }
 
 export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
-  const { gradients } = useTheme();
   const [activeTab, setActiveTab] = useState<'basics' | 'variables' | 'tips' | 'ai'>('basics');
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div
-        className="bg-white rounded-2xl shadow-2xl border-4 border-black max-w-5xl w-full my-8 flex flex-col max-h-[90vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-white rounded-t-xl`}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <QuestionMarkCircleIcon className="w-10 h-10" />
-              <div>
-                <h2 className="text-3xl font-bold">Email Templates Guide</h2>
-                <p className="text-white text-opacity-90 text-sm mt-1">
-                  Learn how to create powerful, personalized email templates
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-all"
-              aria-label="Close guide"
-            >
-              <XMarkIcon className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
 
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200 bg-gray-50">
-          <div className="flex gap-2 p-2">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-orange-500 to-rose-500 p-8 relative">
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-all"
+            aria-label="Close guide"
+          >
+            <XMarkIcon className="w-6 h-6 text-black" />
+          </button>
+
+          <div className="flex items-center gap-3 mb-3">
+            <DocumentTextIcon className="w-12 h-12 text-black" />
+            <h2 className="text-4xl font-bold text-black">
+              Email Templates Guide
+            </h2>
+          </div>
+          <p className="text-lg text-black/90 mb-6">
+            Learn how to create powerful, personalized email templates
+          </p>
+
+          {/* Tab Buttons */}
+          <div className="flex gap-3">
             <button
               type="button"
               onClick={() => setActiveTab('basics')}
-              className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'basics'
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
-                  : 'text-gray-600 hover:bg-gray-200'
-              }`}
+              className={activeTab === 'basics'
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+              }
             >
               📚 Basics
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('variables')}
-              className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'variables'
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
-                  : 'text-gray-600 hover:bg-gray-200'
-              }`}
+              className={activeTab === 'variables'
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+              }
             >
               🔤 Variables
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('tips')}
-              className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'tips'
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
-                  : 'text-gray-600 hover:bg-gray-200'
-              }`}
+              className={activeTab === 'tips'
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+              }
             >
               💡 Tips
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('ai')}
-              className={`flex-1 px-4 py-3 rounded-xl font-bold transition-all ${
-                activeTab === 'ai'
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
-                  : 'text-gray-600 hover:bg-gray-200'
-              }`}
+              className={activeTab === 'ai'
+                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg border-2 border-black"
+                : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+              }
             >
               🤖 AI Helper
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        {/* Content - Scrollable */}
+        <div className="p-8 space-y-6 overflow-y-auto max-h-[calc(90vh-320px)]">
           {activeTab === 'basics' && (
             <div className="space-y-6">
               <div>
@@ -114,17 +103,17 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
                 </p>
               </div>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl">
-                <h4 className="font-bold text-blue-900 mb-2 flex items-center gap-2">
+              <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-xl">
+                <h4 className="font-bold text-orange-900 mb-2 flex items-center gap-2">
                   <CheckCircleIcon className="w-5 h-5" />
                   Step-by-Step: Create Your First Template
                 </h4>
-                <ol className="list-decimal list-inside space-y-2 text-blue-900 text-sm">
+                <ol className="list-decimal list-inside space-y-2 text-orange-900 text-sm">
                   <li><strong>Click "Create Template"</strong> button at the top</li>
                   <li><strong>Enter a template name</strong> (e.g., "Welcome Email", "Follow-up")</li>
                   <li><strong>Write your email subject</strong> (you can use variables here!)</li>
                   <li><strong>Compose your email</strong> in the content area</li>
-                  <li><strong>Add variables</strong> by typing <code className="bg-blue-100 px-1 rounded">{"{{variableName}}"}</code></li>
+                  <li><strong>Add variables</strong> by typing <code className="bg-orange-100 px-1 rounded">{"{{variableName}}"}</code></li>
                   <li><strong>Click "Create Template"</strong> to save</li>
                 </ol>
               </div>
@@ -155,12 +144,12 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
                 </p>
               </div>
 
-              <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
-                <h4 className="font-bold text-purple-900 mb-4 text-lg">📝 How to Use Variables</h4>
+              <div className="bg-rose-50 border-2 border-rose-200 rounded-xl p-6">
+                <h4 className="font-bold text-rose-900 mb-4 text-lg">📝 How to Use Variables</h4>
 
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm font-bold text-purple-900 mb-2">✅ CORRECT Format:</p>
+                    <p className="text-sm font-bold text-rose-900 mb-2">✅ CORRECT Format:</p>
                     <div className="bg-white border-2 border-green-500 rounded-lg p-3 font-mono text-sm">
                       {"{{firstName}}"} ← Two curly braces on each side
                     </div>
@@ -213,18 +202,18 @@ export function EmailTemplateGuide({ isOpen, onClose }: GuideProps) {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-xl p-6">
-                <h4 className="font-bold text-blue-900 mb-3 text-lg">📧 Example Template</h4>
+              <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-2 border-orange-300 rounded-xl p-6">
+                <h4 className="font-bold text-orange-900 mb-3 text-lg">📧 Example Template</h4>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-xs font-bold text-blue-700 mb-1">Subject:</p>
-                    <div className="bg-white rounded-lg p-3 border-2 border-blue-200 font-mono text-sm">
+                    <p className="text-xs font-bold text-orange-700 mb-1">Subject:</p>
+                    <div className="bg-white rounded-lg p-3 border-2 border-orange-200 font-mono text-sm">
                       Hi {"{{firstName}}"}, let's connect!
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-blue-700 mb-1">Body:</p>
-                    <div className="bg-white rounded-lg p-3 border-2 border-blue-200 font-mono text-sm whitespace-pre-wrap">
+                    <p className="text-xs font-bold text-orange-700 mb-1">Body:</p>
+                    <div className="bg-white rounded-lg p-3 border-2 border-orange-200 font-mono text-sm whitespace-pre-wrap">
                       {`Dear {{firstName}} {{lastName}},
 
 I hope this email finds you well. I wanted to reach out to you at {{companyName}} regarding...
@@ -311,7 +300,7 @@ Best regards`}
             <div className="space-y-6">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <ChatBubbleLeftRightIcon className="w-6 h-6 text-purple-600" />
+                  <ChatBubbleLeftRightIcon className="w-6 h-6 text-rose-600" />
                   AI Template Assistant
                 </h3>
                 <p className="text-gray-700 mb-4">
@@ -320,34 +309,34 @@ Best regards`}
               </div>
 
               <div className="space-y-4">
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 rounded-xl p-6">
-                  <h4 className="font-bold text-purple-900 mb-4 text-lg flex items-center gap-2">
+                <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-2 border-rose-300 rounded-xl p-6">
+                  <h4 className="font-bold text-rose-900 mb-4 text-lg flex items-center gap-2">
                     <SparklesIcon className="w-5 h-5" />
                     Step-by-Step Template Creation
                   </h4>
 
                   <div className="space-y-4">
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-full flex items-center justify-center font-bold">
                         1
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-bold text-purple-900 mb-1">Define Your Purpose</h5>
-                        <p className="text-sm text-purple-800 mb-2">What is this email for?</p>
-                        <div className="bg-white rounded-lg p-3 border border-purple-200 text-sm">
+                        <h5 className="font-bold text-rose-900 mb-1">Define Your Purpose</h5>
+                        <p className="text-sm text-rose-800 mb-2">What is this email for?</p>
+                        <div className="bg-white rounded-lg p-3 border border-rose-200 text-sm">
                           Examples: Welcome new contacts, Follow up after meeting, Schedule demo, etc.
                         </div>
                       </div>
                     </div>
 
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-full flex items-center justify-center font-bold">
                         2
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-bold text-purple-900 mb-1">Craft Your Subject Line</h5>
-                        <p className="text-sm text-purple-800 mb-2">Make it personal and engaging</p>
-                        <div className="bg-white rounded-lg p-3 border border-purple-200 space-y-2">
+                        <h5 className="font-bold text-rose-900 mb-1">Craft Your Subject Line</h5>
+                        <p className="text-sm text-rose-800 mb-2">Make it personal and engaging</p>
+                        <div className="bg-white rounded-lg p-3 border border-rose-200 space-y-2">
                           <div className="text-sm">
                             <span className="text-green-600 font-bold">✓ Good:</span> <code>Hi {"{{firstName}}"}, let's schedule your demo</code>
                           </div>
@@ -359,13 +348,13 @@ Best regards`}
                     </div>
 
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-full flex items-center justify-center font-bold">
                         3
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-bold text-purple-900 mb-1">Write Your Message</h5>
-                        <p className="text-sm text-purple-800 mb-2">Structure: Greeting → Body → Call-to-Action → Signature</p>
-                        <div className="bg-white rounded-lg p-3 border border-purple-200 text-sm font-mono whitespace-pre-wrap">
+                        <h5 className="font-bold text-rose-900 mb-1">Write Your Message</h5>
+                        <p className="text-sm text-rose-800 mb-2">Structure: Greeting → Body → Call-to-Action → Signature</p>
+                        <div className="bg-white rounded-lg p-3 border border-rose-200 text-sm font-mono whitespace-pre-wrap">
                           {`Hi {{firstName}},
 
 [Your message here...]
@@ -379,13 +368,13 @@ Your Name`}
                     </div>
 
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-full flex items-center justify-center font-bold">
                         4
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-bold text-purple-900 mb-1">Add Personalization</h5>
-                        <p className="text-sm text-purple-800 mb-2">Insert variables using Quick Insert buttons</p>
-                        <div className="bg-white rounded-lg p-3 border border-purple-200">
+                        <h5 className="font-bold text-rose-900 mb-1">Add Personalization</h5>
+                        <p className="text-sm text-rose-800 mb-2">Insert variables using Quick Insert buttons</p>
+                        <div className="bg-white rounded-lg p-3 border border-rose-200">
                           <p className="text-sm mb-2">Click these buttons to insert variables:</p>
                           <div className="flex flex-wrap gap-2">
                             {['firstName', 'lastName', 'companyName', 'position'].map(v => (
@@ -399,13 +388,13 @@ Your Name`}
                     </div>
 
                     <div className="flex gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold">
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-full flex items-center justify-center font-bold">
                         5
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-bold text-purple-900 mb-1">Review & Test</h5>
-                        <p className="text-sm text-purple-800 mb-2">Check detected variables and send a test</p>
-                        <div className="bg-white rounded-lg p-3 border border-purple-200 text-sm">
+                        <h5 className="font-bold text-rose-900 mb-1">Review & Test</h5>
+                        <p className="text-sm text-rose-800 mb-2">Check detected variables and send a test</p>
+                        <div className="bg-white rounded-lg p-3 border border-rose-200 text-sm">
                           ✓ Verify all variables are correct<br />
                           ✓ Send test email to yourself<br />
                           ✓ Check how it looks on mobile
@@ -415,14 +404,14 @@ Your Name`}
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-300 rounded-xl p-6">
-                  <h4 className="font-bold text-blue-900 mb-3 text-lg">💬 Template Recipes</h4>
+                <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-2 border-orange-300 rounded-xl p-6">
+                  <h4 className="font-bold text-orange-900 mb-3 text-lg">💬 Template Recipes</h4>
                   <div className="space-y-3">
-                    <details className="bg-white rounded-lg border border-blue-200">
-                      <summary className="p-3 font-bold text-blue-900 cursor-pointer hover:bg-blue-50">
+                    <details className="bg-white rounded-lg border border-orange-200">
+                      <summary className="p-3 font-bold text-orange-900 cursor-pointer hover:bg-orange-50">
                         🎉 Welcome Email Template
                       </summary>
-                      <div className="p-3 border-t border-blue-200 font-mono text-sm whitespace-pre-wrap">
+                      <div className="p-3 border-t border-orange-200 font-mono text-sm whitespace-pre-wrap">
                         {`Subject: Welcome to [Your Company], {{firstName}}!
 
 Hi {{firstName}},
@@ -436,11 +425,11 @@ Best regards,
                       </div>
                     </details>
 
-                    <details className="bg-white rounded-lg border border-blue-200">
-                      <summary className="p-3 font-bold text-blue-900 cursor-pointer hover:bg-blue-50">
+                    <details className="bg-white rounded-lg border border-orange-200">
+                      <summary className="p-3 font-bold text-orange-900 cursor-pointer hover:bg-orange-50">
                         📅 Meeting Follow-up Template
                       </summary>
-                      <div className="p-3 border-t border-blue-200 font-mono text-sm whitespace-pre-wrap">
+                      <div className="p-3 border-t border-orange-200 font-mono text-sm whitespace-pre-wrap">
                         {`Subject: Great meeting you, {{firstName}}!
 
 Hi {{firstName}},
@@ -456,11 +445,11 @@ Best,
                       </div>
                     </details>
 
-                    <details className="bg-white rounded-lg border border-blue-200">
-                      <summary className="p-3 font-bold text-blue-900 cursor-pointer hover:bg-blue-50">
+                    <details className="bg-white rounded-lg border border-orange-200">
+                      <summary className="p-3 font-bold text-orange-900 cursor-pointer hover:bg-orange-50">
                         🔔 Follow-up Reminder Template
                       </summary>
-                      <div className="p-3 border-t border-blue-200 font-mono text-sm whitespace-pre-wrap">
+                      <div className="p-3 border-t border-orange-200 font-mono text-sm whitespace-pre-wrap">
                         {`Subject: Following up, {{firstName}}
 
 Hi {{firstName}},
@@ -483,20 +472,16 @@ Best regards,
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">
-              Need more help? Check the documentation or contact support.
-            </p>
-            <button
-              type="button"
-              onClick={onClose}
-              className={`px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
-            >
-              Got It!
-            </button>
-          </div>
+        <div className="border-t-2 border-black bg-gray-50 p-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+          >
+            Got it, thanks!
+          </button>
         </div>
+
       </div>
     </div>
   );

@@ -105,15 +105,15 @@ export function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex">
       {/* Left side - Form */}
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           {/* Logo */}
           <div>
             <div className="flex items-center mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">C</span>
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-black font-bold text-2xl">C</span>
               </div>
               <span className="ml-3 text-2xl font-bold tracking-tight text-gray-900">CRM Pro</span>
             </div>
@@ -279,15 +279,15 @@ export function SignupPage() {
                   name="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5"
+                  className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded mt-0.5"
                 />
                 <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
                   I agree to the{' '}
-                  <a href="#" className="font-medium text-blue-600 hover:text-blue-700">
+                  <a href="#" className="font-medium text-orange-600 hover:text-rose-600">
                     Terms of Service
                   </a>{' '}
                   and{' '}
-                  <a href="#" className="font-medium text-blue-600 hover:text-blue-700">
+                  <a href="#" className="font-medium text-orange-600 hover:text-rose-600">
                     Privacy Policy
                   </a>
                 </label>
@@ -297,7 +297,7 @@ export function SignupPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base font-semibold rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black text-base font-semibold rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {isLoading ? (
                   <>
@@ -313,7 +313,7 @@ export function SignupPage() {
             {/* Login Link */}
             <p className="mt-6 text-center text-base font-medium text-gray-700">
               Already have an account?{' '}
-              <a href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }} className="text-blue-600 hover:text-purple-600 font-bold transition-colors">
+              <a href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }} className="text-orange-600 hover:text-rose-600 font-bold transition-colors">
                 Sign in
               </a>
             </p>
@@ -323,13 +323,13 @@ export function SignupPage() {
 
       {/* Right side - Branding */}
       <div className="hidden lg:block relative w-0 flex-1">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-rose-500 to-rose-600">
           <div className="h-full w-full flex flex-col items-center justify-center p-12 text-white">
             <div className="max-w-md">
               <h1 className="text-4xl font-bold tracking-tight mb-6">
                 Join Thousands of Businesses
               </h1>
-              <p className="text-lg text-blue-100 mb-8">
+              <p className="text-lg text-orange-100 mb-8">
                 Get started with our powerful CRM platform today. No credit card required for trial.
               </p>
               <div className="space-y-4">
@@ -341,7 +341,7 @@ export function SignupPage() {
                   </div>
                   <div>
                     <p className="font-semibold">1-Day Free Trial</p>
-                    <p className="text-sm text-blue-100">Start using all features immediately</p>
+                    <p className="text-sm text-orange-100">Start using all features immediately</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -352,7 +352,7 @@ export function SignupPage() {
                   </div>
                   <div>
                     <p className="font-semibold">No Credit Card</p>
-                    <p className="text-sm text-blue-100">Try before you buy, cancel anytime</p>
+                    <p className="text-sm text-orange-100">Try before you buy, cancel anytime</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -363,7 +363,7 @@ export function SignupPage() {
                   </div>
                   <div>
                     <p className="font-semibold">Setup in Minutes</p>
-                    <p className="text-sm text-blue-100">Quick onboarding and easy to use</p>
+                    <p className="text-sm text-orange-100">Quick onboarding and easy to use</p>
                   </div>
                 </div>
               </div>

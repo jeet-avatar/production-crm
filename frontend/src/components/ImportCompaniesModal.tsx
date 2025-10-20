@@ -225,10 +225,10 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
 
   const Step = ({ number, label, active }: { number: number; label: string; active: boolean }) => (
     <div className="flex items-center">
-      <div className={`flex items-center justify-center w-10 h-10 rounded-full ${active ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600'} font-semibold`}>
+      <div className={`flex items-center justify-center w-10 h-10 rounded-full ${active ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-black' : 'bg-gray-200 text-gray-600'} font-semibold`}>
         {number}
       </div>
-      <span className={`ml-3 text-sm font-medium ${active ? 'text-purple-600' : 'text-gray-500'}`}>
+      <span className={`ml-3 text-sm font-medium ${active ? 'text-rose-600' : 'text-gray-500'}`}>
         {label}
       </span>
     </div>
@@ -236,10 +236,10 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-purple-300 w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl border-4 border-rose-300 w-full max-w-6xl max-h-[90vh] flex flex-col">
 
         {/* Header with gradient */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 border-b-4 border-purple-700">
+        <div className="bg-gradient-to-r from-orange-600 to-rose-600 px-8 py-6 border-b-4 border-orange-700">
           <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold text-white">Import Companies with AI Enhancement</h2>
             <button
@@ -252,7 +252,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
         </div>
 
         {/* Step indicators - on colored background for visibility */}
-        <div className="bg-purple-50 px-8 py-4 border-b-2 border-purple-200">
+        <div className="bg-rose-50 px-8 py-4 border-b-2 border-rose-200">
           <div className="flex items-center justify-between">
           <Step number={1} label="Upload CSV" active={currentStep === 1} />
           <div className="flex-1 h-0.5 bg-gray-200 mx-4"></div>
@@ -269,7 +269,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
         {currentStep === 1 && (
           <div>
             <div
-              className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-purple-500 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-rose-500 transition-colors cursor-pointer"
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
@@ -299,14 +299,14 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
             )}
 
             {/* CSV Requirements */}
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-900 mb-2">Required Columns:</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+            <div className="mt-6 bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <h4 className="font-semibold text-orange-900 mb-2">Required Columns:</h4>
+              <ul className="text-sm text-orange-800 space-y-1">
                 <li>• Company Name (or name/Name)</li>
                 <li>• Domain or Website URL (optional but recommended for AI enrichment)</li>
               </ul>
-              <h4 className="font-semibold text-blue-900 mt-4 mb-2">Optional (AI will try to find):</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <h4 className="font-semibold text-orange-900 mt-4 mb-2">Optional (AI will try to find):</h4>
+              <ul className="text-sm text-orange-800 space-y-1">
                 <li>• Industry, Headquarters, Employee Count, Description</li>
               </ul>
             </div>
@@ -316,7 +316,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
         {/* STEP 2: AI Processing */}
         {currentStep === 2 && (
           <div className="text-center py-12">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 mx-auto mb-6 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-orange-600 to-rose-600 mx-auto mb-6 flex items-center justify-center">
               <SparklesIcon className="w-10 h-10 text-white animate-pulse" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -333,7 +333,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                   {processingStatus[i] === 'done' ? (
                     <CheckCircleIcon className="w-5 h-5 text-green-600" />
                   ) : processingStatus[i] === 'processing' ? (
-                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <ClockIcon className="w-5 h-5 text-gray-400" />
                   )}
@@ -373,20 +373,20 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                   {/* What AI found */}
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     {company.industry && (
-                      <div className={`${company.aiEnhanced?.includes('industry') ? 'bg-purple-50' : 'bg-gray-50'} rounded p-2`}>
-                        <span className={`${company.aiEnhanced?.includes('industry') ? 'text-purple-600' : 'text-gray-600'} font-medium`}>Industry: </span>
+                      <div className={`${company.aiEnhanced?.includes('industry') ? 'bg-rose-50' : 'bg-gray-50'} rounded p-2`}>
+                        <span className={`${company.aiEnhanced?.includes('industry') ? 'text-rose-600' : 'text-gray-600'} font-medium`}>Industry: </span>
                         <span className="text-gray-700">{company.industry}</span>
                         {company.aiEnhanced?.includes('industry') && (
-                          <span className="ml-1 text-xs text-purple-600">✨ AI Found</span>
+                          <span className="ml-1 text-xs text-rose-600">✨ AI Found</span>
                         )}
                       </div>
                     )}
                     {(company.headquarters || company.location) && (
-                      <div className={`${company.aiEnhanced?.includes('headquarters') ? 'bg-blue-50' : 'bg-gray-50'} rounded p-2`}>
-                        <span className={`${company.aiEnhanced?.includes('headquarters') ? 'text-blue-600' : 'text-gray-600'} font-medium`}>HQ: </span>
+                      <div className={`${company.aiEnhanced?.includes('headquarters') ? 'bg-orange-50' : 'bg-gray-50'} rounded p-2`}>
+                        <span className={`${company.aiEnhanced?.includes('headquarters') ? 'text-orange-600' : 'text-gray-600'} font-medium`}>HQ: </span>
                         <span className="text-gray-700">{company.headquarters || company.location}</span>
                         {company.aiEnhanced?.includes('headquarters') && (
-                          <span className="ml-1 text-xs text-blue-600">✨ AI Found</span>
+                          <span className="ml-1 text-xs text-orange-600">✨ AI Found</span>
                         )}
                       </div>
                     )}
@@ -405,7 +405,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                     <p className="text-sm text-gray-600 mt-2 italic">
                       "{company.description.substring(0, 150)}..."
                       {company.aiEnhanced?.includes('description') && (
-                        <span className="ml-1 text-xs text-purple-600">✨ AI Found</span>
+                        <span className="ml-1 text-xs text-rose-600">✨ AI Found</span>
                       )}
                     </p>
                   )}
@@ -440,13 +440,13 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                 <button
                   onClick={handleImport}
                   disabled={importing}
-                  className="px-6 py-3 bg-white text-purple-700 border-2 border-purple-500 rounded-lg font-semibold hover:bg-purple-50 transition-all shadow-md disabled:opacity-50"
+                  className="px-6 py-3 bg-white text-rose-700 border-2 border-rose-500 rounded-lg font-semibold hover:bg-rose-50 transition-all shadow-md disabled:opacity-50"
                 >
                   Import Without Enrichment
                 </button>
                 <button
                   onClick={handleAIEnrichment}
-                  className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                  className="px-8 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
                 >
                   <SparklesIcon className="w-5 h-5" />
                   Enhance with AI
@@ -457,7 +457,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
               <button
                 onClick={handleImport}
                 disabled={importing}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
+                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
               >
                 {importing ? (
                   <>

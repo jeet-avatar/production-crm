@@ -120,7 +120,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
           onClick={() => setMode('upload')}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
             mode === 'upload'
-              ? 'bg-white text-blue-600 shadow-sm'
+              ? 'bg-white text-orange-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -131,7 +131,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
           onClick={() => setMode('url')}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
             mode === 'url'
-              ? 'bg-white text-blue-600 shadow-sm'
+              ? 'bg-white text-orange-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
         >
@@ -147,7 +147,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
             <div className="border-2 border-gray-200 rounded-xl p-8 bg-gray-50">
               <div className="space-y-4">
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                 </div>
                 <div>
                   <p className="text-center text-gray-700 font-medium mb-2">
@@ -155,7 +155,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
                   </p>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-orange-600 to-rose-600 h-2 rounded-full transition-all duration-500"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
@@ -172,8 +172,8 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
               onDragLeave={handleDragLeave}
               className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
                 isDragging
-                  ? 'border-blue-500 bg-blue-50 scale-105'
-                  : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+                  ? 'border-orange-500 bg-orange-50 scale-105'
+                  : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50'
               }`}
               onClick={() => fileInputRef.current?.click()}
             >
@@ -182,7 +182,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
                 {isDragging ? 'Drop your video here' : 'Upload your video'}
               </p>
               <p className="text-sm text-gray-600 mb-4">
-                <span className="font-semibold text-blue-600">Click to browse</span> or drag and drop
+                <span className="font-semibold text-orange-600">Click to browse</span> or drag and drop
               </p>
               <div className="space-y-1 text-xs text-gray-500">
                 <p>Supported formats: MP4, MOV, AVI, WEBM</p>
@@ -216,7 +216,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
                 setError('');
               }}
               placeholder="https://example.com/your-video.mp4"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
             />
             <p className="mt-2 text-xs text-gray-500">
               Enter a direct link to your video file (must be publicly accessible)
@@ -226,7 +226,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
           <button
             onClick={handleUrlSubmit}
             disabled={!urlInput.trim()}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+            className="w-full py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
           >
             Use This Video
           </button>

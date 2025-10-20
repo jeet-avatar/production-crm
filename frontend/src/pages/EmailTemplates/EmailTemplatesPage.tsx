@@ -334,7 +334,7 @@ export function EmailTemplatesPage() {
                   </button>
                   <button
                     onClick={() => handleDuplicateTemplate(template)}
-                    className="p-2.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"
+                    className="p-2.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all"
                     title="Duplicate"
                   >
                     <DocumentDuplicateIcon className="h-5 w-5" />

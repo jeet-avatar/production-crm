@@ -136,7 +136,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b-2 border-gray-200">
           <div>
@@ -168,7 +168,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={mode === 'individual' ? 'e.g., Software Engineer, Marketing Manager' : 'e.g., SaaS, E-commerce, Fintech'}
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500"
                   required
                 />
               </div>
@@ -182,7 +182,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g., San Francisco, New York, Remote"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500"
                 />
               </div>
 
@@ -197,7 +197,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                       value={industry}
                       onChange={(e) => setIndustry(e.target.value)}
                       placeholder="e.g., Technology, Healthcare, Finance"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500"
                     />
                   </div>
 
@@ -210,7 +210,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                       value={techStack}
                       onChange={(e) => setTechStack(e.target.value)}
                       placeholder="e.g., React, Python, AWS"
-                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                      className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-orange-500"
                     />
                   </div>
                 </>
@@ -253,7 +253,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
           )}
 
           {infoMessage && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm flex items-start gap-2">
+            <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg text-orange-700 text-sm flex items-start gap-2">
               <span className="text-lg">ℹ️</span>
               <span>{infoMessage}</span>
             </div>
@@ -265,7 +265,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <Loader className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+                <Loader className="w-12 h-12 animate-spin text-orange-600 mx-auto mb-4" />
                 <p className="text-gray-600 font-medium">Searching for leads...</p>
               </div>
             </div>
@@ -279,11 +279,11 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                 return (
                   <div
                     key={index}
-                    className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-lg transition-all"
+                    className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:border-orange-300 hover:shadow-lg transition-all"
                   >
                     {/* Avatar/Logo */}
                     <div className="flex items-start gap-3 mb-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-600 to-rose-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                         {lead.LeadName?.charAt(0) || '?'}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -314,7 +314,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                     {/* Lead Score (for companies) */}
                     {mode === 'company' && lead.leadScore && (
                       <div className="mb-3">
-                        <span className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                        <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold">
                           Score: {lead.leadScore}/100
                         </span>
                       </div>
@@ -346,7 +346,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                           href={lead.LinkedinLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          className="text-xs text-orange-600 hover:text-orange-800 flex items-center gap-1"
                         >
                           LinkedIn <ExternalLink className="w-3 h-3" />
                         </a>
@@ -356,7 +356,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                           href={lead.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          className="text-xs text-orange-600 hover:text-orange-800 flex items-center gap-1"
                         >
                           Website <ExternalLink className="w-3 h-3" />
                         </a>
@@ -371,8 +371,8 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                         isImported
                           ? 'bg-green-100 text-green-700 cursor-not-allowed'
                           : isImporting
-                          ? 'bg-blue-100 text-blue-700 cursor-wait'
-                          : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                          ? 'bg-orange-100 text-orange-700 cursor-wait'
+                          : 'bg-gradient-to-r from-orange-500 to-rose-500 text-black hover:from-orange-700 hover:to-rose-700 active:scale-95'
                       }`}
                     >
                       {isImported ? (

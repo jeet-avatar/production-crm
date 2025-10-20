@@ -57,7 +57,7 @@ export const buttonStyles = {
     primary: 'px-4 py-2.5 bg-gradient-to-r from-orange-400 to-rose-500 text-black font-bold rounded-xl hover:from-orange-500 hover:to-rose-600 active:scale-95 transition-all shadow-lg tracking-wide',
     success: 'px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-500 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md active:scale-95',
     danger: 'px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white border-2 border-red-500 rounded-xl font-semibold hover:from-red-700 hover:to-orange-700 transition-all shadow-md active:scale-95',
-    apollo: 'px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-2 border-purple-500 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all shadow-md active:scale-95',
+    apollo: 'px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-orange-500 rounded-xl font-semibold hover:from-orange-700 hover:to-rose-700 transition-all shadow-md active:scale-95',
     socialFlow: 'px-5 py-2.5 bg-sky-300 hover:bg-sky-400 text-white text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2',
   },
 };
@@ -91,7 +91,7 @@ export const tableConfig = {
  * Form Configuration
  */
 export const formConfig = {
-  inputClasses: 'w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all',
+  inputClasses: 'w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all',
 
   labelClasses: 'block text-sm font-semibold text-gray-700 mb-2',
 

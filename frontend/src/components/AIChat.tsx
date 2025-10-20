@@ -209,14 +209,14 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
       }}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-4 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <span className="text-2xl">🤖</span>
           </div>
           <div>
             <h3 className="font-bold text-lg">AI Assistant</h3>
-            <p className="text-xs text-purple-100">Powered by ChatGPT</p>
+            <p className="text-xs text-orange-900">Powered by ChatGPT</p>
           </div>
         </div>
         <button
@@ -239,7 +239,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
             <div
               className={`max-w-[80%] rounded-lg p-3 ${
                 message.role === 'user'
-                  ? 'bg-purple-600 text-white'
+                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-black'
                   : 'bg-white text-gray-800 border border-gray-200'
               }`}
             >
@@ -264,7 +264,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
 
               {/* Approval Card */}
               {message.requiresApproval && pendingApproval && (
-                <div className="mt-4 bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg p-4">
+                <div className="mt-4 bg-gradient-to-r from-green-50 to-orange-50 border-2 border-green-300 rounded-lg p-4">
                   <div className="text-sm font-bold text-green-800 mb-3 flex items-center">
                     <span className="text-lg mr-2">📋</span>
                     Campaign Ready for Approval
@@ -319,7 +319,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                     <button
                       key={i}
                       onClick={() => sendMessage(action)}
-                      className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200"
+                      className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200"
                     >
                       {action}
                     </button>
@@ -334,9 +334,9 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
           <div className="flex justify-start">
             <div className="bg-white border border-gray-200 rounded-lg p-3">
               <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce" />
+                <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
               </div>
             </div>
           </div>
@@ -354,7 +354,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
               <button
                 key={index}
                 onClick={() => handleQuickAction(action.prompt)}
-                className="text-xs bg-purple-50 hover:bg-purple-100 text-purple-700 py-2 px-3 rounded border border-purple-200 transition-colors"
+                className="text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 py-2 px-3 rounded border border-orange-200 transition-colors"
               >
                 {action.label}
               </button>
@@ -378,12 +378,12 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={isLoading || !inputMessage.trim()}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
+            className="bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-700 hover:to-rose-700 text-black px-4 py-2 rounded-lg disabled:opacity-50 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

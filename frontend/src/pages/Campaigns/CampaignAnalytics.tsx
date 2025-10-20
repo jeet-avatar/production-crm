@@ -170,7 +170,7 @@ export default function CampaignAnalytics() {
               <Download className="w-4 h-4" />
               Export Report
             </button>
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2">
+            <button className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg hover:from-orange-700 hover:to-rose-700 transition-colors font-medium flex items-center gap-2">
               <Send className="w-4 h-4" />
               Send Follow-up
             </button>
@@ -184,7 +184,7 @@ export default function CampaignAnalytics() {
           icon={Mail}
           label="Total Sent"
           value={analytics.stats.totalSent}
-          color="bg-blue-600"
+          color="bg-gradient-to-r from-orange-500 to-rose-500"
         />
         <StatCard
           icon={Eye}
@@ -198,7 +198,7 @@ export default function CampaignAnalytics() {
           label="Clicked"
           value={analytics.stats.totalClicked}
           subtext={`${analytics.stats.clickRate}% click rate`}
-          color="bg-purple-600"
+          color="bg-gradient-to-r from-orange-500 to-rose-500"
         />
         <StatCard
           icon={TrendingUp}
@@ -222,7 +222,7 @@ export default function CampaignAnalytics() {
                   <div className="font-semibold text-gray-900">
                     {performer.contact.firstName} {performer.contact.lastName}
                   </div>
-                  <div className="text-lg font-bold text-blue-600">
+                  <div className="text-lg font-bold text-orange-600">
                     {performer.engagementScore}
                   </div>
                 </div>
@@ -299,9 +299,9 @@ export default function CampaignAnalytics() {
                         log.status === 'OPENED'
                           ? 'bg-green-100 text-green-700'
                           : log.status === 'CLICKED'
-                          ? 'bg-purple-100 text-purple-700'
+                          ? 'bg-rose-100 text-rose-700'
                           : log.status === 'SENT'
-                          ? 'bg-blue-100 text-blue-700'
+                          ? 'bg-orange-100 text-orange-700'
                           : 'bg-gray-100 text-gray-700'
                       }`}
                     >
@@ -315,7 +315,7 @@ export default function CampaignAnalytics() {
                         <span className="font-semibold text-gray-900">{log.totalOpens}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <MousePointer className="w-4 h-4 text-purple-500" />
+                        <MousePointer className="w-4 h-4 text-rose-500" />
                         <span className="font-semibold text-gray-900">{log.totalClicks}</span>
                       </div>
                     </div>
@@ -385,7 +385,7 @@ export default function CampaignAnalytics() {
                             log.engagementScore >= 70
                               ? 'bg-gradient-to-r from-green-500 to-green-600'
                               : log.engagementScore >= 40
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-500'
+                              ? 'bg-gradient-to-r from-orange-500 to-rose-500'
                               : 'bg-gradient-to-r from-gray-400 to-gray-500'
                           }`}
                           style={{ width: `${log.engagementScore}%` }}

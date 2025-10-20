@@ -165,7 +165,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-purple-600">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-orange-600 to-rose-600">
           <div>
             <h2 className="text-2xl font-bold text-white">Edit Campaign</h2>
             <p className="text-sm text-white opacity-90 mt-1">{campaignName}</p>
@@ -206,7 +206,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                   </h3>
                   <button
                     onClick={() => setShowAddCompanies(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-medium hover:from-orange-700 hover:to-rose-700 transition-all shadow-sm"
                   >
                     <PlusIcon className="h-4 w-4" />
                     Add Companies
@@ -215,7 +215,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
 
                 {loading && campaignCompanies.length === 0 ? (
                   <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                   </div>
                 ) : campaignCompanies.length === 0 ? (
                   <div className="bg-gray-50 rounded-xl p-8 text-center">
@@ -223,7 +223,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                     <p className="text-gray-600 font-medium mb-4">No companies in this campaign yet</p>
                     <button
                       onClick={() => setShowAddCompanies(true)}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-md"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 transition-all shadow-md"
                     >
                       <PlusIcon className="h-5 w-5" />
                       Add Companies Now
@@ -234,10 +234,10 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                     {campaignCompanies.map((company) => (
                       <div
                         key={company.id}
-                        className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-blue-300 transition-all duration-200 flex items-center justify-between"
+                        className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-orange-300 transition-all duration-200 flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-rose-600 rounded-lg flex items-center justify-center">
                             <BuildingOfficeIcon className="h-6 w-6 text-white" />
                           </div>
                           <div>
@@ -286,14 +286,14 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search companies..."
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
 
                 {/* Available Companies */}
                 {loading && filteredCompanies.length === 0 ? (
                   <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                   </div>
                 ) : filteredCompanies.length === 0 ? (
                   <div className="bg-gray-50 rounded-xl p-8 text-center">
@@ -344,7 +344,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
               onSuccess?.();
               onClose();
             }}
-            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-medium transition-all shadow-sm"
+            className="flex-1 px-4 py-2.5 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg hover:from-orange-700 hover:to-rose-700 font-medium transition-all shadow-sm"
           >
             Done
           </button>

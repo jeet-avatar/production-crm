@@ -70,12 +70,12 @@ export const theme = {
 
   // Gradient combinations (used in buttons, headers)
   gradients: {
-    primary: 'from-blue-600 to-purple-600',
+    primary: 'from-orange-500 to-rose-500',
     success: 'from-green-600 to-emerald-600',
     danger: 'from-red-600 to-orange-600',
     warning: 'from-yellow-600 to-orange-600',
-    info: 'from-blue-600 to-cyan-600',
-    apollo: 'from-purple-600 to-blue-600',
+    info: 'from-orange-500 to-rose-500',
+    apollo: 'from-orange-600 to-rose-600',
   },
 
   // Typography
@@ -142,8 +142,8 @@ export const theme = {
  * Customize the badge colors for different contact statuses
  */
 export const statusColors = {
-  LEAD: 'bg-blue-100 text-blue-700 border border-blue-200',
-  PROSPECT: 'bg-purple-100 text-purple-700 border border-purple-200',
+  LEAD: 'bg-orange-100 text-orange-700 border border-orange-200',
+  PROSPECT: 'bg-rose-100 text-rose-700 border border-rose-200',
   CUSTOMER: 'bg-green-100 text-green-700 border border-green-200',
   COLD: 'bg-gray-100 text-gray-700 border border-gray-200',
   WARM: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
@@ -158,8 +158,8 @@ export const statusColors = {
  */
 export const dealStageColors = {
   QUALIFICATION: 'bg-yellow-500',
-  PROPOSAL: 'bg-blue-500',
-  NEGOTIATION: 'bg-purple-500',
+  PROPOSAL: 'bg-orange-500',
+  NEGOTIATION: 'bg-rose-500',
   CLOSED_WON: 'bg-green-500',
   CLOSED_LOST: 'bg-gray-400',
 };

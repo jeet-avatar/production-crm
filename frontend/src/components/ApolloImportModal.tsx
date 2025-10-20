@@ -90,10 +90,10 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-purple-300 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl border-4 border-rose-300 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
 
         {/* Header with gradient */}
-        <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 border-b-4 border-purple-700">
+        <div className="bg-gradient-to-r from-orange-600 to-rose-600 px-8 py-6 border-b-4 border-orange-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <SparklesIcon className="w-8 h-8 text-white" />
@@ -109,7 +109,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
         </div>
 
         {/* Step indicators */}
-        <div className="bg-purple-50 px-8 py-4 border-b-2 border-purple-200">
+        <div className="bg-rose-50 px-8 py-4 border-b-2 border-rose-200">
           <div className="flex items-center justify-between">
             <StepIndicator number={1} label="Search Filters" active={currentStep === 1} />
             <div className="flex-1 h-0.5 bg-gray-200 mx-4"></div>
@@ -123,8 +123,8 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
         <div className="flex-1 overflow-y-auto bg-white p-8">
           {currentStep === 1 && (
             <div className="space-y-6">
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
-                <p className="text-sm text-blue-800">
+              <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg">
+                <p className="text-sm text-orange-800">
                   <strong>Search Apollo.io database</strong> for contacts matching your criteria.
                   Enter comma-separated values for multiple options (e.g., "CEO, CTO, VP Engineering").
                 </p>
@@ -137,7 +137,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="CEO, CTO, VP Sales"
                     value={personTitles}
                     onChange={(e) => setPersonTitles(e.target.value)}
@@ -151,7 +151,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="San Francisco, New York, Austin"
                     value={personLocations}
                     onChange={(e) => setPersonLocations(e.target.value)}
@@ -165,7 +165,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="stripe.com, shopify.com"
                     value={organizationDomains}
                     onChange={(e) => setOrganizationDomains(e.target.value)}
@@ -179,7 +179,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="Technology, Finance, Healthcare"
                     value={organizationIndustries}
                     onChange={(e) => setOrganizationIndustries(e.target.value)}
@@ -192,7 +192,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
                     Results Per Page
                   </label>
                   <select
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     value={perPage}
                     onChange={(e) => setPerPage(Number(e.target.value))}
                   >
@@ -208,7 +208,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
 
           {currentStep === 2 && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mb-6"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-rose-500 border-t-transparent mb-6"></div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">Importing from Apollo.io...</h3>
               <p className="text-gray-600">Searching and importing contacts based on your criteria</p>
             </div>
@@ -228,12 +228,12 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-purple-50 rounded-lg p-4 text-center border-2 border-purple-200">
-                  <div className="text-3xl font-bold text-purple-600">{importResults.imported}</div>
+                <div className="bg-rose-50 rounded-lg p-4 text-center border-2 border-rose-200">
+                  <div className="text-3xl font-bold text-rose-600">{importResults.imported}</div>
                   <div className="text-sm text-gray-600 mt-1">Imported</div>
                 </div>
-                <div className="bg-blue-50 rounded-lg p-4 text-center border-2 border-blue-200">
-                  <div className="text-3xl font-bold text-blue-600">{importResults.total}</div>
+                <div className="bg-orange-50 rounded-lg p-4 text-center border-2 border-orange-200">
+                  <div className="text-3xl font-bold text-orange-600">{importResults.total}</div>
                   <div className="text-sm text-gray-600 mt-1">Total Found</div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4 text-center border-2 border-gray-200">
@@ -274,7 +274,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
             <button
               onClick={handleSearch}
               disabled={loading}
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <MagnifyingGlassIcon className="w-5 h-5" />
               Search & Import
@@ -302,7 +302,7 @@ function StepIndicator({ number, label, active }: { number: number; label: strin
       <div
         className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
           active
-            ? "bg-purple-600 text-white scale-110 shadow-lg"
+            ? "bg-gradient-to-r from-orange-500 to-rose-500 text-black scale-110 shadow-lg"
             : "bg-gray-200 text-gray-500"
         }`}
       >
@@ -310,7 +310,7 @@ function StepIndicator({ number, label, active }: { number: number; label: strin
       </div>
       <span
         className={`mt-2 text-sm font-medium ${
-          active ? "text-purple-600" : "text-gray-500"
+          active ? "text-rose-600" : "text-gray-500"
         }`}
       >
         {label}

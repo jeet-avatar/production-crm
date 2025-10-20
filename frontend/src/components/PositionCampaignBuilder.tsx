@@ -168,11 +168,11 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-t-2xl flex-shrink-0">
+        <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-6 rounded-t-2xl flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2">Position-Based Campaign Builder</h2>
-              <p className="text-purple-100 text-lg">Create personalized campaigns for each position</p>
+              <p className="text-rose-100 text-lg">Create personalized campaigns for each position</p>
             </div>
             <button
               onClick={onClose}
@@ -191,7 +191,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 onClick={() => { setFilterUnsent(!filterUnsent); loadPositions(); }}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   filterUnsent
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -201,7 +201,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 onClick={() => { setFilterLeadership(!filterLeadership); loadPositions(); }}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   filterLeadership
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -209,7 +209,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
               </button>
               <button
                 onClick={toggleAllVisible}
-                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold hover:bg-blue-200 transition-all"
+                className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-semibold hover:bg-orange-200 transition-all"
               >
                 {selectedPositions.length === filteredPositions.length ? 'Deselect All' : 'Select All'}
               </button>
@@ -220,21 +220,21 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search positions, companies..."
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none"
               />
             </div>
           </div>
 
           {selectedPositions.length > 0 && (
-            <div className="flex items-center justify-between bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
+            <div className="flex items-center justify-between bg-rose-50 border-2 border-rose-200 rounded-xl p-4">
               <div>
-                <p className="text-sm font-semibold text-purple-900">{selectedPositions.length} positions selected</p>
-                <p className="text-xs text-purple-700">Generate personalized campaigns for all selected positions</p>
+                <p className="text-sm font-semibold text-rose-900">{selectedPositions.length} positions selected</p>
+                <p className="text-xs text-rose-700">Generate personalized campaigns for all selected positions</p>
               </div>
               <button
                 onClick={generateAllSelected}
                 disabled={generating}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all"
               >
                 {generating ? (
                   <>
@@ -256,7 +256,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
         <div className="flex-1 overflow-y-auto p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
             </div>
           ) : filteredPositions.length === 0 ? (
             <div className="text-center py-12">
@@ -271,8 +271,8 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                   key={position.id}
                   className={`border-2 rounded-xl p-6 transition-all cursor-pointer ${
                     selectedPositions.includes(position.id)
-                      ? 'border-purple-500 bg-purple-50 shadow-lg'
-                      : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
+                      ? 'border-rose-500 bg-rose-50 shadow-lg'
+                      : 'border-gray-200 bg-white hover:border-rose-300 hover:shadow-md'
                   }`}
                   onClick={() => togglePosition(position.id)}
                 >
@@ -283,12 +283,12 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                           type="checkbox"
                           checked={selectedPositions.includes(position.id)}
                           onChange={() => togglePosition(position.id)}
-                          className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                          className="w-5 h-5 rounded border-gray-300 text-rose-600 focus:ring-orange-500"
                           onClick={(e) => e.stopPropagation()}
                         />
                         <h3 className="text-xl font-bold text-gray-900">{position.title}</h3>
                         {position.isLeadership && (
-                          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
+                          <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
                             Leadership
                           </span>
                         )}
@@ -327,8 +327,8 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                       </div>
 
                       {position.hiringIntent && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                          <p className="text-xs font-semibold text-blue-700 mb-1">Hiring Intent:</p>
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
+                          <p className="text-xs font-semibold text-orange-700 mb-1">Hiring Intent:</p>
                           <p className="text-sm text-gray-700">{position.hiringIntent}</p>
                         </div>
                       )}
@@ -341,8 +341,8 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                       )}
 
                       {position.aiPitch && (
-                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                          <p className="text-xs font-semibold text-purple-700 mb-1 flex items-center gap-1">
+                        <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
+                          <p className="text-xs font-semibold text-rose-700 mb-1 flex items-center gap-1">
                             <SparklesIcon className="h-3 w-3" />
                             AI-Generated Pitch:
                           </p>
@@ -373,7 +373,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                           e.stopPropagation();
                           generateCampaignContent(position.id);
                         }}
-                        className="inline-flex items-center gap-1 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition-all"
+                        className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg text-sm font-semibold hover:from-orange-700 hover:to-rose-700 transition-all"
                       >
                         <SparklesIcon className="h-4 w-4" />
                         Generate
@@ -393,7 +393,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
           </div>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
+            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
           >
             Close
           </button>

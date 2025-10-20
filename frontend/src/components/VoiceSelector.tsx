@@ -177,7 +177,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <SpeakerWaveIcon className="w-5 h-5 text-purple-600" />
+          <SpeakerWaveIcon className="w-5 h-5 text-rose-600" />
           <label className="text-sm font-semibold text-gray-700">
             Voice Selection
           </label>
@@ -185,7 +185,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
         <button
           type="button"
           onClick={() => setShowHelp(!showHelp)}
-          className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+          className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
           title="Show help"
         >
           <QuestionMarkCircleIcon className="w-5 h-5" />
@@ -194,8 +194,8 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
 
       {/* Help Panel */}
       {showHelp && (
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-sm">
-          <p className="font-semibold text-purple-900 mb-2">Voice Selection Guide:</p>
+        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 text-sm">
+          <p className="font-semibold text-rose-900 mb-2">Voice Selection Guide:</p>
           <ul className="space-y-1 text-gray-700 ml-4">
             <li>• <strong>Built-in Voices:</strong> Choose from 6 professional voices with different accents</li>
             <li>• <strong>Preview:</strong> Click play button to hear a sample</li>
@@ -213,18 +213,18 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
             onClick={() => handleVoiceSelect(voice.id)}
             className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
               selectedVoice === voice.id && !isCustom
-                ? 'border-purple-600 bg-purple-50 shadow-md'
-                : 'border-gray-200 hover:border-purple-300 hover:bg-gray-50'
+                ? 'border-orange-600 bg-rose-50 shadow-md'
+                : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'
             }`}
           >
             {/* Selected Indicator */}
             {selectedVoice === voice.id && !isCustom && (
-              <CheckCircleIcon className="absolute top-2 right-2 w-6 h-6 text-purple-600" />
+              <CheckCircleIcon className="absolute top-2 right-2 w-6 h-6 text-rose-600" />
             )}
 
             {/* Voice Info */}
             <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white font-bold text-lg">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-white font-bold text-lg">
                 {voice.name[0]}
               </div>
               <div className="flex-1 min-w-0">
@@ -234,7 +234,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                     {voice.gender === 'male' ? '♂' : '♀'}
                   </span>
                 </div>
-                <p className="text-xs text-purple-600 font-medium">{voice.accent}</p>
+                <p className="text-xs text-rose-600 font-medium">{voice.accent}</p>
                 <p className="text-xs text-gray-600 mt-1 line-clamp-2">{voice.description}</p>
               </div>
             </div>
@@ -281,18 +281,18 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
         onClick={() => fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
           isCustom
-            ? 'border-purple-600 bg-purple-50'
-            : 'border-gray-300 hover:border-purple-400 hover:bg-gray-50'
+            ? 'border-orange-600 bg-rose-50'
+            : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50'
         }`}
       >
         {isUploading ? (
           <div className="flex flex-col items-center gap-2">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
             <p className="text-sm text-gray-600">Uploading voice...</p>
           </div>
         ) : customFile ? (
           <div className="flex flex-col items-center gap-2">
-            <CheckCircleIcon className="w-12 h-12 text-purple-600" />
+            <CheckCircleIcon className="w-12 h-12 text-rose-600" />
             <p className="font-semibold text-gray-900">Custom Voice Uploaded</p>
             <p className="text-sm text-gray-600">{customFile.name}</p>
             <button
@@ -303,7 +303,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                 setIsCustom(false);
                 handleVoiceSelect('gtts-en-us');
               }}
-              className="mt-2 text-sm text-purple-600 hover:text-purple-700 font-medium"
+              className="mt-2 text-sm text-rose-600 hover:text-rose-700 font-medium"
             >
               Change Voice
             </button>
@@ -333,7 +333,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
       </div>
 
       {/* Info Note */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-gray-700">
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-gray-700">
         <strong>💡 Tip:</strong> Built-in voices use Google Text-to-Speech for instant generation.
         Upload your own voice recording for a more personal touch, or contact us about ElevenLabs
         integration for premium AI voices.

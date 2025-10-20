@@ -123,7 +123,7 @@ Looking forward to connecting,`;
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header with gradient */}
-        <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+        <div className="relative bg-gradient-to-r from-orange-600 to-rose-600 px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -131,7 +131,7 @@ Looking forward to connecting,`;
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-white">Compose Email</h2>
-                <p className="text-blue-100 text-sm mt-1">Send a professional email</p>
+                <p className="text-orange-100 text-sm mt-1">Send a professional email</p>
               </div>
             </div>
             <button
@@ -155,7 +155,7 @@ Looking forward to connecting,`;
                 className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 font-medium"
               />
               {recipientName && (
-                <span className="px-4 py-3 bg-blue-100 text-blue-700 font-semibold rounded-xl border-2 border-blue-200">
+                <span className="px-4 py-3 bg-orange-100 text-orange-700 font-semibold rounded-xl border-2 border-orange-200">
                   {recipientName}
                 </span>
               )}
@@ -167,7 +167,7 @@ Looking forward to connecting,`;
             {!showCc && (
               <button
                 onClick={() => setShowCc(true)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                className="text-sm text-orange-600 hover:text-orange-700 font-semibold"
               >
                 + Add CC
               </button>
@@ -175,7 +175,7 @@ Looking forward to connecting,`;
             {!showBcc && (
               <button
                 onClick={() => setShowBcc(true)}
-                className="text-sm text-blue-600 hover:text-blue-700 font-semibold"
+                className="text-sm text-orange-600 hover:text-orange-700 font-semibold"
               >
                 + Add BCC
               </button>
@@ -190,7 +190,7 @@ Looking forward to connecting,`;
                 value={ccEmails}
                 onChange={(e) => setCcEmails(e.target.value)}
                 placeholder="email1@example.com, email2@example.com"
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
               />
             </div>
           )}
@@ -203,7 +203,7 @@ Looking forward to connecting,`;
                 value={bccEmails}
                 onChange={(e) => setBccEmails(e.target.value)}
                 placeholder="email1@example.com, email2@example.com"
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
               />
             </div>
           )}
@@ -214,7 +214,7 @@ Looking forward to connecting,`;
             <select
               value={selectedTemplate}
               onChange={(e) => handleTemplateChange(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 font-medium focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
             >
               {EMAIL_TEMPLATES.map((template) => (
                 <option key={template.id} value={template.id}>
@@ -231,7 +231,7 @@ Looking forward to connecting,`;
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Enter email subject..."
-              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
             />
           </div>
 
@@ -243,7 +243,7 @@ Looking forward to connecting,`;
               onChange={(e) => setBody(e.target.value)}
               rows={12}
               placeholder="Write your message..."
-              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none"
+              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 resize-none"
             />
           </div>
         </div>
@@ -254,7 +254,7 @@ Looking forward to connecting,`;
             {/* AI Generate Button */}
             <button
               onClick={handleGenerateAI}
-              className="flex items-center gap-2 px-5 py-3 text-purple-600 bg-purple-100 border-2 border-purple-300 rounded-xl hover:bg-purple-200 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-5 py-3 text-rose-600 bg-rose-100 border-2 border-rose-300 rounded-xl hover:bg-orange-200 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
             >
               <SparklesIcon className="w-5 h-5" />
               Generate with AI
@@ -272,7 +272,7 @@ Looking forward to connecting,`;
               <button
                 onClick={handleSend}
                 disabled={sending || !subject || !body}
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-sm font-semibold rounded-xl hover:from-orange-700 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {sending ? (
                   <>
