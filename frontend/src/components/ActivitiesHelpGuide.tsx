@@ -92,7 +92,7 @@ export function ActivitiesHelpGuide({ onClose }: HelpGuideProps) {
         'Log meeting notes after completion',
       ],
       buttonLabel: 'Schedule Meeting',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       title: 'Filter and Search Activities',
@@ -141,7 +141,7 @@ export function ActivitiesHelpGuide({ onClose }: HelpGuideProps) {
       icon: DocumentTextIcon,
       title: 'Notes & Documentation',
       description: 'Add rich text notes with formatting, attachments, and tags. Keep detailed records of interactions.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: ClockIcon,
@@ -171,7 +171,7 @@ export function ActivitiesHelpGuide({ onClose }: HelpGuideProps) {
       icon: UserGroupIcon,
       title: 'Team Collaboration',
       description: 'Share activities with team members, assign tasks, and collaborate on customer interactions.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
   ];
 
@@ -204,7 +204,7 @@ export function ActivitiesHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Add Detailed Notes',
       description: 'Include specific details in notes: customer pain points, objections, next steps, budget discussed. Future you (or team) will thank you.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: LightBulbIcon,

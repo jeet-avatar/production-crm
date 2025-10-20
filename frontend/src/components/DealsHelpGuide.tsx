@@ -88,7 +88,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
         'Update dates as deal progresses',
       ],
       buttonLabel: 'Set Reminder',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       title: 'Collaborate with Your Team',
@@ -137,7 +137,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
       icon: UserGroupIcon,
       title: 'Team Collaboration',
       description: 'Assign deals to team members, share notes, and collaborate on closing opportunities together.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: TagIcon,
@@ -167,7 +167,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
       icon: SparklesIcon,
       title: 'Deal Insights',
       description: 'AI-powered insights identify at-risk deals, suggest next actions, and predict win likelihood.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
   ];
 
@@ -200,7 +200,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Review Stalled Deals Weekly',
       description: 'Identify deals that haven\'t moved in 2+ weeks. Either advance them, close them as lost, or schedule follow-ups to keep pipeline healthy.',
-      gradient: 'from-purple-600 to-rose-600',
+      gradient: 'from-orange-600 to-pink-600',
     },
     {
       icon: LightBulbIcon,
