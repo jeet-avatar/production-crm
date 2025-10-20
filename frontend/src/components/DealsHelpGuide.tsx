@@ -280,7 +280,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -323,7 +323,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
                   return (
                     <div
                       key={index}
-                      className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                      className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all"
                     >
                       <div className="flex items-start gap-4">
                         <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -352,7 +352,7 @@ export function DealsHelpGuide({ onClose }: HelpGuideProps) {
                 return (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all"
+                    className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">

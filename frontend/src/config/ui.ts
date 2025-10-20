@@ -106,7 +106,7 @@ export const formConfig = {
 export const modalConfig = {
   overlay: 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4',
 
-  container: 'bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col',
+  container: 'bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col',
 
   sizes: {
     sm: 'max-w-md',
