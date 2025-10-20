@@ -13,7 +13,7 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import { CreateTemplateModal } from './CreateTemplateModal';
 import { SendEmailModal } from './SendEmailModal';
-import { EmailTemplateGuide } from './EmailTemplateGuide';
+import { EmailTemplatesHelpGuide } from '../../components/EmailTemplatesHelpGuide';
 
 interface EmailTemplate {
   id: string;
@@ -372,10 +372,11 @@ export function EmailTemplatesPage() {
       )}
 
       {/* Help Guide */}
-      <EmailTemplateGuide
-        isOpen={showGuide}
-        onClose={() => setShowGuide(false)}
-      />
+      {showGuide && (
+        <EmailTemplatesHelpGuide
+          onClose={() => setShowGuide(false)}
+        />
+      )}
     </div>
   );
 }
