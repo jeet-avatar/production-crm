@@ -221,7 +221,7 @@ export function CreateVideoCampaignModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 max-h-[calc(90vh-200px)] overflow-y-auto">
+        <div className="p-6 max-h-[calc(90vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-orange-500 scrollbar-track-gray-200">
           {/* Step 1: Basics */}
           {step === 'basics' && (
             <div className="space-y-4">
