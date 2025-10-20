@@ -97,13 +97,13 @@ export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
         )}
       </nav>
 
-      {/* AI ChatGPT Button - Positioned below Super Admin for ethan */}
-      {user.email === 'ethan@brandmonkz.com' && onOpenChat && (
+      {/* AI ChatGPT Button - Available for all users */}
+      {onOpenChat && (
         <div className="px-4 py-3">
           <button
             onClick={onOpenChat}
             className="w-full flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-xl shadow-lg hover:shadow-xl hover:scale-105 hover:from-orange-700 hover:to-rose-700 transition-all duration-200 cursor-pointer"
-            title="ChatGPT AI Assistant - Campaign & Contact Help"
+            title="AI Assistant - Campaign & Contact Help"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
