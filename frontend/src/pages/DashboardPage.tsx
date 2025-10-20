@@ -316,7 +316,7 @@ export function DashboardPage() {
       </div>
 
       {/* Quick Actions Bar - Elegant and Less Tall */}
-      <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200`}>
+      <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200`}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <RocketLaunchIcon className="h-6 w-6" />
@@ -413,7 +413,7 @@ export function DashboardPage() {
             </div>
             <button
               onClick={() => navigate('/deals')}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               View All
             </button>
@@ -569,7 +569,7 @@ export function DashboardPage() {
           </div>
           <button
             onClick={() => navigate('/activities')}
-            className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+            className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
           >
             View All
           </button>

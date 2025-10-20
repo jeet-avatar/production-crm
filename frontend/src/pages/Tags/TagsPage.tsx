@@ -247,7 +247,7 @@ export function TagsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+          className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
         >
           <PlusIcon className="h-5 w-5" />
           Add Tag
@@ -266,7 +266,7 @@ export function TagsPage() {
             {!searchQuery && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Add Tag
@@ -398,7 +398,7 @@ export function TagsPage() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className={`px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {isSaving ? 'Saving...' : (editingTag ? 'Update Tag' : 'Add Tag')}
                   </button>

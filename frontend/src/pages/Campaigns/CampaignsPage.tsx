@@ -99,9 +99,9 @@ export function CampaignsPage() {
   const getStatusBadge = (status: string) => {
     const badges: Record<string, string> = {
       draft: 'bg-gray-50 text-gray-700 border-2 border-gray-300',
-      scheduled: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-2 border-transparent`,
-      active: `bg-gradient-to-r ${gradients.semantic.success?.gradient || gradients.brand.primary.gradient} text-white border-2 border-transparent`,
-      completed: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-2 border-transparent`,
+      scheduled: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-2 border-transparent`,
+      active: `bg-gradient-to-r ${gradients.semantic.success?.gradient || gradients.brand.primary.gradient} text-black border-2 border-transparent`,
+      completed: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-2 border-transparent`,
       paused: 'bg-gray-50 text-gray-700 border-2 border-gray-300',
     };
     return `px-3 py-1 rounded-full text-xs font-bold shadow-sm ${badges[status] || 'bg-gray-50 text-gray-700 border-2 border-gray-300'}`;
@@ -231,7 +231,7 @@ export function CampaignsPage() {
             onClick={() => setFilterStatus(status)}
             className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 capitalize tracking-wide ${
               filterStatus === status
-                ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
+                ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl hover:scale-105`
                 : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-sm'
             }`}
           >
@@ -254,7 +254,7 @@ export function CampaignsPage() {
             {filterStatus === 'all' && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 mx-auto tracking-wide`}
+                className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 mx-auto tracking-wide`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Create Campaign
@@ -474,9 +474,9 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
   const getStatusBadge = (status: string) => {
     const badges: Record<string, string> = {
       draft: 'bg-gray-50 text-gray-700 border-2 border-gray-300',
-      scheduled: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-2 border-transparent`,
-      active: `bg-gradient-to-r ${gradients.semantic.success?.gradient || gradients.brand.primary.gradient} text-white border-2 border-transparent`,
-      completed: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-2 border-transparent`,
+      scheduled: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-2 border-transparent`,
+      active: `bg-gradient-to-r ${gradients.semantic.success?.gradient || gradients.brand.primary.gradient} text-black border-2 border-transparent`,
+      completed: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-2 border-transparent`,
       paused: 'bg-gray-50 text-gray-700 border-2 border-gray-300',
     };
     return `px-3 py-1 rounded-full text-xs font-bold shadow-sm ${badges[status] || 'bg-gray-50 text-gray-700 border-2 border-gray-300'}`;

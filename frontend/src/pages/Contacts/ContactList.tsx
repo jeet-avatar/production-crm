@@ -248,7 +248,7 @@ export function ContactList() {
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="p-3 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-white hover:from-orange-600 hover:via-orange-700 hover:to-rose-600 transition-all shadow-xl hover:shadow-2xl"
+                className="p-3 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-black hover:from-orange-600 hover:via-orange-700 hover:to-rose-600 transition-all shadow-xl hover:shadow-2xl"
                 title="Show Help Guide"
               >
                 <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -267,28 +267,28 @@ export function ContactList() {
             </button> */}
             <button
               onClick={() => setShowLeadDiscovery(true)}
-              className={`bg-gradient-to-r ${gradients.semantic.info.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className={`bg-gradient-to-r ${gradients.semantic.info.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <SparklesIcon className="h-5 w-5" />
               <span>Discover Leads</span>
             </button>
             <button
               onClick={() => setShowAICSVImport(true)}
-              className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <DocumentArrowUpIcon className="h-5 w-5" />
               <span>AI CSV Import</span>
             </button>
             {/* <button
               onClick={() => setShowRemoveDuplicates(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white border-2 border-red-500 rounded-xl font-semibold hover:from-red-700 hover:to-orange-700 transition-all shadow-md active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-black border-2 border-red-500 rounded-xl font-semibold hover:from-red-700 hover:to-orange-700 transition-all shadow-md active:scale-95"
             >
               <ExclamationTriangleIcon className="h-5 w-5" />
               <span>Remove Duplicates</span>
             </button> */}
             <button
               onClick={handleAddContact}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <PlusIcon className="h-5 w-5" />
               <span>Add Contact</span>
@@ -364,14 +364,14 @@ export function ContactList() {
                     <div className="flex items-center justify-center gap-3">
                       <button
                         onClick={handleAddContact}
-                        className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+                        className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
                       >
                         <PlusIcon className="h-5 w-5" />
                         Add Contact
                       </button>
                       <button
                         onClick={() => setShowAICSVImport(true)}
-                        className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+                        className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
                       >
                         <DocumentArrowUpIcon className="h-5 w-5" />
                         Import CSV
@@ -601,7 +601,7 @@ export function ContactList() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 Previous
               </button>
@@ -611,7 +611,7 @@ export function ContactList() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 Next
               </button>

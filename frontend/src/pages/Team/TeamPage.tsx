@@ -120,7 +120,7 @@ export function TeamPage() {
           </div>
           <button
             onClick={() => setShowInviteModal(true)}
-            className={`inline-flex items-center px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold rounded-xl hover:shadow-xl hover:scale-105 transition-all shadow-lg tracking-wide`}
+            className={`inline-flex items-center px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold rounded-xl hover:shadow-xl hover:scale-105 transition-all shadow-lg tracking-wide`}
           >
             <UserPlusIcon className="w-5 h-5 mr-2" />
             Invite Team Member
@@ -310,7 +310,7 @@ export function TeamPage() {
                 <button
                   type="submit"
                   disabled={inviting}
-                  className={`px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center font-bold tracking-wide shadow-md`}
+                  className={`px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center font-bold tracking-wide shadow-md`}
                 >
                   {inviting ? (
                     <>
