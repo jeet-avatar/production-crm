@@ -16,6 +16,7 @@ import {
   PlusIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../contexts/ThemeContext';
+import { AIChat } from '../components/AIChat';
 
 interface DashboardStats {
   totalContacts: number;
@@ -202,6 +203,7 @@ export function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showAIChat, setShowAIChat] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -599,6 +601,24 @@ export function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* AI Assistant Floating Button */}
+      <button
+        type="button"
+        onClick={() => setShowAIChat(true)}
+        className={`fixed bottom-8 right-8 p-4 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-full shadow-2xl hover:scale-110 transition-all z-50 flex items-center justify-center group`}
+        title="AI Assistant"
+      >
+        <SparklesIcon className="h-7 w-7" />
+        <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+          AI
+        </span>
+      </button>
+
+      {/* AI Chat Modal */}
+      {showAIChat && (
+        <AIChat isOpen={showAIChat} onClose={() => setShowAIChat(false)} />
+      )}
     </div>
   );
 }
