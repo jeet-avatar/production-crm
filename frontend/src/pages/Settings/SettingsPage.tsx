@@ -88,17 +88,15 @@ export function SettingsPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [pricingPlans, setPricingPlans] = useState<any[]>([]);
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
-  const [currentPlan, setCurrentPlan] = useState({
-    name: 'Free Trial',
-    status: 'active',
-    nextBillingDate: null,
-  });
+  const [currentPlan, setCurrentPlan] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
 
   // Fetch user data on component mount
   useEffect(() => {
     fetchUserData();
     detectSessionInfo();
     fetchPricingPlans();
+    fetchCurrentSubscription();
   }, []);
 
   const detectSessionInfo = () => {
@@ -341,8 +339,79 @@ export function SettingsPage() {
       setPricingPlans(data.plans || []);
     } catch (err: any) {
       console.error('Error fetching pricing plans:', err);
+      // Set default plans if API fails
+      setPricingPlans([
+        {
+          id: 'free',
+          name: 'Free',
+          description: 'Get started with basic features',
+          monthlyPrice: 0,
+          annualPrice: 0,
+          popular: false,
+          features: [
+            { text: '100 contacts', included: true },
+            { text: '10 companies', included: true },
+            { text: 'Basic features', included: true },
+          ],
+          buttonText: 'Current Plan',
+          stripeMonthlyPriceId: '',
+          stripeAnnualPriceId: '',
+        }
+      ]);
     } finally {
       setIsLoadingPlans(false);
+    }
+  };
+
+  const fetchCurrentSubscription = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+      const response = await fetch(`${apiUrl}/api/subscriptions/current`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSubscription(data.subscription);
+
+        // Set current plan from subscription
+        if (data.subscription) {
+          setCurrentPlan({
+            name: data.subscription.planName || 'Free',
+            status: data.subscription.status || 'active',
+            nextBillingDate: data.subscription.nextBillingDate,
+            amount: data.subscription.amount,
+            interval: data.subscription.interval,
+          });
+        } else {
+          // Default to free plan
+          setCurrentPlan({
+            name: 'Free',
+            status: 'active',
+            nextBillingDate: null,
+          });
+        }
+      } else {
+        // Default to free plan if no subscription found
+        setCurrentPlan({
+          name: 'Free',
+          status: 'active',
+          nextBillingDate: null,
+        });
+      }
+    } catch (err: any) {
+      console.error('Error fetching subscription:', err);
+      // Default to free plan on error
+      setCurrentPlan({
+        name: 'Free',
+        status: 'active',
+        nextBillingDate: null,
+      });
     }
   };
 
@@ -951,27 +1020,46 @@ export function SettingsPage() {
                   <p className="text-sm text-gray-600 mt-1">Manage your subscription and billing</p>
                 </div>
                 <div className="p-6">
-                  <div className="flex items-center justify-between p-6 bg-gradient-to-r from-orange-50 to-rose-50 rounded-lg border border-primary-100">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white rounded-lg shadow-sm">
-                        <SparklesIcon className="h-8 w-8 text-primary-600" />
+                  {!currentPlan ? (
+                    <div className="text-center py-8">
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary-600"></div>
+                      <p className="text-gray-600 mt-4">Loading subscription...</p>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-6 bg-gradient-to-r from-orange-50 to-rose-50 rounded-lg border border-primary-100">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-white rounded-lg shadow-sm">
+                          <CreditCardIcon className="h-8 w-8 text-primary-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">{currentPlan.name} Plan</h3>
+                          {currentPlan.amount && currentPlan.interval ? (
+                            <p className="text-sm text-gray-600">
+                              ${(currentPlan.amount / 100).toFixed(2)}/{currentPlan.interval === 'month' ? 'month' : 'year'}
+                            </p>
+                          ) : (
+                            <p className="text-sm text-gray-600">Free - No payment required</p>
+                          )}
+                          {currentPlan.nextBillingDate && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Next billing: {new Date(currentPlan.nextBillingDate).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{currentPlan.name}</h3>
-                        <p className="text-sm text-gray-600">Full access to all features</p>
-                        {currentPlan.nextBillingDate && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            Next billing date: {new Date(currentPlan.nextBillingDate).toLocaleDateString()}
-                          </p>
-                        )}
+                      <div className="text-right">
+                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                          currentPlan.status === 'active'
+                            ? 'bg-green-100 text-green-800'
+                            : currentPlan.status === 'past_due'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {currentPlan.status === 'active' ? '✓ Active' : currentPlan.status?.replace('_', ' ') || 'Active'}
+                        </span>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {currentPlan.status === 'active' ? 'Active' : currentPlan.status}
-                      </span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
