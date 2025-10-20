@@ -325,6 +325,57 @@ class VideoService {
     });
     return response.data;
   }
+
+  // ===================================
+  // VOICE CLONING
+  // ===================================
+
+  async cloneVoice(formData: FormData): Promise<{
+    success: boolean;
+    voice_id: string;
+    voice_url?: string;
+    duration?: number;
+    message: string;
+  }> {
+    const response = await axios.post(`${API_URL}/api/video-campaigns/clone-voice`, formData, {
+      headers: {
+        ...this.getAuthHeaders(),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+
+  async synthesizeVoice(data: {
+    text: string;
+    voice_id: string;
+    language?: string;
+  }): Promise<{
+    success: boolean;
+    audio_url: string;
+    text_length: number;
+    voice_id: string;
+  }> {
+    const response = await axios.post(`${API_URL}/api/video-campaigns/synthesize-voice`, data, {
+      headers: this.getAuthHeaders(),
+    });
+    return response.data;
+  }
+
+  async getMyVoices(): Promise<{
+    voices: Array<{
+      voice_id: string;
+      voice_name: string;
+      file_size: number;
+      created_at: number;
+      duration?: number;
+    }>;
+  }> {
+    const response = await axios.get(`${API_URL}/api/video-campaigns/my-voices`, {
+      headers: this.getAuthHeaders(),
+    });
+    return response.data;
+  }
 }
 
 export const videoService = new VideoService();
