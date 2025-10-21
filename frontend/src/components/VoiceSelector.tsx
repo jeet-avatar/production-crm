@@ -200,17 +200,18 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
               <div
                 key={voice.voice_id}
                 onClick={() => {
-                  setSelectedVoice(voice.voice_url || voice.voice_id);
+                  // Use voice_id for selection (needed for synthesis API)
+                  setSelectedVoice(voice.voice_id);
                   setIsCustom(true);
-                  onChange(voice.voice_url || voice.voice_id, true);
+                  onChange(voice.voice_id, true);
                 }}
                 className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                  selectedVoice === (voice.voice_url || voice.voice_id) && isCustom
+                  selectedVoice === voice.voice_id && isCustom
                     ? 'border-orange-600 bg-rose-50 shadow-md'
                     : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'
                 }`}
               >
-                {selectedVoice === (voice.voice_url || voice.voice_id) && isCustom && (
+                {selectedVoice === voice.voice_id && isCustom && (
                   <CheckCircleIcon className="absolute top-2 right-2 w-6 h-6 text-rose-600" />
                 )}
 
