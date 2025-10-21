@@ -10,7 +10,7 @@ import { useTheme } from '../contexts/ThemeContext';
 interface CreateVideoCampaignModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (campaign: any) => void;
   companyIds?: string[];
 }
 
@@ -87,6 +87,12 @@ export function CreateVideoCampaignModal({
       return;
     }
 
+    // Need a voice selected
+    if (!voiceId) {
+      setError('Please select a voice in Step 2');
+      return;
+    }
+
     // Need either a template OR a custom video URL
     if (!selectedTemplate && !customVideoUrl) {
       setError('Please select a video source (template, Pexels, or upload)');
@@ -118,9 +124,9 @@ export function CreateVideoCampaignModal({
       // Start video generation
       await videoService.generateVideo(result.campaign.id);
 
-      onSuccess();
+      // Pass campaign to success callback for polling
+      onSuccess(result.campaign);
       resetForm();
-      onClose();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create campaign');
     } finally {
