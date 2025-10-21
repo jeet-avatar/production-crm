@@ -171,7 +171,7 @@ router.post('/', async (req, res, next) => {
       role,
       companyId,
       companyName, // NEW: Allow creating company by name
-      status = 'LEAD',
+      status, // No default - must be provided by user/frontend
       tagIds = [],
     } = req.body;
 

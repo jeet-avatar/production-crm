@@ -518,7 +518,7 @@ router.post('/', async (req, res, next) => {
       data: {
         name,
         narrationScript,
-        tone: tone || 'professional',
+        tone: tone || undefined, // No default tone - must be selected by user
         videoSource: videoSource || 'TEMPLATE',
         templateId,
         customVideoUrl,
@@ -745,7 +745,7 @@ router.post('/ai/generate-script', async (req, res, next) => {
 
 Company Name: ${companyName}
 Industry: ${companyIndustry || 'Not specified'}
-Tone: ${tone || 'professional'}
+Tone: ${tone || 'appropriate for the context'}
 Goal: ${goal || 'Welcome and introduce our company'}
 
 Generate a personalized, engaging script that:
@@ -755,7 +755,7 @@ Generate a personalized, engaging script that:
 4. Ends with a call to action
 
 Keep it between 100-150 words (30-60 seconds when spoken).
-Use a ${tone || 'professional'} tone.
+Use a ${tone || 'context-appropriate'} tone.
 
 Return ONLY valid JSON with this structure:
 {"script": "Your complete narration script here..."}`;
