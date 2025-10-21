@@ -32,7 +32,7 @@ interface VoiceSelectorProps {
 const BUILT_IN_VOICES: VoiceOption[] = [];
 
 export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSelectorProps) {
-  const [selectedVoice, setSelectedVoice] = useState<string>(value || 'natural-en-us-male-1');
+  const [selectedVoice, setSelectedVoice] = useState<string>(value || '');
   const [isCustom, setIsCustom] = useState(false);
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -40,7 +40,6 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const [showHelp, setShowHelp] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [myClonedVoices, setMyClonedVoices] = useState<any[]>([]);
   const [isLoadingVoices, setIsLoadingVoices] = useState(false);
   const [isCloningVoice, setIsCloningVoice] = useState(false);
@@ -106,110 +105,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
     }
   };
 
-  const playPreview = async (voice: VoiceOption) => {
-    if (!voice.preview) return;
-
-    if (playingVoice === voice.id) {
-      // Stop playing
-      audioRef.current?.pause();
-      setPlayingVoice(null);
-      return;
-    }
-
-    setPlayingVoice(voice.id);
-
-    // Generate preview using Web Speech API
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(voice.preview);
-
-      // Get all available voices
-      const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
-
-      // Match voice based on ID pattern and accent
-      let matchingVoice = null;
-
-      // Map voice IDs to specific voice names
-      if (voice.id === 'natural-en-us-male-1') {
-        matchingVoice = voices.find(v => v.name.includes('Alex') || (v.lang === 'en-US' && v.name.includes('Male')));
-      } else if (voice.id === 'natural-en-us-female-1') {
-        matchingVoice = voices.find(v => v.name.includes('Samantha') || v.name.includes('Victoria') || (v.lang === 'en-US' && !v.name.includes('Male')));
-      } else if (voice.id === 'natural-en-uk-male-1') {
-        matchingVoice = voices.find(v => v.name.includes('Daniel') || (v.lang === 'en-GB' && v.name.includes('Male')));
-      } else if (voice.id === 'natural-en-uk-female-1') {
-        matchingVoice = voices.find(v => v.name.includes('Kate') || v.name.includes('Serena') || (v.lang === 'en-GB' && !v.name.includes('Male')));
-      } else if (voice.id === 'natural-en-au-female-1') {
-        matchingVoice = voices.find(v => v.name.includes('Karen') || v.lang === 'en-AU');
-      } else if (voice.id === 'natural-en-in-female-1') {
-        matchingVoice = voices.find(v => v.name.includes('Veena') || v.lang === 'en-IN');
-      } else if (voice.id === 'natural-en-us-male-2') {
-        matchingVoice = voices.find(v => v.name.includes('Tom') || v.name.includes('Fred') || (v.lang === 'en-US' && v.name.includes('Male')));
-      } else if (voice.id === 'natural-en-us-female-2') {
-        matchingVoice = voices.find(v => v.name.includes('Victoria') || v.name.includes('Allison') || (v.lang === 'en-US' && !v.name.includes('Male')));
-      } else if (voice.id === 'natural-en-ie-male-1') {
-        matchingVoice = voices.find(v => v.name.includes('Moira') || v.lang === 'en-IE');
-      } else if (voice.id === 'natural-fr-fr-female-1') {
-        matchingVoice = voices.find(v => v.lang === 'fr-FR' || v.lang.startsWith('fr'));
-      } else if (voice.id === 'natural-de-de-male-1') {
-        matchingVoice = voices.find(v => v.lang === 'de-DE' || v.lang.startsWith('de'));
-      } else if (voice.id === 'natural-es-es-female-1') {
-        matchingVoice = voices.find(v => v.lang === 'es-ES' || v.lang.startsWith('es'));
-      }
-
-      // Fallback: try to match by language code from voice.accent
-      if (!matchingVoice) {
-        if (voice.accent.includes('American')) {
-          matchingVoice = voices.find(v => v.lang === 'en-US');
-        } else if (voice.accent.includes('British')) {
-          matchingVoice = voices.find(v => v.lang === 'en-GB');
-        } else if (voice.accent.includes('Australian')) {
-          matchingVoice = voices.find(v => v.lang === 'en-AU');
-        } else if (voice.accent.includes('Indian')) {
-          matchingVoice = voices.find(v => v.lang === 'en-IN');
-        } else if (voice.accent.includes('Irish')) {
-          matchingVoice = voices.find(v => v.lang === 'en-IE');
-        } else if (voice.accent.includes('French')) {
-          matchingVoice = voices.find(v => v.lang.startsWith('fr'));
-        } else if (voice.accent.includes('German')) {
-          matchingVoice = voices.find(v => v.lang.startsWith('de'));
-        } else if (voice.accent.includes('Spanish')) {
-          matchingVoice = voices.find(v => v.lang.startsWith('es'));
-        }
-      }
-
-      if (matchingVoice) {
-        utterance.voice = matchingVoice;
-        console.log('Using voice:', matchingVoice.name, matchingVoice.lang);
-      } else {
-        console.warn('No matching voice found for:', voice.name, voice.accent);
-      }
-
-      utterance.onend = () => setPlayingVoice(null);
-      utterance.onerror = () => setPlayingVoice(null);
-
-      window.speechSynthesis.cancel(); // Stop any current speech
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  const stopPreview = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-    setPlayingVoice(null);
-  };
-
-  // Load available voices for better matching
-  useEffect(() => {
-    if ('speechSynthesis' in window) {
-      const loadVoices = () => {
-        const voices = window.speechSynthesis.getVoices();
-        setAvailableVoices(voices);
-      };
-
-      loadVoices();
-      window.speechSynthesis.onvoiceschanged = loadVoices;
-    }
-  }, []);
+  // Removed playPreview function - no hardcoded voices allowed
 
   // Recording functionality
   const startRecording = async () => {
@@ -756,7 +652,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                   e.stopPropagation();
                   setCustomFile(null);
                   setIsCustom(false);
-                  handleVoiceSelect('natural-en-us-male-1');
+                  setSelectedVoice('');
                 }}
                 className="mt-2 text-sm text-rose-600 hover:text-rose-700 font-medium"
               >
@@ -813,7 +709,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                   e.stopPropagation();
                   setCustomFile(null);
                   setIsCustom(false);
-                  handleVoiceSelect('natural-en-us-male-1');
+                  setSelectedVoice('');
                 }}
                 className="mt-2 text-sm text-rose-600 hover:text-rose-700 font-medium"
               >
