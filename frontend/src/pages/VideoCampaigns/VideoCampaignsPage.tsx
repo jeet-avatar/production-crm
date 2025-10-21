@@ -17,6 +17,8 @@ export function VideoCampaignsPage() {
   const [previousVideos, setPreviousVideos] = useState<VideoCampaign[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [showCreateNew, setShowCreateNew] = useState(false);
+  const [selectedVideoForModal, setSelectedVideoForModal] = useState<VideoCampaign | null>(null);
+  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
 
   // Load previous videos on mount
   useEffect(() => {
@@ -60,15 +62,17 @@ export function VideoCampaignsPage() {
     setShowCreateNew(true);
   };
 
-  const handleViewVideo = (campaign: VideoCampaign) => {
-    if (campaign.videoUrl) {
-      setGeneratedVideo({
-        url: campaign.videoUrl,
-        campaignId: campaign.id,
-        name: campaign.name,
-        narrationScript: campaign.narrationScript,
-      });
+  const handleViewVideo = (campaign: VideoCampaign, event?: React.MouseEvent) => {
+    // Prevent opening modal if clicking on action buttons
+    if (event && (event.target as HTMLElement).closest('button')) {
+      return;
     }
+    setSelectedVideoForModal(campaign);
+  };
+
+  const handlePlayInline = (campaignId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setPlayingVideoId(playingVideoId === campaignId ? null : campaignId);
   };
 
   const handleDownload = () => {
@@ -267,25 +271,44 @@ export function VideoCampaignsPage() {
             {previousVideos.map((campaign) => (
               <div
                 key={campaign.id}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all cursor-pointer group"
-                onClick={() => handleViewVideo(campaign)}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all group"
               >
-                {/* Thumbnail */}
+                {/* Thumbnail / Video Player */}
                 <div className="relative aspect-video bg-gray-900 overflow-hidden">
-                  {campaign.thumbnailUrl ? (
-                    <img
-                      src={campaign.thumbnailUrl}
-                      alt={campaign.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  {playingVideoId === campaign.id && campaign.videoUrl ? (
+                    <video
+                      src={campaign.videoUrl}
+                      controls
+                      autoPlay
+                      className="w-full h-full object-contain"
+                      onEnded={() => setPlayingVideoId(null)}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <VideoCameraIcon className="w-16 h-16 text-gray-600" />
-                    </div>
+                    <>
+                      {campaign.thumbnailUrl ? (
+                        <img
+                          src={campaign.thumbnailUrl}
+                          alt={campaign.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <VideoCameraIcon className="w-16 h-16 text-gray-600" />
+                        </div>
+                      )}
+                      {/* Play Button Overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={(e) => handlePlayInline(campaign.id, e)}
+                          aria-label={`Play ${campaign.name}`}
+                          className="w-20 h-20 flex items-center justify-center rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all transform hover:scale-110"
+                        >
+                          <PlayIcon className="w-10 h-10 text-white" />
+                        </button>
+                      </div>
+                    </>
                   )}
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
-                    <PlayIcon className="w-16 h-16 text-white opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100" />
-                  </div>
                 </div>
 
                 {/* Info */}
@@ -311,9 +334,48 @@ export function VideoCampaignsPage() {
 
                   {/* Created date */}
                   <div className="mt-3 pt-3 border-t border-gray-100">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 mb-3">
                       Created {new Date(campaign.createdAt).toLocaleDateString()}
                     </p>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setGeneratedVideo({
+                            url: campaign.videoUrl || '',
+                            campaignId: campaign.id,
+                            name: campaign.name,
+                            narrationScript: campaign.narrationScript,
+                          });
+                          setShowEmailModal(true);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors"
+                        disabled={!campaign.videoUrl}
+                      >
+                        <EnvelopeIcon className="w-4 h-4" />
+                        Email
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (campaign.videoUrl) {
+                            const link = document.createElement('a');
+                            link.href = campaign.videoUrl;
+                            link.download = `${campaign.name}.mp4`;
+                            link.click();
+                          }
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
+                        disabled={!campaign.videoUrl}
+                      >
+                        <ArrowDownTrayIcon className="w-4 h-4" />
+                        Download
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -321,6 +383,24 @@ export function VideoCampaignsPage() {
           </div>
         )}
       </div>
+
+      {/* Email Template Modal for library videos */}
+      {generatedVideo && (
+        <CreateEmailTemplateModal
+          isOpen={showEmailModal}
+          onClose={() => {
+            setShowEmailModal(false);
+            setGeneratedVideo(null);
+          }}
+          campaign={{
+            id: generatedVideo.campaignId,
+            name: generatedVideo.name,
+            narrationScript: generatedVideo.narrationScript || 'Check out this personalized video!',
+            videoUrl: generatedVideo.url,
+          }}
+          onSuccess={handleEmailTemplateCreated}
+        />
+      )}
     </div>
   );
 }
