@@ -399,6 +399,24 @@ class VideoService {
     );
     return response.data;
   }
+
+  // ===================================
+  // PEXELS VIDEO SEARCH
+  // ===================================
+
+  async searchPexelsVideos(query: string, page: number = 1, per_page: number = 12): Promise<{
+    videos: any[];
+    page: number;
+    per_page: number;
+    total_results: number;
+    next_page?: string;
+  }> {
+    const response = await axios.get(`${API_URL}/api/video-campaigns/pexels/search`, {
+      params: { query, page, per_page },
+      headers: this.getAuthHeaders(),
+    });
+    return response.data;
+  }
 }
 
 export const videoService = new VideoService();
