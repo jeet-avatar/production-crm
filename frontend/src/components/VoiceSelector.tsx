@@ -406,6 +406,16 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                 <button
                   type="button"
                   onClick={async () => {
+                    // Validate voice name is entered
+                    const voiceNameInput = document.getElementById('voice-name-input') as HTMLInputElement;
+                    const voiceName = voiceNameInput?.value?.trim();
+
+                    if (!voiceName) {
+                      alert('⚠️ Please enter a voice name before recording!');
+                      voiceNameInput?.focus();
+                      return;
+                    }
+
                     try {
                       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                       const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
@@ -442,7 +452,19 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                 {/* Upload Button */}
                 <button
                   type="button"
-                  onClick={() => cloneFileInputRef.current?.click()}
+                  onClick={() => {
+                    // Validate voice name is entered
+                    const voiceNameInput = document.getElementById('voice-name-input') as HTMLInputElement;
+                    const voiceName = voiceNameInput?.value?.trim();
+
+                    if (!voiceName) {
+                      alert('⚠️ Please enter a voice name before uploading!');
+                      voiceNameInput?.focus();
+                      return;
+                    }
+
+                    cloneFileInputRef.current?.click();
+                  }}
                   disabled={isCloningVoice}
                   className="flex flex-col items-center gap-2 px-4 py-4 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
