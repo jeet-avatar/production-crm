@@ -137,11 +137,18 @@ export function CompactVideoSourceSelector({
     setAiGenerating(true);
     try {
       const result = await videoService.generateFromPrompt(aiPrompt);
+
+      // Reload templates to show the newly created one
+      await loadTemplates();
+
       if (onSelectTemplate) {
         onSelectTemplate(result.template);
       }
       setAiPrompt('');
-      setViewMode('select-source');
+
+      // Show success message and redirect to templates view
+      alert(`✅ Video template "${result.template.name}" created successfully!\n\nYou can find it in "My Templates" (it will appear at the top).`);
+      setViewMode('my-templates');
     } catch (err) {
       console.error('AI generation failed:', err);
       alert('Failed to generate video. Please try again.');
@@ -163,6 +170,14 @@ export function CompactVideoSourceSelector({
     t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
     t.category?.toLowerCase().includes(templateSearch.toLowerCase())
   );
+
+  // Check if template was created in last 5 minutes (NEW badge)
+  const isNewTemplate = (template: VideoTemplate): boolean => {
+    const createdAt = new Date(template.createdAt);
+    const now = new Date();
+    const diffMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60);
+    return diffMinutes < 5;
+  };
 
   // Selection Source View
   if (viewMode === 'select-source') {
@@ -269,6 +284,15 @@ export function CompactVideoSourceSelector({
           </button>
         </div>
 
+        {/* Info about newest templates */}
+        {templates.length > 0 && isNewTemplate(templates[0]) && (
+          <div className="p-3 bg-orange-50 border-2 border-orange-200 rounded-lg">
+            <p className="text-xs font-medium text-orange-900">
+              🎉 Newest templates appear at the top with a "NEW!" badge
+            </p>
+          </div>
+        )}
+
         <input
           type="text"
           value={templateSearch}
@@ -283,16 +307,25 @@ export function CompactVideoSourceSelector({
           ) : filteredTemplates.length === 0 ? (
             <div className="text-center py-8 text-gray-500">No templates found</div>
           ) : (
-            filteredTemplates.map((template) => (
+            filteredTemplates.map((template, index) => (
               <button
                 key={template.id}
                 onClick={() => handleTemplateSelect(template)}
-                className={`w-full p-3 rounded-lg border-2 transition-all text-left hover:shadow-md ${
+                className={`w-full p-3 rounded-lg border-2 transition-all text-left hover:shadow-md relative ${
                   selectedTemplateId === template.id
                     ? 'border-green-500 bg-green-50'
+                    : isNewTemplate(template)
+                    ? 'border-orange-300 bg-orange-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
+                {/* NEW Badge */}
+                {isNewTemplate(template) && index === 0 && (
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-600 to-rose-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                    NEW!
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3">
                   <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
                     {template.thumbnailUrl ? (
@@ -304,7 +337,12 @@ export function CompactVideoSourceSelector({
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-sm text-gray-900 truncate">{template.name}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-sm text-gray-900 truncate">{template.name}</h4>
+                      {isNewTemplate(template) && (
+                        <span className="text-xs font-bold text-orange-600">✨ New</span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-600 truncate">{template.category}</p>
                   </div>
                   {selectedTemplateId === template.id && (
