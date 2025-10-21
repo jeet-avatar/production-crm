@@ -163,18 +163,17 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms', 
 }));
 
 // Rate limiting - compatible with iCloud Private Relay and privacy tools
+// General API rate limiting
 const limiter = rateLimit({
-  windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'), // 1 minute (reduced window)
-  max: Number.parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '5000'), // 5000 requests per minute
+  windowMs: Number.parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'), // 1 minute window
+  max: Number.parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // Reduced from 5000 to 100 requests per minute
   message: {
     error: 'Too many requests, please try again later.',
   },
   standardHeaders: true,
   legacyHeaders: false,
-  // Skip successful requests to only count failed/suspicious ones
   skipFailedRequests: false,
-  skipSuccessfulRequests: true, // Only count failed requests
-  // Use a custom key generator that handles missing IPs gracefully
+  skipSuccessfulRequests: false, // Count all requests for better protection
   keyGenerator: (req) => {
     // Try to get IP from headers (behind proxy)
     const forwarded = req.headers['x-forwarded-for'];
@@ -192,7 +191,24 @@ const limiter = rateLimit({
     return ip;
   },
 });
+
+// Strict rate limiting for auth endpoints (prevent brute force)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Only 5 attempts per 15 minutes
+  message: {
+    error: 'Too many authentication attempts. Please try again after 15 minutes.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipFailedRequests: false,
+  skipSuccessfulRequests: false,
+});
+
 app.use('/api', limiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/reset-password', authLimiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

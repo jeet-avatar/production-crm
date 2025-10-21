@@ -4,14 +4,45 @@ import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import multer from 'multer';
 import { parse } from 'csv-parse/sync';
 import { companyEnrichmentService } from '../services/companyEnrichment';
+import { logger } from '../utils/logger';
 
 const router = Router();
 const prisma = new PrismaClient();
 
-// Configure multer for file uploads
+// Configure multer for file uploads with security validations
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 1 // Only 1 file at a time
+  },
+  fileFilter: (req, file, cb) => {
+    // Allowed MIME types for company imports
+    const allowedMimeTypes = [
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+      'application/csv',
+      'text/plain'
+    ];
+
+    // Check MIME type
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      logger.warn(`File upload rejected: invalid MIME type ${file.mimetype}`);
+      return cb(new Error('Invalid file type. Only CSV and Excel files are allowed.'));
+    }
+
+    // Check file extension
+    const allowedExtensions = ['.csv', '.xlsx', '.xls'];
+    const fileExt = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'));
+
+    if (!allowedExtensions.includes(fileExt)) {
+      logger.warn(`File upload rejected: invalid extension ${fileExt}`);
+      return cb(new Error('Invalid file extension. Only .csv, .xlsx, .xls are allowed.'));
+    }
+
+    cb(null, true);
+  }
 });
 
 // Enable authentication for all company routes
