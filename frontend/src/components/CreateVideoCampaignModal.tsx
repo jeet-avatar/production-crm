@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { XMarkIcon, SparklesIcon } from '@heroicons/react/24/outline';
-import { EnhancedTemplateLibrary } from './EnhancedTemplateLibrary';
+import { CompactVideoSourceSelector } from './CompactVideoSourceSelector';
 import { LogoUploader } from './LogoUploader';
 import { TextLayoverEditor } from './TextLayoverEditor';
 import { VoiceSelector } from './VoiceSelector';
@@ -353,7 +353,7 @@ export function CreateVideoCampaignModal({
           {/* Step 3: Video Source */}
           {step === 'source' && (
             <div className="space-y-4">
-              <EnhancedTemplateLibrary
+              <CompactVideoSourceSelector
                 onSelectTemplate={(template) => {
                   setSelectedTemplate(template);
                   setVideoSource('template');
@@ -371,6 +371,7 @@ export function CreateVideoCampaignModal({
                   setSelectedTemplate(null);
                 }}
                 selectedTemplateId={selectedTemplate?.id}
+                selectedVideoUrl={customVideoUrl}
               />
             </div>
           )}
