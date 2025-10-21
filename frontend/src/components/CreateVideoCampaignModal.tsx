@@ -109,8 +109,8 @@ export function CreateVideoCampaignModal({
         videoSource: videoSource === 'template' ? 'TEMPLATE' : 'CUSTOM_UPLOAD',
         templateId: selectedTemplate?.id,
         customVideoUrl: videoSource === 'upload' ? customVideoUrl : undefined,
-        voiceId: isCustomVoice ? undefined : voiceId,
-        customVoiceUrl: isCustomVoice ? customVoiceUrl : undefined,
+        voiceId: voiceId || undefined, // Always use voiceId for cloned voices
+        customVoiceUrl: customVoiceUrl || undefined,
         clientLogoUrl: clientLogo || undefined,
         userLogoUrl: userLogo || undefined,
         bgmUrl: bgmUrl || undefined,
@@ -338,14 +338,13 @@ export function CreateVideoCampaignModal({
           {step === 'voice' && (
             <div className="space-y-4">
               <VoiceSelector
-                value={isCustomVoice ? customVoiceUrl : voiceId}
+                value={voiceId}
                 onChange={(voice, custom) => {
-                  if (custom) {
-                    setCustomVoiceUrl(voice);
-                    setIsCustomVoice(true);
-                  } else {
-                    setVoiceId(voice);
-                    setIsCustomVoice(false);
+                  // All cloned voices use voiceId (voice_id format: "user_id/voice_name")
+                  setVoiceId(voice);
+                  setIsCustomVoice(custom);
+                  if (!custom) {
+                    setCustomVoiceUrl('');
                   }
                 }}
                 onCustomVoiceUpload={async (file) => {
