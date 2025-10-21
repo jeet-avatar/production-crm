@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { XMarkIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { XMarkIcon, SparklesIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { CompactVideoSourceSelector } from './CompactVideoSourceSelector';
 import { LogoUploader } from './LogoUploader';
 import { TextLayoverEditor } from './TextLayoverEditor';
 import { VoiceSelector } from './VoiceSelector';
 import { videoService, type VideoTemplate, type TextOverlay } from '../services/videoService';
 import { useTheme } from '../contexts/ThemeContext';
+import { useDraftCampaign } from '../hooks/useDraftCampaign';
 
 interface CreateVideoCampaignModalProps {
   isOpen: boolean;
@@ -44,6 +45,92 @@ export function CreateVideoCampaignModal({
   const [bgmUrl, setBgmUrl] = useState('');
   const [overlays, setOverlays] = useState<TextOverlay[]>([]);
   const [generatingScript, setGeneratingScript] = useState(false);
+
+  // Draft auto-save functionality
+  const { draftId, isSaving, lastSaved, saveDraft, clearDraft, saveLocalDraft, loadLocalDraft } = useDraftCampaign({
+    onSaveSuccess: (id) => console.log('Draft saved:', id),
+    onSaveError: (error) => console.error('Draft save failed:', error),
+  });
+
+  // Load draft on modal open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const draft = loadLocalDraft();
+    if (draft) {
+      // Only load if user hasn't started entering data
+      const hasUserData = name || targetCompanyName || script;
+      if (!hasUserData) {
+        if (draft.name) setName(draft.name);
+        if (draft.targetCompanyName) setTargetCompanyName(draft.targetCompanyName);
+        if (draft.userCompanyName) setUserCompanyName(draft.userCompanyName);
+        if (draft.script) setScript(draft.script);
+        if (draft.tone) setTone(draft.tone);
+        if (draft.voiceId) setVoiceId(draft.voiceId);
+        if (draft.customVoiceUrl) setCustomVoiceUrl(draft.customVoiceUrl);
+        if (draft.isCustomVoice !== undefined) setIsCustomVoice(draft.isCustomVoice);
+        if (draft.videoSource) setVideoSource(draft.videoSource);
+        if (draft.customVideoUrl) setCustomVideoUrl(draft.customVideoUrl);
+        if (draft.clientLogo) setClientLogo(draft.clientLogo);
+        if (draft.userLogo) setUserLogo(draft.userLogo);
+        if (draft.bgmUrl) setBgmUrl(draft.bgmUrl);
+        if (draft.overlays && draft.overlays.length > 0) setOverlays(draft.overlays);
+        console.log('Draft loaded from localStorage');
+      }
+    }
+  }, [isOpen, loadLocalDraft]);
+
+  // Auto-save to backend every 10 seconds
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const interval = setInterval(() => {
+      const draftData = {
+        name,
+        targetCompanyName,
+        userCompanyName,
+        script,
+        tone,
+        voiceId,
+        customVoiceUrl,
+        isCustomVoice,
+        videoSource,
+        selectedTemplateId: selectedTemplate?.id || null,
+        customVideoUrl,
+        clientLogo,
+        userLogo,
+        bgmUrl,
+        overlays,
+      };
+
+      // Save to localStorage immediately (backup)
+      saveLocalDraft(draftData);
+
+      // Save to backend every 10 seconds
+      saveDraft(draftData);
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
+  }, [
+    isOpen,
+    name,
+    targetCompanyName,
+    userCompanyName,
+    script,
+    tone,
+    voiceId,
+    customVoiceUrl,
+    isCustomVoice,
+    videoSource,
+    selectedTemplate,
+    customVideoUrl,
+    clientLogo,
+    userLogo,
+    bgmUrl,
+    overlays,
+    saveDraft,
+    saveLocalDraft,
+  ]);
 
   const steps: { id: StepType; label: string; description: string }[] = [
     { id: 'basics', label: '1. Message', description: 'Write your video script' },
@@ -126,6 +213,9 @@ export function CreateVideoCampaignModal({
 
       // Pass campaign to success callback for polling
       onSuccess(result.campaign);
+
+      // Clear draft on successful creation
+      clearDraft();
       resetForm();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create campaign');
@@ -196,7 +286,25 @@ export function CreateVideoCampaignModal({
         {/* Header */}
         <div className="p-6 border-b sticky top-0 bg-white z-10 rounded-t-xl">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Create Video Campaign</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900">Create Video Campaign</h2>
+
+              {/* Draft Auto-Save Indicator */}
+              {isSaving ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                  <ClockIcon className="w-4 h-4 text-blue-600 animate-pulse" />
+                  <span className="text-xs font-medium text-blue-700">Saving draft...</span>
+                </div>
+              ) : lastSaved ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
+                  <ClockIcon className="w-4 h-4 text-green-600" />
+                  <span className="text-xs font-medium text-green-700">
+                    Saved {new Date(lastSaved).toLocaleTimeString()}
+                  </span>
+                </div>
+              ) : null}
+            </div>
+
             <button
               onClick={() => {
                 resetForm();
