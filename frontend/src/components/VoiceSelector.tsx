@@ -578,17 +578,42 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClonedVoice(voice.voice_id);
-                  }}
-                  className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-red-300 rounded-md text-sm font-medium text-red-700 hover:bg-red-50 transition-colors"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                  Delete Voice
-                </button>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {/* Play Preview Button */}
+                  {voice.voice_url && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Create audio element and play
+                        const audio = new Audio(voice.voice_url);
+                        audio.play().catch(err => {
+                          console.error('Failed to play voice:', err);
+                          alert('Could not play voice preview. The voice file may not be accessible.');
+                        });
+                      }}
+                      className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-green-300 rounded-md text-sm font-medium text-green-700 hover:bg-green-50 transition-colors"
+                    >
+                      <PlayIcon className="w-4 h-4" />
+                      Preview
+                    </button>
+                  )}
+
+                  {/* Delete Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClonedVoice(voice.voice_id);
+                    }}
+                    className={`flex items-center justify-center gap-2 px-3 py-2 bg-white border border-red-300 rounded-md text-sm font-medium text-red-700 hover:bg-red-50 transition-colors ${
+                      !voice.voice_url ? 'col-span-2' : ''
+                    }`}
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -768,6 +793,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                 await handleCloneVoice(file, voiceName);
               }}
               className="hidden"
+              aria-label="Upload voice file for cloning"
             />
           </div>
 
@@ -912,6 +938,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
             onChange={handleFileChange}
             className="hidden"
             disabled={isRecording}
+            aria-label="Upload custom voice file"
           />
         </div>
       </div>
