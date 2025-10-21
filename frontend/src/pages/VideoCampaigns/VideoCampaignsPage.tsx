@@ -219,13 +219,13 @@ export function VideoCampaignsPage() {
 
   // Default: Show Video Library
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-orange-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent mb-2">
                 🎬 Video Campaigns
               </h1>
               <p className="text-gray-600">
@@ -237,7 +237,7 @@ export function VideoCampaignsPage() {
             <button
               type="button"
               onClick={() => setShowCreateNew(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl"
             >
               <VideoCameraIcon className="w-5 h-5" />
               Create New Video
@@ -248,7 +248,7 @@ export function VideoCampaignsPage() {
         {/* Loading State */}
         {loadingVideos && (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
             <p className="mt-4 text-gray-600">Loading your videos...</p>
           </div>
         )}
@@ -264,7 +264,7 @@ export function VideoCampaignsPage() {
             <button
               type="button"
               onClick={() => setShowCreateNew(true)}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl"
             >
               <VideoCameraIcon className="w-6 h-6" />
               Create Your First Video
@@ -272,13 +272,13 @@ export function VideoCampaignsPage() {
           </div>
         )}
 
-        {/* Video Grid - Clean Minimal Design */}
+        {/* Video Grid - Orange-Rose Branding */}
         {!loadingVideos && previousVideos.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {previousVideos.map((campaign) => (
               <div
                 key={campaign.id}
-                className="group border-2 border-gray-200 rounded-2xl bg-white shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden cursor-pointer"
+                className="group border-2 border-orange-200 hover:border-orange-500 rounded-2xl bg-white shadow-md hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-[1.02] transition-all duration-300 overflow-hidden cursor-pointer"
                 onClick={(e) => handlePlayInline(campaign.id, e)}
               >
                 {/* Large Video Thumbnail / Inline Player */}
@@ -301,22 +301,30 @@ export function VideoCampaignsPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
-                          <VideoCameraIcon className="w-24 h-24 text-gray-600" />
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-900 to-rose-900">
+                          <VideoCameraIcon className="w-24 h-24 text-orange-300" />
                         </div>
                       )}
-                      {/* Play Button Overlay - Shows on Hover */}
+                      {/* Play Button Overlay - Orange-Rose Gradient */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="w-20 h-20 flex items-center justify-center rounded-full bg-white/90 shadow-2xl">
-                          <PlayIcon className="w-10 h-10 text-orange-500 ml-1" />
+                        <div className="w-20 h-20 flex items-center justify-center rounded-full bg-white border-2 border-orange-500 shadow-2xl shadow-orange-500/50">
+                          <svg className="w-10 h-10 ml-1" viewBox="0 0 24 24" fill="none">
+                            <defs>
+                              <linearGradient id="playGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#ea580c" />
+                                <stop offset="100%" stopColor="#e11d48" />
+                              </linearGradient>
+                            </defs>
+                            <path d="M8 5.14v13.72L19 12 8 5.14z" fill="url(#playGradient)" stroke="url(#playGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
                         </div>
                       </div>
                     </>
                   )}
                 </div>
 
-                {/* Title Only - One Line, Centered */}
-                <div className="p-4">
+                {/* Title with Orange-Rose Gradient Background */}
+                <div className="p-4 bg-gradient-to-r from-orange-50 to-rose-50">
                   <h3 className="text-sm font-semibold text-gray-900 truncate text-center">
                     {campaign.name}
                   </h3>
