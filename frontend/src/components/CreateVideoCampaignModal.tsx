@@ -30,6 +30,8 @@ export function CreateVideoCampaignModal({
 
   // Form state
   const [name, setName] = useState('');
+  const [targetCompanyName, setTargetCompanyName] = useState('');
+  const [userCompanyName, setUserCompanyName] = useState('');
   const [script, setScript] = useState('');
   const [tone, setTone] = useState('professional');
   const [voiceId, setVoiceId] = useState('natural-en-us-male-1');
@@ -56,8 +58,8 @@ export function CreateVideoCampaignModal({
   const currentStepIndex = steps.findIndex((s) => s.id === step);
 
   const handleGenerateScript = async () => {
-    if (!name) {
-      setError('Please enter a campaign name first');
+    if (!targetCompanyName) {
+      setError('Please enter the target company name first');
       return;
     }
 
@@ -66,7 +68,8 @@ export function CreateVideoCampaignModal({
 
     try {
       const result = await videoService.generateScript({
-        companyName: name,
+        companyName: targetCompanyName,
+        userCompanyName: userCompanyName || undefined,
         tone,
       });
       setScript(result.script);
@@ -133,6 +136,8 @@ export function CreateVideoCampaignModal({
   const resetForm = () => {
     setStep('basics');
     setName('');
+    setTargetCompanyName('');
+    setUserCompanyName('');
     setScript('');
     setTone('professional');
     setVideoSource('template');
@@ -146,9 +151,19 @@ export function CreateVideoCampaignModal({
   };
 
   const handleNext = () => {
-    if (step === 'basics' && (!name || !script)) {
-      setError('Please enter campaign name and script');
-      return;
+    if (step === 'basics') {
+      if (!name) {
+        setError('Please enter campaign name');
+        return;
+      }
+      if (!targetCompanyName) {
+        setError('Please enter target company name');
+        return;
+      }
+      if (!script) {
+        setError('Please enter or generate a script');
+        return;
+      }
     }
     if (step === 'source') {
       if (videoSource === 'template' && !selectedTemplate) {
@@ -260,13 +275,45 @@ export function CreateVideoCampaignModal({
               </div>
 
               <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Target Company Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={targetCompanyName}
+                  onChange={(e) => setTargetCompanyName(e.target.value)}
+                  placeholder="e.g., Acme Corp"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  The company you're creating this video for
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Your Company Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={userCompanyName}
+                  onChange={(e) => setUserCompanyName(e.target.value)}
+                  placeholder="e.g., BrandMonkz"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Your company name to include in the video
+                </p>
+              </div>
+
+              <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-semibold text-gray-700">
                     Narration Script
                   </label>
                   <button
                     onClick={handleGenerateScript}
-                    disabled={generatingScript || !name}
+                    disabled={generatingScript || !targetCompanyName}
                     className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     <SparklesIcon className="w-4 h-4" />
