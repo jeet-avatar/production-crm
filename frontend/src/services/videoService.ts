@@ -291,6 +291,7 @@ class VideoService {
     companyIndustry?: string;
     tone?: string;
     goal?: string;
+    userCompanyName?: string;
   }): Promise<{ script: string }> {
     const response = await axios.post(`${API_URL}/api/video-campaigns/ai/generate-script`, data, {
       headers: this.getAuthHeaders(),
