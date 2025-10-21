@@ -834,7 +834,7 @@ Return ONLY valid JSON with this structure:
 });
 
 // ===================================
-// VIDEO GENERATION (Placeholder - will integrate Python)
+// VIDEO GENERATION - Python Service Integration
 // ===================================
 
 // POST /api/video-campaigns/:id/generate - Start video generation
@@ -856,6 +856,11 @@ router.post('/:id/generate', async (req, res, next) => {
       return res.status(404).json({ error: 'Campaign not found' });
     }
 
+    // Validate required fields
+    if (!campaign.voiceId) {
+      return res.status(400).json({ error: 'Voice ID is required for video generation' });
+    }
+
     // Update campaign status
     await prisma.videoCampaign.update({
       where: { id },
@@ -871,9 +876,157 @@ router.post('/:id/generate', async (req, res, next) => {
       },
     });
 
-    // TODO: Queue video generation job
-    // For now, return mock response
-    logger.info(`Video generation queued for campaign ${id}`);
+    logger.info(`🎬 Starting video generation for campaign ${id} with voice ${campaign.voiceId}`);
+
+    // Call Python video generator service asynchronously
+    const VIDEO_GENERATOR_URL = process.env.VIDEO_GENERATOR_URL || 'http://localhost:5002';
+
+    // Prepare video generation request (matching video-generator-service API format)
+    const videoGenRequest = {
+      campaignId: campaign.id,
+      narrationScript: campaign.narrationScript,
+      templateUrl: campaign.customVideoUrl || campaign.template?.videoUrl || undefined,
+      voiceId: campaign.voiceId, // ElevenLabs or custom voice ID
+      customVoiceUrl: campaign.customVoiceUrl || undefined,
+      clientLogoUrl: campaign.clientLogoUrl || undefined,
+      userLogoUrl: campaign.userLogoUrl || undefined,
+      bgmUrl: campaign.bgmUrl || undefined,
+      bgmVolume: campaign.bgmVolume || 0.1,
+      textOverlays: campaign.textOverlays || undefined,
+    };
+
+    // Call video generator service (async - don't wait for completion)
+    fetch(`${VIDEO_GENERATOR_URL}/api/video/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(videoGenRequest),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorText = await response.text();
+          logger.error(`Video generation service error: ${response.status} - ${errorText}`);
+
+          // Update job status
+          await prisma.videoGenerationJob.update({
+            where: { id: job.id },
+            data: {
+              status: 'failed',
+              errorMessage: `Video service error: ${errorText}`,
+            },
+          });
+
+          await prisma.videoCampaign.update({
+            where: { id: campaign.id },
+            data: {
+              status: 'FAILED',
+              generationError: `Video service error: ${errorText}`,
+            },
+          });
+          return;
+        }
+
+        const data = await response.json();
+        const videoJobId = data.jobId;
+
+        logger.info(`🎬 Video generation started with job ID: ${videoJobId}`);
+
+        // Poll for video completion
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusResponse = await fetch(`${VIDEO_GENERATOR_URL}/api/video/status/${videoJobId}`);
+
+            if (!statusResponse.ok) {
+              logger.error(`Failed to check video status: ${statusResponse.status}`);
+              return;
+            }
+
+            const statusData = await statusResponse.json();
+
+            // Update job progress
+            await prisma.videoGenerationJob.update({
+              where: { id: job.id },
+              data: {
+                progress: statusData.progress || 0,
+                currentStep: statusData.currentStep || 'Processing...',
+              },
+            });
+
+            if (statusData.status === 'completed' && statusData.videoUrl) {
+              clearInterval(pollInterval);
+
+              logger.info(`✅ Video generation completed: ${statusData.videoUrl}`);
+
+              // Update campaign with video URL
+              await prisma.videoCampaign.update({
+                where: { id: campaign.id },
+                data: {
+                  status: 'READY',
+                  videoUrl: statusData.videoUrl,
+                },
+              });
+
+              // Update job status
+              await prisma.videoGenerationJob.update({
+                where: { id: job.id },
+                data: {
+                  status: 'completed',
+                  progress: 100,
+                  currentStep: 'Complete',
+                },
+              });
+            } else if (statusData.status === 'failed') {
+              clearInterval(pollInterval);
+
+              logger.error(`❌ Video generation failed: ${statusData.error}`);
+
+              await prisma.videoGenerationJob.update({
+                where: { id: job.id },
+                data: {
+                  status: 'failed',
+                  errorMessage: statusData.error || 'Video generation failed',
+                },
+              });
+
+              await prisma.videoCampaign.update({
+                where: { id: campaign.id },
+                data: {
+                  status: 'FAILED',
+                  generationError: statusData.error || 'Video generation failed',
+                },
+              });
+            }
+          } catch (pollError: any) {
+            logger.error(`Polling error: ${pollError.message}`);
+          }
+        }, 5000); // Poll every 5 seconds
+
+        // Set timeout to stop polling after 10 minutes
+        setTimeout(() => {
+          clearInterval(pollInterval);
+        }, 600000);
+      })
+      .catch(async (error) => {
+        logger.error(`Video generation service call failed: ${error.message}`);
+
+        // Update job status
+        await prisma.videoGenerationJob.update({
+          where: { id: job.id },
+          data: {
+            status: 'failed',
+            errorMessage: error.message,
+          },
+        });
+
+        await prisma.videoCampaign.update({
+          where: { id: campaign.id },
+          data: {
+            status: 'FAILED',
+            generationError: error.message,
+          },
+        });
+      });
 
     return res.json({
       message: 'Video generation started',
