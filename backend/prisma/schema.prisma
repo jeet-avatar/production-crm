@@ -200,7 +200,7 @@ model Contact {
   phone         String?
   title         String?
   role          String? // CEO, CFO, CTO, Controller, IT Director, etc.
-  status        ContactStatus @default(LEAD)
+  status        ContactStatus? // No default - must be set explicitly by user
   source        String?
   score         Int           @default(0)
   customFields  Json?
@@ -260,7 +260,7 @@ model Company {
   logo        String?
 
   // Data Source Tracking
-  dataSource String?   @default("manual") @map("data_source") // "manual", "apollo", "csv_import", "ai_enrichment"
+  dataSource String?   @map("data_source") // "manual", "apollo", "csv_import", "ai_enrichment" - no default, set by system
   importedAt DateTime? @map("imported_at")
   intent     String?   @db.Text // Intent of hiring for the position
   hiringInfo String?   @map("hiring_info") @db.Text // Recent hiring post info
@@ -306,7 +306,7 @@ model Company {
   aiEmployeeRange  String?
   aiRevenue        String?
   aiFoundedYear    Int?
-  enrichmentStatus String?  @default("pending") // pending, enriching, enriched, failed
+  enrichmentStatus String? // pending, enriching, enriched, failed - no default, set by enrichment process
 
   // Decision Makers Data (Page 3 of CSV)
   jobPostings  String? @db.Text // Recent job postings
@@ -1097,10 +1097,10 @@ model VideoCampaign {
 
   // Video Content
   narrationScript String               @db.Text
-  tone            String               @default("professional") // professional, friendly, enthusiastic, persuasive
+  tone            String? // professional, friendly, enthusiastic, persuasive - must be selected by user
 
-  // Voice Settings
-  voiceId         String               @default("gtts-en-us") // Built-in voice ID (gtts-en-us, gtts-en-uk, etc.)
+  // Voice Settings - ElevenLabs Integration
+  voiceId         String? // ElevenLabs voice ID selected by user (no hardcoded default)
   customVoiceUrl  String? // Custom uploaded voice file URL
 
   // Visual Elements

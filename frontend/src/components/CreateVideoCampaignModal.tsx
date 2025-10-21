@@ -32,7 +32,7 @@ export function CreateVideoCampaignModal({
   const [targetCompanyName, setTargetCompanyName] = useState('');
   const [userCompanyName, setUserCompanyName] = useState('');
   const [script, setScript] = useState('');
-  const [tone, setTone] = useState('professional');
+  const [tone, setTone] = useState(''); // No default - user must select
   const [voiceId, setVoiceId] = useState('');
   const [customVoiceUrl, setCustomVoiceUrl] = useState('');
   const [isCustomVoice, setIsCustomVoice] = useState(false);
@@ -140,7 +140,7 @@ export function CreateVideoCampaignModal({
     setTargetCompanyName('');
     setUserCompanyName('');
     setScript('');
-    setTone('professional');
+    setTone(''); // Reset to empty - user must select
     setVideoSource('template');
     setSelectedTemplate(null);
     setCustomVideoUrl('');
