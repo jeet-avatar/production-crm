@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SparklesIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, CheckCircleIcon, PlayIcon } from '@heroicons/react/24/outline';
 import { CreateVideoCampaignModal } from './CreateVideoCampaignModal';
 import { videoService } from '../services/videoService';
 import { useTheme } from '../contexts/ThemeContext';
@@ -19,8 +19,8 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
   const pollForVideoCompletion = async (campaignId: string) => {
     setIsGenerating(true);
     setShowManualCreate(false); // Close modal
-    setCurrentStep('🎬 Generating your video...');
-    setProgress(60);
+    setCurrentStep('🎬 Creating your personalized video...');
+    setProgress(65);
 
     const maxAttempts = 60; // 5 minutes max (5 seconds * 60)
     let attempts = 0;
@@ -31,7 +31,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
 
         if (status.status === 'READY' && status.videoUrl) {
           setProgress(100);
-          setCurrentStep('✅ Video complete!');
+          setCurrentStep('✅ Video ready!');
 
           // Get campaign details
           const campaign = await videoService.getCampaign(campaignId);
@@ -46,9 +46,23 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
           setIsGenerating(false);
           alert(`Video generation failed: ${status.error || 'Unknown error'}`);
         } else if (attempts < maxAttempts) {
-          // Update progress
-          setProgress(Math.min(95, 60 + (attempts / maxAttempts) * 35));
-          setCurrentStep(status.currentStep || '🎬 Generating your video...');
+          // Update progress smoothly from 65% to 95%
+          const progressIncrement = (attempts / maxAttempts) * 30; // 30% range
+          setProgress(Math.min(95, 65 + progressIncrement));
+
+          // Show actual backend status or friendly message
+          if (status.currentStep) {
+            setCurrentStep(status.currentStep);
+          } else {
+            // Friendly messages based on progress
+            if (progress < 75) {
+              setCurrentStep('🎤 Adding voice narration...');
+            } else if (progress < 85) {
+              setCurrentStep('🎨 Composing video with logos and overlays...');
+            } else {
+              setCurrentStep('✨ Finalizing your video...');
+            }
+          }
 
           attempts++;
           setTimeout(checkStatus, 5000); // Check again in 5 seconds
@@ -78,7 +92,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
     }
 
     // For now, just open manual create with the prompt
-    // In future, we can add AI script generation here
+    // In future, we can add full AI automation here
     setShowManualCreate(true);
   };
 
@@ -97,23 +111,23 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-rose-50 flex items-center justify-center p-6">
       <div className="w-full max-w-4xl relative z-0">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-6 shadow-2xl">
-            <SparklesIcon className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            AI Video Campaign Generator
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Describe your campaign idea in plain English. Our AI will create a professional video campaign in minutes.
-          </p>
-        </div>
-
         {!isGenerating ? (
           <>
+            {/* Header */}
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-6 shadow-2xl">
+                <SparklesIcon className="w-10 h-10 text-white" />
+              </div>
+              <h1 className="text-5xl font-bold text-gray-900 mb-4">
+                AI Video Campaign Generator
+              </h1>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                Describe your campaign idea in plain English. Our AI will create a professional video campaign in minutes.
+              </p>
+            </div>
+
             {/* Main Input Area */}
-            <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8">
+            <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8 border-2 border-gray-100">
               <label className="block text-lg font-semibold text-gray-900 mb-4">
                 What kind of video campaign do you want to create?
               </label>
@@ -155,7 +169,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
             </div>
 
             {/* Example Prompts */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <SparklesIcon className="w-5 h-5 text-orange-600" />
                 Example Prompts
@@ -165,7 +179,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
                   <button
                     key={index}
                     onClick={() => setPrompt(example)}
-                    className="w-full text-left px-4 py-3 bg-gradient-to-r from-orange-50 to-rose-50 hover:from-orange-100 hover:to-rose-100 rounded-xl text-sm text-gray-700 transition-all border border-orange-200"
+                    className="w-full text-left px-4 py-3 bg-gradient-to-r from-orange-50 to-rose-50 hover:from-orange-100 hover:to-rose-100 rounded-xl text-sm text-gray-700 transition-all border border-orange-200 hover:border-orange-300"
                   >
                     {example}
                   </button>
@@ -180,7 +194,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
                 { icon: '🎬', title: 'Smart Templates', desc: 'Auto-selected visuals' },
                 { icon: '⚡', title: 'Instant Generation', desc: 'Ready in minutes' },
               ].map((feature, index) => (
-                <div key={index} className="bg-white rounded-xl p-6 shadow-md text-center">
+                <div key={index} className="bg-white rounded-xl p-6 shadow-md text-center border-2 border-gray-100">
                   <div className="text-4xl mb-2">{feature.icon}</div>
                   <h4 className="font-bold text-gray-900 mb-1">{feature.title}</h4>
                   <p className="text-sm text-gray-600">{feature.desc}</p>
@@ -189,50 +203,34 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
             </div>
           </>
         ) : (
-          /* Generating State */
-          <div className="bg-white rounded-3xl shadow-2xl p-12 text-center">
+          <div className="bg-white rounded-3xl shadow-2xl p-12 text-center border-4 border-orange-200">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-8 shadow-2xl animate-pulse">
-              <SparklesIcon className="w-12 h-12 text-white" />
+              <PlayIcon className="w-12 h-12 text-white" />
             </div>
 
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Creating Your Video Campaign
+              Creating Your Video
             </h2>
 
-            <p className="text-lg text-gray-600 mb-8">
+            <p className="text-lg text-gray-600 mb-8 font-medium">
               {currentStep}
             </p>
 
             {/* Progress Bar */}
             <div className="w-full max-w-md mx-auto mb-8">
-              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
                 <div
-                  className="h-full bg-gradient-to-r from-orange-600 to-rose-600 transition-all duration-500"
+                  className={`h-full bg-gradient-to-r ${gradients.brand.primary.gradient} transition-all duration-500 ease-out`}
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="text-sm text-gray-500 mt-2">{progress}% complete</p>
+              <p className="text-sm text-gray-500 mt-3 font-semibold">{progress}% complete</p>
             </div>
 
-            <div className="space-y-3 text-left max-w-md mx-auto">
-              {[
-                { step: 'Analyzing request', done: progress >= 20 },
-                { step: 'Generating script', done: progress >= 40 },
-                { step: 'Selecting voice', done: progress >= 60 },
-                { step: 'Choosing template', done: progress >= 80 },
-                { step: 'Creating video', done: progress >= 100 },
-              ].map((item, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  {item.done ? (
-                    <CheckCircleIcon className="w-5 h-5 text-green-600" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
-                  )}
-                  <span className={item.done ? 'text-green-700 font-medium' : 'text-gray-500'}>
-                    {item.step}
-                  </span>
-                </div>
-              ))}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 max-w-md mx-auto">
+              <p className="text-sm text-blue-900 font-medium">
+                ⏱️ <strong>Hang tight!</strong> We're composing your video with voice narration, logos, and overlays. This usually takes 2-3 minutes.
+              </p>
             </div>
           </div>
         )}
