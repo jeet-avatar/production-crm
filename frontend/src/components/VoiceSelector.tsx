@@ -229,18 +229,13 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                 </div>
 
                 {/* Test Voice Section */}
-                <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
-                  <label className="block text-xs font-semibold text-gray-700">
-                    Test Voice with Sample Text:
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                  <label className="block text-xs font-semibold text-blue-800">
+                    ▶️ Preview Your Voice Recording
                   </label>
-                  <textarea
-                    placeholder="Enter text to hear how your voice sounds..."
-                    defaultValue={testText}
-                    onChange={(e) => setTestText(e.target.value)}
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                    rows={2}
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                  <p className="text-xs text-gray-600">
+                    This plays your original voice recording so you can hear how it sounds.
+                  </p>
                   <button
                     type="button"
                     onClick={(e) => {
@@ -248,17 +243,17 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                       handleTestVoice(voice.voice_id, testText);
                     }}
                     disabled={testingVoiceId === voice.voice_id}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-md text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-md text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {testingVoiceId === voice.voice_id ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Generating...
+                        Loading...
                       </>
                     ) : (
                       <>
                         <PlayIcon className="w-4 h-4" />
-                        Test Voice
+                        Play My Voice
                       </>
                     )}
                   </button>
