@@ -261,7 +261,7 @@ export function VideoCampaignsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 bg-clip-text text-transparent">
                 Video Library
               </h1>
               <p className="text-gray-600 mt-2">
@@ -271,7 +271,7 @@ export function VideoCampaignsPage() {
             <button
               type="button"
               onClick={() => setShowCreateNew(true)}
-              className="flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-xl font-bold border-2 border-black hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl"
+              className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-black rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-orange-200/50 transition-all shadow-lg"
             >
               <VideoCameraIcon className="w-6 h-6" />
               Create New Video
