@@ -833,6 +833,92 @@ Return ONLY valid JSON with this structure:
   }
 });
 
+// POST /api/video-campaigns/ai/generate-from-prompt - Generate complete campaign from prompt
+router.post('/ai/generate-from-prompt', async (req, res, next) => {
+  try {
+    const { prompt } = req.body;
+
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    // Use AI to analyze the prompt and extract campaign details
+    const analysisPrompt = `You are an AI video campaign assistant. Analyze this user's request and extract the necessary information to create a video campaign.
+
+User Request: ${prompt}
+
+Extract and generate the following information:
+1. Campaign name (short, descriptive)
+2. Target company/audience name (if mentioned, otherwise use "Prospective Client")
+3. Video script (100-150 words, professional narration)
+4. Tone (professional, friendly, enthusiastic, or persuasive)
+5. Text overlay suggestions (2-3 key phrases)
+
+Return ONLY valid JSON with this exact structure:
+{
+  "name": "Campaign Name",
+  "targetCompanyName": "Company Name",
+  "script": "Full narration script...",
+  "tone": "professional",
+  "overlays": [
+    {"text": "Key Point 1", "startTime": 5, "duration": 3},
+    {"text": "Key Point 2", "startTime": 15, "duration": 3}
+  ]
+}`;
+
+    const message = await anthropic.messages.create({
+      ...getAIMessageConfig('content'),
+      messages: [{ role: 'user', content: analysisPrompt }],
+    });
+
+    const content = message.content[0];
+    if (!content || content.type !== 'text') {
+      return res.status(500).json({ error: 'Unexpected AI response format' });
+    }
+
+    let jsonText = content.text.trim();
+    if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/^```json?\s*\n/, '').replace(/\n```\s*$/, '');
+    }
+    const aiResult = JSON.parse(jsonText);
+
+    // Get a default template (first available template or create default)
+    const defaultTemplate = await prisma.videoTemplate.findFirst({
+      where: {
+        isSystem: true,
+        category: 'general',
+      },
+    });
+
+    // Get default voice (first ElevenLabs voice)
+    const elevenLabsVoices = await getElevenLabsVoices();
+    const defaultVoice = elevenLabsVoices.length > 0 ? elevenLabsVoices[0].voice_id : undefined;
+
+    // Create the campaign
+    const campaign = await prisma.videoCampaign.create({
+      data: {
+        userId: req.user!.id,
+        name: aiResult.name || 'AI Generated Campaign',
+        narrationScript: aiResult.script,
+        tone: aiResult.tone || 'professional',
+        videoSource: 'TEMPLATE',
+        templateId: defaultTemplate?.id,
+        voiceId: defaultVoice,
+        textOverlays: aiResult.overlays || [],
+        status: 'DRAFT',
+        bgmVolume: 0.3,
+      },
+    });
+
+    logger.info(`AI campaign created: ${campaign.id} for user ${req.user!.id}`);
+
+    return res.json({ campaign });
+  } catch (error) {
+    logger.error('AI campaign generation error:', error);
+    return next(error);
+  }
+});
+
 // ===================================
 // VIDEO GENERATION - Python Service Integration
 // ===================================
