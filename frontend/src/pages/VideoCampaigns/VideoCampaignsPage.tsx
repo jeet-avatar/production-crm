@@ -272,16 +272,17 @@ export function VideoCampaignsPage() {
           </div>
         )}
 
-        {/* Video Grid */}
+        {/* Video Grid - Clean Minimal Design */}
         {!loadingVideos && previousVideos.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {previousVideos.map((campaign) => (
               <div
                 key={campaign.id}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all group"
+                className="group border-2 border-gray-200 rounded-2xl bg-white shadow-md hover:shadow-xl hover:scale-[1.02] transition-all duration-300 overflow-hidden cursor-pointer"
+                onClick={(e) => handlePlayInline(campaign.id, e)}
               >
-                {/* Thumbnail / Video Player */}
-                <div className="relative aspect-video bg-gray-900 overflow-hidden">
+                {/* Large Video Thumbnail / Inline Player */}
+                <div className="relative aspect-video bg-black overflow-hidden">
                   {playingVideoId === campaign.id && campaign.videoUrl ? (
                     <video
                       src={campaign.videoUrl}
@@ -289,6 +290,7 @@ export function VideoCampaignsPage() {
                       autoPlay
                       className="w-full h-full object-contain"
                       onEnded={() => setPlayingVideoId(null)}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   ) : (
                     <>
@@ -299,91 +301,25 @@ export function VideoCampaignsPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <VideoCameraIcon className="w-16 h-16 text-gray-600" />
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+                          <VideoCameraIcon className="w-24 h-24 text-gray-600" />
                         </div>
                       )}
-                      {/* Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={(e) => handlePlayInline(campaign.id, e)}
-                          aria-label={`Play ${campaign.name}`}
-                          className="w-20 h-20 flex items-center justify-center rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-all transform hover:scale-110"
-                        >
-                          <PlayIcon className="w-10 h-10 text-white" />
-                        </button>
+                      {/* Play Button Overlay - Shows on Hover */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="w-20 h-20 flex items-center justify-center rounded-full bg-white/90 shadow-2xl">
+                          <PlayIcon className="w-10 h-10 text-orange-500 ml-1" />
+                        </div>
                       </div>
                     </>
                   )}
                 </div>
 
-                {/* Info */}
-                <div className="p-5">
-                  <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
+                {/* Title Only - One Line, Centered */}
+                <div className="p-4">
+                  <h3 className="text-sm font-semibold text-gray-900 truncate text-center">
                     {campaign.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                    {campaign.narrationScript || 'No description'}
-                  </p>
-
-                  {/* Stats */}
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <PlayIcon className="w-4 h-4" />
-                      {campaign.views || 0} views
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ArrowDownTrayIcon className="w-4 h-4" />
-                      {campaign.downloads || 0}
-                    </span>
-                  </div>
-
-                  {/* Created date */}
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <p className="text-xs text-gray-500 mb-3">
-                      Created {new Date(campaign.createdAt).toLocaleDateString()}
-                    </p>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setGeneratedVideo({
-                            url: campaign.videoUrl || '',
-                            campaignId: campaign.id,
-                            name: campaign.name,
-                            narrationScript: campaign.narrationScript,
-                          });
-                          setShowEmailModal(true);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors"
-                        disabled={!campaign.videoUrl}
-                      >
-                        <EnvelopeIcon className="w-4 h-4" />
-                        Email
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (campaign.videoUrl) {
-                            const link = document.createElement('a');
-                            link.href = campaign.videoUrl;
-                            link.download = `${campaign.name}.mp4`;
-                            link.click();
-                          }
-                        }}
-                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors"
-                        disabled={!campaign.videoUrl}
-                      >
-                        <ArrowDownTrayIcon className="w-4 h-4" />
-                        Download
-                      </button>
-                    </div>
-                  </div>
                 </div>
               </div>
             ))}
