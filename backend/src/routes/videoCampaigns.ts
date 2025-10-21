@@ -1072,8 +1072,21 @@ router.get('/:id/status', async (req, res, next) => {
 });
 
 // POST /api/video-campaigns/synthesize-voice - Synthesize voice using ElevenLabs or custom voice
+// This endpoint is called by the Python video generator service (service-to-service)
 router.post('/synthesize-voice', async (req, res, next) => {
   try {
+    // Service-to-service authentication via API key
+    const serviceApiKey = req.headers['x-service-api-key'] || req.headers['x-api-key'];
+    const expectedServiceKey = process.env.SERVICE_API_KEY || process.env.INTERNAL_API_KEY;
+
+    if (!expectedServiceKey || serviceApiKey !== expectedServiceKey) {
+      logger.error('Unauthorized service-to-service call to synthesize-voice');
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Valid service API key required'
+      });
+    }
+
     const { text, voice_id, language } = req.body;
 
     if (!text) {

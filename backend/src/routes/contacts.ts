@@ -4,6 +4,7 @@ import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import multer from 'multer';
 import { parse } from 'csv-parse/sync';
 import { validatePhoneNumber, validateEmail, validateContactData } from '../utils/validation';
+import { logger } from '../utils/logger';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -11,10 +12,40 @@ const prisma = new PrismaClient();
 // Enable authentication for all contact routes
 router.use(authenticate);
 
-// Configure multer for file uploads
+// Configure multer for file uploads with security validations
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 10 // Max 10 files for batch import
+  },
+  fileFilter: (req, file, cb) => {
+    // Allowed MIME types for contact imports
+    const allowedMimeTypes = [
+      'text/csv',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/csv',
+      'text/plain',
+      'text/vcard', // vCard files
+      'text/x-vcard'
+    ];
+
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      logger.warn(`Contact import rejected: invalid MIME type ${file.mimetype}`);
+      return cb(new Error('Invalid file type. Only CSV, Excel, and vCard files are allowed.'));
+    }
+
+    const allowedExtensions = ['.csv', '.xlsx', '.xls', '.vcf', '.vcard'];
+    const fileExt = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'));
+
+    if (!allowedExtensions.includes(fileExt)) {
+      logger.warn(`Contact import rejected: invalid extension ${fileExt}`);
+      return cb(new Error('Invalid file extension.'));
+    }
+
+    cb(null, true);
+  }
 });
 
 // GET /api/contacts - Get all contacts with pagination and search

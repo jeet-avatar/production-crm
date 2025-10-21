@@ -12,6 +12,7 @@ import {
   EyeIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../contexts/ThemeContext';
+import DOMPurify from 'dompurify';
 
 interface Props {
   isOpen: boolean;
@@ -624,7 +625,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                       </div>
                       <div
                         className="h-96 overflow-y-auto bg-gray-50 p-4"
-                        dangerouslySetInnerHTML={{ __html: emailContent }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(emailContent) }}
                       />
                     </div>
                   )}

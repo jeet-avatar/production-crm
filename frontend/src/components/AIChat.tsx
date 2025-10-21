@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import DOMPurify from 'dompurify';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -250,12 +251,12 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
                 }}
                 dangerouslySetInnerHTML={{
-                  __html: message.content
+                  __html: DOMPurify.sanitize(message.content
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/^(\d+️⃣.*?)$/gm, '<div style="margin: 8px 0; font-weight: 600;">$1</div>')
                     .replace(/^(📊|📧|🎯|📅|🔄|🌱|⚡|📝)(.*?)$/gm, '<div style="margin: 6px 0;">$1$2</div>')
                     .replace(/\n\n/g, '<br/><br/>')
-                    .replace(/\n/g, '<br/>')
+                    .replace(/\n/g, '<br/>'))
                 }}
               />
               <p className="text-xs mt-2 opacity-70">
