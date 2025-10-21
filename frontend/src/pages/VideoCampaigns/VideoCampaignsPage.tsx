@@ -100,11 +100,11 @@ export function VideoCampaignsPage() {
   // If video is generated, show final result screen
   if (generatedVideo) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-emerald-50 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-orange-50 flex items-center justify-center p-6">
         <div className="w-full max-w-5xl">
           {/* Success Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-6 shadow-2xl">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-6 shadow-2xl">
               <PlayIcon className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-5xl font-bold text-gray-900 mb-4">
@@ -142,7 +142,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={() => setShowEmailModal(true)}
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
                 >
                   <EnvelopeIcon className="w-5 h-5" />
                   Send as Email
@@ -151,7 +151,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
                   Download
@@ -160,7 +160,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
                 >
                   <ShareIcon className="w-5 h-5" />
                   Share
@@ -217,78 +217,76 @@ export function VideoCampaignsPage() {
     return <AICampaignGenerator onVideoGenerated={handleVideoGenerated} />;
   }
 
-  // Default: Show Video Library
+  // Default: Show Video Library - CLEAN MINIMAL NETFLIX/YOUTUBE STYLE WITH ORANGE-ROSE BRANDING
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-orange-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-orange-50 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        {/* Header - Clean & Minimal */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent mb-2">
-                🎬 Video Campaigns
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 bg-clip-text text-transparent">
+                Video Campaigns
               </h1>
-              <p className="text-gray-600">
-                {previousVideos.length > 0
-                  ? `You have ${previousVideos.length} video campaign${previousVideos.length !== 1 ? 's' : ''}`
-                  : 'Create your first AI-powered video campaign'}
-              </p>
             </div>
             <button
               type="button"
               onClick={() => setShowCreateNew(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl"
+              className="flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-xl font-bold border-2 border-black hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl"
             >
-              <VideoCameraIcon className="w-5 h-5" />
-              Create New Video
+              <VideoCameraIcon className="w-6 h-6" />
+              Create New
             </button>
           </div>
         </div>
 
         {/* Loading State */}
         {loadingVideos && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
-            <p className="mt-4 text-gray-600">Loading your videos...</p>
+          <div className="text-center py-20">
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-500"></div>
           </div>
         )}
 
         {/* Empty State */}
         {!loadingVideos && previousVideos.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-3xl shadow-lg">
-            <VideoCameraIcon className="w-24 h-24 mx-auto text-gray-300 mb-6" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">No videos yet</h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
-              Start creating engaging video campaigns with AI-powered personalization
+          <div className="text-center py-32">
+            <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-500 via-orange-600 to-rose-500 rounded-full mb-8 shadow-2xl">
+              <VideoCameraIcon className="w-16 h-16 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 bg-clip-text text-transparent mb-4">
+              No videos yet
+            </h2>
+            <p className="text-gray-600 mb-8 text-lg">
+              Create your first video campaign
             </p>
             <button
               type="button"
               onClick={() => setShowCreateNew(true)}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-white rounded-2xl font-bold hover:shadow-2xl hover:shadow-orange-200/50 transition-all text-lg"
             >
-              <VideoCameraIcon className="w-6 h-6" />
-              Create Your First Video
+              <VideoCameraIcon className="w-7 h-7" />
+              Create Video
             </button>
           </div>
         )}
 
-        {/* Video Grid - Orange-Rose Branding */}
+        {/* Video Grid - LARGE THUMBNAILS, NETFLIX/YOUTUBE STYLE */}
         {!loadingVideos && previousVideos.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {previousVideos.map((campaign) => (
               <div
                 key={campaign.id}
-                className="group border-2 border-orange-200 hover:border-orange-500 rounded-2xl bg-white shadow-md hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-[1.02] transition-all duration-300 overflow-hidden cursor-pointer"
+                className="group relative rounded-xl overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-200/50"
                 onClick={(e) => handlePlayInline(campaign.id, e)}
               >
-                {/* Large Video Thumbnail / Inline Player */}
-                <div className="relative aspect-video bg-black overflow-hidden">
+                {/* LARGE 16:9 Video Thumbnail / Inline Player */}
+                <div className="relative aspect-video bg-black overflow-hidden rounded-xl border-2 border-orange-200 group-hover:border-orange-500 transition-all duration-300">
                   {playingVideoId === campaign.id && campaign.videoUrl ? (
                     <video
                       src={campaign.videoUrl}
                       controls
                       autoPlay
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
                       onEnded={() => setPlayingVideoId(null)}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -301,21 +299,22 @@ export function VideoCampaignsPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-900 to-rose-900">
-                          <VideoCameraIcon className="w-24 h-24 text-orange-300" />
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-500 via-orange-600 to-rose-500">
+                          <VideoCameraIcon className="w-32 h-32 text-white opacity-40" />
                         </div>
                       )}
-                      {/* Play Button Overlay - Orange-Rose Gradient */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div className="w-20 h-20 flex items-center justify-center rounded-full bg-white border-2 border-orange-500 shadow-2xl shadow-orange-500/50">
-                          <svg className="w-10 h-10 ml-1" viewBox="0 0 24 24" fill="none">
+                      {/* Play Button Overlay - White Circle with Orange-Rose Gradient Icon */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        <div className="w-24 h-24 flex items-center justify-center rounded-full bg-white border-2 border-orange-500 shadow-2xl transform transition-transform duration-300 group-hover:scale-110">
+                          <svg className="w-12 h-12 ml-1" viewBox="0 0 24 24" fill="none">
                             <defs>
-                              <linearGradient id="playGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#ea580c" />
-                                <stop offset="100%" stopColor="#e11d48" />
+                              <linearGradient id={`playGradient-${campaign.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stopColor="#f97316" />
+                                <stop offset="50%" stopColor="#ea580c" />
+                                <stop offset="100%" stopColor="#f43f5e" />
                               </linearGradient>
                             </defs>
-                            <path d="M8 5.14v13.72L19 12 8 5.14z" fill="url(#playGradient)" stroke="url(#playGradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M8 5.14v13.72L19 12 8 5.14z" fill={`url(#playGradient-${campaign.id})`} />
                           </svg>
                         </div>
                       </div>
@@ -323,8 +322,8 @@ export function VideoCampaignsPage() {
                   )}
                 </div>
 
-                {/* Title with Orange-Rose Gradient Background */}
-                <div className="p-4 bg-gradient-to-r from-orange-50 to-rose-50">
+                {/* Minimal Title - Single Line, Centered, Small */}
+                <div className="mt-3">
                   <h3 className="text-sm font-semibold text-gray-900 truncate text-center">
                     {campaign.name}
                   </h3>
