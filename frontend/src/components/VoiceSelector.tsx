@@ -40,6 +40,8 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const [showCloneSection, setShowCloneSection] = useState(false);
   const [testingVoiceId, setTestingVoiceId] = useState<string | null>(null);
   const [testText, setTestText] = useState('Hello! This is a test of my cloned voice. I can use this voice in all my video campaigns.');
+  const [recordedAudio, setRecordedAudio] = useState<{file: File, url: string, name: string} | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<number | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -379,6 +381,9 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                           type: audioBlob.type
                         });
 
+                        // Create URL for preview
+                        const audioUrl = URL.createObjectURL(audioBlob);
+
                         // Reset recording state
                         setIsRecording(false);
                         setRecordingTime(0);
@@ -387,8 +392,9 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                           recordingTimerRef.current = null;
                         }
 
-                        // Upload for cloning
-                        await handleCloneVoice(audioFile, voiceName);
+                        // Show preview modal instead of immediately cloning
+                        setRecordedAudio({ file: audioFile, url: audioUrl, name: voiceName });
+                        setShowPreviewModal(true);
                       }, { once: true });
 
                       mediaRecorderRef.current.stop();
@@ -396,7 +402,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                   }}
                   className="px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
                 >
-                  Stop & Clone Voice
+                  Stop & Preview
                 </button>
               </div>
             ) : (
@@ -474,7 +480,12 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                   return;
                 }
 
-                await handleCloneVoice(file, voiceName);
+                // Create URL for preview
+                const audioUrl = URL.createObjectURL(file);
+
+                // Show preview modal instead of immediately cloning
+                setRecordedAudio({ file, url: audioUrl, name: voiceName });
+                setShowPreviewModal(true);
               }}
               className="hidden"
               aria-label="Upload voice file for cloning"
@@ -498,6 +509,65 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
         <strong>💡 How It Works:</strong> Click "Clone Voice" above to record or upload your voice sample.
         Once saved, you can test it with custom text and use it in unlimited video campaigns!
       </div>
+
+      {/* Preview Modal */}
+      {showPreviewModal && recordedAudio && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={() => {
+          setShowPreviewModal(false);
+          setRecordedAudio(null);
+        }}>
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Preview Your Voice Recording</h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Voice Name:
+                </label>
+                <p className="text-lg font-medium text-purple-600">{recordedAudio.name}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Preview Recording:
+                </label>
+                <audio controls className="w-full" src={recordedAudio.url}>
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-xs text-gray-700">
+                <strong>⚠️ Important:</strong> Listen to your recording before saving. Make sure it's clear and represents how you want your voice to sound in videos.
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowPreviewModal(false);
+                    URL.revokeObjectURL(recordedAudio.url);
+                    setRecordedAudio(null);
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    setShowPreviewModal(false);
+                    await handleCloneVoice(recordedAudio.file, recordedAudio.name);
+                    URL.revokeObjectURL(recordedAudio.url);
+                    setRecordedAudio(null);
+                  }}
+                  disabled={isCloningVoice}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isCloningVoice ? 'Saving...' : 'Save Voice'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
