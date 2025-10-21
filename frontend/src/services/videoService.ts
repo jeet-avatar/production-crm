@@ -327,6 +327,11 @@ class VideoService {
     return response.data;
   }
 
+  // Alias for backward compatibility
+  async getCampaignStatus(campaignId: string): Promise<VideoGenerationStatus> {
+    return this.getGenerationStatus(campaignId);
+  }
+
   // ===================================
   // VOICE CLONING
   // ===================================
