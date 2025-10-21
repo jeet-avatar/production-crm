@@ -146,9 +146,9 @@ export function CompactVideoSourceSelector({
       }
       setAiPrompt('');
 
-      // Show success message and redirect to templates view
-      alert(`✅ Video template "${result.template.name}" created successfully!\n\nYou can find it in "My Templates" (it will appear at the top).`);
-      setViewMode('my-templates');
+      // Show success message and return to selection view (template is auto-selected)
+      alert(`✅ Video template "${result.template.name}" created successfully!\n\nTemplate selected! Click "Next" to continue adding your voice, logos, and overlays.`);
+      setViewMode('select-source');
     } catch (err) {
       console.error('AI generation failed:', err);
       alert('Failed to generate video. Please try again.');
@@ -261,8 +261,11 @@ export function CompactVideoSourceSelector({
         {/* Selection Summary */}
         {(selectedTemplateId || selectedPexelsId || selectedVideoUrl) && (
           <div className="mt-4 p-3 bg-green-50 border-2 border-green-200 rounded-xl">
-            <p className="text-sm font-medium text-green-800">
-              ✓ Video source selected! Click "Next" to continue.
+            <p className="text-sm font-medium text-green-800 mb-1">
+              ✓ Video template selected!
+            </p>
+            <p className="text-xs text-green-700">
+              Click "Next" to add your voice narration, logos, and text overlays. Your final video will be created at the end.
             </p>
           </div>
         )}

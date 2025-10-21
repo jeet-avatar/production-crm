@@ -45,13 +45,13 @@ export function CreateVideoCampaignModal({
   const [overlays, setOverlays] = useState<TextOverlay[]>([]);
   const [generatingScript, setGeneratingScript] = useState(false);
 
-  const steps: { id: StepType; label: string }[] = [
-    { id: 'basics', label: 'Basics' },
-    { id: 'voice', label: 'Voice' },
-    { id: 'source', label: 'Video Source' },
-    { id: 'design', label: 'Design' },
-    { id: 'overlays', label: 'Overlays' },
-    { id: 'preview', label: 'Preview' },
+  const steps: { id: StepType; label: string; description: string }[] = [
+    { id: 'basics', label: '1. Message', description: 'Write your video script' },
+    { id: 'voice', label: '2. Voice', description: 'Choose narration voice' },
+    { id: 'source', label: '3. Template', description: 'Select or generate video template' },
+    { id: 'design', label: '4. Design', description: 'Add logos & branding' },
+    { id: 'overlays', label: '5. Overlays', description: 'Add text overlays' },
+    { id: 'preview', label: '6. Create Video', description: 'Review & generate final video' },
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.id === step);
@@ -229,6 +229,12 @@ export function CreateVideoCampaignModal({
 
         {/* Content */}
         <div className="p-6 max-h-[calc(90vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-orange-500 scrollbar-track-gray-200">
+          {/* Current Step Header */}
+          <div className="mb-6 pb-4 border-b-2 border-gray-100">
+            <h3 className="text-xl font-bold text-gray-900">{steps[currentStepIndex].label}</h3>
+            <p className="text-sm text-gray-600 mt-1">{steps[currentStepIndex].description}</p>
+          </div>
+
           {/* Step 1: Basics */}
           {step === 'basics' && (
             <div className="space-y-4">
@@ -353,6 +359,14 @@ export function CreateVideoCampaignModal({
           {/* Step 3: Video Source */}
           {step === 'source' && (
             <div className="space-y-4">
+              {/* Info Box */}
+              <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                <p className="text-sm font-medium text-blue-900">
+                  ℹ️ <strong>Choose a video template</strong> - This is the background video for your campaign.
+                  You'll add your voice narration, logos, and text overlays in the next steps.
+                </p>
+              </div>
+
               <CompactVideoSourceSelector
                 onSelectTemplate={(template) => {
                   setSelectedTemplate(template);
@@ -416,9 +430,16 @@ export function CreateVideoCampaignModal({
             </div>
           )}
 
-          {/* Step 5: Preview */}
+          {/* Step 6: Preview & Create */}
           {step === 'preview' && (
             <div className="space-y-6">
+              {/* Important Notice */}
+              <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+                <p className="text-sm font-medium text-green-900">
+                  ✅ <strong>Ready to create your video!</strong> Review the details below, then click "Create & Generate" to produce your final personalized video.
+                </p>
+              </div>
+
               <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl p-6 border-2 border-orange-200 shadow-lg">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Campaign Summary</h3>
                 <dl className="space-y-3">
