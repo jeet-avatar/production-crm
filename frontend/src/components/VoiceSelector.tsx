@@ -3,6 +3,7 @@ import {
   SpeakerWaveIcon,
   ArrowUpTrayIcon,
   PlayIcon,
+  PauseIcon,
   StopIcon,
   CheckCircleIcon,
   QuestionMarkCircleIcon,
@@ -39,6 +40,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const [isCloningVoice, setIsCloningVoice] = useState(false);
   const [showCloneSection, setShowCloneSection] = useState(false);
   const [testingVoiceId, setTestingVoiceId] = useState<string | null>(null);
+  const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const [testText, setTestText] = useState('Hello! This is a test of my cloned voice. I can use this voice in all my video campaigns.');
   const [recordedAudio, setRecordedAudio] = useState<{file: File, url: string, name: string} | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -46,6 +48,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const recordingTimerRef = useRef<number | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const cloneFileInputRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Removed unused functions - all voice operations now go through clone workflow
 
@@ -108,8 +111,21 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
     }
   };
 
-  // Test cloned voice with sample text
+  // Test cloned voice with play/pause
   const handleTestVoice = async (voiceId: string, text: string) => {
+    // If already playing this voice, pause it
+    if (playingAudioId === voiceId && audioRef.current) {
+      audioRef.current.pause();
+      setPlayingAudioId(null);
+      return;
+    }
+
+    // If another voice is playing, stop it
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
     if (!text || !text.trim()) {
       alert('Please enter some text to test the voice');
       return;
@@ -127,10 +143,22 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
       if (response.audio_url) {
         console.log('Playing synthesized audio:', response.audio_url);
         const audio = new Audio(response.audio_url);
-        audio.play().catch(err => {
+        audioRef.current = audio;
+
+        audio.onended = () => {
+          setPlayingAudioId(null);
+          audioRef.current = null;
+        };
+
+        audio.onerror = (err) => {
           console.error('Failed to play audio:', err);
           alert('Could not play the synthesized audio. Please try again.');
-        });
+          setPlayingAudioId(null);
+          audioRef.current = null;
+        };
+
+        await audio.play();
+        setPlayingAudioId(voiceId);
       } else {
         alert('No audio URL returned from voice synthesis');
       }
@@ -138,6 +166,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
       console.error('Voice test failed:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to test voice';
       alert(`Failed to test voice: ${errorMessage}`);
+      setPlayingAudioId(null);
     } finally {
       setTestingVoiceId(null);
     }
@@ -250,6 +279,11 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                         Loading...
+                      </>
+                    ) : playingAudioId === voice.voice_id ? (
+                      <>
+                        <PauseIcon className="w-4 h-4" />
+                        Pause
                       </>
                     ) : (
                       <>
