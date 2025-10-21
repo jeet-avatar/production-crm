@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { XMarkIcon, SparklesIcon } from '@heroicons/react/24/outline';
-import { TemplateLibrary } from './TemplateLibrary';
-import { VideoUploader } from './VideoUploader';
+import { EnhancedTemplateLibrary } from './EnhancedTemplateLibrary';
 import { LogoUploader } from './LogoUploader';
 import { TextLayoverEditor } from './TextLayoverEditor';
 import { VoiceSelector } from './VoiceSelector';
@@ -88,13 +87,9 @@ export function CreateVideoCampaignModal({
       return;
     }
 
-    if (videoSource === 'template' && !selectedTemplate) {
-      setError('Please select a template');
-      return;
-    }
-
-    if (videoSource === 'upload' && !customVideoUrl) {
-      setError('Please upload or enter a video URL');
+    // Need either a template OR a custom video URL
+    if (!selectedTemplate && !customVideoUrl) {
+      setError('Please select a video source (template, Pexels, or upload)');
       return;
     }
 
@@ -166,12 +161,9 @@ export function CreateVideoCampaignModal({
       }
     }
     if (step === 'source') {
-      if (videoSource === 'template' && !selectedTemplate) {
-        setError('Please select a template');
-        return;
-      }
-      if (videoSource === 'upload' && !customVideoUrl) {
-        setError('Please upload a video or enter URL');
+      // Need either a template OR a custom video URL
+      if (!selectedTemplate && !customVideoUrl) {
+        setError('Please select a template, choose a Pexels video, or upload your own');
         return;
       }
     }
@@ -361,37 +353,25 @@ export function CreateVideoCampaignModal({
           {/* Step 3: Video Source */}
           {step === 'source' && (
             <div className="space-y-4">
-              <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
-                <button
-                  onClick={() => setVideoSource('template')}
-                  className={`flex-1 py-2.5 px-4 rounded-xl font-bold transition-all tracking-wide ${
-                    videoSource === 'template'
-                      ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg`
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  📚 Template Library
-                </button>
-                <button
-                  onClick={() => setVideoSource('upload')}
-                  className={`flex-1 py-2.5 px-4 rounded-xl font-bold transition-all tracking-wide ${
-                    videoSource === 'upload'
-                      ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg`
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  📤 Upload Custom
-                </button>
-              </div>
-
-              {videoSource === 'template' ? (
-                <TemplateLibrary
-                  onSelectTemplate={setSelectedTemplate}
-                  selectedTemplateId={selectedTemplate?.id}
-                />
-              ) : (
-                <VideoUploader onUploadComplete={setCustomVideoUrl} />
-              )}
+              <EnhancedTemplateLibrary
+                onSelectTemplate={(template) => {
+                  setSelectedTemplate(template);
+                  setVideoSource('template');
+                  setCustomVideoUrl('');
+                }}
+                onSelectPexelsVideo={(video) => {
+                  // Treat Pexels video as custom video URL
+                  setCustomVideoUrl(video.url);
+                  setVideoSource('upload');
+                  setSelectedTemplate(null);
+                }}
+                onSelectCustomVideo={(videoUrl) => {
+                  setCustomVideoUrl(videoUrl);
+                  setVideoSource('upload');
+                  setSelectedTemplate(null);
+                }}
+                selectedTemplateId={selectedTemplate?.id}
+              />
             </div>
           )}
 
