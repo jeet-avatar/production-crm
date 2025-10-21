@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
+import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
 import { AICampaignGenerator } from '../../components/AICampaignGenerator';
 import { CreateEmailTemplateModal } from '../../components/VideoCampaigns/CreateEmailTemplateModal';
 import { useNavigate } from 'react-router-dom';
+import { videoService, VideoCampaign } from '../../services/videoService';
 
 export function VideoCampaignsPage() {
   const navigate = useNavigate();
@@ -13,6 +14,26 @@ export function VideoCampaignsPage() {
     narrationScript?: string;
   } | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [previousVideos, setPreviousVideos] = useState<VideoCampaign[]>([]);
+  const [loadingVideos, setLoadingVideos] = useState(true);
+  const [showCreateNew, setShowCreateNew] = useState(false);
+
+  // Load previous videos on mount
+  useEffect(() => {
+    loadPreviousVideos();
+  }, []);
+
+  const loadPreviousVideos = async () => {
+    try {
+      setLoadingVideos(true);
+      const { campaigns } = await videoService.getCampaigns({ status: 'READY', limit: 20 });
+      setPreviousVideos(campaigns);
+    } catch (error) {
+      console.error('Failed to load previous videos:', error);
+    } finally {
+      setLoadingVideos(false);
+    }
+  };
 
   const handleVideoGenerated = (videoUrl: string, campaignId: string, name: string = 'My Video Campaign', narrationScript: string = '') => {
     setGeneratedVideo({
@@ -21,6 +42,9 @@ export function VideoCampaignsPage() {
       name,
       narrationScript,
     });
+    // Reload the video list to show the new video
+    loadPreviousVideos();
+    setShowCreateNew(false);
   };
 
   const handleEmailTemplateCreated = (templateId: string) => {
@@ -33,6 +57,18 @@ export function VideoCampaignsPage() {
 
   const handleStartNew = () => {
     setGeneratedVideo(null);
+    setShowCreateNew(true);
+  };
+
+  const handleViewVideo = (campaign: VideoCampaign) => {
+    if (campaign.videoUrl) {
+      setGeneratedVideo({
+        url: campaign.videoUrl,
+        campaignId: campaign.id,
+        name: campaign.name,
+        narrationScript: campaign.narrationScript,
+      });
+    }
   };
 
   const handleDownload = () => {
@@ -70,12 +106,12 @@ export function VideoCampaignsPage() {
 
           {/* Video Player */}
           <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
-            <div className="aspect-video bg-black">
+            <div className="aspect-video bg-black relative max-h-[600px]">
               <video
                 src={generatedVideo.url}
                 controls
                 autoPlay
-                className="w-full h-full"
+                className="w-full h-full object-contain"
               >
                 Your browser does not support the video tag.
               </video>
@@ -165,6 +201,126 @@ export function VideoCampaignsPage() {
     );
   }
 
-  // Default: Show AI Campaign Generator
-  return <AICampaignGenerator onVideoGenerated={handleVideoGenerated} />;
+  // Show create form if requested
+  if (showCreateNew) {
+    return <AICampaignGenerator onVideoGenerated={handleVideoGenerated} />;
+  }
+
+  // Default: Show Video Library
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                🎬 Video Campaigns
+              </h1>
+              <p className="text-gray-600">
+                {previousVideos.length > 0
+                  ? `You have ${previousVideos.length} video campaign${previousVideos.length !== 1 ? 's' : ''}`
+                  : 'Create your first AI-powered video campaign'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowCreateNew(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+            >
+              <VideoCameraIcon className="w-5 h-5" />
+              Create New Video
+            </button>
+          </div>
+        </div>
+
+        {/* Loading State */}
+        {loadingVideos && (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading your videos...</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loadingVideos && previousVideos.length === 0 && (
+          <div className="text-center py-16 bg-white rounded-3xl shadow-lg">
+            <VideoCameraIcon className="w-24 h-24 mx-auto text-gray-300 mb-6" />
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">No videos yet</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              Start creating engaging video campaigns with AI-powered personalization
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowCreateNew(true)}
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+            >
+              <VideoCameraIcon className="w-6 h-6" />
+              Create Your First Video
+            </button>
+          </div>
+        )}
+
+        {/* Video Grid */}
+        {!loadingVideos && previousVideos.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {previousVideos.map((campaign) => (
+              <div
+                key={campaign.id}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all cursor-pointer group"
+                onClick={() => handleViewVideo(campaign)}
+              >
+                {/* Thumbnail */}
+                <div className="relative aspect-video bg-gray-900 overflow-hidden">
+                  {campaign.thumbnailUrl ? (
+                    <img
+                      src={campaign.thumbnailUrl}
+                      alt={campaign.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <VideoCameraIcon className="w-16 h-16 text-gray-600" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+                    <PlayIcon className="w-16 h-16 text-white opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100" />
+                  </div>
+                </div>
+
+                {/* Info */}
+                <div className="p-5">
+                  <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
+                    {campaign.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                    {campaign.narrationScript || 'No description'}
+                  </p>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <PlayIcon className="w-4 h-4" />
+                      {campaign.views || 0} views
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <ArrowDownTrayIcon className="w-4 h-4" />
+                      {campaign.downloads || 0}
+                    </span>
+                  </div>
+
+                  {/* Created date */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <p className="text-xs text-gray-500">
+                      Created {new Date(campaign.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
