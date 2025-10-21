@@ -28,104 +28,8 @@ interface VoiceSelectorProps {
   onCustomVoiceUpload?: (file: File) => Promise<string>;
 }
 
-const BUILT_IN_VOICES: VoiceOption[] = [
-  {
-    id: 'natural-en-us-male-1',
-    name: 'Alex',
-    accent: 'American English',
-    gender: 'male',
-    description: 'Natural American male voice, deep and authoritative',
-    preview: 'Hello! Welcome to our presentation. Today I\'ll be sharing some exciting insights with you.',
-  },
-  {
-    id: 'natural-en-us-female-1',
-    name: 'Samantha',
-    accent: 'American English',
-    gender: 'female',
-    description: 'Natural American female voice, clear and professional',
-    preview: 'Hi there! Thanks for joining us. Let\'s explore these amazing features together.',
-  },
-  {
-    id: 'natural-en-uk-male-1',
-    name: 'Daniel',
-    accent: 'British English',
-    gender: 'male',
-    description: 'Natural British male voice, sophisticated and articulate',
-    preview: 'Good day! I\'m delighted to present this information to you today.',
-  },
-  {
-    id: 'natural-en-uk-female-1',
-    name: 'Kate',
-    accent: 'British English',
-    gender: 'female',
-    description: 'Natural British female voice, elegant and refined',
-    preview: 'Welcome! It\'s my pleasure to guide you through today\'s presentation.',
-  },
-  {
-    id: 'natural-en-au-female-1',
-    name: 'Karen',
-    accent: 'Australian English',
-    gender: 'female',
-    description: 'Natural Australian female voice, friendly and warm',
-    preview: 'G\'day! Thanks for joining us today. Let\'s dive into the details.',
-  },
-  {
-    id: 'natural-en-in-female-1',
-    name: 'Veena',
-    accent: 'Indian English',
-    gender: 'female',
-    description: 'Natural Indian female voice, professional and clear',
-    preview: 'Hello! I am pleased to share these insights with you.',
-  },
-  {
-    id: 'natural-en-us-male-2',
-    name: 'Tom',
-    accent: 'American English',
-    gender: 'male',
-    description: 'Natural American male voice, friendly and conversational',
-    preview: 'Hey everyone! Let me walk you through this exciting opportunity.',
-  },
-  {
-    id: 'natural-en-us-female-2',
-    name: 'Victoria',
-    accent: 'American English',
-    gender: 'female',
-    description: 'Natural American female voice, warm and engaging',
-    preview: 'Welcome! I\'m excited to share these important updates with you.',
-  },
-  {
-    id: 'natural-en-ie-male-1',
-    name: 'Moira',
-    accent: 'Irish English',
-    gender: 'male',
-    description: 'Natural Irish male voice, charming and engaging',
-    preview: 'Top of the morning! Let me walk you through this today.',
-  },
-  {
-    id: 'natural-fr-fr-female-1',
-    name: 'Amelie',
-    accent: 'French',
-    gender: 'female',
-    description: 'Natural French female voice, elegant and expressive',
-    preview: 'Bonjour! Welcome to our presentation today.',
-  },
-  {
-    id: 'natural-de-de-male-1',
-    name: 'Anna',
-    accent: 'German',
-    gender: 'male',
-    description: 'Natural German male voice, clear and professional',
-    preview: 'Guten Tag! Welcome to today\'s presentation.',
-  },
-  {
-    id: 'natural-es-es-female-1',
-    name: 'Monica',
-    accent: 'Spanish',
-    gender: 'female',
-    description: 'Natural Spanish female voice, vibrant and articulate',
-    preview: 'Hola! Welcome to our presentation today.',
-  },
-];
+// Removed hardcoded built-in voices - users should use their own cloned voices
+const BUILT_IN_VOICES: VoiceOption[] = [];
 
 export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSelectorProps) {
   const [selectedVoice, setSelectedVoice] = useState<string>(value || 'natural-en-us-male-1');
@@ -141,6 +45,8 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const [isLoadingVoices, setIsLoadingVoices] = useState(false);
   const [isCloningVoice, setIsCloningVoice] = useState(false);
   const [showCloneSection, setShowCloneSection] = useState(false);
+  const [testingVoiceId, setTestingVoiceId] = useState<string | null>(null);
+  const [testText, setTestText] = useState('Hello! This is a test of my cloned voice. I can use this voice in all my video campaigns.');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -422,6 +328,41 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
     }
   };
 
+  // Test cloned voice with sample text
+  const handleTestVoice = async (voiceId: string, text: string) => {
+    if (!text || !text.trim()) {
+      alert('Please enter some text to test the voice');
+      return;
+    }
+
+    setTestingVoiceId(voiceId);
+    try {
+      console.log('Testing voice:', voiceId, 'with text:', text);
+      const response = await videoService.synthesizeVoice({
+        text: text,
+        voice_id: voiceId,
+        language: 'en'
+      });
+
+      if (response.audio_url) {
+        console.log('Playing synthesized audio:', response.audio_url);
+        const audio = new Audio(response.audio_url);
+        audio.play().catch(err => {
+          console.error('Failed to play audio:', err);
+          alert('Could not play the synthesized audio. Please try again.');
+        });
+      } else {
+        alert('No audio URL returned from voice synthesis');
+      }
+    } catch (error: any) {
+      console.error('Voice test failed:', error);
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to test voice';
+      alert(`Failed to test voice: ${errorMessage}`);
+    } finally {
+      setTestingVoiceId(null);
+    }
+  };
+
   // Load voices on component mount
   useEffect(() => {
     loadMyVoices();
@@ -450,87 +391,16 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
       {/* Help Panel */}
       {showHelp && (
         <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 text-sm">
-          <p className="font-semibold text-rose-900 mb-2">Voice Selection Guide:</p>
+          <p className="font-semibold text-rose-900 mb-2">Voice Cloning Guide:</p>
           <ul className="space-y-1 text-gray-700 ml-4">
-            <li>• <strong>Built-in Voices:</strong> Choose from 12 natural-sounding voices with different accents</li>
-            <li>• <strong>Preview:</strong> Click play button to hear a sample of each voice</li>
-            <li>• <strong>Record Voice:</strong> Record yourself directly in the browser for a personal touch</li>
-            <li>• <strong>Upload Voice:</strong> Upload a pre-recorded MP3, WAV, or OGG file</li>
-            <li>• <strong>Best Practice:</strong> Record in a quiet environment with clear pronunciation for best results</li>
+            <li>• <strong>Clone Your Voice:</strong> Record 10-15 seconds of clear speech</li>
+            <li>• <strong>Test Voice:</strong> Enter sample text to hear how your cloned voice sounds</li>
+            <li>• <strong>Use in Videos:</strong> Select your cloned voice for any video campaign</li>
+            <li>• <strong>Best Practice:</strong> Record in a quiet environment with clear pronunciation</li>
+            <li>• <strong>Reusable:</strong> Clone once, use in unlimited video campaigns</li>
           </ul>
         </div>
       )}
-
-      {/* Built-in Voices Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {BUILT_IN_VOICES.map((voice) => (
-          <div
-            key={voice.id}
-            onClick={() => handleVoiceSelect(voice.id)}
-            className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
-              selectedVoice === voice.id && !isCustom
-                ? 'border-orange-600 bg-rose-50 shadow-md'
-                : 'border-gray-200 hover:border-rose-300 hover:bg-gray-50'
-            }`}
-          >
-            {/* Selected Indicator */}
-            {selectedVoice === voice.id && !isCustom && (
-              <CheckCircleIcon className="absolute top-2 right-2 w-6 h-6 text-rose-600" />
-            )}
-
-            {/* Voice Info */}
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-white font-bold text-lg">
-                {voice.name[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-semibold text-gray-900">{voice.name}</h4>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
-                    {voice.gender === 'male' ? '♂' : '♀'}
-                  </span>
-                </div>
-                <p className="text-xs text-rose-600 font-medium">{voice.accent}</p>
-                <p className="text-xs text-gray-600 mt-1 line-clamp-2">{voice.description}</p>
-              </div>
-            </div>
-
-            {/* Preview Button */}
-            {voice.preview && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  playPreview(voice);
-                }}
-                className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-              >
-                {playingVoice === voice.id ? (
-                  <>
-                    <StopIcon className="w-4 h-4" />
-                    Stop Preview
-                  </>
-                ) : (
-                  <>
-                    <PlayIcon className="w-4 h-4" />
-                    Preview Voice
-                  </>
-                )}
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* OR Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300"></div>
-        </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="px-2 bg-white text-gray-500 uppercase">Or Use Your Own Voice</span>
-        </div>
-      </div>
 
       {/* My Cloned Voices Section */}
       {myClonedVoices.length > 0 && (
@@ -578,8 +448,44 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                   </div>
                 </div>
 
+                {/* Test Voice Section */}
+                <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2">
+                  <label className="block text-xs font-semibold text-gray-700">
+                    Test Voice with Sample Text:
+                  </label>
+                  <textarea
+                    placeholder="Enter text to hear how your voice sounds..."
+                    defaultValue={testText}
+                    onChange={(e) => setTestText(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                    rows={2}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTestVoice(voice.voice_id, testText);
+                    }}
+                    disabled={testingVoiceId === voice.voice_id}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-md text-sm font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {testingVoiceId === voice.voice_id ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <PlayIcon className="w-4 h-4" />
+                        Test Voice
+                      </>
+                    )}
+                  </button>
+                </div>
+
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  {/* Play Preview Button */}
+                  {/* Play Original Recording Button */}
                   {voice.voice_url && (
                     <button
                       type="button"
@@ -595,7 +501,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
                       className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-green-300 rounded-md text-sm font-medium text-green-700 hover:bg-green-50 transition-colors"
                     >
                       <PlayIcon className="w-4 h-4" />
-                      Preview
+                      Original
                     </button>
                   )}
 
@@ -944,9 +850,9 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
       </div>
 
       {/* Info Note */}
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-gray-700">
-        <strong>💡 Tip:</strong> Choose from 12 natural-sounding built-in voices, or use your own voice for maximum personalization.
-        Record directly in your browser or upload a pre-recorded audio file. For best results, speak clearly and record in a quiet environment.
+      <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-xs text-gray-700">
+        <strong>💡 Pro Tip:</strong> Clone your voice once and reuse it in unlimited video campaigns!
+        Record directly in your browser or upload a pre-recorded audio file. Test your cloned voice with custom text to hear how it sounds before using in videos.
       </div>
     </div>
   );
