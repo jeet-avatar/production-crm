@@ -377,6 +377,28 @@ class VideoService {
     });
     return response.data;
   }
+
+  // ===================================
+  // AI VIDEO GENERATION FROM PROMPT
+  // ===================================
+
+  async generateFromPrompt(prompt: string): Promise<{
+    template: VideoTemplate;
+    videoData: {
+      script: string;
+      keywords: string[];
+      clips: any[];
+      message: string;
+    };
+  }> {
+    const response = await axios.post(`${API_URL}/api/video-campaigns/templates/generate-from-prompt`,
+      { prompt },
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    return response.data;
+  }
 }
 
 export const videoService = new VideoService();

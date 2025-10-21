@@ -11,6 +11,7 @@ import {
 import { CreateVideoCampaignModal } from '../../components/CreateVideoCampaignModal';
 import { VideoGenerationProgress } from '../../components/VideoGenerationProgress';
 import { VideoCampaignsHelpGuide } from '../../components/VideoCampaignsHelpGuide';
+import { GenerateVideoFromPrompt } from '../../components/GenerateVideoFromPrompt';
 import { videoService, type VideoCampaign } from '../../services/videoService';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -21,6 +22,7 @@ export function VideoCampaignsPage() {
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showHelpGuide, setShowHelpGuide] = useState(false);
+  const [showPromptGenerator, setShowPromptGenerator] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('all');
 
   useEffect(() => {
@@ -137,6 +139,16 @@ export function VideoCampaignsPage() {
             <p className="text-red-800">{error}</p>
           </div>
         )}
+
+        {/* AI Video Generator Section */}
+        <div className="mb-8">
+          <GenerateVideoFromPrompt
+            onVideoGenerated={(template) => {
+              // Reload campaigns to show the new template
+              loadCampaigns();
+            }}
+          />
+        </div>
 
         {/* Loading State */}
         {loading ? (
