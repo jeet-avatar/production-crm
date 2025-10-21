@@ -36,7 +36,9 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [myClonedVoices, setMyClonedVoices] = useState<any[]>([]);
+  const [elevenLabsVoices, setElevenLabsVoices] = useState<any[]>([]);
   const [isLoadingVoices, setIsLoadingVoices] = useState(false);
+  const [isLoadingElevenLabs, setIsLoadingElevenLabs] = useState(false);
   const [isCloningVoice, setIsCloningVoice] = useState(false);
   const [showCloneSection, setShowCloneSection] = useState(false);
   const [testingVoiceId, setTestingVoiceId] = useState<string | null>(null);
@@ -68,6 +70,20 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
       console.error('Failed to load cloned voices:', error);
     } finally {
       setIsLoadingVoices(false);
+    }
+  };
+
+  // Load ElevenLabs voices
+  const loadElevenLabsVoices = async () => {
+    setIsLoadingElevenLabs(true);
+    try {
+      const response = await videoService.getElevenLabsVoices();
+      setElevenLabsVoices(response.voices || []);
+    } catch (error) {
+      console.error('Failed to load ElevenLabs voices:', error);
+      // Silent fail - ElevenLabs is optional
+    } finally {
+      setIsLoadingElevenLabs(false);
     }
   };
 
@@ -175,6 +191,7 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   // Load voices on component mount
   useEffect(() => {
     loadMyVoices();
+    loadElevenLabsVoices();
   }, []);
 
   return (
@@ -208,6 +225,98 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
             <li>• <strong>Best Practice:</strong> Record in a quiet environment with clear pronunciation</li>
             <li>• <strong>Reusable:</strong> Clone once, use in unlimited video campaigns</li>
           </ul>
+        </div>
+      )}
+
+      {/* ElevenLabs Professional Voices Section */}
+      {elevenLabsVoices.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SpeakerWaveIcon className="w-5 h-5 text-blue-600" />
+              <h3 className="text-sm font-semibold text-gray-900">Professional Voices (ElevenLabs)</h3>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
+                {elevenLabsVoices.length} voices
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-80 overflow-y-auto pr-2">
+            {elevenLabsVoices.map((voice) => (
+              <div
+                key={voice.voice_id}
+                onClick={() => {
+                  // Use elevenlabs:voice_id format for synthesis routing
+                  const voiceId = `elevenlabs:${voice.voice_id}`;
+                  setSelectedVoice(voiceId);
+                  setIsCustom(false);
+                  onChange(voiceId, false);
+                }}
+                className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                  selectedVoice === `elevenlabs:${voice.voice_id}`
+                    ? 'border-blue-600 bg-blue-50 shadow-md'
+                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                }`}
+              >
+                {selectedVoice === `elevenlabs:${voice.voice_id}` && (
+                  <CheckCircleIcon className="absolute top-2 right-2 w-6 h-6 text-blue-600" />
+                )}
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-lg">
+                    {voice.name?.[0]?.toUpperCase() || 'V'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-900">{voice.name}</h4>
+                    <p className="text-xs text-blue-600 font-medium">ElevenLabs AI Voice</p>
+                    {voice.labels && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {voice.labels.gender && (
+                          <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                            {voice.labels.gender}
+                          </span>
+                        )}
+                        {voice.labels.accent && (
+                          <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                            {voice.labels.accent}
+                          </span>
+                        )}
+                        {voice.labels.age && (
+                          <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded">
+                            {voice.labels.age}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Play Preview if available */}
+                {voice.preview_url && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const audio = new Audio(voice.preview_url);
+                      audio.play().catch(err => {
+                        console.error('Failed to play preview:', err);
+                      });
+                    }}
+                    className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 border border-blue-300 rounded-md text-sm font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                  >
+                    <PlayIcon className="w-4 h-4" />
+                    Preview Voice
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isLoadingElevenLabs && elevenLabsVoices.length === 0 && (
+        <div className="text-center py-4 text-gray-500 text-sm">
+          Loading professional voices...
         </div>
       )}
 

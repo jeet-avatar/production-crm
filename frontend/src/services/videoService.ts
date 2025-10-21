@@ -417,6 +417,17 @@ class VideoService {
     });
     return response.data;
   }
+
+  // ===================================
+  // ELEVENLABS VOICES
+  // ===================================
+
+  async getElevenLabsVoices(): Promise<{ voices: any[] }> {
+    const response = await axios.get(`${API_URL}/api/video-campaigns/elevenlabs/voices`, {
+      headers: this.getAuthHeaders(),
+    });
+    return response.data;
+  }
 }
 
 export const videoService = new VideoService();
