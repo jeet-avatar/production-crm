@@ -412,34 +412,96 @@ router.delete('/:id', async (req, res, next) => {
   }
 });
 
-// AI Field Mapping Function
+// AI Field Mapping Function - Enhanced for better CSV compatibility
 function mapCSVFieldsToContact(headers: string[]): Record<string, string> {
   const mapping: Record<string, string> = {};
+
+  logger.info(`[CSV Mapping] Processing ${headers.length} headers: ${headers.join(', ')}`);
+
   headers.forEach(header => {
     const normalized = header.toLowerCase().trim().replace(/[_\s-]/g, '');
+    const original = header.toLowerCase().trim();
 
-    if (normalized.match(/email|e-?mail|mail/)) mapping[header] = 'email';
-    else if (normalized.match(/^(first.*name|fname|givenname)$/)) mapping[header] = 'firstName';
-    else if (normalized.match(/^(last.*name|lname|surname|familyname)$/)) mapping[header] = 'lastName';
-    else if (normalized === 'fullname' || normalized === 'name' || normalized === 'contactname') mapping[header] = 'fullName';
-    else if (normalized.match(/phone|mobile|cell|telephone|tel|contact/)) mapping[header] = 'phone';
-    else if (normalized.match(/title|position|jobtitle|designation/)) mapping[header] = 'title';
-    else if (normalized.match(/role/)) mapping[header] = 'role';
-    else if (normalized.match(/^(company|organization|employer|business)$/)) mapping[header] = 'company';
-    else if (normalized.match(/companyname|orgname/)) mapping[header] = 'company';
-    else if (normalized.match(/industry|sector|vertical/)) mapping[header] = 'companyIndustry';
-    else if (normalized.match(/companysize|employeecount|employees|headcount/)) mapping[header] = 'companySize';
-    else if (normalized.match(/companylocation|companycity|companyaddress|headquarters|hq/)) mapping[header] = 'companyLocation';
-    else if (normalized.match(/website|companywebsite|url|domain/)) mapping[header] = 'companyWebsite';
-    else if (normalized.match(/companydescription|aboutcompany|companyinfo/)) mapping[header] = 'companyDescription';
-    else if (normalized.match(/revenue|annualrevenue|sales/)) mapping[header] = 'companyRevenue';
-    else if (normalized.match(/linkedin|linkedinurl|companylinkedin/)) mapping[header] = 'companyLinkedIn';
-    else if (normalized.match(/founded|foundedyear|yearfounded/)) mapping[header] = 'companyFoundedYear';
-    else if (normalized.match(/companyphone|mainphone|officenumber/)) mapping[header] = 'companyPhone';
-    else if (normalized.match(/status|stage|leadstatus/)) mapping[header] = 'status';
-    else if (normalized.match(/note|comment|description|remark/)) mapping[header] = 'notes';
-    else mapping[header] = `custom_${header}`;
+    // Email - most common variations
+    if (normalized.match(/^(email|e?mail|emailaddress|contactemail|workemail)$/)) {
+      mapping[header] = 'email';
+    }
+    // First Name - comprehensive patterns
+    else if (normalized.match(/^(firstname|fname|first|givenname|forename)$/)) {
+      mapping[header] = 'firstName';
+    }
+    // Last Name - comprehensive patterns
+    else if (normalized.match(/^(lastname|lname|last|surname|familyname)$/)) {
+      mapping[header] = 'lastName';
+    }
+    // Full Name - if no separate first/last
+    else if (normalized.match(/^(fullname|name|contactname|displayname)$/)) {
+      mapping[header] = 'fullName';
+    }
+    // Phone - many variations
+    else if (normalized.match(/^(phone|mobile|cell|telephone|tel|phonenumber|mobilenumber|contactnumber|cellphone)$/)) {
+      mapping[header] = 'phone';
+    }
+    // Title/Position
+    else if (normalized.match(/^(title|position|jobtitle|designation|role)$/)) {
+      mapping[header] = 'title';
+    }
+    // Company - main field
+    else if (normalized.match(/^(company|organization|org|employer|business|companyname|organization|orgname)$/)) {
+      mapping[header] = 'company';
+    }
+    // Company Industry
+    else if (normalized.match(/^(industry|sector|vertical|companyindustry)$/)) {
+      mapping[header] = 'companyIndustry';
+    }
+    // Company Size
+    else if (normalized.match(/^(companysize|size|employeecount|employees|headcount|numberofemployees)$/)) {
+      mapping[header] = 'companySize';
+    }
+    // Company Location
+    else if (normalized.match(/^(location|companylocation|city|companycity|address|companyaddress|headquarters|hq)$/)) {
+      mapping[header] = 'companyLocation';
+    }
+    // Website/Domain
+    else if (normalized.match(/^(website|companywebsite|url|domain|web|site)$/)) {
+      mapping[header] = 'companyWebsite';
+    }
+    // Company Description
+    else if (normalized.match(/^(description|companydescription|about|aboutcompany|companyinfo|overview)$/)) {
+      mapping[header] = 'companyDescription';
+    }
+    // Revenue
+    else if (normalized.match(/^(revenue|annualrevenue|sales|income|turnover)$/)) {
+      mapping[header] = 'companyRevenue';
+    }
+    // LinkedIn
+    else if (normalized.match(/^(linkedin|linkedinurl|profile|companylinkedin|linkedinprofile)$/)) {
+      mapping[header] = 'companyLinkedIn';
+    }
+    // Founded Year
+    else if (normalized.match(/^(founded|foundedyear|yearfounded|established|startyear)$/)) {
+      mapping[header] = 'companyFoundedYear';
+    }
+    // Company Phone
+    else if (normalized.match(/^(companyphone|mainphone|officenumber|officephone)$/)) {
+      mapping[header] = 'companyPhone';
+    }
+    // Status
+    else if (normalized.match(/^(status|stage|leadstatus|contactstatus)$/)) {
+      mapping[header] = 'status';
+    }
+    // Notes
+    else if (normalized.match(/^(note|notes|comment|comments|remark|remarks)$/)) {
+      mapping[header] = 'notes';
+    }
+    // Fallback to custom field
+    else {
+      mapping[header] = `custom_${header}`;
+      logger.info(`[CSV Mapping] Unmapped field "${header}" -> custom field`);
+    }
   });
+
+  logger.info(`[CSV Mapping] Mapping result: ${JSON.stringify(mapping, null, 2)}`);
   return mapping;
 }
 
@@ -602,8 +664,11 @@ async function findOrCreateCompany(companyData: any, userId: string): Promise<st
 async function processCSVRecord(record: any, fieldMapping: Record<string, string>, userId: string, fileName: string) {
   const { contactData, companyData } = parseContactData(record, fieldMapping);
 
+  logger.info(`[CSV Import] Parsed contact: firstName="${contactData.firstName}", lastName="${contactData.lastName}", email="${contactData.email}", company="${companyData.name}"`);
+
   // Skip contacts without a valid first name
   if (!contactData.firstName || !contactData.firstName.trim()) {
+    logger.warn(`[CSV Import] Skipping contact - no first name`);
     return { skipped: true };
   }
 
@@ -613,6 +678,7 @@ async function processCSVRecord(record: any, fieldMapping: Record<string, string
   if (contactData.phone) {
     const phoneValidation = validatePhoneNumber(contactData.phone);
     if (!phoneValidation.isValid) {
+      logger.error(`[CSV Import] Invalid phone for ${contactData.firstName}: ${phoneValidation.error}`);
       return {
         error: true,
         message: `Invalid phone number for ${contactData.firstName} ${contactData.lastName}: ${phoneValidation.error}`
@@ -624,6 +690,7 @@ async function processCSVRecord(record: any, fieldMapping: Record<string, string
   if (contactData.email) {
     const emailValidation = validateEmail(contactData.email);
     if (!emailValidation.isValid) {
+      logger.error(`[CSV Import] Invalid email for ${contactData.firstName}: ${emailValidation.error}`);
       return {
         error: true,
         message: `Invalid email for ${contactData.firstName} ${contactData.lastName}: ${emailValidation.error}`
@@ -634,6 +701,7 @@ async function processCSVRecord(record: any, fieldMapping: Record<string, string
   // Check for duplicates
   const existing = await checkDuplicateContact(contactData, companyData, userId);
   if (existing) {
+    logger.info(`[CSV Import] Duplicate contact found: ${contactData.email || contactData.firstName + ' ' + contactData.lastName}`);
     return {
       duplicate: true,
       identifier: `${contactData.email || contactData.firstName + ' ' + contactData.lastName} (from ${fileName})`
@@ -642,6 +710,7 @@ async function processCSVRecord(record: any, fieldMapping: Record<string, string
 
   // Find or create company
   const companyId = await findOrCreateCompany(companyData, userId);
+  logger.info(`[CSV Import] Company ID for ${contactData.firstName}: ${companyId || 'none'}`);
 
   // Create contact
   const contact = await prisma.contact.create({
