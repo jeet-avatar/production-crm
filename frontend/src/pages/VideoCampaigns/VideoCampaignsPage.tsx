@@ -1,20 +1,34 @@
 import { useState } from 'react';
-import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { AICampaignGenerator } from '../../components/AICampaignGenerator';
+import { CreateEmailTemplateModal } from '../../components/VideoCampaigns/CreateEmailTemplateModal';
+import { useNavigate } from 'react-router-dom';
 
 export function VideoCampaignsPage() {
+  const navigate = useNavigate();
   const [generatedVideo, setGeneratedVideo] = useState<{
     url: string;
     campaignId: string;
     name: string;
+    narrationScript?: string;
   } | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
-  const handleVideoGenerated = (videoUrl: string, campaignId: string, name: string = 'My Video Campaign') => {
+  const handleVideoGenerated = (videoUrl: string, campaignId: string, name: string = 'My Video Campaign', narrationScript: string = '') => {
     setGeneratedVideo({
       url: videoUrl,
       campaignId,
       name,
+      narrationScript,
     });
+  };
+
+  const handleEmailTemplateCreated = (templateId: string) => {
+    setShowEmailModal(false);
+    // Show success message
+    alert('Email template created successfully! Redirecting to Email Templates...');
+    // Navigate to email templates page
+    navigate('/email-templates');
   };
 
   const handleStartNew = () => {
@@ -77,14 +91,23 @@ export function VideoCampaignsPage() {
               </p>
 
               {/* Action Buttons */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowEmailModal(true)}
+                  className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
+                >
+                  <EnvelopeIcon className="w-5 h-5" />
+                  Send as Email
+                </button>
+
                 <button
                   type="button"
                   onClick={handleDownload}
                   className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
-                  Download Video
+                  Download
                 </button>
 
                 <button
@@ -93,7 +116,7 @@ export function VideoCampaignsPage() {
                   className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
                 >
                   <ShareIcon className="w-5 h-5" />
-                  Share Link
+                  Share
                 </button>
 
                 <button
@@ -102,7 +125,7 @@ export function VideoCampaignsPage() {
                   className="flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
                 >
                   <ArrowLeftIcon className="w-5 h-5" />
-                  Create Another
+                  New Video
                 </button>
               </div>
             </div>
@@ -123,6 +146,21 @@ export function VideoCampaignsPage() {
             ))}
           </div>
         </div>
+
+        {/* Email Template Modal */}
+        {generatedVideo && (
+          <CreateEmailTemplateModal
+            isOpen={showEmailModal}
+            onClose={() => setShowEmailModal(false)}
+            campaign={{
+              id: generatedVideo.campaignId,
+              name: generatedVideo.name,
+              narrationScript: generatedVideo.narrationScript || 'Check out this personalized video created just for you!',
+              videoUrl: generatedVideo.url,
+            }}
+            onSuccess={handleEmailTemplateCreated}
+          />
+        )}
       </div>
     );
   }

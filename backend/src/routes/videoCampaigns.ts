@@ -1362,4 +1362,163 @@ router.get('/:id/status', async (req, res, next) => {
   }
 });
 
+// ===================================
+// EMAIL TEMPLATE INTEGRATION
+// ===================================
+
+// POST /api/video-campaigns/:id/create-email-template - Convert video campaign to email template
+router.post('/:id/create-email-template', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { templateName, emailSubject, emailBody, ctaText, ctaLink, fromName, fromEmail } = req.body;
+
+    // Get the video campaign
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    if (campaign.status !== 'READY' || !campaign.videoUrl) {
+      return res.status(400).json({ error: 'Video must be generated before creating email template' });
+    }
+
+    // Create beautiful HTML email template with embedded video
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${emailSubject}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <!-- Main Container -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">{{companyName}}</h1>
+            </td>
+          </tr>
+
+          <!-- Body Content -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
+                Hi {{firstName}},
+              </p>
+
+              <p style="margin: 0 0 30px; color: #666666; font-size: 16px; line-height: 1.6;">
+                ${emailBody || campaign.narrationScript}
+              </p>
+
+              <!-- Video Section -->
+              <div style="margin: 30px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <video controls width="100%" style="display: block; max-width: 100%; height: auto;" poster="${campaign.thumbnailUrl || ''}">
+                  <source src="${campaign.videoUrl}" type="video/mp4">
+                  Your email client doesn't support video playback. <a href="${campaign.videoUrl}" style="color: #667eea;">Click here to watch the video</a>.
+                </video>
+              </div>
+
+              <!-- CTA Button -->
+              ${ctaText && ctaLink ? `
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td align="center" style="padding: 30px 0;">
+                    <a href="${ctaLink}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
+                      ${ctaText}
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              ` : ''}
+
+              <p style="margin: 30px 0 0; color: #666666; font-size: 14px; line-height: 1.6;">
+                This video was created specifically for you using advanced AI technology.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 30px; text-align: center; background-color: #f8f9fa; border-top: 1px solid #e9ecef;">
+              <p style="margin: 0 0 10px; color: #666666; font-size: 14px;">
+                Best regards,<br>
+                <strong style="color: #333333;">{{fromName}}</strong>
+              </p>
+              <p style="margin: 10px 0 0; color: #999999; font-size: 12px;">
+                Powered by BrandMonkz Video Marketing
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `.trim();
+
+    // Create text version (fallback for email clients that don't support HTML)
+    const textContent = `
+Hi {{firstName}},
+
+${emailBody || campaign.narrationScript}
+
+Watch your personalized video: ${campaign.videoUrl}
+
+${ctaText && ctaLink ? `${ctaText}: ${ctaLink}` : ''}
+
+Best regards,
+{{fromName}}
+
+---
+Powered by BrandMonkz Video Marketing
+    `.trim();
+
+    // Create email template
+    const emailTemplate = await prisma.emailTemplate.create({
+      data: {
+        name: templateName || `Video Campaign: ${campaign.name}`,
+        subject: emailSubject || `Personalized Video from ${fromName || '{{companyName}}'}`,
+        htmlContent,
+        textContent,
+        variables: ['firstName', 'companyName', 'fromName'],
+        templateType: 'video-campaign',
+        fromEmail: fromEmail || 'support@brandmonkz.com',
+        fromName: fromName || 'BrandMonkz',
+        isActive: true,
+        userId: req.user!.id,
+      },
+    });
+
+    logger.info(`Email template created from video campaign ${id}: ${emailTemplate.id}`);
+
+    return res.json({
+      success: true,
+      emailTemplate: {
+        id: emailTemplate.id,
+        name: emailTemplate.name,
+        subject: emailTemplate.subject,
+        videoUrl: campaign.videoUrl,
+      },
+      message: 'Email template created successfully',
+    });
+  } catch (error) {
+    logger.error('Error creating email template from video:', error);
+    return next(error);
+  }
+});
+
 export default router;
