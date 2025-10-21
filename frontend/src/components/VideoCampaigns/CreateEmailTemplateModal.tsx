@@ -141,7 +141,7 @@ export function CreateEmailTemplateModal({
                 required
               />
               <p className="mt-1 text-xs text-gray-500">
-                Use variables: {{'{firstName}'}}, {{'{companyName}'}}, {{'{fromName}'}}
+                Use variables: {'{{firstName}}'}, {'{{companyName}}'}, {'{{fromName}}'}
               </p>
             </div>
 
