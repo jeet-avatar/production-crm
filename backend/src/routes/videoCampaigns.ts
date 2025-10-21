@@ -890,9 +890,8 @@ Return ONLY valid JSON with this exact structure:
       },
     });
 
-    // Get default voice (first ElevenLabs voice)
-    const elevenLabsVoices = await getElevenLabsVoices();
-    const defaultVoice = elevenLabsVoices.length > 0 ? elevenLabsVoices[0].voice_id : undefined;
+    // Use a default ElevenLabs voice (Rachel - professional female voice)
+    const defaultVoice = 'elevenlabs:21m00Tcm4TlvDq8ikWAM';
 
     // Create the campaign
     const campaign = await prisma.videoCampaign.create({
