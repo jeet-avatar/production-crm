@@ -918,4 +918,130 @@ router.get('/:id/status', async (req, res, next) => {
   }
 });
 
+// POST /api/video-campaigns/synthesize-voice - Synthesize voice using ElevenLabs or custom voice
+router.post('/synthesize-voice', async (req, res, next) => {
+  try {
+    const { text, voice_id, language } = req.body;
+
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    if (!voice_id) {
+      return res.status(400).json({ error: 'Voice ID is required' });
+    }
+
+    logger.info(`Voice synthesis requested: voice_id=${voice_id}, text_length=${text.length}`);
+
+    // Check if it's an ElevenLabs voice (format: "elevenlabs:voice_id")
+    if (voice_id.startsWith('elevenlabs:')) {
+      const elevenLabsVoiceId = voice_id.replace('elevenlabs:', '');
+      const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+      if (!ELEVENLABS_API_KEY) {
+        return res.status(500).json({ error: 'ElevenLabs API key not configured' });
+      }
+
+      try {
+        // Call ElevenLabs API
+        const response = await fetch(
+          `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
+          {
+            method: 'POST',
+            headers: {
+              'Accept': 'audio/mpeg',
+              'Content-Type': 'application/json',
+              'xi-api-key': ELEVENLABS_API_KEY,
+            },
+            body: JSON.stringify({
+              text,
+              model_id: 'eleven_multilingual_v2',
+              voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.75,
+              },
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          logger.error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+          return res.status(response.status).json({
+            error: 'ElevenLabs synthesis failed',
+            details: errorText
+          });
+        }
+
+        // Get audio buffer
+        const audioBuffer = await response.arrayBuffer();
+
+        // Upload to S3
+        const timestamp = Date.now();
+        const s3Key = `voice-synthesis/elevenlabs-${elevenLabsVoiceId}-${timestamp}.mp3`;
+
+        const putCommand = new PutObjectCommand({
+          Bucket: S3_BUCKET,
+          Key: s3Key,
+          Body: Buffer.from(audioBuffer),
+          ContentType: 'audio/mpeg',
+        });
+
+        await s3Client.send(putCommand);
+
+        const audio_url = `https://${CLOUDFRONT_DOMAIN}/${s3Key}`;
+
+        logger.info(`✅ ElevenLabs voice synthesized: ${audio_url}`);
+
+        return res.json({
+          success: true,
+          audio_url,
+          voice_id,
+          method: 'elevenlabs',
+        });
+      } catch (error: any) {
+        logger.error(`ElevenLabs synthesis error: ${error.message}`);
+        return res.status(500).json({ error: 'Failed to synthesize with ElevenLabs' });
+      }
+    } else {
+      // Custom voice cloning - forward to Python voice service
+      const VOICE_SERVICE_URL = process.env.VOICE_SERVICE_URL || 'http://localhost:5001';
+
+      try {
+        const response = await fetch(`${VOICE_SERVICE_URL}/api/voice/synthesize`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            voice_id,
+            language: language || 'en',
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          logger.error(`Voice service error: ${response.status} - ${errorText}`);
+          return res.status(response.status).json({
+            error: 'Voice synthesis failed',
+            details: errorText
+          });
+        }
+
+        const data = await response.json();
+
+        logger.info(`✅ Custom voice synthesized: ${data.audio_url}`);
+
+        return res.json(data);
+      } catch (error: any) {
+        logger.error(`Voice service synthesis error: ${error.message}`);
+        return res.status(500).json({ error: 'Failed to synthesize with custom voice' });
+      }
+    }
+  } catch (error) {
+    return next(error);
+  }
+});
+
 export default router;
