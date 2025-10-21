@@ -2,21 +2,23 @@ import { useState } from 'react';
 import { SparklesIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { CreateVideoCampaignModal } from './CreateVideoCampaignModal';
 import { videoService } from '../services/videoService';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface AICampaignGeneratorProps {
   onVideoGenerated?: (videoUrl: string, campaignId: string, name: string) => void;
 }
 
 export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorProps) {
+  const { gradients } = useTheme();
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [showManualCreate, setShowManualCreate] = useState(false);
-  const [generatedCampaign, setGeneratedCampaign] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState('');
   const [progress, setProgress] = useState(0);
 
   const pollForVideoCompletion = async (campaignId: string) => {
     setIsGenerating(true);
+    setShowManualCreate(false); // Close modal
     setCurrentStep('🎬 Generating your video...');
     setProgress(60);
 
@@ -35,6 +37,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
           const campaign = await videoService.getCampaign(campaignId);
 
           setTimeout(() => {
+            setIsGenerating(false);
             if (onVideoGenerated) {
               onVideoGenerated(status.videoUrl, campaignId, campaign.name);
             }
@@ -68,39 +71,19 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
     checkStatus();
   };
 
-  const handleAIGenerate = async () => {
+  const handleAIGenerate = () => {
     if (!prompt.trim()) {
       alert('Please enter a campaign description');
       return;
     }
 
-    setIsGenerating(true);
-    setCurrentStep('Analyzing your request with AI...');
-    setProgress(10);
+    // For now, just open manual create with the prompt
+    // In future, we can add AI script generation here
+    setShowManualCreate(true);
+  };
 
-    try {
-      // Step 1: Generate script from prompt
-      setCurrentStep('🤖 Generating video script...');
-      setProgress(20);
-
-      const scriptResult = await videoService.generateScript(prompt);
-
-      // Step 2: AI suggests voice, template, overlays
-      setCurrentStep('🎤 Selecting optimal voice...');
-      setProgress(40);
-
-      // For now, we'll use the manual flow but pre-populate with AI suggestions
-      // In the future, this can be fully automated
-      alert(`AI Generated Script:\n\n${scriptResult.script}\n\nPlease continue with the campaign setup to select voice, template, and generate your video.`);
-
-      setShowManualCreate(true);
-      setIsGenerating(false);
-
-    } catch (error: any) {
-      console.error('AI generation failed:', error);
-      alert(error.response?.data?.error || 'Failed to generate campaign. Please try again.');
-      setIsGenerating(false);
-    }
+  const handleManualSetup = () => {
+    setShowManualCreate(true);
   };
 
   const examplePrompts = [
@@ -113,7 +96,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-rose-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-4xl relative z-0">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-6 shadow-2xl">
@@ -152,10 +135,9 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
               {/* Action Buttons */}
               <div className="flex gap-4 mt-6">
                 <button
-                  type="button"
                   onClick={handleAIGenerate}
                   disabled={!prompt.trim()}
-                  className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-2xl font-bold text-lg hover:from-orange-700 hover:to-rose-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl active:scale-95"
+                  className={`flex-1 px-8 py-4 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <span className="flex items-center justify-center gap-2">
                     <SparklesIcon className="w-6 h-6" />
@@ -164,8 +146,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
                 </button>
 
                 <button
-                  type="button"
-                  onClick={() => setShowManualCreate(true)}
+                  onClick={handleManualSetup}
                   className="px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-2xl font-semibold text-lg hover:bg-gray-50 transition-all shadow-md hover:shadow-lg active:scale-95"
                 >
                   Manual Setup
@@ -183,7 +164,6 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
                 {examplePrompts.map((example, index) => (
                   <button
                     key={index}
-                    type="button"
                     onClick={() => setPrompt(example)}
                     className="w-full text-left px-4 py-3 bg-gradient-to-r from-orange-50 to-rose-50 hover:from-orange-100 hover:to-rose-100 rounded-xl text-sm text-gray-700 transition-all border border-orange-200"
                   >
@@ -264,14 +244,8 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
           isOpen={showManualCreate}
           onClose={() => setShowManualCreate(false)}
           onSuccess={(campaign) => {
-            setShowManualCreate(false);
-            // Poll for video completion and show final result
-            if (campaign.videoUrl && onVideoGenerated) {
-              onVideoGenerated(campaign.videoUrl, campaign.id, campaign.name);
-            } else {
-              // If video isn't ready yet, poll for it
-              pollForVideoCompletion(campaign.id);
-            }
+            // Start polling for video completion
+            pollForVideoCompletion(campaign.id);
           }}
         />
       )}
