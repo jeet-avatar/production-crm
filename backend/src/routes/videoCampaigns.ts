@@ -1095,9 +1095,17 @@ router.post('/synthesize-voice', async (req, res, next) => {
         return res.status(500).json({ error: 'ElevenLabs API key not configured' });
       }
 
+      // Sanitize text to avoid false positives from content moderation
+      const sanitizedText = text
+        .replace(/[^\w\s.,!?'\-]/g, ' ') // Remove special characters
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+
+      logger.info(`Sanitized text length: ${sanitizedText.length}`);
+
       try {
-        // Call ElevenLabs API
-        const response = await fetch(
+        // Try with turbo model first (less strict content moderation)
+        let response = await fetch(
           `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
           {
             method: 'POST',
@@ -1107,8 +1115,8 @@ router.post('/synthesize-voice', async (req, res, next) => {
               'xi-api-key': ELEVENLABS_API_KEY,
             },
             body: JSON.stringify({
-              text,
-              model_id: 'eleven_multilingual_v2',
+              text: sanitizedText,
+              model_id: 'eleven_turbo_v2', // Use turbo model - faster and less strict
               voice_settings: {
                 stability: 0.5,
                 similarity_boost: 0.75,
@@ -1117,9 +1125,46 @@ router.post('/synthesize-voice', async (req, res, next) => {
           }
         );
 
+        // If turbo fails with content moderation, try multilingual model
+        if (!response.ok) {
+          const errorData = await response.text();
+          logger.warn(`Turbo model failed: ${errorData}, trying multilingual model...`);
+
+          response = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
+            {
+              method: 'POST',
+              headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY,
+              },
+              body: JSON.stringify({
+                text: sanitizedText,
+                model_id: 'eleven_multilingual_v2',
+                voice_settings: {
+                  stability: 0.5,
+                  similarity_boost: 0.75,
+                },
+              }),
+            }
+          );
+        }
+
         if (!response.ok) {
           const errorText = await response.text();
           logger.error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+
+          // If content moderation fails, provide helpful error message
+          if (errorText.includes('malicious') || errorText.includes('Invalid input')) {
+            logger.error('ElevenLabs content moderation rejected text');
+            return res.status(400).json({
+              error: 'Content moderation failed',
+              details: 'The text was rejected by ElevenLabs content moderation. Please try using simpler language or select a custom cloned voice instead.',
+              suggestion: 'Use custom voice cloning feature for more flexibility'
+            });
+          }
+
           return res.status(response.status).json({
             error: 'ElevenLabs synthesis failed',
             details: errorText
