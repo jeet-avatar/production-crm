@@ -34,7 +34,7 @@ export function CreateVideoCampaignModal({
   const [userCompanyName, setUserCompanyName] = useState('');
   const [script, setScript] = useState('');
   const [tone, setTone] = useState('professional');
-  const [voiceId, setVoiceId] = useState('natural-en-us-male-1');
+  const [voiceId, setVoiceId] = useState('');
   const [customVoiceUrl, setCustomVoiceUrl] = useState('');
   const [isCustomVoice, setIsCustomVoice] = useState(false);
   const [videoSource, setVideoSource] = useState<'template' | 'upload'>('template');

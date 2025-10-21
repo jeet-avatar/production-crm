@@ -28,15 +28,9 @@ interface VoiceSelectorProps {
   onCustomVoiceUpload?: (file: File) => Promise<string>;
 }
 
-// Removed hardcoded built-in voices - users should use their own cloned voices
-const BUILT_IN_VOICES: VoiceOption[] = [];
-
 export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSelectorProps) {
   const [selectedVoice, setSelectedVoice] = useState<string>(value || '');
   const [isCustom, setIsCustom] = useState(false);
-  const [customFile, setCustomFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [playingVoice, setPlayingVoice] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -46,124 +40,12 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
   const [showCloneSection, setShowCloneSection] = useState(false);
   const [testingVoiceId, setTestingVoiceId] = useState<string | null>(null);
   const [testText, setTestText] = useState('Hello! This is a test of my cloned voice. I can use this voice in all my video campaigns.');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<number | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const cloneFileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleVoiceSelect = (voiceId: string) => {
-    setSelectedVoice(voiceId);
-    setIsCustom(false);
-    setCustomFile(null);
-    onChange(voiceId, false);
-  };
-
-  const handleCustomVoiceUpload = async (file: File) => {
-    if (!onCustomVoiceUpload) return;
-
-    setIsUploading(true);
-    try {
-      console.log('Uploading voice file:', {
-        name: file.name,
-        type: file.type,
-        size: file.size
-      });
-      const voiceUrl = await onCustomVoiceUpload(file);
-      console.log('Voice uploaded successfully:', voiceUrl);
-      setCustomFile(file);
-      setSelectedVoice(voiceUrl);
-      setIsCustom(true);
-      onChange(voiceUrl, true);
-    } catch (error: any) {
-      console.error('Voice upload failed:', error);
-      const errorMessage = error.response?.data?.error || error.message || 'Failed to upload voice file. Please try again.';
-      alert(errorMessage);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm'];
-      if (!validTypes.includes(file.type)) {
-        alert('Invalid file type. Please upload MP3, WAV, OGG, or WEBM audio files.');
-        return;
-      }
-
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File too large. Maximum size is 10MB.');
-        return;
-      }
-
-      handleCustomVoiceUpload(file);
-    }
-  };
-
-  // Removed playPreview function - no hardcoded voices allowed
-
-  // Recording functionality
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      // Use audio/webm for better browser compatibility
-      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
-
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        const audioFile = new File([audioBlob], `voice-recording-${Date.now()}.webm`, { type: mimeType });
-
-        // Stop all tracks
-        stream.getTracks().forEach(track => track.stop());
-
-        // Upload the recorded file
-        await handleCustomVoiceUpload(audioFile);
-
-        // Reset recording state
-        setIsRecording(false);
-        setRecordingTime(0);
-        if (recordingTimerRef.current) {
-          clearInterval(recordingTimerRef.current);
-          recordingTimerRef.current = null;
-        }
-      };
-
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.start();
-      setIsRecording(true);
-      setRecordingTime(0);
-
-      // Start timer
-      recordingTimerRef.current = window.setInterval(() => {
-        setRecordingTime((prev) => prev + 1);
-      }, 1000);
-
-    } catch (error) {
-      console.error('Recording failed:', error);
-      alert('Failed to start recording. Please check microphone permissions.');
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-    }
-  };
+  // Removed unused functions - all voice operations now go through clone workflow
 
   const formatRecordingTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -611,144 +493,10 @@ export function VoiceSelector({ value, onChange, onCustomVoiceUpload }: VoiceSel
         </div>
       )}
 
-      {/* Custom Voice Options */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {/* Record Voice */}
-        <div
-          className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-            isRecording
-              ? 'border-red-600 bg-red-50 cursor-default'
-              : isCustom
-              ? 'border-orange-600 bg-rose-50 cursor-default'
-              : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50 cursor-pointer'
-          }`}
-        >
-          {isRecording ? (
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative">
-                <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center animate-pulse">
-                  <MicrophoneIcon className="w-8 h-8 text-white" />
-                </div>
-                <div className="absolute inset-0 rounded-full border-4 border-red-500 animate-ping opacity-75"></div>
-              </div>
-              <div className="text-lg font-bold text-red-600">{formatRecordingTime(recordingTime)}</div>
-              <p className="text-sm text-gray-700 font-medium">Recording in progress...</p>
-              <button
-                type="button"
-                onClick={stopRecording}
-                className="mt-2 px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
-              >
-                Stop Recording
-              </button>
-            </div>
-          ) : customFile ? (
-            <div className="flex flex-col items-center gap-2">
-              <CheckCircleIcon className="w-12 h-12 text-rose-600" />
-              <p className="font-semibold text-gray-900">Custom Voice Ready</p>
-              <p className="text-xs text-gray-600 truncate max-w-full">{customFile.name}</p>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCustomFile(null);
-                  setIsCustom(false);
-                  setSelectedVoice('');
-                }}
-                className="mt-2 text-sm text-rose-600 hover:text-rose-700 font-medium"
-              >
-                Change Voice
-              </button>
-            </div>
-          ) : isUploading ? (
-            <div className="flex flex-col items-center gap-2">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
-              <p className="text-sm text-gray-600">Processing...</p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center">
-                <MicrophoneIcon className="w-6 h-6 text-white" />
-              </div>
-              <p className="text-sm font-semibold text-gray-700">Record Voice</p>
-              <p className="text-xs text-gray-500">Click to start recording</p>
-              <button
-                type="button"
-                onClick={startRecording}
-                className="mt-2 px-4 py-2 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
-              >
-                Start Recording
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Upload Voice */}
-        <div
-          onClick={() => !isRecording && !isCustom && fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
-            isCustom
-              ? 'border-orange-600 bg-rose-50 cursor-default'
-              : isRecording
-              ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
-              : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50 cursor-pointer'
-          }`}
-        >
-          {isUploading ? (
-            <div className="flex flex-col items-center gap-2">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
-              <p className="text-sm text-gray-600">Uploading...</p>
-            </div>
-          ) : customFile ? (
-            <div className="flex flex-col items-center gap-2">
-              <CheckCircleIcon className="w-12 h-12 text-rose-600" />
-              <p className="font-semibold text-gray-900">Voice Uploaded</p>
-              <p className="text-xs text-gray-600 truncate max-w-full">{customFile.name}</p>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCustomFile(null);
-                  setIsCustom(false);
-                  setSelectedVoice('');
-                }}
-                className="mt-2 text-sm text-rose-600 hover:text-rose-700 font-medium"
-              >
-                Change Voice
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center">
-                <ArrowUpTrayIcon className="w-6 h-6 text-white" />
-              </div>
-              <p className="text-sm font-semibold text-gray-700">Upload Voice File</p>
-              <p className="text-xs text-gray-500">MP3, WAV, OGG • Max 10MB</p>
-              <button
-                type="button"
-                disabled={isRecording}
-                className="mt-2 px-4 py-2 bg-gradient-to-r from-orange-400 to-rose-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Choose File
-              </button>
-            </div>
-          )}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/webm"
-            onChange={handleFileChange}
-            className="hidden"
-            disabled={isRecording}
-            aria-label="Upload custom voice file"
-          />
-        </div>
-      </div>
-
       {/* Info Note */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-xs text-gray-700">
-        <strong>💡 Pro Tip:</strong> Clone your voice once and reuse it in unlimited video campaigns!
-        Record directly in your browser or upload a pre-recorded audio file. Test your cloned voice with custom text to hear how it sounds before using in videos.
+        <strong>💡 How It Works:</strong> Click "Clone Voice" above to record or upload your voice sample.
+        Once saved, you can test it with custom text and use it in unlimited video campaigns!
       </div>
     </div>
   );
