@@ -1012,7 +1012,7 @@ router.post('/:id/generate', async (req, res, next) => {
           return;
         }
 
-        const data = await response.json();
+        const data = await response.json() as { jobId: string };
         const videoJobId = data.jobId;
 
         logger.info(`🎬 Video generation started with job ID: ${videoJobId}`);
@@ -1027,7 +1027,13 @@ router.post('/:id/generate', async (req, res, next) => {
               return;
             }
 
-            const statusData = await statusResponse.json();
+            const statusData = await statusResponse.json() as {
+              status: string;
+              progress?: number;
+              currentStep?: string;
+              videoUrl?: string;
+              error?: string;
+            };
 
             // Update job progress
             await prisma.videoGenerationJob.update({
@@ -1325,7 +1331,7 @@ router.post('/synthesize-voice', async (req, res, next) => {
           });
         }
 
-        const data = await response.json();
+        const data = await response.json() as { audio_url: string };
 
         logger.info(`✅ Custom voice synthesized: ${data.audio_url}`);
 
