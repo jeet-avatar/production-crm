@@ -85,15 +85,36 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
     checkStatus();
   };
 
-  const handleAIGenerate = () => {
+  const handleAIGenerate = async () => {
     if (!prompt.trim()) {
       alert('Please enter a campaign description');
       return;
     }
 
-    // For now, just open manual create with the prompt
-    // In future, we can add full AI automation here
-    setShowManualCreate(true);
+    setIsGenerating(true);
+    setCurrentStep('🤖 AI is analyzing your request...');
+    setProgress(10);
+
+    try {
+      // Call AI to generate full campaign from prompt
+      setCurrentStep('✨ AI is creating your campaign...');
+      setProgress(30);
+
+      const result = await videoService.generateCampaignFromPrompt(prompt);
+
+      setCurrentStep('🎬 Generating video...');
+      setProgress(50);
+
+      // Start video generation
+      await videoService.generateVideo(result.campaign.id);
+
+      // Start polling for completion
+      pollForVideoCompletion(result.campaign.id);
+    } catch (error: any) {
+      console.error('AI generation failed:', error);
+      setIsGenerating(false);
+      alert(error.response?.data?.error || 'AI generation failed. Please try manual setup instead.');
+    }
   };
 
   const handleManualSetup = () => {

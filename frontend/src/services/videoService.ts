@@ -405,6 +405,16 @@ class VideoService {
     return response.data;
   }
 
+  async generateCampaignFromPrompt(prompt: string): Promise<{ campaign: VideoCampaign }> {
+    const response = await axios.post(`${API_URL}/api/video-campaigns/ai/generate-from-prompt`,
+      { prompt },
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+    return response.data;
+  }
+
   // ===================================
   // PEXELS VIDEO SEARCH
   // ===================================
