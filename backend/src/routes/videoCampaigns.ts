@@ -37,7 +37,196 @@ const upload = multer({
   },
 });
 
-// Enable authentication for all routes
+// ===================================
+// SERVICE-TO-SERVICE ENDPOINTS (NO JWT AUTH)
+// ===================================
+
+// POST /api/video-campaigns/synthesize-voice - Synthesize voice using ElevenLabs or custom voice
+// This endpoint is called by the Python video generator service (service-to-service)
+// MUST be before router.use(authenticate) to bypass JWT requirement
+router.post('/synthesize-voice', async (req, res, next) => {
+  try {
+    // Service-to-service authentication via API key
+    const serviceApiKey = req.headers['x-service-api-key'] || req.headers['x-api-key'];
+    const expectedServiceKey = process.env.SERVICE_API_KEY || process.env.INTERNAL_API_KEY;
+
+    if (!expectedServiceKey || serviceApiKey !== expectedServiceKey) {
+      logger.error('Unauthorized service-to-service call to synthesize-voice');
+      return res.status(401).json({
+        error: 'Unauthorized',
+        message: 'Valid service API key required'
+      });
+    }
+
+    const { text, voice_id, language } = req.body;
+
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    if (!voice_id) {
+      return res.status(400).json({ error: 'Voice ID is required' });
+    }
+
+    logger.info(`Voice synthesis requested: voice_id=${voice_id}, text_length=${text.length}`);
+
+    // Check if it's an ElevenLabs voice (format: "elevenlabs:voice_id")
+    if (voice_id.startsWith('elevenlabs:')) {
+      const elevenLabsVoiceId = voice_id.replace('elevenlabs:', '');
+      const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+      if (!ELEVENLABS_API_KEY) {
+        return res.status(500).json({ error: 'ElevenLabs API key not configured' });
+      }
+
+      // Sanitize text to avoid false positives from content moderation
+      const sanitizedText = text
+        .replace(/[^\w\s.,!?'\-]/g, ' ') // Remove special characters
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+
+      logger.info(`Sanitized text length: ${sanitizedText.length}`);
+
+      try {
+        // Try with turbo model first (less strict content moderation)
+        let response = await fetch(
+          `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
+          {
+            method: 'POST',
+            headers: {
+              'Accept': 'audio/mpeg',
+              'Content-Type': 'application/json',
+              'xi-api-key': ELEVENLABS_API_KEY,
+            },
+            body: JSON.stringify({
+              text: sanitizedText,
+              model_id: 'eleven_turbo_v2', // Use turbo model - faster and less strict
+              voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.75,
+              },
+            }),
+          }
+        );
+
+        // If turbo fails with content moderation, try multilingual model
+        if (!response.ok) {
+          const errorData = await response.text();
+          logger.warn(`Turbo model failed: ${errorData}, trying multilingual model...`);
+
+          response = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
+            {
+              method: 'POST',
+              headers: {
+                'Accept': 'audio/mpeg',
+                'Content-Type': 'application/json',
+                'xi-api-key': ELEVENLABS_API_KEY,
+              },
+              body: JSON.stringify({
+                text: sanitizedText,
+                model_id: 'eleven_multilingual_v2',
+                voice_settings: {
+                  stability: 0.5,
+                  similarity_boost: 0.75,
+                },
+              }),
+            }
+          );
+        }
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          logger.error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+
+          // If content moderation fails, provide helpful error message
+          if (errorText.includes('malicious') || errorText.includes('Invalid input')) {
+            logger.error('ElevenLabs content moderation rejected text');
+            return res.status(400).json({
+              error: 'Content moderation failed',
+              details: 'The text was rejected by ElevenLabs content moderation. Please try using simpler language or select a custom cloned voice instead.',
+              suggestion: 'Use custom voice cloning feature for more flexibility'
+            });
+          }
+
+          return res.status(response.status).json({
+            error: 'ElevenLabs synthesis failed',
+            details: errorText
+          });
+        }
+
+        // Get audio buffer
+        const audioBuffer = await response.arrayBuffer();
+
+        // Upload to S3
+        const timestamp = Date.now();
+        const s3Key = `voice-synthesis/elevenlabs-${elevenLabsVoiceId}-${timestamp}.mp3`;
+
+        const putCommand = new PutObjectCommand({
+          Bucket: S3_BUCKET,
+          Key: s3Key,
+          Body: Buffer.from(audioBuffer),
+          ContentType: 'audio/mpeg',
+        });
+
+        await s3Client.send(putCommand);
+
+        const audio_url = `https://${CLOUDFRONT_DOMAIN}/${s3Key}`;
+
+        logger.info(`✅ ElevenLabs voice synthesized: ${audio_url}`);
+
+        return res.json({
+          success: true,
+          audio_url,
+          voice_id,
+          method: 'elevenlabs',
+        });
+      } catch (error: any) {
+        logger.error(`ElevenLabs synthesis error: ${error.message}`);
+        return res.status(500).json({ error: 'Failed to synthesize with ElevenLabs' });
+      }
+    } else {
+      // Custom voice cloning - forward to Python voice service
+      const VOICE_SERVICE_URL = process.env.VOICE_SERVICE_URL || 'http://localhost:5001';
+
+      try {
+        const response = await fetch(`${VOICE_SERVICE_URL}/api/voice/synthesize`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            voice_id,
+            language: language || 'en',
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          logger.error(`Voice service error: ${response.status} - ${errorText}`);
+          return res.status(response.status).json({
+            error: 'Voice synthesis failed',
+            details: errorText
+          });
+        }
+
+        const data = await response.json() as { audio_url: string };
+
+        logger.info(`✅ Custom voice synthesized: ${data.audio_url}`);
+
+        return res.json(data);
+      } catch (error: any) {
+        logger.error(`Voice service synthesis error: ${error.message}`);
+        return res.status(500).json({ error: 'Failed to synthesize with custom voice' });
+      }
+    }
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Enable authentication for all routes below this point
 router.use(authenticate);
 
 // ===================================
@@ -1157,190 +1346,6 @@ router.get('/:id/status', async (req, res, next) => {
       videoUrl: campaign.videoUrl,
       error: campaign.generationError || latestJob?.errorMessage,
     });
-  } catch (error) {
-    return next(error);
-  }
-});
-
-// POST /api/video-campaigns/synthesize-voice - Synthesize voice using ElevenLabs or custom voice
-// This endpoint is called by the Python video generator service (service-to-service)
-router.post('/synthesize-voice', async (req, res, next) => {
-  try {
-    // Service-to-service authentication via API key
-    const serviceApiKey = req.headers['x-service-api-key'] || req.headers['x-api-key'];
-    const expectedServiceKey = process.env.SERVICE_API_KEY || process.env.INTERNAL_API_KEY;
-
-    if (!expectedServiceKey || serviceApiKey !== expectedServiceKey) {
-      logger.error('Unauthorized service-to-service call to synthesize-voice');
-      return res.status(401).json({
-        error: 'Unauthorized',
-        message: 'Valid service API key required'
-      });
-    }
-
-    const { text, voice_id, language } = req.body;
-
-    if (!text) {
-      return res.status(400).json({ error: 'Text is required' });
-    }
-
-    if (!voice_id) {
-      return res.status(400).json({ error: 'Voice ID is required' });
-    }
-
-    logger.info(`Voice synthesis requested: voice_id=${voice_id}, text_length=${text.length}`);
-
-    // Check if it's an ElevenLabs voice (format: "elevenlabs:voice_id")
-    if (voice_id.startsWith('elevenlabs:')) {
-      const elevenLabsVoiceId = voice_id.replace('elevenlabs:', '');
-      const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
-
-      if (!ELEVENLABS_API_KEY) {
-        return res.status(500).json({ error: 'ElevenLabs API key not configured' });
-      }
-
-      // Sanitize text to avoid false positives from content moderation
-      const sanitizedText = text
-        .replace(/[^\w\s.,!?'\-]/g, ' ') // Remove special characters
-        .replace(/\s+/g, ' ') // Normalize whitespace
-        .trim();
-
-      logger.info(`Sanitized text length: ${sanitizedText.length}`);
-
-      try {
-        // Try with turbo model first (less strict content moderation)
-        let response = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
-          {
-            method: 'POST',
-            headers: {
-              'Accept': 'audio/mpeg',
-              'Content-Type': 'application/json',
-              'xi-api-key': ELEVENLABS_API_KEY,
-            },
-            body: JSON.stringify({
-              text: sanitizedText,
-              model_id: 'eleven_turbo_v2', // Use turbo model - faster and less strict
-              voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.75,
-              },
-            }),
-          }
-        );
-
-        // If turbo fails with content moderation, try multilingual model
-        if (!response.ok) {
-          const errorData = await response.text();
-          logger.warn(`Turbo model failed: ${errorData}, trying multilingual model...`);
-
-          response = await fetch(
-            `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
-            {
-              method: 'POST',
-              headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': ELEVENLABS_API_KEY,
-              },
-              body: JSON.stringify({
-                text: sanitizedText,
-                model_id: 'eleven_multilingual_v2',
-                voice_settings: {
-                  stability: 0.5,
-                  similarity_boost: 0.75,
-                },
-              }),
-            }
-          );
-        }
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          logger.error(`ElevenLabs API error: ${response.status} - ${errorText}`);
-
-          // If content moderation fails, provide helpful error message
-          if (errorText.includes('malicious') || errorText.includes('Invalid input')) {
-            logger.error('ElevenLabs content moderation rejected text');
-            return res.status(400).json({
-              error: 'Content moderation failed',
-              details: 'The text was rejected by ElevenLabs content moderation. Please try using simpler language or select a custom cloned voice instead.',
-              suggestion: 'Use custom voice cloning feature for more flexibility'
-            });
-          }
-
-          return res.status(response.status).json({
-            error: 'ElevenLabs synthesis failed',
-            details: errorText
-          });
-        }
-
-        // Get audio buffer
-        const audioBuffer = await response.arrayBuffer();
-
-        // Upload to S3
-        const timestamp = Date.now();
-        const s3Key = `voice-synthesis/elevenlabs-${elevenLabsVoiceId}-${timestamp}.mp3`;
-
-        const putCommand = new PutObjectCommand({
-          Bucket: S3_BUCKET,
-          Key: s3Key,
-          Body: Buffer.from(audioBuffer),
-          ContentType: 'audio/mpeg',
-        });
-
-        await s3Client.send(putCommand);
-
-        const audio_url = `https://${CLOUDFRONT_DOMAIN}/${s3Key}`;
-
-        logger.info(`✅ ElevenLabs voice synthesized: ${audio_url}`);
-
-        return res.json({
-          success: true,
-          audio_url,
-          voice_id,
-          method: 'elevenlabs',
-        });
-      } catch (error: any) {
-        logger.error(`ElevenLabs synthesis error: ${error.message}`);
-        return res.status(500).json({ error: 'Failed to synthesize with ElevenLabs' });
-      }
-    } else {
-      // Custom voice cloning - forward to Python voice service
-      const VOICE_SERVICE_URL = process.env.VOICE_SERVICE_URL || 'http://localhost:5001';
-
-      try {
-        const response = await fetch(`${VOICE_SERVICE_URL}/api/voice/synthesize`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            text,
-            voice_id,
-            language: language || 'en',
-          }),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          logger.error(`Voice service error: ${response.status} - ${errorText}`);
-          return res.status(response.status).json({
-            error: 'Voice synthesis failed',
-            details: errorText
-          });
-        }
-
-        const data = await response.json() as { audio_url: string };
-
-        logger.info(`✅ Custom voice synthesized: ${data.audio_url}`);
-
-        return res.json(data);
-      } catch (error: any) {
-        logger.error(`Voice service synthesis error: ${error.message}`);
-        return res.status(500).json({ error: 'Failed to synthesize with custom voice' });
-      }
-    }
   } catch (error) {
     return next(error);
   }
