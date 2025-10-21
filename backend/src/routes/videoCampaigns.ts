@@ -284,32 +284,6 @@ router.get('/elevenlabs/voices', async (req, res, next) => {
   }
 });
 
-// GET /api/video-campaigns/my-voices - Get user's cloned voices
-router.get('/my-voices', async (req, res, next) => {
-  try {
-    const VOICE_SERVICE_URL = process.env.VOICE_SERVICE_URL || 'http://localhost:5001';
-    const userId = req.user!.id;
-
-    // Fetch cloned voices from Python voice service
-    const response = await fetch(`${VOICE_SERVICE_URL}/api/voice/list/${userId}`, {
-      method: 'GET',
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error(`Voice service error: ${response.status} - ${errorText}`);
-      return res.json({ voices: [] }); // Return empty array instead of error
-    }
-
-    const data = await response.json() as { voices: any[] };
-
-    return res.json({ voices: data.voices || [] });
-  } catch (error) {
-    logger.error('My voices fetch error:', error);
-    return res.json({ voices: [] }); // Return empty array on error
-  }
-});
-
 // ===================================
 // VIDEO TEMPLATES
 // ===================================
@@ -500,50 +474,6 @@ router.post('/upload-logo', upload.single('logo'), async (req, res, next) => {
     return res.status(201).json({ logoUrl });
   } catch (error) {
     logger.error('Logo upload error:', error);
-    return next(error);
-  }
-});
-
-// POST /api/video-campaigns/upload-voice - Upload custom voice file
-router.post('/upload-voice', upload.single('voice'), async (req, res, next) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No voice file uploaded' });
-    }
-
-    const file = req.file;
-
-    // Validate file type
-    const allowedMimes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/webm'];
-    if (!allowedMimes.includes(file.mimetype)) {
-      return res.status(400).json({ error: 'Invalid file type. Only MP3, WAV, and OGG are allowed.' });
-    }
-
-    // Validate file size (10MB max)
-    if (file.size > 10 * 1024 * 1024) {
-      return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const fileExtension = file.originalname.split('.').pop();
-    const s3Key = `voices/${req.user!.id}/${timestamp}.${fileExtension}`;
-
-    // Upload to S3
-    const uploadCommand = new PutObjectCommand({
-      Bucket: S3_BUCKET,
-      Key: s3Key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
-
-    await s3Client.send(uploadCommand);
-
-    const voiceUrl = `https://${CLOUDFRONT_DOMAIN}/${s3Key}`;
-
-    return res.status(201).json({ voiceUrl });
-  } catch (error) {
-    logger.error('Voice upload error:', error);
     return next(error);
   }
 });
