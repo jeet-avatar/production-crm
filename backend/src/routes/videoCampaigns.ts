@@ -230,6 +230,87 @@ router.post('/synthesize-voice', async (req, res, next) => {
 router.use(authenticate);
 
 // ===================================
+// ELEVENLABS VOICES (AUTHENTICATED)
+// ===================================
+
+// GET /api/video-campaigns/elevenlabs/voices - Get ElevenLabs voices
+router.get('/elevenlabs/voices', async (req, res, next) => {
+  try {
+    const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+    if (!ELEVENLABS_API_KEY) {
+      return res.status(500).json({
+        error: 'ElevenLabs API key not configured',
+        voices: []
+      });
+    }
+
+    // Fetch voices from ElevenLabs API
+    const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+      method: 'GET',
+      headers: {
+        'xi-api-key': ELEVENLABS_API_KEY,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+      return res.status(response.status).json({
+        error: 'Failed to fetch ElevenLabs voices',
+        voices: []
+      });
+    }
+
+    const data = await response.json() as { voices: any[] };
+
+    // Format voices for frontend with elevenlabs: prefix
+    const formattedVoices = data.voices.map((voice: any) => ({
+      voice_id: `elevenlabs:${voice.voice_id}`,
+      name: voice.name,
+      preview_url: voice.preview_url,
+      category: voice.category || 'generated',
+      labels: voice.labels || {},
+      description: voice.description || '',
+    }));
+
+    return res.json({ voices: formattedVoices });
+  } catch (error) {
+    logger.error('ElevenLabs voices fetch error:', error);
+    return res.status(500).json({
+      error: 'Failed to fetch ElevenLabs voices',
+      voices: []
+    });
+  }
+});
+
+// GET /api/video-campaigns/my-voices - Get user's cloned voices
+router.get('/my-voices', async (req, res, next) => {
+  try {
+    const VOICE_SERVICE_URL = process.env.VOICE_SERVICE_URL || 'http://localhost:5001';
+    const userId = req.user!.id;
+
+    // Fetch cloned voices from Python voice service
+    const response = await fetch(`${VOICE_SERVICE_URL}/api/voice/list/${userId}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      logger.error(`Voice service error: ${response.status} - ${errorText}`);
+      return res.json({ voices: [] }); // Return empty array instead of error
+    }
+
+    const data = await response.json() as { voices: any[] };
+
+    return res.json({ voices: data.voices || [] });
+  } catch (error) {
+    logger.error('My voices fetch error:', error);
+    return res.json({ voices: [] }); // Return empty array on error
+  }
+});
+
+// ===================================
 // VIDEO TEMPLATES
 // ===================================
 
