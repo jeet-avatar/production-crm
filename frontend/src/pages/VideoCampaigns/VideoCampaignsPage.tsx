@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon, VideoCameraIcon, TrashIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { PlayIcon as PlayIconSolid } from '@heroicons/react/24/solid';
 import { AICampaignGenerator } from '../../components/AICampaignGenerator';
 import { CreateEmailTemplateModal } from '../../components/VideoCampaigns/CreateEmailTemplateModal';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +20,7 @@ export function VideoCampaignsPage() {
   const [showCreateNew, setShowCreateNew] = useState(false);
   const [selectedVideoForModal, setSelectedVideoForModal] = useState<VideoCampaign | null>(null);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Ready' | 'Failed'>('All');
 
   // Load previous videos on mount
   useEffect(() => {
@@ -96,6 +98,40 @@ export function VideoCampaignsPage() {
     navigator.clipboard.writeText(generatedVideo.url);
     alert('Video URL copied to clipboard!');
   };
+
+  const handleDownloadVideo = (campaign: VideoCampaign, event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!campaign.videoUrl) return;
+    const link = document.createElement('a');
+    link.href = campaign.videoUrl;
+    link.download = `${campaign.name}.mp4`;
+    link.click();
+  };
+
+  const handleDeleteVideo = async (campaign: VideoCampaign, event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (!confirm(`Are you sure you want to delete "${campaign.name}"?`)) return;
+    try {
+      await videoService.deleteCampaign(campaign.id);
+      loadPreviousVideos();
+      alert('Video deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete video:', error);
+      alert('Failed to delete video. Please try again.');
+    }
+  };
+
+  const handlePlayVideo = (campaign: VideoCampaign, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setPlayingVideoId(playingVideoId === campaign.id ? null : campaign.id);
+  };
+
+  const filteredVideos = previousVideos.filter(video => {
+    if (activeFilter === 'All') return true;
+    if (activeFilter === 'Ready') return video.status === 'READY';
+    if (activeFilter === 'Failed') return video.status === 'FAILED';
+    return true;
+  });
 
   // If video is generated, show final result screen
   if (generatedVideo) {
@@ -217,17 +253,20 @@ export function VideoCampaignsPage() {
     return <AICampaignGenerator onVideoGenerated={handleVideoGenerated} />;
   }
 
-  // Default: Show Video Library - CLEAN MINIMAL NETFLIX/YOUTUBE STYLE WITH ORANGE-ROSE BRANDING
+  // Default: Show Video Library - VIDEO LIBRARY WITH ACTUAL PLAYERS
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-orange-50 p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header - Clean & Minimal */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 bg-clip-text text-transparent">
-                Video Campaigns
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text text-transparent">
+                Video Library
               </h1>
+              <p className="text-gray-600 mt-2">
+                {previousVideos.length} video{previousVideos.length !== 1 ? 's' : ''} in library
+              </p>
             </div>
             <button
               type="button"
@@ -235,15 +274,36 @@ export function VideoCampaignsPage() {
               className="flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-xl font-bold border-2 border-black hover:bg-gray-50 transition-all shadow-lg hover:shadow-xl"
             >
               <VideoCameraIcon className="w-6 h-6" />
-              Create New
+              Create New Video
             </button>
           </div>
+
+          {/* Filter Tabs */}
+          {previousVideos.length > 0 && (
+            <div className="flex gap-3">
+              {(['All', 'Ready', 'Failed'] as const).map(filter => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setActiveFilter(filter)}
+                  className={`px-6 py-3 font-semibold rounded-xl border-2 transition-all ${
+                    activeFilter === filter
+                      ? 'bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-white border-black shadow-lg'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-orange-500'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Loading State */}
         {loadingVideos && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-500"></div>
+            <p className="mt-4 text-gray-600">Loading your videos...</p>
           </div>
         )}
 
@@ -257,7 +317,7 @@ export function VideoCampaignsPage() {
               No videos yet
             </h2>
             <p className="text-gray-600 mb-8 text-lg">
-              Create your first video campaign
+              Create your first AI-powered video campaign
             </p>
             <button
               type="button"
@@ -270,66 +330,110 @@ export function VideoCampaignsPage() {
           </div>
         )}
 
-        {/* Video Grid - LARGE THUMBNAILS, NETFLIX/YOUTUBE STYLE */}
-        {!loadingVideos && previousVideos.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {previousVideos.map((campaign) => (
+        {/* Video Grid - ACTUAL VIDEO PLAYERS WITH METADATA */}
+        {!loadingVideos && filteredVideos.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredVideos.map((campaign) => (
               <div
                 key={campaign.id}
-                className="group relative rounded-xl overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-orange-200/50"
-                onClick={(e) => handlePlayInline(campaign.id, e)}
+                className="bg-white rounded-2xl overflow-hidden border-2 border-orange-200 hover:border-orange-500 shadow-md hover:shadow-xl hover:shadow-orange-200/50 transition-all duration-300"
               >
-                {/* LARGE 16:9 Video Thumbnail / Inline Player */}
-                <div className="relative aspect-video bg-black overflow-hidden rounded-xl border-2 border-orange-200 group-hover:border-orange-500 transition-all duration-300">
-                  {playingVideoId === campaign.id && campaign.videoUrl ? (
+                {/* Video Player Section */}
+                <div className="relative aspect-video bg-gray-900 rounded-t-xl overflow-hidden">
+                  {campaign.videoUrl ? (
                     <video
-                      src={campaign.videoUrl}
                       controls
-                      autoPlay
+                      poster={campaign.thumbnailUrl || undefined}
                       className="w-full h-full object-cover"
-                      onEnded={() => setPlayingVideoId(null)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                    >
+                      <source src={campaign.videoUrl} type="video/mp4" />
+                      Your browser doesn't support video playback.
+                    </video>
                   ) : (
-                    <>
-                      {campaign.thumbnailUrl ? (
-                        <img
-                          src={campaign.thumbnailUrl}
-                          alt={campaign.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-500 via-orange-600 to-rose-500">
-                          <VideoCameraIcon className="w-32 h-32 text-white opacity-40" />
-                        </div>
-                      )}
-                      {/* Play Button Overlay - White Circle with Orange-Rose Gradient Icon */}
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <div className="w-24 h-24 flex items-center justify-center rounded-full bg-white border-2 border-orange-500 shadow-2xl transform transition-transform duration-300 group-hover:scale-110">
-                          <svg className="w-12 h-12 ml-1" viewBox="0 0 24 24" fill="none">
-                            <defs>
-                              <linearGradient id={`playGradient-${campaign.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stopColor="#f97316" />
-                                <stop offset="50%" stopColor="#ea580c" />
-                                <stop offset="100%" stopColor="#f43f5e" />
-                              </linearGradient>
-                            </defs>
-                            <path d="M8 5.14v13.72L19 12 8 5.14z" fill={`url(#playGradient-${campaign.id})`} />
-                          </svg>
-                        </div>
-                      </div>
-                    </>
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-500 via-orange-600 to-rose-500">
+                      <VideoCameraIcon className="w-24 h-24 text-white opacity-40" />
+                    </div>
+                  )}
+
+                  {/* Status Badge */}
+                  {campaign.status === 'READY' && (
+                    <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-lg">
+                      ✓ READY
+                    </span>
+                  )}
+                  {campaign.status === 'FAILED' && (
+                    <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-gradient-to-r from-red-500 to-orange-600 text-white text-xs font-bold rounded-full border-2 border-white shadow-lg">
+                      ✗ FAILED
+                    </span>
                   )}
                 </div>
 
-                {/* Minimal Title - Single Line, Centered, Small */}
-                <div className="mt-3">
-                  <h3 className="text-sm font-semibold text-gray-900 truncate text-center">
+                {/* Video Info */}
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">
                     {campaign.name}
                   </h3>
+
+                  {/* Metadata */}
+                  <div className="flex items-center gap-3 text-sm text-gray-600 mb-4">
+                    <UsersIcon className="w-4 h-4 text-orange-500" />
+                    <span>{campaign.companyCount || 0} companies</span>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 mb-4">
+                    {campaign.videoUrl && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => handlePlayVideo(campaign, e)}
+                          className="flex-1 bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-white px-4 py-2.5 rounded-xl font-semibold border-2 border-black flex items-center justify-center gap-2 hover:shadow-lg transition-all"
+                        >
+                          <PlayIconSolid className="w-4 h-4" />
+                          Play
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => handleDownloadVideo(campaign, e)}
+                          className="p-2.5 bg-white border-2 border-orange-500 rounded-xl hover:bg-orange-50 transition-all"
+                          title="Download video"
+                        >
+                          <ArrowDownTrayIcon className="w-5 h-5 text-orange-600" />
+                        </button>
+                      </>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeleteVideo(campaign, e)}
+                      className="p-2.5 bg-white border-2 border-red-500 rounded-xl hover:bg-red-50 transition-all"
+                      title="Delete video"
+                    >
+                      <TrashIcon className="w-5 h-5 text-red-600" />
+                    </button>
+                  </div>
+
+                  {/* Created Date */}
+                  <div className="pt-4 border-t border-gray-200">
+                    <p className="text-xs text-gray-500">
+                      Created {new Date(campaign.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Empty Filter State */}
+        {!loadingVideos && previousVideos.length > 0 && filteredVideos.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-gray-600 text-lg">No videos found with status: <span className="font-bold text-orange-600">{activeFilter}</span></p>
           </div>
         )}
       </div>
