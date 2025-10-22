@@ -62,7 +62,9 @@ export function LoginPage() {
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
                 <div className="relative w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-500 rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-105 transition-transform">
-                  <span className="text-white font-black text-3xl">B</span>
+                  <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 3h10c3.866 0 7 3.134 7 7s-3.134 7-7 7H3V3zm2 2v5h8c2.761 0 5-2.239 5-5s-2.239-5-5-5H5v5zm0 7v5h8c2.761 0 5-2.239 5-5H5z"/>
+                  </svg>
                 </div>
               </div>
             </div>
@@ -226,8 +228,10 @@ export function LoginPage() {
               {/* Logo Section */}
               <div className="text-center mb-10">
                 <div className="inline-flex items-center gap-3 mb-6">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-                    <span className="text-white font-black text-2xl">B</span>
+                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30 shadow-lg">
+                    <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3 3h10c3.866 0 7 3.134 7 7s-3.134 7-7 7H3V3zm2 2v5h8c2.761 0 5-2.239 5-5s-2.239-5-5-5H5v5zm0 7v5h8c2.761 0 5-2.239 5-5H5z"/>
+                    </svg>
                   </div>
                   <span className="text-4xl font-black">BrandMonkz</span>
                 </div>
