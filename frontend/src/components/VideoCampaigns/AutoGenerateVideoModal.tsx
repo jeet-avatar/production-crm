@@ -152,6 +152,12 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
     try {
       const token = localStorage.getItem('crmToken');
+
+      console.log('🚀 Calling preview-script API...', {
+        url: `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/video-campaigns/preview-script`,
+        companyName: companyName.trim()
+      });
+
       const response = await fetch(
         `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/video-campaigns/preview-script`,
         {
@@ -167,17 +173,34 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
         }
       );
 
-      const data = await response.json();
+      console.log('📡 Response status:', response.status, response.statusText);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate script preview');
+      let data;
+      try {
+        data = await response.json();
+        console.log('📦 Response data:', data);
+      } catch (parseError) {
+        console.error('❌ Failed to parse response JSON:', parseError);
+        throw new Error('Server returned invalid response. Please try again.');
       }
 
+      if (!response.ok) {
+        const errorMsg = data.details || data.error || `Server error: ${response.status}`;
+        console.error('❌ API returned error:', errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (!data.preview) {
+        console.error('❌ No preview data in response:', data);
+        throw new Error('Server did not return script preview data');
+      }
+
+      console.log('✅ Script preview loaded successfully');
       setScriptPreview(data.preview);
       setStep(4); // Move to script preview step
     } catch (err: any) {
-      console.error('Script preview error:', err);
-      setError(err.message || 'Failed to generate script preview');
+      console.error('❌ Script preview error:', err);
+      setError(err.message || 'Failed to generate script preview. Please try again.');
     } finally {
       setIsLoadingPreview(false);
     }
