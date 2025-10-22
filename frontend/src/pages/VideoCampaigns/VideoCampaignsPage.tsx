@@ -29,6 +29,23 @@ export function VideoCampaignsPage() {
     loadPreviousVideos();
   }, []);
 
+  // Auto-refresh videos if any are generating
+  useEffect(() => {
+    const hasGenerating = previousVideos.some(
+      video => video.status === 'GENERATING' || video.status === 'DRAFT'
+    );
+
+    if (!hasGenerating) return;
+
+    // Poll every 5 seconds when videos are generating
+    const pollInterval = setInterval(() => {
+      console.log('🔄 Auto-refreshing video list (generating videos detected)');
+      loadPreviousVideos();
+    }, 5000);
+
+    return () => clearInterval(pollInterval);
+  }, [previousVideos]);
+
   const loadPreviousVideos = async () => {
     try {
       setLoadingVideos(true);
@@ -505,7 +522,10 @@ export function VideoCampaignsPage() {
         onClose={() => setShowAutoGenerate(false)}
         onSuccess={(campaignId) => {
           console.log('Auto-generated video campaign:', campaignId);
+          // Immediately reload videos to show the new generating campaign
           loadPreviousVideos();
+          // Switch to "Generating" filter to show the new video
+          setActiveFilter('Generating');
           setShowAutoGenerate(false);
         }}
       />
