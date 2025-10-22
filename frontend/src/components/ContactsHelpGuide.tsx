@@ -36,6 +36,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
           {/* Tab Buttons */}
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={() => setActiveTab('quickstart')}
               className={activeTab === 'quickstart'
                 ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg"
@@ -45,6 +46,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               Quick Start
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('features')}
               className={activeTab === 'features'
                 ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg"
@@ -54,6 +56,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               Features
             </button>
             <button
+              type="button"
               onClick={() => setActiveTab('tips')}
               className={activeTab === 'tips'
                 ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg"
@@ -75,118 +78,92 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               </p>
 
               {/* Step 1 */}
-              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
+              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-orange-200 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
-                  <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl font-bold text-black">1</span>
+                  <div className="bg-orange-100 rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl font-bold text-orange-600">1</span>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <PlusIcon className="w-6 h-6 text-orange-600" />
-                      <h3 className="text-2xl font-bold text-black">Add Your First Contact</h3>
+                      <h3 className="text-xl font-semibold text-gray-900">Add Your First Contact</h3>
                     </div>
-                    <p className="text-black/80 mb-4">
+                    <p className="text-gray-600 mb-4">
                       Click "Add Contact" to manually create a new contact in your CRM.
                     </p>
 
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircleIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-black">Click the "Add Contact" button</span>
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">Click the "Add Contact" button</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircleIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-black">Enter required fields: First Name, Last Name, Email</span>
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">Enter required fields: First Name, Last Name, Email</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircleIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-black">Add optional details: Phone, Role, Company</span>
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">Add optional details: Phone, Role, Company</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircleIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-black">Select contact status and add tags</span>
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">Select contact status and add tags</span>
                       </div>
                     </div>
-
-                    <button className="w-full mt-4 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all">
-                      Add Contact
-                    </button>
                   </div>
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
+              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-green-200 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
-                  <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl font-bold text-black">2</span>
+                  <div className="bg-green-100 rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl font-bold text-green-600">2</span>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <DocumentArrowUpIcon className="w-6 h-6 text-orange-600" />
-                      <h3 className="text-2xl font-bold text-black">Import Contacts in Bulk</h3>
+                      <DocumentArrowUpIcon className="w-6 h-6 text-green-600" />
+                      <h3 className="text-xl font-semibold text-gray-900">Import Contacts in Bulk</h3>
                     </div>
-                    <p className="text-black/80 mb-4">
+                    <p className="text-gray-600 mb-4">
                       Upload CSV files to import hundreds of contacts at once with AI mapping.
                     </p>
 
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircleIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-black">Click "AI CSV Import" button</span>
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">Click "Import CSV" button</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircleIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-black">Upload your CSV file with contacts</span>
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">Upload your CSV file with contacts</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center flex-shrink-0">
-                          <CheckCircleIcon className="w-3 h-3 text-white" />
-                        </div>
-                        <span className="text-black">AI automatically maps columns</span>
+                        <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <span className="text-gray-700">AI automatically maps columns to fields</span>
                       </div>
                     </div>
-
-                    <button className="w-full mt-4 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all">
-                      Import CSV
-                    </button>
                   </div>
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
+              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-blue-200 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
-                  <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl font-bold text-black">3</span>
+                  <div className="bg-blue-100 rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
+                    <span className="text-2xl font-bold text-blue-600">3</span>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <SparklesIcon className="w-6 h-6 text-orange-600" />
-                      <h3 className="text-2xl font-bold text-black">AI Enrich Contact Data</h3>
+                      <SparklesIcon className="w-6 h-6 text-blue-600" />
+                      <h3 className="text-xl font-semibold text-gray-900">Discover & Enrich Leads</h3>
                     </div>
-                    <p className="text-black/80 mb-4">
-                      Let AI automatically find and enrich contact information with company details, social profiles, and more.
+                    <p className="text-gray-600">
+                      Use AI to automatically discover companies, find decision-makers, and enrich contact data with company details and social profiles.
                     </p>
-
-                    <button className="w-full mt-4 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all">
-                      Enrich Contacts
-                    </button>
                   </div>
                 </div>
               </div>
@@ -200,28 +177,28 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
-                  <MagnifyingGlassIcon className="w-8 h-8 text-orange-600 mb-3" />
-                  <h4 className="text-xl font-bold text-black mb-2">Smart Search</h4>
-                  <p className="text-black/80">Find contacts instantly by name, email, company, or tags</p>
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                  <MagnifyingGlassIcon className="w-8 h-8 text-gray-700 mb-3" />
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Smart Search</h4>
+                  <p className="text-gray-600">Find contacts instantly by name, email, company, or tags</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
-                  <TagIcon className="w-8 h-8 text-rose-600 mb-3" />
-                  <h4 className="text-xl font-bold text-black mb-2">Tags & Segments</h4>
-                  <p className="text-black/80">Organize contacts with custom tags and create targeted segments</p>
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                  <TagIcon className="w-8 h-8 text-purple-600 mb-3" />
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Tags & Segments</h4>
+                  <p className="text-gray-600">Organize contacts with custom tags and create targeted segments</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
-                  <SparklesIcon className="w-8 h-8 text-amber-600 mb-3" />
-                  <h4 className="text-xl font-bold text-black mb-2">AI Enrichment</h4>
-                  <p className="text-black/80">Automatically discover company info, social profiles, and more</p>
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                  <SparklesIcon className="w-8 h-8 text-blue-600 mb-3" />
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">AI Enrichment</h4>
+                  <p className="text-gray-600">Automatically discover company info, social profiles, and more</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all">
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
                   <DocumentArrowUpIcon className="w-8 h-8 text-green-600 mb-3" />
-                  <h4 className="text-xl font-bold text-black mb-2">Bulk Import</h4>
-                  <p className="text-black/80">Import thousands of contacts from CSV with AI column mapping</p>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">Bulk Import</h4>
+                  <p className="text-gray-600">Import thousands of contacts from CSV with AI column mapping</p>
                 </div>
               </div>
             </>
@@ -270,10 +247,11 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 border-t-2 border-black p-6">
+        <div className="bg-gray-50 border-t border-gray-200 p-6">
           <button
+            type="button"
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
           >
             Got it, thanks!
           </button>

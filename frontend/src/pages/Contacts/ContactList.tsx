@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon, QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 // Commented out unused imports
 // import { SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { contactsApi, companiesApi } from '../../services/api';
@@ -143,29 +143,32 @@ export function ContactList() {
     setCurrentPage(1); // Reset to page 1 when filters change
   }, [searchTerm, statusFilter]);
 
-  // Auto-expand removed - contacts now start in collapsed view by default
-  // Users can manually expand companies by clicking the chevron button
-  // useEffect(() => {
-  //   if (contacts.length > 0) {
-  //     const groupedContacts = contacts.reduce((acc, contact) => {
-  //       const companyName = contact.company?.name || 'No Company';
-  //       if (!acc[companyName]) {
-  //         acc[companyName] = [];
-  //       }
-  //       acc[companyName].push(contact);
-  //       return acc;
-  //     }, {} as GroupedContacts);
+  // Smart auto-expand: Auto-expand companies with 2-5 contacts for better UX
+  // 1 contact: No expand button (single contact shows inline)
+  // 2-5 contacts: Auto-expand (sweet spot - not too many, increases discoverability)
+  // 6+ contacts: Keep collapsed (reduces visual clutter)
+  useEffect(() => {
+    if (contacts.length > 0) {
+      const groupedContacts = contacts.reduce((acc, contact) => {
+        const companyName = contact.company?.name || 'No Company';
+        if (!acc[companyName]) {
+          acc[companyName] = [];
+        }
+        acc[companyName].push(contact);
+        return acc;
+      }, {} as GroupedContacts);
 
-  //     const companiesToExpand = new Set<string>();
-  //     Object.entries(groupedContacts).forEach(([companyName, companyContacts]) => {
-  //       if (companyContacts.length > 1) {
-  //         companiesToExpand.add(companyName);
-  //       }
-  //     });
+      const companiesToExpand = new Set<string>();
+      Object.entries(groupedContacts).forEach(([companyName, companyContacts]) => {
+        // Auto-expand companies with 2-5 contacts for optimal UX
+        if (companyContacts.length >= 2 && companyContacts.length <= 5) {
+          companiesToExpand.add(companyName);
+        }
+      });
 
-  //     setExpandedCompanies(companiesToExpand);
-  //   }
-  // }, [contacts]);
+      setExpandedCompanies(companiesToExpand);
+    }
+  }, [contacts]);
 
   const handleDeleteContact = async (id: string) => {
     if (!confirm('Are you sure you want to delete this contact?')) return;
@@ -242,53 +245,42 @@ export function ContactList() {
       <div className="apple-container">
         {/* Header */}
         <div className="flex justify-between items-center p-8 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-          <div>
-            <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-4 mb-2">
               <h1 className="apple-heading-1">Contacts</h1>
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="p-3 rounded-2xl bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-black hover:from-orange-600 hover:via-orange-700 hover:to-rose-600 transition-all shadow-xl hover:shadow-2xl"
-                title="Show Help Guide"
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg border border-gray-300 transition-all hover:border-gray-400"
+                title="View help and quick start guide"
               >
-                <QuestionMarkCircleIcon className="h-5 w-5" />
+                <QuestionMarkCircleIcon className="h-4 w-4" />
+                <span>Help</span>
               </button>
             </div>
-            <p className="apple-caption mt-1">Manage your customer relationships • Click ? for help</p>
+            <p className="apple-caption">Manage your customer relationships and grow your business</p>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Commented out import buttons - uncomment when modals are needed */}
-            {/* <button
-              onClick={() => setShowApolloImport(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-orange-500 rounded-xl font-bold hover:from-orange-700 hover:to-rose-700 transition-all shadow-md active:scale-95"
-            >
-              <SparklesIcon className="h-5 w-5" />
-              <span>Import from Apollo</span>
-            </button> */}
+          <div className="flex items-center gap-2">
+            {/* Secondary actions - white buttons with colored icons */}
             <button
               onClick={() => setShowLeadDiscovery(true)}
-              className={`bg-gradient-to-r ${gradients.semantic.info.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-all shadow-sm hover:shadow hover:border-gray-400"
             >
-              <SparklesIcon className="h-5 w-5" />
+              <SparklesIcon className="h-5 w-5 text-blue-600" />
               <span>Discover Leads</span>
             </button>
             <button
               onClick={() => setShowAICSVImport(true)}
-              className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-all shadow-sm hover:shadow hover:border-gray-400"
             >
-              <DocumentArrowUpIcon className="h-5 w-5" />
-              <span>AI CSV Import</span>
+              <DocumentArrowUpIcon className="h-5 w-5 text-green-600" />
+              <span>Import CSV</span>
             </button>
-            {/* <button
-              onClick={() => setShowRemoveDuplicates(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-black border-2 border-red-500 rounded-xl font-semibold hover:from-red-700 hover:to-orange-700 transition-all shadow-md active:scale-95"
-            >
-              <ExclamationTriangleIcon className="h-5 w-5" />
-              <span>Remove Duplicates</span>
-            </button> */}
+
+            {/* Primary action - gradient button stands out */}
             <button
               onClick={handleAddContact}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <PlusIcon className="h-5 w-5" />
               <span>Add Contact</span>
@@ -358,25 +350,52 @@ export function ContactList() {
               {contacts.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="table-cell text-center py-16">
-                    <UserIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Uploaded</h3>
-                    <p className="text-sm text-gray-600 mb-6">Get started by adding contacts or importing from CSV</p>
-                    <div className="flex items-center justify-center gap-3">
-                      <button
-                        onClick={handleAddContact}
-                        className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
-                      >
-                        <PlusIcon className="h-5 w-5" />
-                        Add Contact
-                      </button>
-                      <button
-                        onClick={() => setShowAICSVImport(true)}
-                        className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
-                      >
-                        <DocumentArrowUpIcon className="h-5 w-5" />
-                        Import CSV
-                      </button>
-                    </div>
+                    {searchTerm || statusFilter ? (
+                      // No results found state (when filters are active)
+                      <>
+                        <MagnifyingGlassIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No contacts found</h3>
+                        <p className="text-sm text-gray-600 mb-6">
+                          Try adjusting your search or filters to find what you're looking for
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchTerm('');
+                            setStatusFilter('');
+                          }}
+                          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 mx-auto`}
+                        >
+                          <XMarkIcon className="h-5 w-5" />
+                          Clear Filters
+                        </button>
+                      </>
+                    ) : (
+                      // No data uploaded state (when no filters are active)
+                      <>
+                        <UserIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Uploaded</h3>
+                        <p className="text-sm text-gray-600 mb-6">Get started by adding contacts or importing from CSV</p>
+                        <div className="flex items-center justify-center gap-3">
+                          <button
+                            type="button"
+                            onClick={handleAddContact}
+                            className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+                          >
+                            <PlusIcon className="h-5 w-5" />
+                            Add Contact
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setShowAICSVImport(true)}
+                            className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+                          >
+                            <DocumentArrowUpIcon className="h-5 w-5" />
+                            Import CSV
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </td>
                 </tr>
               ) : (
