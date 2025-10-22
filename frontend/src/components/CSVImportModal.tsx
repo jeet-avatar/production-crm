@@ -343,8 +343,12 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
-                  <p className="text-4xl font-bold text-green-600">{importResults.imported || 0}</p>
+                  <p className="text-4xl font-bold text-green-600">{importResults.contactsImported || importResults.imported || 0}</p>
                   <p className="text-sm font-medium text-gray-600 mt-2">Contacts Imported</p>
+                </div>
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center">
+                  <p className="text-4xl font-bold text-blue-600">{importResults.companiesCreated || 0}</p>
+                  <p className="text-sm font-medium text-gray-600 mt-2">Companies Created</p>
                 </div>
                 <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 text-center">
                   <p className="text-4xl font-bold text-orange-600">{importResults.totalProcessed || 0}</p>
@@ -354,11 +358,31 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                   <p className="text-4xl font-bold text-yellow-600">{importResults.duplicates || 0}</p>
                   <p className="text-sm font-medium text-gray-600 mt-2">Duplicates Skipped</p>
                 </div>
-                <div className="bg-rose-50 border-2 border-rose-200 rounded-lg p-6 text-center">
-                  <p className="text-4xl font-bold text-rose-600">{(importResults.errors?.length || 0)}</p>
-                  <p className="text-sm font-medium text-gray-600 mt-2">Errors</p>
-                </div>
               </div>
+
+              {/* Show detected CSV types */}
+              {importResults.detectedTypes && importResults.detectedTypes.length > 0 && (
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-800 mb-2">📊 Detected Data Types</h4>
+                  <div className="space-y-1">
+                    {importResults.detectedTypes.map((type: string, idx: number) => (
+                      <p key={idx} className="text-sm text-blue-700">• {type}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Show errors if any */}
+              {importResults.errors > 0 && importResults.errorsList && (
+                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-red-800 mb-2">❌ Errors Encountered</h4>
+                  <div className="max-h-32 overflow-y-auto space-y-1">
+                    {importResults.errorsList.map((error: string, idx: number) => (
+                      <p key={idx} className="text-sm text-red-600">• {error}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {importResults.duplicates > 0 && importResults.duplicatesList && (
                 <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
