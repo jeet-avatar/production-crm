@@ -807,10 +807,10 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                   <span className="text-sm font-bold text-gray-600">Company:</span>
                   <p className="text-gray-900">{companyName}</p>
                 </div>
-                {detectedIndustry && (
+                {scriptPreview?.industry && (
                   <div>
                     <span className="text-sm font-bold text-gray-600">Detected Industry:</span>
-                    <p className="text-gray-900">{detectedIndustry}</p>
+                    <p className="text-gray-900">{scriptPreview.industry}</p>
                   </div>
                 )}
                 <div>
