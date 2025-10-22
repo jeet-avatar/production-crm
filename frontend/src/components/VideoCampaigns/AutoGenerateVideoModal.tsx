@@ -505,7 +505,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
           )}
 
           {step === 3 && (
-            <div className="space-y-4">
+            <div className="space-y-4 relative">
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                 <p className="text-sm text-blue-900">
                   <span className="font-bold">Company:</span> {companyName} •
@@ -513,7 +513,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                 </p>
               </div>
 
-              <div>
+              <div className="relative">
                 <h3 className="text-lg font-bold text-gray-900 mb-3">Choose a Video Template</h3>
 
                 {loadingTemplates ? (
@@ -525,7 +525,8 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                     No templates available
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto p-2">
+                  <div className="relative">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[400px] overflow-y-auto p-2">
                     {templates.map((template) => (
                       <div
                         key={template.id}
@@ -569,6 +570,42 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                         )}
                       </div>
                     ))}
+                    </div>
+
+                    {/* Loading Overlay - Appears when generating script preview */}
+                    {isLoadingPreview && (
+                      <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center z-10 animate-fadeIn">
+                        <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-8 shadow-2xl border-2 border-purple-200 max-w-md mx-auto">
+                          <div className="flex flex-col items-center">
+                            {/* Animated AI Icon */}
+                            <div className="relative mb-6">
+                              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur-xl opacity-50 animate-pulse"></div>
+                              <div className="relative w-20 h-20 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center animate-bounce">
+                                <SparklesIcon className="w-10 h-10 text-white" />
+                              </div>
+                            </div>
+
+                            {/* Progress Text */}
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+                              Crafting Your Script
+                            </h3>
+                            <p className="text-sm text-gray-600 text-center mb-4">
+                              AI is analyzing your company and creating the perfect message
+                            </p>
+
+                            {/* Animated Progress Bar */}
+                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-3">
+                              <div className="h-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-full animate-progress"></div>
+                            </div>
+
+                            {/* Fun Loading Messages */}
+                            <div className="text-xs text-purple-600 font-medium animate-pulse">
+                              This usually takes 5-10 seconds...
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
