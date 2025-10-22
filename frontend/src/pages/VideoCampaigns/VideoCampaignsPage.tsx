@@ -522,10 +522,10 @@ export function VideoCampaignsPage() {
         onClose={() => setShowAutoGenerate(false)}
         onSuccess={(campaignId) => {
           console.log('Auto-generated video campaign:', campaignId);
-          // Immediately reload videos to show the new generating campaign
+          // Immediately reload videos to show the new ready campaign
           loadPreviousVideos();
-          // Switch to "Generating" filter to show the new video
-          setActiveFilter('Generating');
+          // Switch to "All" filter to show all videos including the new one
+          setActiveFilter('All');
           setShowAutoGenerate(false);
         }}
       />
