@@ -292,11 +292,16 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
               <div className="border-2 border-purple-200 rounded-xl p-4 max-h-[500px] overflow-y-auto">
                 <VoiceSelector
-                  selectedVoiceId={voiceId}
-                  customVoiceUrl={customVoiceUrl}
-                  onVoiceSelect={(id, url) => {
-                    setVoiceId(id || '');
-                    setCustomVoiceUrl(url || '');
+                  value={voiceId || customVoiceUrl}
+                  onChange={(voice, isCustom) => {
+                    console.log('Voice selected:', voice, 'isCustom:', isCustom);
+                    if (isCustom) {
+                      setCustomVoiceUrl(voice);
+                      setVoiceId('');
+                    } else {
+                      setVoiceId(voice);
+                      setCustomVoiceUrl('');
+                    }
                     setError(null);
                   }}
                 />
