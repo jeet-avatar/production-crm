@@ -21,7 +21,7 @@ export function VideoCampaignsPage() {
   const [showCreateNew, setShowCreateNew] = useState(false);
   const [selectedVideoForModal, setSelectedVideoForModal] = useState<VideoCampaign | null>(null);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<'All' | 'Ready' | 'Failed'>('All');
+  const [activeFilter, setActiveFilter] = useState<'All' | 'Generating' | 'Ready' | 'Failed'>('All');
   const [showAutoGenerate, setShowAutoGenerate] = useState(false);
 
   // Load previous videos on mount
@@ -32,14 +32,21 @@ export function VideoCampaignsPage() {
   const loadPreviousVideos = async () => {
     try {
       setLoadingVideos(true);
-      // Load both READY and DRAFT campaigns
-      const [readyResponse, draftResponse] = await Promise.all([
+      // Load all campaign statuses: DRAFT, GENERATING, READY, FAILED
+      const [readyResponse, draftResponse, generatingResponse, failedResponse] = await Promise.all([
         videoService.getCampaigns({ status: 'READY', limit: 20 }),
         videoService.getCampaigns({ status: 'DRAFT', limit: 10 }),
+        videoService.getCampaigns({ status: 'GENERATING', limit: 10 }),
+        videoService.getCampaigns({ status: 'FAILED', limit: 5 }),
       ]);
 
-      // Combine and sort: drafts first, then ready campaigns
-      const allCampaigns = [...draftResponse.campaigns, ...readyResponse.campaigns];
+      // Combine and sort: generating first (most recent), then drafts, then ready, then failed
+      const allCampaigns = [
+        ...generatingResponse.campaigns,
+        ...draftResponse.campaigns,
+        ...readyResponse.campaigns,
+        ...failedResponse.campaigns,
+      ];
       setPreviousVideos(allCampaigns);
     } catch (error) {
       console.error('Failed to load previous videos:', error);
@@ -131,6 +138,7 @@ export function VideoCampaignsPage() {
   const filteredVideos = previousVideos.filter(video => {
     if (activeFilter === 'All') return true;
     if (activeFilter === 'Ready') return video.status === 'READY';
+    if (activeFilter === 'Generating') return video.status === 'GENERATING' || video.status === 'DRAFT';
     if (activeFilter === 'Failed') return video.status === 'FAILED';
     return true;
   });
@@ -293,7 +301,7 @@ export function VideoCampaignsPage() {
           {/* Filter Tabs */}
           {previousVideos.length > 0 && (
             <div className="flex gap-3">
-              {(['All', 'Ready', 'Failed'] as const).map(filter => (
+              {(['All', 'Generating', 'Ready', 'Failed'] as const).map(filter => (
                 <button
                   key={filter}
                   type="button"
@@ -371,6 +379,16 @@ export function VideoCampaignsPage() {
                   {campaign.status === 'READY' && (
                     <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-lg">
                       ✓ READY
+                    </span>
+                  )}
+                  {campaign.status === 'GENERATING' && (
+                    <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-lg animate-pulse">
+                      ⚡ GENERATING
+                    </span>
+                  )}
+                  {campaign.status === 'DRAFT' && (
+                    <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-gradient-to-r from-yellow-500 to-amber-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-lg">
+                      📝 DRAFT
                     </span>
                   )}
                   {campaign.status === 'FAILED' && (
