@@ -28,20 +28,20 @@ export const BRANDING = {
 
     // Right side branding panel
     brandingPanel: {
-      heading: 'Manage Your Business Like a Pro',
-      description: 'Streamline your customer relationships, boost sales, and grow your business with our powerful CRM platform.',
+      heading: 'AI-Powered Marketing CRM',
+      description: 'Transform your sales and marketing with intelligent automation, AI-generated video campaigns, and powerful lead enrichment.',
       features: [
         {
-          title: '360° Customer View',
-          description: 'Track every interaction and deal in one place'
+          title: 'Auto-Generate Video Campaigns',
+          description: 'AI creates personalized marketing videos from just your company name - with voice, script, and visuals'
         },
         {
-          title: 'AI-Powered Video Campaigns',
-          description: 'Create professional marketing videos in minutes'
+          title: 'AI Lead Enrichment & Discovery',
+          description: 'Automatically discover companies, enrich contact data, and find decision-makers with AI agents'
         },
         {
-          title: 'Seamless Integration',
-          description: 'Connect with Google, Outlook, and more'
+          title: 'Smart Campaign Analytics',
+          description: 'Track email opens, clicks, and conversions with real-time analytics and AI-powered insights'
         }
       ]
     }
