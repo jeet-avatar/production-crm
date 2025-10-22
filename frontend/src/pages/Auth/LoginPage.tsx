@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { BRANDING } from '../../config/branding';
 
 export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -59,21 +60,58 @@ export function LoginPage() {
           {/* Logo and Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative w-16 h-16 bg-gradient-to-br from-orange-500 to-rose-500 rounded-2xl flex items-center justify-center shadow-xl transform group-hover:scale-105 transition-transform">
-                  <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3 3h10c3.866 0 7 3.134 7 7s-3.134 7-7 7H3V3zm2 2v5h8c2.761 0 5-2.239 5-5s-2.239-5-5-5H5v5zm0 7v5h8c2.761 0 5-2.239 5-5H5z"/>
-                  </svg>
-                </div>
-              </div>
+              <svg
+                width="180"
+                height="50"
+                viewBox="0 0 180 50"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Orange Circular Icon */}
+                <circle cx="25" cy="25" r="20" fill="#FF6B35" />
+
+                {/* "B" inside circle */}
+                <text
+                  x="25"
+                  y="25"
+                  fontSize="24"
+                  fontWeight="bold"
+                  fill="white"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif"
+                >
+                  B
+                </text>
+
+                {/* "BrandMonkz" text */}
+                <text
+                  x="55"
+                  y="25"
+                  fontSize="20"
+                  fontWeight="700"
+                  fill="#1C1C1E"
+                  dominantBaseline="central"
+                  fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif"
+                >
+                  Brand
+                </text>
+                <text
+                  x="112"
+                  y="25"
+                  fontSize="20"
+                  fontWeight="700"
+                  fill="#FF6B35"
+                  dominantBaseline="central"
+                  fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif"
+                >
+                  Monkz
+                </text>
+              </svg>
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-2">
-              BrandMonkz
-            </h1>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Welcome back</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">{BRANDING.login.welcomeTitle}</h2>
             <p className="text-base text-gray-600">
-              Sign in to your account to continue
+              {BRANDING.login.welcomeSubtitle}
             </p>
           </div>
 
@@ -90,7 +128,7 @@ export function LoginPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              {BRANDING.login.googleButtonText}
             </button>
 
             {/* Divider */}
@@ -100,7 +138,7 @@ export function LoginPage() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-3 bg-white text-sm font-semibold text-gray-500 uppercase tracking-wider">
-                  Or continue with email
+                  {BRANDING.login.orDividerText}
                 </span>
               </div>
             </div>
@@ -122,7 +160,7 @@ export function LoginPage() {
               {/* Email Input */}
               <div>
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email address
+                  {BRANDING.login.emailLabel}
                 </label>
                 <input
                   id="email"
@@ -133,14 +171,14 @@ export function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-900 placeholder-gray-400"
-                  placeholder="Enter your email"
+                  placeholder={BRANDING.login.emailPlaceholder}
                 />
               </div>
 
               {/* Password Input */}
               <div>
                 <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Password
+                  {BRANDING.login.passwordLabel}
                 </label>
                 <div className="relative">
                   <input
@@ -152,7 +190,7 @@ export function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-900 placeholder-gray-400"
-                    placeholder="Enter your password"
+                    placeholder={BRANDING.login.passwordPlaceholder}
                   />
                   <button
                     type="button"
@@ -178,13 +216,13 @@ export function LoginPage() {
                     className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded cursor-pointer"
                   />
                   <span className="ml-2 block text-sm font-medium text-gray-700">
-                    Remember me
+                    {BRANDING.login.rememberMeText}
                   </span>
                 </label>
 
                 <div className="text-sm">
                   <a href="/forgot-password" className="font-medium text-orange-600 hover:text-rose-600 transition-colors">
-                    Forgot password?
+                    {BRANDING.login.forgotPasswordText}
                   </a>
                 </div>
               </div>
@@ -201,19 +239,19 @@ export function LoginPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Signing in...
+                    {BRANDING.login.signingInButtonText}
                   </span>
                 ) : (
-                  'Sign in'
+                  BRANDING.login.signInButtonText
                 )}
               </button>
             </form>
 
             {/* Sign Up Link */}
             <p className="mt-6 text-center text-base font-medium text-gray-700">
-              Don't have an account?{' '}
+              {BRANDING.login.noAccountText}{' '}
               <a href="/signup" className="text-orange-600 hover:text-rose-600 font-bold transition-colors">
-                Sign up for free
+                {BRANDING.login.signUpLinkText}
               </a>
             </p>
           </div>
@@ -228,62 +266,83 @@ export function LoginPage() {
               {/* Logo Section */}
               <div className="text-center mb-10">
                 <div className="inline-flex items-center gap-3 mb-6">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30 shadow-lg">
-                    <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M3 3h10c3.866 0 7 3.134 7 7s-3.134 7-7 7H3V3zm2 2v5h8c2.761 0 5-2.239 5-5s-2.239-5-5-5H5v5zm0 7v5h8c2.761 0 5-2.239 5-5H5z"/>
-                    </svg>
-                  </div>
-                  <span className="text-4xl font-black">BrandMonkz</span>
+                  <svg
+                    width="180"
+                    height="50"
+                    viewBox="0 0 180 50"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="drop-shadow-lg"
+                  >
+                    {/* Orange Circular Icon */}
+                    <circle cx="25" cy="25" r="20" fill="white" fillOpacity="0.95" />
+
+                    {/* "B" inside circle */}
+                    <text
+                      x="25"
+                      y="25"
+                      fontSize="24"
+                      fontWeight="bold"
+                      fill="#FF6B35"
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif"
+                    >
+                      B
+                    </text>
+
+                    {/* "BrandMonkz" text */}
+                    <text
+                      x="55"
+                      y="25"
+                      fontSize="20"
+                      fontWeight="700"
+                      fill="white"
+                      dominantBaseline="central"
+                      fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif"
+                    >
+                      Brand
+                    </text>
+                    <text
+                      x="112"
+                      y="25"
+                      fontSize="20"
+                      fontWeight="700"
+                      fill="white"
+                      fillOpacity="0.9"
+                      dominantBaseline="central"
+                      fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif"
+                    >
+                      Monkz
+                    </text>
+                  </svg>
                 </div>
                 <p className="text-xl text-orange-100">
-                  Your AI-Powered Marketing CRM
+                  {BRANDING.tagline}
                 </p>
               </div>
 
               <h1 className="text-3xl font-bold tracking-tight mb-6">
-                Manage Your Business Like a Pro
+                {BRANDING.login.brandingPanel.heading}
               </h1>
               <p className="text-lg text-orange-100 mb-8">
-                Streamline your customer relationships, boost sales, and grow your business with our powerful CRM platform.
+                {BRANDING.login.brandingPanel.description}
               </p>
 
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                {BRANDING.login.brandingPanel.features.map((feature, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-semibold">{feature.title}</p>
+                      <p className="text-sm text-orange-100">{feature.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold">360° Customer View</p>
-                    <p className="text-sm text-orange-100">Track every interaction and deal in one place</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-semibold">AI-Powered Video Campaigns</p>
-                    <p className="text-sm text-orange-100">Create professional marketing videos in minutes</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-semibold">Seamless Integration</p>
-                    <p className="text-sm text-orange-100">Connect with Google, Outlook, and more</p>
-                  </div>
-                </div>
-              </div>
+                ))}</div>
             </div>
 
             {/* Decorative Elements */}
