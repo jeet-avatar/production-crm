@@ -134,10 +134,10 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl border-4 border-black w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-[40px] shadow-2xl border-4 border-black w-full max-w-4xl max-h-[90vh] flex flex-col">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-3xl">
+        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-[40px]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <DocumentArrowUpIcon className="w-8 h-8 text-black" />
@@ -190,7 +190,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-4 border-dashed border-orange-300 rounded-2xl p-12 text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all"
+                className="border-4 border-dashed border-orange-300 rounded-[32px] p-12 text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all"
               >
                 <DocumentArrowUpIcon className="w-16 h-16 text-orange-500 mx-auto mb-4" />
                 <p className="text-lg font-semibold text-gray-700 mb-2">Click to browse files</p>
