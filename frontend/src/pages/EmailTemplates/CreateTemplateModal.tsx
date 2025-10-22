@@ -20,6 +20,8 @@ interface CreateTemplateModalProps {
 export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplate }: CreateTemplateModalProps) {
   const { gradients } = useTheme();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showAIDialog, setShowAIDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -27,6 +29,11 @@ export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplat
     htmlContent: '',
     textContent: '',
     isActive: true,
+  });
+  const [aiPrompt, setAiPrompt] = useState({
+    description: '',
+    tone: 'professional',
+    purpose: '',
   });
 
   // Variable suggestions
@@ -76,6 +83,59 @@ export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplat
       ...formData,
       htmlContent: formData.htmlContent + variableText,
     });
+  };
+
+  const handleGenerateWithAI = async () => {
+    if (!aiPrompt.description.trim()) {
+      setError('Please describe what kind of email template you want');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/email-templates/generate-ai`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            description: aiPrompt.description,
+            tone: aiPrompt.tone,
+            purpose: aiPrompt.purpose,
+            includeVariables: commonVariables,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate template');
+      }
+
+      // Fill form with AI-generated template
+      setFormData({
+        name: data.template.name,
+        subject: data.template.subject,
+        htmlContent: data.template.htmlContent,
+        textContent: data.template.textContent,
+        isActive: true,
+      });
+
+      setShowAIDialog(false);
+      setAiPrompt({ description: '', tone: 'professional', purpose: '' });
+    } catch (err: any) {
+      console.error('AI generation error:', err);
+      setError(err.message || 'Failed to generate template with AI');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -149,7 +209,7 @@ export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplat
         {/* Header */}
         <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-black rounded-t-xl`}>
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1">
               <h2 className="text-2xl font-bold">
                 {editingTemplate ? 'Edit Template' : 'Create Email Template'}
               </h2>
@@ -157,14 +217,26 @@ export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplat
                 Design reusable email templates with personalization
               </p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-all"
-              aria-label="Close modal"
-            >
-              <XMarkIcon className="w-6 h-6" />
-            </button>
+            <div className="flex items-center gap-3">
+              {!editingTemplate && (
+                <button
+                  type="button"
+                  onClick={() => setShowAIDialog(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-orange-600 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md"
+                >
+                  <SparklesIcon className="w-5 h-5" />
+                  AI Design
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-all"
+                aria-label="Close modal"
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -319,6 +391,109 @@ export function CreateTemplateModal({ isOpen, onClose, onSuccess, editingTemplat
             </div>
           </form>
         </div>
+
+        {/* AI Generation Dialog */}
+        {showAIDialog && (
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-2xl">
+            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full m-8 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <SparklesIcon className="w-8 h-8 text-orange-600" />
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-800">AI Template Designer</h3>
+                    <p className="text-sm text-gray-600">Describe your email and let AI create it for you</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowAIDialog(false)}
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-lg transition-all"
+                  aria-label="Close AI dialog"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    What kind of email do you want to create? *
+                  </label>
+                  <textarea
+                    value={aiPrompt.description}
+                    onChange={(e) => setAiPrompt({ ...aiPrompt, description: e.target.value })}
+                    placeholder="e.g., A professional welcome email for new customers with a warm greeting, company introduction, and next steps"
+                    rows={4}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+
+                {/* Tone */}
+                <div>
+                  <label htmlFor="ai-tone" className="block text-sm font-bold text-gray-700 mb-2">
+                    Tone
+                  </label>
+                  <select
+                    id="ai-tone"
+                    value={aiPrompt.tone}
+                    onChange={(e) => setAiPrompt({ ...aiPrompt, tone: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+                  >
+                    <option value="professional">Professional</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="formal">Formal</option>
+                    <option value="casual">Casual</option>
+                    <option value="enthusiastic">Enthusiastic</option>
+                  </select>
+                </div>
+
+                {/* Purpose */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Purpose (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={aiPrompt.purpose}
+                    onChange={(e) => setAiPrompt({ ...aiPrompt, purpose: e.target.value })}
+                    placeholder="e.g., Welcome new customers, Follow up on demo, Announce new feature"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setShowAIDialog(false)}
+                    className="px-6 py-2.5 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleGenerateWithAI}
+                    disabled={isGenerating || !aiPrompt.description.trim()}
+                    className={`px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2`}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <SparklesIcon className="w-5 h-5" />
+                        Generate Template
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
