@@ -381,11 +381,24 @@ export function VideoCampaignsPage() {
                       ✓ READY
                     </span>
                   )}
-                  {campaign.status === 'GENERATING' && (
-                    <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-lg animate-pulse">
-                      ⚡ GENERATING
-                    </span>
-                  )}
+                  {campaign.status === 'GENERATING' && (() => {
+                    const elapsed = Date.now() - new Date(campaign.createdAt).getTime();
+                    const estimatedTotal = 180000; // 3 minutes in ms
+                    const progress = Math.min(Math.floor((elapsed / estimatedTotal) * 100), 99);
+                    const remaining = Math.max(0, Math.ceil((estimatedTotal - elapsed) / 60000));
+
+                    return (
+                      <div className="absolute top-4 right-4 z-10 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-lg border-2 border-white shadow-lg p-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="animate-pulse">⚡</span>
+                          <span>GENERATING</span>
+                        </div>
+                        <div className="text-xs font-normal">
+                          {progress}% • {remaining}min left
+                        </div>
+                      </div>
+                    );
+                  })()}
                   {campaign.status === 'DRAFT' && (
                     <span className="absolute top-4 right-4 z-10 px-3 py-1 bg-gradient-to-r from-yellow-500 to-amber-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-lg">
                       📝 DRAFT
