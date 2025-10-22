@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon, VideoCameraIcon, TrashIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon, VideoCameraIcon, TrashIcon, UsersIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { PlayIcon as PlayIconSolid } from '@heroicons/react/24/solid';
 import { AICampaignGenerator } from '../../components/AICampaignGenerator';
 import { CreateEmailTemplateModal } from '../../components/VideoCampaigns/CreateEmailTemplateModal';
+import { AutoGenerateVideoModal } from '../../components/VideoCampaigns/AutoGenerateVideoModal';
 import { useNavigate } from 'react-router-dom';
 import { videoService, VideoCampaign } from '../../services/videoService';
 
@@ -21,6 +22,7 @@ export function VideoCampaignsPage() {
   const [selectedVideoForModal, setSelectedVideoForModal] = useState<VideoCampaign | null>(null);
   const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'All' | 'Ready' | 'Failed'>('All');
+  const [showAutoGenerate, setShowAutoGenerate] = useState(false);
 
   // Load previous videos on mount
   useEffect(() => {
@@ -268,14 +270,24 @@ export function VideoCampaignsPage() {
                 {previousVideos.length} video{previousVideos.length !== 1 ? 's' : ''} in library
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowCreateNew(true)}
-              className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-black rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-orange-200/50 transition-all shadow-lg"
-            >
-              <VideoCameraIcon className="w-6 h-6" />
-              Create New Video
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAutoGenerate(true)}
+                className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-purple-200/50 transition-all shadow-lg"
+              >
+                <SparklesIcon className="w-6 h-6" />
+                AI Auto-Generate
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCreateNew(true)}
+                className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 text-black rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-orange-200/50 transition-all shadow-lg"
+              >
+                <VideoCameraIcon className="w-6 h-6" />
+                Create New Video
+              </button>
+            </div>
           </div>
 
           {/* Filter Tabs */}
@@ -455,6 +467,17 @@ export function VideoCampaignsPage() {
           onSuccess={handleEmailTemplateCreated}
         />
       )}
+
+      {/* Auto-Generate Video Modal */}
+      <AutoGenerateVideoModal
+        isOpen={showAutoGenerate}
+        onClose={() => setShowAutoGenerate(false)}
+        onSuccess={(campaignId) => {
+          console.log('Auto-generated video campaign:', campaignId);
+          loadPreviousVideos();
+          setShowAutoGenerate(false);
+        }}
+      />
     </div>
   );
 }
