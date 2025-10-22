@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Search, Loader, ExternalLink, CheckCircle } from 'lucide-react';
+import { XMarkIcon, MagnifyingGlassIcon, ArrowPathIcon, ArrowTopRightOnSquareIcon, CheckCircleIcon, UserGroupIcon } from '@heroicons/react/24/outline';
 
 interface LeadData {
   LeadName: string;
@@ -136,23 +136,30 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-3xl shadow-2xl border-4 border-black w-full max-w-4xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b-2 border-gray-200">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">
-              Discover {mode === 'individual' ? 'Contacts' : 'Companies'}
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Find potential leads and import them directly to your CRM
-            </p>
+        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-3xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <UserGroupIcon className="w-8 h-8 text-black" />
+              <div>
+                <h2 className="text-3xl font-bold text-black">
+                  Discover {mode === 'individual' ? 'Contacts' : 'Companies'}
+                </h2>
+                <p className="text-black/90 mt-1">
+                  Find potential leads and import them directly to your CRM
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-black hover:bg-white/20 rounded-lg p-2 transition-colors"
+              aria-label="Close modal"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <X className="w-6 h-6 text-gray-500" />
-          </button>
         </div>
 
         {/* Search Form */}
@@ -225,12 +232,12 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
               >
                 {loading ? (
                   <>
-                    <Loader className="w-4 h-4 animate-spin" />
+                    <ArrowPathIcon className="w-4 h-4 animate-spin" />
                     Searching...
                   </>
                 ) : (
                   <>
-                    <Search className="w-4 h-4" />
+                    <MagnifyingGlassIcon className="w-4 h-4" />
                     Search Leads
                   </>
                 )}
@@ -265,7 +272,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-center">
-                <Loader className="w-12 h-12 animate-spin text-orange-600 mx-auto mb-4" />
+                <ArrowPathIcon className="w-12 h-12 animate-spin text-orange-600 mx-auto mb-4" />
                 <p className="text-gray-600 font-medium">Searching for leads...</p>
               </div>
             </div>
@@ -348,7 +355,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                           rel="noopener noreferrer"
                           className="text-xs text-orange-600 hover:text-orange-800 flex items-center gap-1"
                         >
-                          LinkedIn <ExternalLink className="w-3 h-3" />
+                          LinkedIn <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                         </a>
                       )}
                       {lead.website && (
@@ -358,7 +365,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                           rel="noopener noreferrer"
                           className="text-xs text-orange-600 hover:text-orange-800 flex items-center gap-1"
                         >
-                          Website <ExternalLink className="w-3 h-3" />
+                          Website <ArrowTopRightOnSquareIcon className="w-3 h-3" />
                         </a>
                       )}
                     </div>
@@ -377,12 +384,12 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
                     >
                       {isImported ? (
                         <>
-                          <CheckCircle className="w-4 h-4" />
+                          <CheckCircleIcon className="w-4 h-4" />
                           Imported
                         </>
                       ) : isImporting ? (
                         <>
-                          <Loader className="w-4 h-4 animate-spin" />
+                          <ArrowPathIcon className="w-4 h-4 animate-spin" />
                           Importing...
                         </>
                       ) : (
@@ -395,7 +402,7 @@ export function LeadDiscoveryModal({ mode, onClose, onImport }: LeadDiscoveryMod
             </div>
           ) : (
             <div className="text-center py-12">
-              <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <MagnifyingGlassIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
               <p className="text-gray-500 font-medium">
                 No leads found yet. Enter search criteria above to discover leads.
               </p>

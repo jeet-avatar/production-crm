@@ -208,21 +208,22 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-3xl shadow-2xl border-4 border-black max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header with gradient */}
-        <div className="relative bg-gradient-to-r from-orange-600 to-rose-600 px-8 py-6">
+        <div className="relative bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-2xl font-bold text-black">
                 {contact ? 'Edit Contact' : 'Add New Contact'}
               </h2>
-              <p className="text-orange-100 text-sm mt-1">
+              <p className="text-black/90 text-sm mt-1">
                 {contact ? 'Update contact information' : 'Create a new contact in your CRM'}
               </p>
             </div>
             <button
+              type="button"
               onClick={onClose}
-              className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
+              className="p-2 text-black/80 hover:text-black hover:bg-white/20 rounded-lg transition-all duration-200"
               title="Close"
             >
               <XMarkIcon className="h-6 w-6" />
