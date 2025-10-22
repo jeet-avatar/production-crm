@@ -134,29 +134,29 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-green-300 w-full max-w-5xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-3xl shadow-2xl border-4 border-black w-full max-w-4xl max-h-[90vh] flex flex-col">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-6 border-b-4 border-green-700">
+        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-3xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <DocumentArrowUpIcon className="w-8 h-8 text-white" />
-              <h2 className="text-3xl font-bold text-white">AI CSV Import</h2>
+              <DocumentArrowUpIcon className="w-8 h-8 text-black" />
+              <h2 className="text-3xl font-bold text-black">AI CSV Import</h2>
             </div>
             <button
               type="button"
               onClick={handleClose}
-              className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+              className="text-black hover:bg-white/20 rounded-lg p-2 transition-colors"
               aria-label="Close modal"
             >
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
-          <p className="text-green-100 mt-2">Import contacts with automatic field mapping and AI enrichment</p>
+          <p className="text-black/90 mt-2">Import contacts with automatic field mapping and AI enrichment</p>
         </div>
 
         {/* Step Indicators */}
-        <div className="bg-green-50 px-8 py-4 border-b-2 border-green-200">
+        <div className="bg-orange-50 px-8 py-4 border-b-2 border-orange-200">
           <div className="flex items-center justify-center gap-4">
             <StepIndicator number={1} label="Upload" active={currentStep >= 1} />
             <ProgressBar completed={currentStep >= 2} />
@@ -190,9 +190,9 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-4 border-dashed border-green-300 rounded-2xl p-12 text-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-all"
+                className="border-4 border-dashed border-orange-300 rounded-2xl p-12 text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all"
               >
-                <DocumentArrowUpIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                <DocumentArrowUpIcon className="w-16 h-16 text-orange-500 mx-auto mb-4" />
                 <p className="text-lg font-semibold text-gray-700 mb-2">Click to browse files</p>
                 <p className="text-sm text-gray-500">or drag and drop CSV files here</p>
                 <p className="text-xs text-gray-400 mt-2">Maximum 10 files, 10MB each</p>
@@ -212,9 +212,9 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 <div className="space-y-3">
                   <h4 className="font-semibold text-gray-800">Selected Files ({selectedFiles.length})</h4>
                   {selectedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                    <div key={index} className="flex items-center justify-between bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <DocumentArrowUpIcon className="w-6 h-6 text-green-600" />
+                        <DocumentArrowUpIcon className="w-6 h-6 text-orange-600" />
                         <div>
                           <p className="font-medium text-gray-800">{file.name}</p>
                           <p className="text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</p>
@@ -250,7 +250,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
           {currentStep === 2 && previewData && (
             <div className="space-y-6">
               <div className="text-center">
-                <EyeIcon className="w-16 h-16 text-green-600 mx-auto mb-4" />
+                <EyeIcon className="w-16 h-16 text-orange-600 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Preview Data</h3>
                 <p className="text-gray-600">Found {previewData.totalRows} rows in CSV file</p>
               </div>
@@ -324,8 +324,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
           {currentStep === 4 && (
             <div className="flex flex-col items-center justify-center py-16">
               <div className="relative">
-                <div className="w-20 h-20 border-8 border-green-200 border-t-green-600 rounded-full animate-spin" />
-                <DocumentArrowUpIcon className="w-10 h-10 text-green-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                <div className="w-20 h-20 border-8 border-orange-200 border-t-orange-600 rounded-full animate-spin" />
+                <DocumentArrowUpIcon className="w-10 h-10 text-orange-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mt-8 mb-2">Importing Contacts...</h3>
               <p className="text-gray-600">Please wait while we process your CSV files</p>
@@ -336,14 +336,14 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
           {currentStep === 5 && importResults && (
             <div className="space-y-6">
               <div className="text-center">
-                <CheckCircleIcon className="w-20 h-20 text-green-600 mx-auto mb-4" />
+                <CheckCircleIcon className="w-20 h-20 text-orange-600 mx-auto mb-4" />
                 <h3 className="text-3xl font-bold text-gray-800 mb-2">Import Complete!</h3>
                 <p className="text-gray-600">Your contacts have been successfully imported</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
-                  <p className="text-4xl font-bold text-green-600">{importResults.contactsImported || importResults.imported || 0}</p>
+                <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 text-center">
+                  <p className="text-4xl font-bold text-orange-600">{importResults.contactsImported || importResults.imported || 0}</p>
                   <p className="text-sm font-medium text-gray-600 mt-2">Contacts Imported</p>
                 </div>
                 <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center">
@@ -419,7 +419,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-8 py-6 border-t-4 border-gray-200">
+        <div className="bg-gray-50 px-8 py-6 border-t border-gray-200 rounded-b-3xl">
           <div className="flex items-center justify-between">
             {currentStep === 2 && (
               <button
@@ -445,7 +445,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 type="button"
                 onClick={handleNext}
                 disabled={selectedFiles.length === 0 || loading}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-500 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-black rounded-xl font-semibold hover:shadow-xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next: Preview Data
               </button>
@@ -460,7 +460,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                     handleImport();
                   }}
                   disabled={loading}
-                  className="px-6 py-3 bg-white text-green-700 border-2 border-green-500 rounded-xl font-semibold hover:bg-green-50 transition-all shadow-md disabled:opacity-50"
+                  className="px-6 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-md disabled:opacity-50"
                 >
                   Import Without Enrichment
                 </button>
@@ -471,7 +471,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                     handleImport();
                   }}
                   disabled={loading}
-                  className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-rose-500 rounded-xl font-semibold hover:from-orange-700 hover:to-rose-700 transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-black rounded-xl font-semibold hover:shadow-xl transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
                 >
                   <SparklesIcon className="w-5 h-5" />
                   Enrich & Import
@@ -483,7 +483,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
               <button
                 type="button"
                 onClick={handleComplete}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white border-2 border-green-500 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-md active:scale-95"
+                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-black rounded-xl font-semibold hover:shadow-xl transition-all shadow-md active:scale-95"
               >
                 View Contacts
               </button>
@@ -498,8 +498,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 // Helper Components
 function StepIndicator({ number, label, active }: { number: number; label: string; active: boolean }) {
   return (
-    <div className={`flex items-center gap-2 ${active ? 'text-green-600' : 'text-gray-400'}`}>
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${active ? 'bg-green-600 text-white' : 'bg-gray-200'}`}>
+    <div className={`flex items-center gap-2 ${active ? 'text-orange-600' : 'text-gray-400'}`}>
+      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${active ? 'bg-orange-600 text-white' : 'bg-gray-200'}`}>
         {number}
       </div>
       <span className="font-medium text-sm hidden sm:inline">{label}</span>
@@ -510,7 +510,7 @@ function StepIndicator({ number, label, active }: { number: number; label: strin
 function ProgressBar({ completed }: { completed: boolean }) {
   return (
     <div className="flex-1 h-1 bg-gray-200 rounded max-w-[60px]">
-      <div className={`h-full bg-green-600 rounded transition-all duration-500 ${completed ? 'w-full' : 'w-0'}`} />
+      <div className={`h-full bg-orange-600 rounded transition-all duration-500 ${completed ? 'w-full' : 'w-0'}`} />
     </div>
   );
 }
