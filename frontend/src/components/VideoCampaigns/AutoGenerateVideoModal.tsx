@@ -17,9 +17,19 @@ interface VideoTemplate {
   duration?: number;
 }
 
+interface ScriptPreview {
+  companyName: string;
+  industry: string;
+  targetAudience: string;
+  narrationScript: string;
+  keyMessage: string;
+  overlays: Array<{ text: string; timing: string }>;
+  callToAction: string;
+}
+
 export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGenerateVideoModalProps) {
   // Step 1: Company Info
-  const [step, setStep] = useState(1); // 1: Company Info, 2: Voice Selection, 3: Template Selection, 4: Generating
+  const [step, setStep] = useState(1); // 1: Company Info, 2: Voice, 3: Template, 4: Script Preview, 5: Generating
   const [companyName, setCompanyName] = useState('');
   const [additionalContext, setAdditionalContext] = useState('');
 
@@ -31,9 +41,13 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
   const [templates, setTemplates] = useState<VideoTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
-  const [detectedIndustry, setDetectedIndustry] = useState<string>('');
 
-  // Generation
+  // Step 4: Script Preview & Edit
+  const [scriptPreview, setScriptPreview] = useState<ScriptPreview | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+
+  // Step 5: Generation
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generationDetails, setGenerationDetails] = useState<any>(null);
@@ -48,9 +62,9 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
     }
   }, [step]);
 
-  // Poll for progress when in step 4
+  // Poll for progress when in step 5
   useEffect(() => {
-    if (step !== 4 || !campaignId) return;
+    if (step !== 5 || !campaignId) return;
 
     const pollProgress = async () => {
       try {
@@ -132,6 +146,82 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
     }
   };
 
+  const generateScriptPreview = async () => {
+    setIsLoadingPreview(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/video-campaigns/preview-script`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            companyName: companyName.trim(),
+            additionalContext: additionalContext.trim() || undefined,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate script preview');
+      }
+
+      setScriptPreview(data.preview);
+      setStep(4); // Move to script preview step
+    } catch (err: any) {
+      console.error('Script preview error:', err);
+      setError(err.message || 'Failed to generate script preview');
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
+
+  const regenerateScript = async () => {
+    if (!scriptPreview) return;
+
+    setIsRegenerating(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/video-campaigns/regenerate-script`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            companyName: companyName.trim(),
+            additionalContext: additionalContext.trim() || undefined,
+            currentScript: scriptPreview.narrationScript,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to regenerate script');
+      }
+
+      setScriptPreview(data.preview);
+    } catch (err: any) {
+      console.error('Regenerate error:', err);
+      setError(err.message || 'Failed to regenerate script');
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   const handleNext = () => {
     // Validation
     if (step === 1 && !companyName.trim()) {
@@ -151,10 +241,21 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
     setError(null);
 
+    // After step 3 (template selection), generate script preview
+    if (step === 3) {
+      generateScriptPreview();
+      return;
+    }
+
+    // After step 4 (script preview), generate video
+    if (step === 4) {
+      handleGenerate();
+      return;
+    }
+
+    // For steps 1-2, just move to next step
     if (step < 3) {
       setStep(step + 1);
-    } else {
-      handleGenerate();
     }
   };
 
@@ -186,6 +287,15 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
             voiceId: voiceId || undefined,
             customVoiceUrl: customVoiceUrl || undefined,
             templateId: selectedTemplateId,
+            // Pass script preview data (edited by user)
+            ...(scriptPreview && {
+              narrationScript: scriptPreview.narrationScript,
+              industry: scriptPreview.industry,
+              targetAudience: scriptPreview.targetAudience,
+              keyMessage: scriptPreview.keyMessage,
+              overlays: scriptPreview.overlays,
+              callToAction: scriptPreview.callToAction,
+            }),
           }),
         }
       );
@@ -197,11 +307,10 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
       }
 
       setGenerationDetails(data.campaign);
-      setDetectedIndustry(data.campaign.industry || '');
       setCampaignId(data.campaign.id);
       setProgressPercent(0);
       setEstimatedTimeLeft(3);
-      setStep(4); // Move to success screen
+      setStep(5); // Move to generation progress screen (step 5 now)
 
       // Don't auto-close - let progress polling handle it
     } catch (err: any) {
@@ -219,10 +328,12 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
     setCustomVoiceUrl('');
     setSelectedTemplateId(null);
     setTemplates([]);
+    setScriptPreview(null);
+    setIsLoadingPreview(false);
+    setIsRegenerating(false);
     setError(null);
     setIsGenerating(false);
     setGenerationDetails(null);
-    setDetectedIndustry('');
     setCampaignId('');
     setProgressPercent(0);
     setEstimatedTimeLeft(3);
@@ -247,7 +358,8 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                   {step === 1 && "Tell us about your company"}
                   {step === 2 && "Choose a voice for narration"}
                   {step === 3 && "Select a video template"}
-                  {step === 4 && "Generating your video..."}
+                  {step === 4 && "Review and edit your script"}
+                  {step === 5 && "Generating your video..."}
                 </p>
               </div>
             </div>
@@ -262,9 +374,9 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
           </div>
 
           {/* Progress Steps */}
-          {step < 4 && (
+          {step < 5 && (
             <div className="mt-6 flex items-center justify-center gap-2">
-              {[1, 2, 3].map((s) => (
+              {[1, 2, 3, 4].map((s) => (
                 <div key={s} className="flex items-center">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                     s < step ? 'bg-green-500 text-white' :
@@ -273,7 +385,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                   }`}>
                     {s < step ? '✓' : s}
                   </div>
-                  {s < 3 && (
+                  {s < 4 && (
                     <div className={`w-16 h-1 mx-1 rounded transition-all ${
                       s < step ? 'bg-green-500' : 'bg-purple-400'
                     }`} />
@@ -440,7 +552,149 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
             </div>
           )}
 
-          {step === 4 && generationDetails && (
+          {/* Step 4: Script Preview & Edit */}
+          {step === 4 && (
+            <div className="space-y-6">
+              {isLoadingPreview ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mb-4"></div>
+                  <p className="text-lg font-semibold text-gray-700">Generating your script...</p>
+                  <p className="text-sm text-gray-500 mt-2">AI is analyzing your company and creating the perfect message</p>
+                </div>
+              ) : scriptPreview ? (
+                <>
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-4 border border-purple-200">
+                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      📝 Review Your Video Script
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Edit the script below, adjust overlays, or regenerate for a different version
+                    </p>
+                  </div>
+
+                  {/* Industry & Audience */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white border-2 border-gray-200 rounded-lg p-3">
+                      <span className="text-xs font-bold text-gray-500 uppercase">Detected Industry</span>
+                      <p className="text-sm font-semibold text-gray-900 mt-1">{scriptPreview.industry}</p>
+                    </div>
+                    <div className="bg-white border-2 border-gray-200 rounded-lg p-3">
+                      <span className="text-xs font-bold text-gray-500 uppercase">Target Audience</span>
+                      <p className="text-sm font-semibold text-gray-900 mt-1">{scriptPreview.targetAudience}</p>
+                    </div>
+                  </div>
+
+                  {/* Script Editor */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-sm font-bold text-gray-700">
+                        Video Script (Narration)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={regenerateScript}
+                        disabled={isRegenerating}
+                        className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1 disabled:opacity-50"
+                      >
+                        {isRegenerating ? (
+                          <>
+                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            Regenerating...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Regenerate Script
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <textarea
+                      value={scriptPreview.narrationScript}
+                      onChange={(e) => setScriptPreview({ ...scriptPreview, narrationScript: e.target.value })}
+                      rows={8}
+                      className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-sm leading-relaxed"
+                      placeholder="Edit your video script..."
+                    />
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-xs text-gray-500">
+                        {scriptPreview.narrationScript.split(' ').filter(w => w).length} words •
+                        ~{Math.ceil(scriptPreview.narrationScript.split(' ').filter(w => w).length / 150)} min speaking time
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Text Overlays */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Text Overlays (will appear on video)
+                    </label>
+                    <div className="space-y-2">
+                      {scriptPreview.overlays.map((overlay, index) => (
+                        <div key={index} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                          <span className="text-xs font-bold text-gray-500 bg-white px-2 py-1 rounded border border-gray-300">
+                            {overlay.timing}
+                          </span>
+                          <input
+                            type="text"
+                            value={overlay.text}
+                            onChange={(e) => {
+                              const updatedOverlays = [...scriptPreview.overlays];
+                              updatedOverlays[index] = { ...overlay, text: e.target.value };
+                              setScriptPreview({ ...scriptPreview, overlays: updatedOverlays });
+                            }}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                            placeholder={`Overlay ${index + 1}`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Key Message & CTA */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">
+                        Key Message
+                      </label>
+                      <input
+                        type="text"
+                        value={scriptPreview.keyMessage}
+                        onChange={(e) => setScriptPreview({ ...scriptPreview, keyMessage: e.target.value })}
+                        className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                        placeholder="Main value proposition"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">
+                        Call to Action
+                      </label>
+                      <input
+                        type="text"
+                        value={scriptPreview.callToAction}
+                        onChange={(e) => setScriptPreview({ ...scriptPreview, callToAction: e.target.value })}
+                        className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                        placeholder="Visit us at..."
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  Failed to load script preview
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 5: Generation Progress */}
+          {step === 5 && generationDetails && (
             <div className="space-y-4">
               <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-xl p-6 text-center">
                 <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
@@ -520,13 +774,13 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
         </div>
 
         {/* Footer */}
-        {step < 4 && (
+        {step < 5 && (
           <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-between gap-3">
             <button
               type="button"
               onClick={step === 1 ? handleClose : handleBack}
               className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
-              disabled={isGenerating}
+              disabled={isGenerating || isLoadingPreview || isRegenerating}
             >
               {step === 1 ? (
                 <>
@@ -544,21 +798,42 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
             <button
               type="button"
               onClick={handleNext}
-              disabled={isGenerating || (step === 1 && !companyName.trim()) || (step === 2 && !voiceId && !customVoiceUrl) || (step === 3 && !selectedTemplateId)}
+              disabled={
+                isGenerating ||
+                isLoadingPreview ||
+                isRegenerating ||
+                (step === 1 && !companyName.trim()) ||
+                (step === 2 && !voiceId && !customVoiceUrl) ||
+                (step === 3 && !selectedTemplateId) ||
+                (step === 4 && !scriptPreview)
+              }
               className="px-8 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
             >
-              {isGenerating ? (
+              {isLoadingPreview ? (
                 <>
                   <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Generating...
+                  Generating Script...
                 </>
-              ) : step === 3 ? (
+              ) : isGenerating ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Creating Video...
+                </>
+              ) : step === 4 ? (
                 <>
                   <SparklesIcon className="w-5 h-5" />
                   Generate Video
+                </>
+              ) : step === 3 ? (
+                <>
+                  Preview Script
+                  <ChevronRightIcon className="w-5 h-5" />
                 </>
               ) : (
                 <>
