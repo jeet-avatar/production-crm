@@ -208,9 +208,9 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl border-4 border-black max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-[40px] shadow-2xl border-4 border-black max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header with gradient */}
-        <div className="relative bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-3xl">
+        <div className="relative bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-[40px]">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-black">

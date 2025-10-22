@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon, QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon, QuestionMarkCircleIcon, XMarkIcon, LightBulbIcon } from '@heroicons/react/24/outline';
 // Commented out unused imports
 // import { SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { contactsApi, companiesApi } from '../../services/api';
@@ -64,6 +64,9 @@ export function ContactList() {
   const [showAICSVImport, setShowAICSVImport] = useState(false);
   const [showLeadDiscovery, setShowLeadDiscovery] = useState(false);
   const [showHelpGuide, setShowHelpGuide] = useState(false);
+  const [hasSeenHelpGuide, setHasSeenHelpGuide] = useState(
+    localStorage.getItem('contactsHelpSeen') === 'true'
+  );
   // Commented out modal state variables - uncomment when needed
   // const [showApolloImport, setShowApolloImport] = useState(false);
   // const [showRemoveDuplicates, setShowRemoveDuplicates] = useState(false);
@@ -260,6 +263,50 @@ export function ContactList() {
             </div>
             <p className="apple-caption">Manage your customer relationships and grow your business</p>
           </div>
+
+          {/* First-time user help banner */}
+          {!hasSeenHelpGuide && (
+            <div className="bg-gradient-to-r from-orange-50 via-rose-50 to-orange-50 border-4 border-orange-300 rounded-2xl p-6 mb-6 flex items-center justify-between shadow-lg animate-in slide-in-from-top duration-500">
+              <div className="flex items-center gap-4">
+                <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl p-4 border-2 border-black">
+                  <LightBulbIcon className="w-8 h-8 text-black" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                    👋 Welcome to Contacts!
+                  </h3>
+                  <p className="text-gray-700">
+                    Learn how to add contacts, import CSV files, discover leads, and build your customer base
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowHelpGuide(true);
+                    localStorage.setItem('contactsHelpSeen', 'true');
+                    setHasSeenHelpGuide(true);
+                  }}
+                  className="bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-8 py-3 rounded-xl border-2 border-black hover:scale-105 transition-transform shadow-lg whitespace-nowrap"
+                >
+                  🚀 Show Me How
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem('contactsHelpSeen', 'true');
+                    setHasSeenHelpGuide(true);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  aria-label="Dismiss help banner"
+                >
+                  <XMarkIcon className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             {/* Secondary actions - white buttons with colored icons */}
             <button
@@ -695,6 +742,31 @@ export function ContactList() {
       {showHelpGuide && (
         <ContactsHelpGuide onClose={() => setShowHelpGuide(false)} />
       )}
+
+      {/* Floating Help Button - Always Visible */}
+      <button
+        type="button"
+        onClick={() => setShowHelpGuide(true)}
+        className="fixed bottom-8 right-8 z-40 group animate-in fade-in slide-in-from-bottom-4 duration-500"
+        title="Need help? Click for the quick start guide"
+        aria-label="Open help guide"
+      >
+        {/* Pulse ring for attention */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-500 to-rose-500 animate-ping opacity-30"></div>
+
+        {/* Main button */}
+        <div className="relative bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 rounded-full p-4 shadow-2xl border-4 border-black hover:scale-110 hover:rotate-12 transition-all duration-300">
+          <QuestionMarkCircleIcon className="w-8 h-8 text-black" />
+        </div>
+
+        {/* Tooltip */}
+        <div className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+          <div className="bg-black text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-xl">
+            Need Help? 👋
+            <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-black"></div>
+          </div>
+        </div>
+      </button>
     </div>
   );
 }

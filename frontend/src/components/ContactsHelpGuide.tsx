@@ -19,10 +19,10 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+      <div className="bg-white border-4 border-black rounded-[40px] shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-3xl">
+        <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-[40px]">
           <div className="flex items-center gap-3 mb-3">
             <UserGroupIcon className="w-12 h-12 text-black" />
             <h2 className="text-4xl font-bold text-black">
@@ -78,7 +78,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               </p>
 
               {/* Step 1 */}
-              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-orange-200 hover:shadow-md transition-all">
+              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-orange-200 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
                   <div className="bg-orange-100 rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-orange-600">1</span>
@@ -116,7 +116,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               </div>
 
               {/* Step 2 */}
-              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-green-200 hover:shadow-md transition-all">
+              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-green-200 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
                   <div className="bg-green-100 rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-green-600">2</span>
@@ -150,7 +150,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               </div>
 
               {/* Step 3 */}
-              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-blue-200 hover:shadow-md transition-all">
+              <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-blue-200 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
                   <div className="bg-blue-100 rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-blue-600">3</span>
@@ -177,25 +177,25 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
                   <MagnifyingGlassIcon className="w-8 h-8 text-gray-700 mb-3" />
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Smart Search</h4>
                   <p className="text-gray-600">Find contacts instantly by name, email, company, or tags</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
                   <TagIcon className="w-8 h-8 text-purple-600 mb-3" />
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Tags & Segments</h4>
                   <p className="text-gray-600">Organize contacts with custom tags and create targeted segments</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
                   <SparklesIcon className="w-8 h-8 text-blue-600 mb-3" />
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">AI Enrichment</h4>
                   <p className="text-gray-600">Automatically discover company info, social profiles, and more</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-gray-300 hover:shadow-md transition-all">
                   <DocumentArrowUpIcon className="w-8 h-8 text-green-600 mb-3" />
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">Bulk Import</h4>
                   <p className="text-gray-600">Import thousands of contacts from CSV with AI column mapping</p>
