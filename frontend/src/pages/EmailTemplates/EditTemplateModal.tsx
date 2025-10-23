@@ -27,6 +27,10 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [videos, setVideos] = useState<VideoCampaign[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showDraftRecovery, setShowDraftRecovery] = useState(false);
+
+  const getDraftKey = () => `emailTemplate_draft_${template.id}`;
 
   // Template customization fields
   const [formData, setFormData] = useState({
@@ -75,11 +79,53 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
     privacyPolicyUrl: 'https://criticalriver.com/privacy',
   });
 
+  // Check for existing draft when modal opens
   useEffect(() => {
     if (isOpen) {
       fetchVideoCampaigns();
+
+      // Check for saved draft
+      const draftKey = getDraftKey();
+      const savedDraft = localStorage.getItem(draftKey);
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft);
+          const draftAge = Date.now() - draft.timestamp;
+          // Only show recovery if draft is less than 24 hours old
+          if (draftAge < 24 * 60 * 60 * 1000) {
+            setShowDraftRecovery(true);
+          } else {
+            // Clear old draft
+            localStorage.removeItem(draftKey);
+          }
+        } catch (error) {
+          console.error('Error loading draft:', error);
+        }
+      }
     }
   }, [isOpen]);
+
+  // Auto-save to localStorage every 5 seconds
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const autoSaveInterval = setInterval(() => {
+      const draftKey = getDraftKey();
+      const draftData = {
+        formData,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(draftKey, JSON.stringify(draftData));
+      console.log('Auto-saved draft at', new Date().toLocaleTimeString());
+    }, 5000); // Auto-save every 5 seconds
+
+    return () => clearInterval(autoSaveInterval);
+  }, [isOpen, formData]);
+
+  // Track unsaved changes
+  useEffect(() => {
+    setHasUnsavedChanges(true);
+  }, [formData]);
 
   const fetchVideoCampaigns = async () => {
     try {
@@ -130,6 +176,11 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
       };
 
       await onSave(updatedTemplate);
+
+      // Clear draft after successful save
+      localStorage.removeItem(getDraftKey());
+      setHasUnsavedChanges(false);
+
       onClose();
     } catch (error) {
       console.error('Error saving template:', error);
@@ -139,9 +190,38 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
     }
   };
 
+  const handleClose = () => {
+    if (hasUnsavedChanges) {
+      const confirmClose = window.confirm(
+        'You have unsaved changes. Are you sure you want to close? Your changes have been auto-saved and can be recovered when you reopen this template.'
+      );
+      if (!confirmClose) return;
+    }
+    onClose();
+  };
+
+  const handleRecoverDraft = () => {
+    const draftKey = getDraftKey();
+    const savedDraft = localStorage.getItem(draftKey);
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        setFormData(draft.formData);
+        setShowDraftRecovery(false);
+      } catch (error) {
+        console.error('Error recovering draft:', error);
+      }
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    localStorage.removeItem(getDraftKey());
+    setShowDraftRecovery(false);
+  };
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" className="relative z-50" onClose={handleClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -174,11 +254,58 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
                     </Dialog.Title>
                     <button
                       type="button"
-                      onClick={onClose}
+                      onClick={handleClose}
                       className="rounded-xl bg-white bg-opacity-20 p-2 text-black hover:bg-opacity-30"
+                      aria-label="Close"
                     >
                       <XMarkIcon className="h-6 w-6" />
                     </button>
+                  </div>
+                </div>
+
+                {/* Draft Recovery Banner */}
+                {showDraftRecovery && (
+                  <div className="bg-blue-50 border-b-2 border-blue-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-blue-500 text-white rounded-full p-2">
+                          <DocumentTextIcon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-blue-900">Draft Found!</h4>
+                          <p className="text-sm text-blue-700">We found unsaved changes from your previous editing session.</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleRecoverDraft}
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600"
+                        >
+                          Recover Draft
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDiscardDraft}
+                          className="px-4 py-2 bg-white border-2 border-blue-300 text-blue-700 rounded-lg font-bold hover:bg-blue-50"
+                        >
+                          Discard
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Auto-save Indicator */}
+                <div className="bg-gray-100 border-b border-gray-200 px-6 py-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-600">
+                      {hasUnsavedChanges ? (
+                        <span className="text-orange-600 font-medium">● Auto-saving every 5 seconds...</span>
+                      ) : (
+                        <span className="text-green-600 font-medium">✓ All changes saved</span>
+                      )}
+                    </p>
                   </div>
                 </div>
 
