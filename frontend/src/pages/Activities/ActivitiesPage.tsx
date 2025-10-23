@@ -820,7 +820,7 @@ export function ActivitiesPage() {
       {/* Modals */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col border-4 border-black">
             {modalType === 'create' && (
               <>
                 <div className="p-6 border-b border-gray-200">
@@ -882,55 +882,42 @@ export function ActivitiesPage() {
 
             {modalType === 'email' && selectedActivity && (
               <>
-                {/* Header with gradient */}
-                <div className="bg-gradient-to-r from-orange-500 to-rose-500 p-6 border-b-4 border-black">
+                {/* Compact Header */}
+                <div className="bg-gradient-to-r from-orange-500 to-rose-500 px-5 py-4 flex items-center justify-between border-b-2 border-black">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-black bg-opacity-20 flex items-center justify-center">
-                      <EnvelopeIcon className="h-7 w-7 text-black" />
-                    </div>
+                    <EnvelopeIcon className="h-6 w-6 text-black" />
                     <div>
-                      <h2 className="text-2xl font-bold text-black">Send Email</h2>
-                      <p className="text-sm text-black text-opacity-80 mt-0.5">
-                        {selectedActivity.contact ? `To: ${selectedActivity.contact.firstName} ${selectedActivity.contact.lastName}` : 'Compose new email'}
-                      </p>
+                      <h2 className="text-lg font-bold text-black">Send Email</h2>
+                      {selectedActivity.contact && (
+                        <p className="text-xs text-black text-opacity-80">
+                          {selectedActivity.contact.firstName} {selectedActivity.contact.lastName}
+                        </p>
+                      )}
                     </div>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="text-black hover:bg-black hover:bg-opacity-10 rounded-lg p-1.5 transition-colors"
+                    aria-label="Close email modal"
+                  >
+                    <XCircleIcon className="h-6 w-6" />
+                  </button>
                 </div>
 
-                <div className="p-6 space-y-5 bg-gray-50">
-                  {/* Email Template Selector - Premium Look */}
-                  <div className="bg-gradient-to-br from-orange-50 via-rose-50 to-amber-50 border-4 border-orange-300 rounded-2xl p-5 shadow-lg">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-orange-500 to-rose-500 flex items-center justify-center shadow-md">
-                        <SparklesIcon className="h-6 w-6 text-black" />
+                {/* Scrollable Content */}
+                <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+                  {/* Email Template Selector - Compact */}
+                  {emailTemplates.length > 0 && (
+                    <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <SparklesIcon className="h-4 w-4 text-orange-600" />
+                        <label className="text-xs font-bold text-gray-900">Quick Template</label>
                       </div>
-                      <div className="flex-1">
-                        <label className="block text-base font-bold text-gray-900">
-                          Email Templates
-                        </label>
-                        <p className="text-xs text-gray-600 mt-0.5">Choose a pre-designed template to get started faster</p>
-                      </div>
-                    </div>
-                    {isLoadingTemplates ? (
-                      <div className="flex items-center gap-2 text-orange-700">
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-orange-600 border-t-transparent"></div>
-                        <p className="text-sm font-medium">Loading templates...</p>
-                      </div>
-                    ) : emailTemplates.length === 0 ? (
-                      <div className="bg-white border-2 border-orange-200 rounded-xl p-4">
-                        <p className="text-sm text-gray-700">
-                          No templates available yet.{' '}
-                          <a href="/email-templates" className="text-orange-600 hover:text-orange-700 font-bold underline">
-                            Create your first template
-                          </a>
-                          {' '}to save time on future emails.
-                        </p>
-                      </div>
-                    ) : (
                       <select
                         value={selectedTemplateId}
                         onChange={(e) => handleTemplateSelect(e.target.value)}
-                        className="w-full px-4 py-3 border-3 border-orange-300 rounded-xl focus:ring-4 focus:ring-orange-200 focus:border-orange-500 bg-white text-gray-900 font-medium shadow-sm hover:border-orange-400 transition-all"
+                        className="w-full px-3 py-2 border-2 border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 bg-white text-sm font-medium"
                         aria-label="Select email template"
                       >
                         <option value="">-- Select a template --</option>
@@ -940,115 +927,115 @@ export function ActivitiesPage() {
                           </option>
                         ))}
                       </select>
-                    )}
-                    {selectedTemplateId && (
-                      <div className="mt-3 flex items-center gap-2 bg-green-50 border-2 border-green-300 rounded-lg p-3">
-                        <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                        <p className="text-sm text-green-800 font-medium">
-                          Template loaded! Variables replaced with contact data.
+                      {selectedTemplateId && (
+                        <p className="text-xs text-green-700 font-medium mt-2 flex items-center gap-1">
+                          <CheckCircleIcon className="h-3 w-3" />
+                          Template loaded
                         </p>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
 
-                  {/* To Field */}
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-5 shadow-sm">
-                    <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <span>To</span>
-                      <span className="text-red-500">*</span>
+                  {/* To Field - Compact */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      To <span className="text-red-500">*</span>
                     </label>
                     {emailForm.to.map((email, index) => (
-                      <div key={index} className="flex gap-2 mb-3">
+                      <div key={index} className="flex gap-2 mb-2">
                         <input
                           type="email"
                           value={email}
                           onChange={(e) => updateField('to', index, e.target.value)}
-                          className="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
+                          className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
                           placeholder="recipient@example.com"
                         />
                         {emailForm.to.length > 1 && (
                           <button
+                            type="button"
                             onClick={() => removeField('to', index)}
-                            className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg font-bold transition-colors border-2 border-red-200"
+                            className="px-3 py-1 text-red-600 hover:bg-red-50 rounded-lg text-sm font-bold"
                           >
-                            Remove
+                            ×
                           </button>
                         )}
                       </div>
                     ))}
-                    <button
-                      onClick={() => addField('to')}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md text-sm"
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                      Add Recipient
-                    </button>
+                    {emailForm.to.length < 3 && (
+                      <button
+                        type="button"
+                        onClick={() => addField('to')}
+                        className="text-sm font-bold text-orange-600 hover:text-orange-700"
+                      >
+                        + Add recipient
+                      </button>
+                    )}
                   </div>
 
-                  {/* Subject Field */}
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-5 shadow-sm">
-                    <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <span>Subject</span>
-                      <span className="text-red-500">*</span>
+                  {/* Subject Field - Compact */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Subject <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={emailForm.subject}
                       onChange={(e) => setEmailForm(prev => ({ ...prev, subject: e.target.value }))}
-                      className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
                       placeholder="Enter email subject..."
                     />
                   </div>
 
-                  {/* Message Field */}
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-5 shadow-sm">
-                    <label className="block text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <span>Message</span>
-                      <span className="text-red-500">*</span>
+                  {/* Message Field - Compact */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Message <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       value={emailForm.htmlContent}
                       onChange={(e) => setEmailForm(prev => ({ ...prev, htmlContent: e.target.value }))}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium resize-none"
-                      rows={12}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm resize-none"
+                      rows={8}
                       placeholder="Type your email message here..."
                     />
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-gray-500 mt-1">
                       {emailForm.htmlContent.length} characters
                     </p>
                   </div>
                 </div>
 
-                {/* Footer with gradient background */}
-                <div className="p-6 border-t-4 border-gray-200 bg-gradient-to-r from-gray-50 to-white flex justify-between items-center">
-                  <div className="text-sm text-gray-600">
+                {/* Compact Footer */}
+                <div className="px-5 py-3 border-t-2 border-gray-200 bg-gray-50 flex justify-between items-center">
+                  <div className="text-xs text-gray-600">
                     {emailForm.to.filter(e => e.trim()).length > 0 && (
                       <span className="font-medium">
-                        Sending to {emailForm.to.filter(e => e.trim()).length} recipient{emailForm.to.filter(e => e.trim()).length > 1 ? 's' : ''}
+                        {emailForm.to.filter(e => e.trim()).length} recipient{emailForm.to.filter(e => e.trim()).length > 1 ? 's' : ''}
                       </span>
                     )}
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex gap-2">
                     <button
+                      type="button"
                       onClick={() => setShowModal(false)}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-white text-gray-700 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm"
+                      className="px-4 py-2 bg-white text-gray-700 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-50 text-sm"
                       disabled={isSending}
                     >
                       Cancel
                     </button>
                     <button
+                      type="button"
                       onClick={handleSendEmail}
                       disabled={isSending}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
                     >
                       {isSending ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-black border-t-transparent"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
                           <span>Sending...</span>
                         </>
                       ) : (
                         <>
-                          <PaperAirplaneIcon className="h-5 w-5" />
+                          <PaperAirplaneIcon className="h-4 w-4" />
                           <span>Send Email</span>
                         </>
                       )}
