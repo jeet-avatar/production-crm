@@ -26,6 +26,7 @@ interface Contact {
   };
   status: 'LEAD' | 'PROSPECT' | 'CUSTOMER' | 'COLD' | 'WARM' | 'HOT' | 'CLOSED_WON' | 'CLOSED_LOST';
   tags: { id: string; name: string; color: string }[];
+  customFields?: Record<string, any>;
   createdAt: string;
 }
 
@@ -78,6 +79,10 @@ export function ContactList() {
   // Bulk operations state
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
+
+  // Duplicate detection state
+  const [showDuplicates, setShowDuplicates] = useState(false);
+  const [duplicateGroups, setDuplicateGroups] = useState<Contact[][]>([]);
 
   // Check if we should open the add contact modal from query params
   useEffect(() => {
@@ -252,8 +257,8 @@ export function ContactList() {
       return;
     }
 
-    // Create CSV content
-    const headers = ['First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Status', 'Role', 'Tags'];
+    // Create CSV content with custom fields
+    const headers = ['First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Status', 'Role', 'Tags', 'Hiring Intent', 'Budget', 'Timeline'];
     const csvContent = [
       headers.join(','),
       ...contactsToExport.map(contact => [
@@ -264,7 +269,10 @@ export function ContactList() {
         contact.company?.name || '',
         contact.status || '',
         contact.role || '',
-        contact.tags.map(t => t.name).join(';') || ''
+        contact.tags.map(t => t.name).join(';') || '',
+        contact.customFields?.['Hiring Intent'] || '',
+        contact.customFields?.['Budget'] || '',
+        contact.customFields?.['Timeline'] || ''
       ].map(field => `"${field}"`).join(','))
     ].join('\n');
 
@@ -280,6 +288,63 @@ export function ContactList() {
     document.body.removeChild(link);
 
     alert(`✅ Exported ${contactsToExport.length} contact(s) to CSV`);
+  };
+
+  const findDuplicates = () => {
+    const duplicates: Contact[][] = [];
+    const processed = new Set<string>();
+
+    contacts.forEach((contact, index) => {
+      if (processed.has(contact.id)) return;
+
+      const group: Contact[] = [contact];
+      processed.add(contact.id);
+
+      // Find duplicates by email, phone, or similar name+company
+      contacts.slice(index + 1).forEach(otherContact => {
+        if (processed.has(otherContact.id)) return;
+
+        const duplicateReasons: string[] = [];
+
+        // Same email
+        if (contact.email && otherContact.email &&
+            contact.email.toLowerCase() === otherContact.email.toLowerCase()) {
+          duplicateReasons.push('Same email');
+        }
+
+        // Same phone
+        if (contact.phone && otherContact.phone &&
+            contact.phone.replace(/\D/g, '') === otherContact.phone.replace(/\D/g, '')) {
+          duplicateReasons.push('Same phone');
+        }
+
+        // Similar name + same company
+        const nameMatch =
+          contact.firstName?.toLowerCase() === otherContact.firstName?.toLowerCase() &&
+          contact.lastName?.toLowerCase() === otherContact.lastName?.toLowerCase();
+        const companyMatch = contact.company?.name === otherContact.company?.name && contact.company?.name;
+
+        if (nameMatch && companyMatch) {
+          duplicateReasons.push('Same name and company');
+        }
+
+        if (duplicateReasons.length > 0) {
+          group.push(otherContact);
+          processed.add(otherContact.id);
+        }
+      });
+
+      if (group.length > 1) {
+        duplicates.push(group);
+      }
+    });
+
+    setDuplicateGroups(duplicates);
+    setShowDuplicates(true);
+
+    if (duplicates.length === 0) {
+      alert('🎉 No duplicates found! Your contact list is clean.');
+    }
   };
 
   const handleAddContact = () => {
@@ -416,6 +481,18 @@ export function ContactList() {
                   {selectedContacts.size}
                 </span>
               )}
+            </button>
+
+            {/* Find Duplicates Button */}
+            <button
+              type="button"
+              onClick={findDuplicates}
+              disabled={contacts.length < 2}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-300 transition-all shadow-sm hover:scale-105 hover:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Find and remove duplicate contacts"
+            >
+              <UserIcon className="h-5 w-5" />
+              <span>Find Duplicates</span>
             </button>
 
             {/* Secondary actions - white buttons with colored icons */}
@@ -569,6 +646,9 @@ export function ContactList() {
                 <th className="table-header">Role</th>
                 <th className="table-header">Company</th>
                 <th className="table-header">Status</th>
+                <th className="table-header">Hiring Intent</th>
+                <th className="table-header">Budget</th>
+                <th className="table-header">Timeline</th>
                 <th className="table-header">Phone</th>
                 <th className="table-header">Actions</th>
               </tr>
@@ -576,7 +656,7 @@ export function ContactList() {
             <tbody>
               {contacts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="table-cell text-center py-16">
+                  <td colSpan={10} className="table-cell text-center py-16">
                     {searchTerm || statusFilter ? (
                       // No results found state (when filters are active)
                       <>
@@ -705,6 +785,40 @@ export function ContactList() {
                             {displayContact.status.replace('_', ' ')}
                           </span>
                         </td>
+                        {/* Custom Fields */}
+                        <td className="table-cell">
+                          {displayContact.customFields?.['Hiring Intent'] ? (
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              displayContact.customFields['Hiring Intent']?.toString().toLowerCase().includes('yes')
+                                ? 'bg-green-100 text-green-800'
+                                : displayContact.customFields['Hiring Intent']?.toString().toLowerCase().includes('no')
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {displayContact.customFields['Hiring Intent']}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="table-cell">
+                          {displayContact.customFields?.['Budget'] ? (
+                            <span className="font-medium text-gray-900">
+                              {displayContact.customFields['Budget']}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="table-cell">
+                          {displayContact.customFields?.['Timeline'] ? (
+                            <span className="text-sm text-gray-700">
+                              {displayContact.customFields['Timeline']}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
                         <td className="table-cell">
                           {displayContact.phone ? (
                             <div className="flex items-center text-gray-900">
@@ -782,6 +896,40 @@ export function ContactList() {
                             <span className={statusColors[contact.status]}>
                               {contact.status.replace('_', ' ')}
                             </span>
+                          </td>
+                          {/* Custom Fields */}
+                          <td className="table-cell">
+                            {contact.customFields?.['Hiring Intent'] ? (
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                contact.customFields['Hiring Intent']?.toString().toLowerCase().includes('yes')
+                                  ? 'bg-green-100 text-green-800'
+                                  : contact.customFields['Hiring Intent']?.toString().toLowerCase().includes('no')
+                                  ? 'bg-red-100 text-red-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {contact.customFields['Hiring Intent']}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="table-cell">
+                            {contact.customFields?.['Budget'] ? (
+                              <span className="font-medium text-gray-900">
+                                {contact.customFields['Budget']}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                          <td className="table-cell">
+                            {contact.customFields?.['Timeline'] ? (
+                              <span className="text-sm text-gray-700">
+                                {contact.customFields['Timeline']}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="table-cell">
                             {contact.phone ? (
@@ -919,15 +1067,98 @@ export function ContactList() {
         />
       )}
 
-      {/* Remove Duplicates Modal */}
-      {/* <RemoveDuplicatesModal
-        isOpen={showRemoveDuplicates}
-        onClose={() => setShowRemoveDuplicates(false)}
-        onComplete={() => {
-          setShowRemoveDuplicates(false);
-          loadContacts();
-        }}
-      /> */}
+      {/* Duplicates Modal */}
+      {showDuplicates && duplicateGroups.length > 0 && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-500 to-rose-500 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-black">
+                Found {duplicateGroups.reduce((sum, group) => sum + group.length, 0)} Duplicates in {duplicateGroups.length} Group(s)
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowDuplicates(false)}
+                className="text-black hover:bg-black hover:bg-opacity-10 rounded-full p-2 transition-colors"
+                aria-label="Close duplicates modal"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+              <p className="text-gray-700 mb-6">
+                Review the duplicate groups below. Select the contacts you want to keep, then delete the rest.
+              </p>
+              {duplicateGroups.map((group, groupIndex) => (
+                <div key={groupIndex} className="mb-6 border-2 border-orange-200 rounded-xl p-4 bg-orange-50">
+                  <h3 className="font-bold text-lg mb-3 text-gray-900">
+                    Duplicate Group {groupIndex + 1} ({group.length} contacts)
+                  </h3>
+                  <div className="space-y-2">
+                    {group.map(contact => (
+                      <div key={contact.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200">
+                        <div className="flex items-center gap-3 flex-1">
+                          <input
+                            type="checkbox"
+                            checked={selectedContacts.has(contact.id)}
+                            onChange={() => toggleContactSelection(contact.id)}
+                            className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                            aria-label={`Select ${contact.firstName} ${contact.lastName}`}
+                          />
+                          <div className="apple-avatar">
+                            {contact.firstName?.[0]}{contact.lastName?.[0]}
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium text-gray-900">
+                              {contact.firstName} {contact.lastName}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {contact.email} {contact.phone && `• ${contact.phone}`}
+                            </div>
+                            {contact.company && (
+                              <div className="text-xs text-gray-500">
+                                {contact.company.name}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-gray-200 p-6 bg-gray-50 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                {selectedContacts.size} contact(s) selected
+              </div>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDuplicates(false)}
+                  className="px-6 py-2 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (selectedContacts.size === 0) {
+                      alert('Please select contacts to delete');
+                      return;
+                    }
+                    await handleBulkDelete();
+                    setShowDuplicates(false);
+                  }}
+                  disabled={selectedContacts.size === 0}
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Delete Selected ({selectedContacts.size})
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Help Guide */}
       {showHelpGuide && (
