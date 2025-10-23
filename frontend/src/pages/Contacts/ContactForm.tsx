@@ -451,14 +451,14 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="btn-secondary"
+                className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
                 disabled={loading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn-primary px-8"
+                className="inline-flex items-center gap-2 px-8 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
                 disabled={loading}
               >
                 {loading ? (
