@@ -428,20 +428,20 @@ export function CompanyDetail() {
             <button
               type="button"
               onClick={() => setShowEditForm(true)}
-              className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
               title="Edit company"
             >
-              <PencilIcon className="w-4 h-4" />
-              Edit
+              <PencilIcon className="h-5 w-5" />
+              <span>Edit</span>
             </button>
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="px-4 py-2 bg-gradient-to-r from-red-600 to-orange-600 text-white text-sm font-semibold rounded-lg hover:from-red-700 hover:to-orange-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
               title="Delete company"
             >
-              <TrashIcon className="w-4 h-4" />
-              Delete
+              <TrashIcon className="h-5 w-5" />
+              <span>Delete</span>
             </button>
           </div>
         </div>
@@ -499,7 +499,7 @@ export function CompanyDetail() {
                       </span>
                     )}
                     {company.aiIndustry && (
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                      <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-semibold">
                         {company.aiIndustry}
                       </span>
                     )}
@@ -852,10 +852,10 @@ export function CompanyDetail() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                             contact.status === 'CUSTOMER'
-                              ? 'bg-green-100 text-green-700'
+                              ? 'bg-orange-100 text-orange-700'
                               : contact.status === 'PROSPECT'
                               ? 'bg-rose-100 text-rose-700'
-                              : 'bg-orange-100 text-orange-700'
+                              : 'bg-gray-100 text-gray-700'
                           }`}>
                             {contact.status}
                           </span>
@@ -1072,10 +1072,11 @@ export function CompanyDetail() {
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   disabled={deleting}
                 >
-                  {deleting ? 'Deleting...' : 'Delete Company'}
+                  <TrashIcon className="h-5 w-5" />
+                  <span>{deleting ? 'Deleting...' : 'Delete Company'}</span>
                 </button>
               </div>
             </div>
