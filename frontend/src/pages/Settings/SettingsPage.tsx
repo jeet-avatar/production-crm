@@ -1087,11 +1087,17 @@ export function SettingsPage() {
                           onClick={async () => {
                             try {
                               setIsSaving(true);
+                              const token = localStorage.getItem('crmToken');
+                              const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
+
+                              console.log('Saving Google Voice number to:', `${apiUrl}/api/users/me`);
+                              console.log('Google Voice number:', googleVoiceNumber);
+
                               // Save Google Voice number to user profile
-                              const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/me`, {
+                              const response = await fetch(`${apiUrl}/api/users/me`, {
                                 method: 'PUT',
                                 headers: {
-                                  'Authorization': `Bearer ${localStorage.getItem('crmToken')}`,
+                                  'Authorization': `Bearer ${token}`,
                                   'Content-Type': 'application/json',
                                 },
                                 body: JSON.stringify({ googleVoiceNumber }),
@@ -1206,7 +1212,9 @@ export function SettingsPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            window.location.href = `${import.meta.env.VITE_API_URL}/api/calendar/google/connect`;
+                            const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
+                            console.log('Connecting to Google Calendar via:', `${apiUrl}/api/calendar/google/connect`);
+                            window.location.href = `${apiUrl}/api/calendar/google/connect`;
                           }}
                           className="btn-primary"
                         >
