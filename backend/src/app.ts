@@ -222,6 +222,10 @@ app.use(passport.initialize());
 // Apply enhanced security headers
 app.use(applyAllSecurityHeaders());
 
+// Calendar OAuth routes - MUST be before authentication middleware
+// These endpoints are public to allow Google OAuth redirects
+app.use('/api/calendar', calendarAuthRoutes);
+
 // Apply all security guards to API routes
 app.use('/api', applyAllSecurityGuards());
 
@@ -288,7 +292,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/enrichment', enrichmentRoutes);
 app.use('/api/email-composer', emailComposerRoutes);
 app.use('/api/csv-import', csvImportRoutes);
-app.use('/api/calendar', calendarAuthRoutes); // Enterprise calendar OAuth
+// app.use('/api/calendar', calendarAuthRoutes); // Moved before auth middleware (line 227)
 app.use('/api/positions', positionRoutes);
 app.use('/api/email-servers', emailServerRoutes);
 // app.use("/api/tracking", emailTrackingRoutes);

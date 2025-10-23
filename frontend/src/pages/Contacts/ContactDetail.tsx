@@ -83,6 +83,7 @@ export function ContactDetail() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showEditModal, setShowEditModal] = useState(false);
   const [enriching, setEnriching] = useState(false);
+  const [showCallOptions, setShowCallOptions] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -162,6 +163,58 @@ export function ContactDetail() {
       setError(err.message || 'Failed to enrich contact');
       setEnriching(false);
     }
+  };
+
+  const handleMakeCall = async (callType: 'phone' | 'meet') => {
+    if (!contact) return;
+
+    if (callType === 'phone') {
+      // Direct phone call using tel: protocol (opens Google Voice, Phone app, or Skype)
+      if (contact.phone) {
+        // Log the call activity
+        try {
+          await activitiesApi.create({
+            type: 'CALL',
+            subject: `Call to ${contact.firstName} ${contact.lastName}`,
+            description: `Outbound call to ${contact.phone}`,
+            contactId: contact.id,
+            date: new Date().toISOString(),
+          });
+          await loadActivities();
+        } catch (err) {
+          console.error('Failed to log call activity:', err);
+        }
+
+        // Initiate the call
+        window.location.href = `tel:${contact.phone}`;
+      } else {
+        alert('No phone number available for this contact');
+      }
+    } else if (callType === 'meet') {
+      // Create a Google Meet link and log as activity
+      try {
+        // Generate a unique Google Meet link
+        const meetLink = `https://meet.google.com/new`;
+
+        await activitiesApi.create({
+          type: 'MEETING',
+          subject: `Google Meet with ${contact.firstName} ${contact.lastName}`,
+          description: `Video call via Google Meet: ${meetLink}`,
+          contactId: contact.id,
+          date: new Date().toISOString(),
+        });
+        await loadActivities();
+
+        // Open Google Meet in new tab
+        window.open(meetLink, '_blank');
+        alert(`Google Meet link created! Share this with ${contact.firstName}: ${meetLink}`);
+      } catch (err) {
+        console.error('Failed to create Google Meet activity:', err);
+        alert('Failed to create Google Meet link');
+      }
+    }
+
+    setShowCallOptions(false);
   };
 
   if (loading) {
@@ -465,10 +518,46 @@ export function ContactDetail() {
                 <EnvelopeIcon className="h-4 w-4" />
                 Send Email
               </button>
-              <button className="apple-button-secondary w-full flex items-center justify-center gap-2">
-                <PhoneIcon className="h-4 w-4" />
-                Make Call
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowCallOptions(!showCallOptions)}
+                  className="apple-button-secondary w-full flex items-center justify-center gap-2"
+                  disabled={!contact.phone}
+                >
+                  <PhoneIcon className="h-4 w-4" />
+                  Make Call
+                </button>
+
+                {showCallOptions && (
+                  <div className="absolute z-10 mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-200 py-1">
+                    <button
+                      type="button"
+                      onClick={() => handleMakeCall('phone')}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <PhoneIcon className="h-4 w-4 text-gray-600" />
+                      <div>
+                        <div className="font-medium">Phone Call</div>
+                        <div className="text-xs text-gray-500">{contact.phone || 'No number'}</div>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleMakeCall('meet')}
+                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 border-t border-gray-100"
+                    >
+                      <svg className="h-4 w-4 text-gray-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15,8.5V7a1,1,0,0,0-1-1H4A1,1,0,0,0,3,7V17a1,1,0,0,0,1,1H14a1,1,0,0,0,1-1V15.5l5,3.5V5Z"/>
+                      </svg>
+                      <div>
+                        <div className="font-medium">Google Meet</div>
+                        <div className="text-xs text-gray-500">Start video call</div>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </div>
               <button className="apple-button-secondary w-full flex items-center justify-center gap-2">
                 <DocumentTextIcon className="h-4 w-4" />
                 Add Note
