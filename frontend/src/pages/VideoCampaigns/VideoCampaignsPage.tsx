@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeftIcon, PlayIcon, ArrowDownTrayIcon, ShareIcon, EnvelopeIcon, VideoCameraIcon, TrashIcon, UsersIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { PlayIcon as PlayIconSolid } from '@heroicons/react/24/solid';
-import { AICampaignGenerator } from '../../components/AICampaignGenerator';
+import { CreateVideoCampaignModal } from '../../components/CreateVideoCampaignModal';
 import { CreateEmailTemplateModal } from '../../components/VideoCampaigns/CreateEmailTemplateModal';
 import { AutoGenerateVideoModal } from '../../components/VideoCampaigns/AutoGenerateVideoModal';
 import { useNavigate } from 'react-router-dom';
@@ -82,6 +82,49 @@ export function VideoCampaignsPage() {
     // Reload the video list to show the new video
     loadPreviousVideos();
     setShowCreateNew(false);
+  };
+
+  const handleManualVideoCreated = (campaign: any) => {
+    console.log('Manual video campaign created:', campaign);
+    // Start polling for video generation completion
+    if (campaign.id) {
+      pollForVideoCompletion(campaign.id);
+    }
+    setShowCreateNew(false);
+    loadPreviousVideos();
+  };
+
+  const pollForVideoCompletion = async (campaignId: string) => {
+    const maxAttempts = 60; // 5 minutes
+    let attempts = 0;
+
+    const checkStatus = async () => {
+      try {
+        const status = await videoService.getCampaignStatus(campaignId);
+
+        if (status.status === 'READY' && status.videoUrl) {
+          const result = await videoService.getCampaign(campaignId);
+          const campaign = result.campaign;
+          setGeneratedVideo({
+            url: status.videoUrl,
+            campaignId,
+            name: campaign.name,
+            narrationScript: campaign.narrationScript || '',
+          });
+        } else if (status.status !== 'FAILED' && attempts < maxAttempts) {
+          attempts++;
+          setTimeout(checkStatus, 5000);
+        }
+      } catch (error) {
+        console.error('Failed to check video status:', error);
+        if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(checkStatus, 5000);
+        }
+      }
+    };
+
+    checkStatus();
   };
 
   const handleEmailTemplateCreated = (templateId: string) => {
@@ -275,11 +318,6 @@ export function VideoCampaignsPage() {
     );
   }
 
-  // Show create form if requested
-  if (showCreateNew) {
-    return <AICampaignGenerator onVideoGenerated={handleVideoGenerated} />;
-  }
-
   // Default: Show Video Library - VIDEO LIBRARY WITH ACTUAL PLAYERS
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-rose-50 to-orange-50 p-8">
@@ -437,7 +475,7 @@ export function VideoCampaignsPage() {
                   {/* Metadata */}
                   <div className="flex items-center gap-3 text-sm text-gray-600 mb-4">
                     <UsersIcon className="w-4 h-4 text-orange-500" />
-                    <span>{campaign.companyCount || 0} companies</span>
+                    <span>{campaign._count?.companies || 0} companies</span>
                   </div>
 
                   {/* Action Buttons */}
@@ -528,6 +566,13 @@ export function VideoCampaignsPage() {
           setActiveFilter('All');
           setShowAutoGenerate(false);
         }}
+      />
+
+      {/* Manual Create Video Modal */}
+      <CreateVideoCampaignModal
+        isOpen={showCreateNew}
+        onClose={() => setShowCreateNew(false)}
+        onSuccess={handleManualVideoCreated}
       />
     </div>
   );
