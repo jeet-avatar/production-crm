@@ -1016,8 +1016,8 @@ export function SettingsPage() {
                         <PhoneIcon className="h-6 w-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Google Voice</h3>
-                        <p className="text-sm text-gray-600">Make calls directly from the CRM using your Google Voice number</p>
+                        <h3 className="text-lg font-semibold text-gray-900">Google Voice (FREE)</h3>
+                        <p className="text-sm text-gray-600">Make calls & send SMS FREE - No Twilio required!</p>
                       </div>
                     </div>
                     {googleVoiceNumber ? (
@@ -1081,13 +1081,34 @@ export function SettingsPage() {
                     </div>
 
                     <div className="border-t border-gray-200 pt-4">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">How it works:</h4>
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">✨ Features (Completely FREE):</h4>
                       <ul className="text-sm text-gray-600 space-y-1.5">
-                        <li>• Click "Make Call" on any contact</li>
-                        <li>• Choose "Phone Call" option</li>
-                        <li>• Your Google Voice app will open with the number pre-filled</li>
-                        <li>• All calls are automatically logged in your CRM</li>
+                        <li>📞 <strong>Free Calls:</strong> Click "Make Call" on any contact - opens Google Voice</li>
+                        <li>💬 <strong>Free SMS:</strong> Click "Send SMS" - opens Google Messages with message pre-filled</li>
+                        <li>📝 <strong>Auto Logging:</strong> All calls & messages automatically logged in CRM</li>
+                        <li>🚫 <strong>No Twilio Needed:</strong> Save $1/month + $0.0075 per SMS</li>
+                        <li>✅ <strong>Works Everywhere:</strong> Desktop (voice.google.com) & Mobile (Google Voice app)</li>
                       </ul>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">💰 Cost Comparison:</h4>
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                          <p className="font-bold text-green-900">Google Voice</p>
+                          <p className="text-green-700 mt-1">$0/month</p>
+                          <p className="text-green-700">$0 per SMS</p>
+                          <p className="text-green-700">$0 per call</p>
+                          <p className="font-medium text-green-900 mt-2">= FREE FOREVER</p>
+                        </div>
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                          <p className="font-bold text-red-900">Twilio</p>
+                          <p className="text-red-700 mt-1">$1/month</p>
+                          <p className="text-red-700">$0.0075 per SMS</p>
+                          <p className="text-red-700">$0.014 per min call</p>
+                          <p className="font-medium text-red-900 mt-2">= $$$ adds up fast</p>
+                        </div>
+                      </div>
                     </div>
 
                     {googleVoiceNumber && (
