@@ -38,7 +38,7 @@ export const navigation = {
  * Reusable button class configurations
  *
  * CSS Classes Available (defined in index.css):
- * - btn-primary: Blue primary button with white text
+ * - btn-primary: Orange-rose gradient button with black text and black border
  * - btn-secondary: White button with gray border and text
  * - btn-ghost: Transparent button
  * - btn-sm: Small button size modifier
