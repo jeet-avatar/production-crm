@@ -385,22 +385,22 @@ export function VideoCampaignsPage() {
         {/* Empty State */}
         {!loadingVideos && previousVideos.length === 0 && (
           <div className="text-center py-32">
-            <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-orange-500 to-rose-500 rounded-full mb-8 shadow-2xl">
-              <VideoCameraIcon className="w-16 h-16 text-black" />
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-500 to-rose-500 rounded-full mb-6 shadow-lg">
+              <VideoCameraIcon className="w-12 h-12 text-black" />
             </div>
-            <h2 className="text-3xl font-bold text-black mb-4">
+            <h2 className="text-3xl font-bold text-black mb-3">
               No videos yet
             </h2>
-            <p className="text-gray-600 mb-8 text-lg">
+            <p className="text-gray-600 mb-8">
               Create your first AI-powered video campaign
             </p>
             <button
               type="button"
               onClick={() => setShowCreateNew(true)}
-              className="inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-2xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-105 transition-all text-lg active:scale-95 shadow-lg"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-105 transition-all shadow-lg active:scale-95"
             >
-              <VideoCameraIcon className="w-7 h-7" />
-              Create Video
+              <VideoCameraIcon className="w-6 h-6" />
+              Create New Video
             </button>
           </div>
         )}
