@@ -162,15 +162,16 @@ export function DealForm({ deal, onClose }: DealFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl border-4 border-gray-300 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl border-4 border-orange-300 max-w-lg w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-6 border-b border-orange-200 bg-gradient-to-r from-orange-50 to-rose-50">
+          <h2 className="text-xl font-bold text-gray-900">
             {deal ? 'Edit Deal' : 'Add Deal'}
           </h2>
           <button
+            type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-black hover:bg-black/10 rounded-full p-2 transition-colors"
             title="Close modal"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -341,17 +342,17 @@ export function DealForm({ deal, onClose }: DealFormProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="btn-secondary"
+                className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
                 disabled={loading}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn-primary"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
                 disabled={loading}
               >
-                {loading ? 'Saving...' : (deal ? 'Update Deal' : 'Add Deal')}
+                <span>{loading ? 'Saving...' : (deal ? 'Update Deal' : 'Add Deal')}</span>
               </button>
             </div>
           </div>
