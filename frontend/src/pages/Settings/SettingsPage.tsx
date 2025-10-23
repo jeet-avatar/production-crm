@@ -169,6 +169,11 @@ export function SettingsPage() {
         });
       }
 
+      // Load Google Voice number from user data
+      if (user.googleVoiceNumber) {
+        setGoogleVoiceNumber(user.googleVoiceNumber);
+      }
+
       // Load display preferences from user data
       if (user.language !== undefined) {
         setDisplayPreferences({
@@ -1083,7 +1088,7 @@ export function SettingsPage() {
                             try {
                               setIsSaving(true);
                               // Save Google Voice number to user profile
-                              const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
+                              const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/me`, {
                                 method: 'PUT',
                                 headers: {
                                   'Authorization': `Bearer ${localStorage.getItem('crmToken')}`,
@@ -1092,11 +1097,18 @@ export function SettingsPage() {
                                 body: JSON.stringify({ googleVoiceNumber }),
                               });
 
-                              if (!response.ok) throw new Error('Failed to save');
+                              if (!response.ok) {
+                                const errorData = await response.json();
+                                console.error('Failed to save Google Voice number:', errorData);
+                                throw new Error(errorData.message || 'Failed to save');
+                              }
 
-                              alert('✅ Google Voice number saved successfully!');
-                            } catch (err) {
-                              alert('❌ Failed to save Google Voice number');
+                              const data = await response.json();
+                              console.log('✅ Google Voice number saved:', data);
+                              alert('✅ Google Voice number saved successfully! You can now use FREE calls and SMS.');
+                            } catch (err: any) {
+                              console.error('Error saving Google Voice number:', err);
+                              alert(`❌ Failed to save Google Voice number: ${err.message}`);
                             } finally {
                               setIsSaving(false);
                             }
