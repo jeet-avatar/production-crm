@@ -427,53 +427,66 @@ export function DashboardPage() {
 
           {/* Horizontal Funnel */}
           <div className="mb-6">
-            <div className="flex items-center h-12 rounded-xl overflow-hidden shadow-inner bg-gray-100">
-              {stats.pipelineData.map((stage, index) => (
-                <div
-                  key={index}
-                  className="h-full flex items-center justify-center text-white font-semibold text-sm transition-all duration-300 hover:brightness-110 cursor-pointer relative group"
-                  style={{
-                    width: `${stage.percentage}%`,
-                    backgroundColor: stage.color
-                  }}
-                >
-                  <span className="relative z-10">{stage.percentage}%</span>
-                  <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
+            {stats.pipelineData.length > 0 ? (
+              <>
+                <div className="flex items-center h-12 rounded-xl overflow-hidden shadow-inner bg-gray-100">
+                  {stats.pipelineData.map((stage, index) => (
+                    <div
+                      key={index}
+                      className="h-full flex items-center justify-center text-white font-semibold text-sm transition-all duration-300 hover:brightness-110 cursor-pointer relative group"
+                      style={{
+                        width: `${stage.percentage}%`,
+                        backgroundColor: stage.color
+                      }}
+                    >
+                      <span className="relative z-10">{stage.percentage}%</span>
+                      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-2 px-1">
-              {stats.pipelineData.map((stage, index) => (
-                <div key={index} className="text-xs font-medium text-gray-600">
-                  {stage.name}
+                <div className="flex justify-between mt-2 px-1">
+                  {stats.pipelineData.map((stage, index) => (
+                    <div key={index} className="text-xs font-medium text-gray-600">
+                      {stage.name}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-center h-32 rounded-xl bg-gray-50 border-2 border-dashed border-gray-300">
+                <div className="text-center">
+                  <p className="text-sm font-medium text-gray-500">No deals in pipeline yet</p>
+                  <p className="text-xs text-gray-400 mt-1">Create your first deal to see the sales pipeline</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Stage Details */}
-          <div className="space-y-3">
-            {stats.pipelineData.map((stage, index) => (
-              <div
-                key={index}
-                className="p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-200 cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-md group"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 flex-1">
-                    <div
-                      className="w-3 h-3 rounded-full shadow-md"
-                      style={{ backgroundColor: stage.color }}
-                    ></div>
-                    <span className="text-sm font-medium text-gray-900">{stage.name}</span>
-                    <span className="text-xs font-medium text-gray-600">({stage.count} deals)</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xl font-semibold text-gray-900">{formatCurrency(stage.value)}</span>
+          {stats.pipelineData.length > 0 && (
+            <div className="space-y-3">
+              {stats.pipelineData.map((stage, index) => (
+                <div
+                  key={index}
+                  className="p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-200 cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-md group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div
+                        className="w-3 h-3 rounded-full shadow-md"
+                        style={{ backgroundColor: stage.color }}
+                      ></div>
+                      <span className="text-sm font-medium text-gray-900">{stage.name}</span>
+                      <span className="text-xs font-medium text-gray-600">({stage.count} deals)</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xl font-semibold text-gray-900">{formatCurrency(stage.value)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex items-center justify-between">
