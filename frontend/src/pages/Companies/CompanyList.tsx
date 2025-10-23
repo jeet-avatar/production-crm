@@ -222,33 +222,37 @@ export function CompanyList() {
           </div>
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setShowLeadDiscovery(true)}
-              className={`bg-gradient-to-r ${gradients.semantic.info.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              <SparklesIcon className="w-4 h-4" />
-              Discover Leads
+              <SparklesIcon className="h-5 w-5 text-black" />
+              <span>Discover Leads</span>
             </button>
             <button
+              type="button"
               onClick={() => setShowImportModal(true)}
-              className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              <ArrowUpTrayIcon className="w-4 h-4" />
-              Import Companies
+              <ArrowUpTrayIcon className="h-5 w-5 text-black" />
+              <span>Import Companies</span>
             </button>
             <button
+              type="button"
               onClick={handleBulkEnrich}
               disabled={enriching}
-              className={`bg-gradient-to-r ${gradients.semantic.premium.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <SparklesIcon className="w-4 h-4" />
-              {enriching ? 'Enriching...' : 'AI Enrich Data'}
+              <SparklesIcon className="h-5 w-5 text-black" />
+              <span>{enriching ? 'Enriching...' : 'AI Enrich Data'}</span>
             </button>
             <button
+              type="button"
               onClick={handleAddCompany}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
-              <PlusIcon className="w-4 h-4" />
-              Add Company
+              <PlusIcon className="h-5 w-5" />
+              <span>Add Company</span>
             </button>
           </div>
         </div>
