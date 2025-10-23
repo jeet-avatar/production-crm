@@ -26,6 +26,7 @@ interface UserData {
   timezone: string;
   role: string;
   avatar?: string;
+  googleVoiceNumber?: string;
   emailNotifications?: boolean;
   dealUpdates?: boolean;
   newContacts?: boolean;
