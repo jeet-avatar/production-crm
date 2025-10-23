@@ -117,6 +117,8 @@ export function ActivitiesPage() {
     location: 'Online',
   });
 
+  const [sendInvitation, setSendInvitation] = useState(false);
+
   // Task form state
   const [taskForm, setTaskForm] = useState({
     title: '',
@@ -371,6 +373,7 @@ export function ActivitiesPage() {
         attendees: activity.contact?.email ? [activity.contact.email] : [''],
         location: 'Online',
       });
+      setSendInvitation(false); // Reset invitation checkbox
     }
 
     setShowModal(true);
@@ -483,6 +486,7 @@ export function ActivitiesPage() {
           attendees: attendees,
           location: meetingForm.location,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          sendInvitation: sendInvitation,
         }),
       });
 
@@ -492,7 +496,10 @@ export function ActivitiesPage() {
       }
 
       const result = await response.json();
-      showNotification('success', `Meeting created! Link: ${result.activity.meetingLink}`);
+      const successMessage = sendInvitation
+        ? `Meeting created and invitations sent to ${attendees.length} attendee${attendees.length > 1 ? 's' : ''}! Link: ${result.activity.meetingLink}`
+        : `Meeting created! Link: ${result.activity.meetingLink}`;
+      showNotification('success', successMessage);
       setShowModal(false);
       await fetchActivities();
     } catch (err: any) {
@@ -1308,25 +1315,53 @@ export function ActivitiesPage() {
                     />
                   </div>
                 </div>
-                <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-bold tracking-wide shadow-sm"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCreateMeeting}
-                    disabled={isSending}
-                    className={`inline-flex items-center px-6 py-2.5 bg-gradient-to-r ${gradients.semantic.premium.gradient} text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide disabled:opacity-50`}
-                  >
-                    {isSending ? 'Creating...' : (
-                      <>
-                        <VideoCameraIcon className="h-4 w-4 mr-2" />
-                        Create Meeting
-                      </>
-                    )}
-                  </button>
+
+                {/* Footer with Send Invitation Option */}
+                <div className="p-6 border-t-2 border-gray-200 bg-gray-50">
+                  {/* Send Invitation Checkbox */}
+                  <div className="mb-4 flex items-center gap-3 bg-orange-50 border-2 border-orange-300 rounded-lg p-3">
+                    <input
+                      type="checkbox"
+                      id="sendInvitation"
+                      checked={sendInvitation}
+                      onChange={(e) => setSendInvitation(e.target.checked)}
+                      className="w-5 h-5 text-orange-600 border-2 border-orange-400 rounded focus:ring-2 focus:ring-orange-500"
+                    />
+                    <label htmlFor="sendInvitation" className="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
+                      <EnvelopeIcon className="h-5 w-5 text-orange-600" />
+                      Send calendar invitations to all attendees
+                    </label>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(false)}
+                      className="px-4 py-2 bg-white text-gray-700 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-50 text-sm"
+                      disabled={isSending}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCreateMeeting}
+                      disabled={isSending}
+                      className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
+                    >
+                      {isSending ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                          <span>{sendInvitation ? 'Creating & Sending...' : 'Creating...'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <CalendarIcon className="h-4 w-4" />
+                          <span>{sendInvitation ? 'Create & Send Invites' : 'Create Meeting'}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </>
             )}
