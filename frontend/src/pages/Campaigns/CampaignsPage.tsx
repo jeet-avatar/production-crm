@@ -564,11 +564,12 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
                 Companies in Campaign
               </h3>
               <button
+                type="button"
                 onClick={() => setShowEditModal(true)}
-                className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold hover:shadow-lg transition-all shadow-md tracking-wide`}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
               >
-                <PencilIcon className="h-4 w-4" />
-                Edit Companies
+                <PencilIcon className="h-5 w-5" />
+                <span>Edit Companies</span>
               </button>
             </div>
 
