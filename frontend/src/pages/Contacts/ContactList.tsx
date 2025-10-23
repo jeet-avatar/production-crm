@@ -84,6 +84,9 @@ export function ContactList() {
   const [showDuplicates, setShowDuplicates] = useState(false);
   const [duplicateGroups, setDuplicateGroups] = useState<Contact[][]>([]);
 
+  // Dynamic custom fields - automatically detect from contact data
+  const [customFieldKeys, setCustomFieldKeys] = useState<string[]>([]);
+
   // Check if we should open the add contact modal from query params
   useEffect(() => {
     const addContact = searchParams.get('addContact');
@@ -131,19 +134,31 @@ export function ContactList() {
         limit: 1000, // Fetch all contacts for grouping
       });
 
-      setContacts(response.contacts || []);
+      const contactsData = response.contacts || [];
+      setContacts(contactsData);
       setTotalContacts(response.total || 0);
+
+      // Dynamically detect custom field keys from all contacts
+      const customFieldsSet = new Set<string>();
+      contactsData.forEach(contact => {
+        if (contact.customFields) {
+          Object.keys(contact.customFields).forEach(key => customFieldsSet.add(key));
+        }
+      });
+      setCustomFieldKeys(Array.from(customFieldsSet).sort());
     } catch (err: any) {
       // Gracefully handle errors - don't show error for empty data scenarios
       if (err?.response?.status === 401) {
         // Session expired or invalid - don't show error, just set empty state
         setContacts([]);
         setTotalContacts(0);
+        setCustomFieldKeys([]);
       } else {
         console.error('Error loading contacts:', err);
         // Only set error for actual failures, not empty data
         setContacts([]);
         setTotalContacts(0);
+        setCustomFieldKeys([]);
       }
     } finally {
       setLoading(false);
@@ -257,23 +272,31 @@ export function ContactList() {
       return;
     }
 
-    // Create CSV content with custom fields
-    const headers = ['First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Status', 'Role', 'Tags', 'Hiring Intent', 'Budget', 'Timeline'];
+    // Create CSV content with ALL custom fields dynamically
+    const baseHeaders = ['First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Status', 'Role', 'Tags'];
+    const headers = [...baseHeaders, ...customFieldKeys];
+
     const csvContent = [
       headers.join(','),
-      ...contactsToExport.map(contact => [
-        contact.firstName || '',
-        contact.lastName || '',
-        contact.email || '',
-        contact.phone || '',
-        contact.company?.name || '',
-        contact.status || '',
-        contact.role || '',
-        contact.tags.map(t => t.name).join(';') || '',
-        contact.customFields?.['Hiring Intent'] || '',
-        contact.customFields?.['Budget'] || '',
-        contact.customFields?.['Timeline'] || ''
-      ].map(field => `"${field}"`).join(','))
+      ...contactsToExport.map(contact => {
+        const baseFields = [
+          contact.firstName || '',
+          contact.lastName || '',
+          contact.email || '',
+          contact.phone || '',
+          contact.company?.name || '',
+          contact.status || '',
+          contact.role || '',
+          contact.tags.map(t => t.name).join(';') || ''
+        ];
+
+        // Add all custom fields in the same order as headers
+        const customFieldValues = customFieldKeys.map(key =>
+          contact.customFields?.[key] || ''
+        );
+
+        return [...baseFields, ...customFieldValues].map(field => `"${field}"`).join(',');
+      })
     ].join('\n');
 
     // Download CSV
@@ -646,9 +669,10 @@ export function ContactList() {
                 <th className="table-header">Role</th>
                 <th className="table-header">Company</th>
                 <th className="table-header">Status</th>
-                <th className="table-header">Hiring Intent</th>
-                <th className="table-header">Budget</th>
-                <th className="table-header">Timeline</th>
+                {/* Dynamic custom field columns */}
+                {customFieldKeys.map(key => (
+                  <th key={key} className="table-header">{key}</th>
+                ))}
                 <th className="table-header">Phone</th>
                 <th className="table-header">Actions</th>
               </tr>
@@ -656,7 +680,7 @@ export function ContactList() {
             <tbody>
               {contacts.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="table-cell text-center py-16">
+                  <td colSpan={7 + customFieldKeys.length} className="table-cell text-center py-16">
                     {searchTerm || statusFilter ? (
                       // No results found state (when filters are active)
                       <>
@@ -785,40 +809,30 @@ export function ContactList() {
                             {displayContact.status.replace('_', ' ')}
                           </span>
                         </td>
-                        {/* Custom Fields */}
-                        <td className="table-cell">
-                          {displayContact.customFields?.['Hiring Intent'] ? (
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              displayContact.customFields['Hiring Intent']?.toString().toLowerCase().includes('yes')
-                                ? 'bg-green-100 text-green-800'
-                                : displayContact.customFields['Hiring Intent']?.toString().toLowerCase().includes('no')
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {displayContact.customFields['Hiring Intent']}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="table-cell">
-                          {displayContact.customFields?.['Budget'] ? (
-                            <span className="font-medium text-gray-900">
-                              {displayContact.customFields['Budget']}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="table-cell">
-                          {displayContact.customFields?.['Timeline'] ? (
-                            <span className="text-sm text-gray-700">
-                              {displayContact.customFields['Timeline']}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
+                        {/* Dynamic Custom Fields */}
+                        {customFieldKeys.map(key => (
+                          <td key={key} className="table-cell">
+                            {displayContact.customFields?.[key] ? (
+                              <span className={`text-sm ${
+                                key.toLowerCase().includes('intent') || key.toLowerCase().includes('hiring')
+                                  ? `inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                      displayContact.customFields[key]?.toString().toLowerCase().includes('yes')
+                                        ? 'bg-green-100 text-green-800'
+                                        : displayContact.customFields[key]?.toString().toLowerCase().includes('no')
+                                        ? 'bg-red-100 text-red-800'
+                                        : 'bg-yellow-100 text-yellow-800'
+                                    }`
+                                  : key.toLowerCase().includes('budget')
+                                  ? 'font-medium text-gray-900'
+                                  : 'text-gray-700'
+                              }`}>
+                                {displayContact.customFields[key]}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
+                          </td>
+                        ))}
                         <td className="table-cell">
                           {displayContact.phone ? (
                             <div className="flex items-center text-gray-900">
@@ -897,40 +911,30 @@ export function ContactList() {
                               {contact.status.replace('_', ' ')}
                             </span>
                           </td>
-                          {/* Custom Fields */}
-                          <td className="table-cell">
-                            {contact.customFields?.['Hiring Intent'] ? (
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                contact.customFields['Hiring Intent']?.toString().toLowerCase().includes('yes')
-                                  ? 'bg-green-100 text-green-800'
-                                  : contact.customFields['Hiring Intent']?.toString().toLowerCase().includes('no')
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {contact.customFields['Hiring Intent']}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">-</span>
-                            )}
-                          </td>
-                          <td className="table-cell">
-                            {contact.customFields?.['Budget'] ? (
-                              <span className="font-medium text-gray-900">
-                                {contact.customFields['Budget']}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">-</span>
-                            )}
-                          </td>
-                          <td className="table-cell">
-                            {contact.customFields?.['Timeline'] ? (
-                              <span className="text-sm text-gray-700">
-                                {contact.customFields['Timeline']}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">-</span>
-                            )}
-                          </td>
+                          {/* Dynamic Custom Fields */}
+                          {customFieldKeys.map(key => (
+                            <td key={key} className="table-cell">
+                              {contact.customFields?.[key] ? (
+                                <span className={`text-sm ${
+                                  key.toLowerCase().includes('intent') || key.toLowerCase().includes('hiring')
+                                    ? `inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                        contact.customFields[key]?.toString().toLowerCase().includes('yes')
+                                          ? 'bg-green-100 text-green-800'
+                                          : contact.customFields[key]?.toString().toLowerCase().includes('no')
+                                          ? 'bg-red-100 text-red-800'
+                                          : 'bg-yellow-100 text-yellow-800'
+                                      }`
+                                    : key.toLowerCase().includes('budget')
+                                    ? 'font-medium text-gray-900'
+                                    : 'text-gray-700'
+                                }`}>
+                                  {contact.customFields[key]}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </td>
+                          ))}
                           <td className="table-cell">
                             {contact.phone ? (
                               <div className="flex items-center text-gray-900">
