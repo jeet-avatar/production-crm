@@ -12,7 +12,8 @@ import {
   ChatBubbleLeftIcon,
   DocumentTextIcon,
   CurrencyDollarIcon,
-  SparklesIcon
+  SparklesIcon,
+  ChatBubbleBottomCenterTextIcon
 } from '@heroicons/react/24/outline';
 import { contactsApi, activitiesApi } from '../../services/api';
 import { ContactForm } from './ContactForm';
@@ -84,6 +85,8 @@ export function ContactDetail() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [enriching, setEnriching] = useState(false);
   const [showCallOptions, setShowCallOptions] = useState(false);
+  const [showSMSModal, setShowSMSModal] = useState(false);
+  const [smsMessage, setSmsMessage] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -215,6 +218,43 @@ export function ContactDetail() {
     }
 
     setShowCallOptions(false);
+  };
+
+  const handleSendSMS = async () => {
+    if (!contact || !contact.phone || !smsMessage.trim()) {
+      alert('Please enter a message');
+      return;
+    }
+
+    try {
+      // Create SMS activity
+      const activity = await activitiesApi.create({
+        type: 'NOTE',
+        subject: `SMS to ${contact.firstName} ${contact.lastName}`,
+        description: smsMessage,
+        contactId: contact.id,
+        date: new Date().toISOString(),
+      });
+
+      // Generate SMS link using Google Voice/Messages
+      const smsLink = `sms:${contact.phone}?body=${encodeURIComponent(smsMessage)}`;
+
+      // Open SMS app with pre-filled message
+      window.location.href = smsLink;
+
+      // Show success message
+      alert(`SMS ready to send via Google Voice! The message has been pre-filled for you.`);
+
+      // Reload activities
+      await loadActivities();
+
+      // Close modal and reset
+      setShowSMSModal(false);
+      setSmsMessage('');
+    } catch (err) {
+      console.error('Failed to create SMS activity:', err);
+      alert('Failed to create SMS');
+    }
   };
 
   if (loading) {
@@ -558,6 +598,14 @@ export function ContactDetail() {
                   </div>
                 )}
               </div>
+              <button
+                onClick={() => setShowSMSModal(true)}
+                disabled={!contact.phone}
+                className="apple-button-secondary w-full flex items-center justify-center gap-2"
+              >
+                <ChatBubbleBottomCenterTextIcon className="h-4 w-4" />
+                Send SMS (FREE)
+              </button>
               <button className="apple-button-secondary w-full flex items-center justify-center gap-2">
                 <DocumentTextIcon className="h-4 w-4" />
                 Add Note
@@ -588,6 +636,76 @@ export function ContactDetail() {
           companies={[]} // Will be loaded in the form
           onClose={handleEditClose}
         />
+      )}
+
+      {/* SMS Modal */}
+      {showSMSModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">
+                Send SMS via Google Voice
+              </h3>
+              <button
+                onClick={() => setShowSMSModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-2">
+                📱 To: <span className="font-medium">{contact.firstName} {contact.lastName}</span> ({contact.phone})
+              </p>
+              <p className="text-xs text-green-600 mb-4">
+                ✨ FREE - No charges! Uses Google Voice/Messages
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Message
+              </label>
+              <textarea
+                value={smsMessage}
+                onChange={(e) => setSmsMessage(e.target.value)}
+                placeholder="Type your message here..."
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                maxLength={1600}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {smsMessage.length}/1600 characters
+              </p>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-xs text-blue-800">
+                💡 <strong>How it works:</strong> Click "Send" to open Google Messages with your message pre-filled.
+                Then just hit send from your Google Voice number!
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSMSModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendSMS}
+                disabled={!smsMessage.trim()}
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Send SMS (FREE)
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
