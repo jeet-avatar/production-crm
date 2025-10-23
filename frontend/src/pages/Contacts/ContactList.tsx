@@ -435,7 +435,7 @@ export function ContactList() {
                           <button
                             type="button"
                             onClick={() => setShowAICSVImport(true)}
-                            className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+                            className="bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-6 py-3 rounded-xl border-2 border-black transition-all duration-200 flex items-center gap-2 shadow-lg hover:scale-105"
                           >
                             <DocumentArrowUpIcon className="h-5 w-5" />
                             Import CSV
@@ -743,20 +743,17 @@ export function ContactList() {
         <ContactsHelpGuide onClose={() => setShowHelpGuide(false)} />
       )}
 
-      {/* Floating Help Button - Always Visible */}
+      {/* Floating Help Button - Subtle and Small */}
       <button
         type="button"
         onClick={() => setShowHelpGuide(true)}
-        className="fixed bottom-8 right-8 z-40 group animate-in fade-in slide-in-from-bottom-4 duration-500"
+        className="fixed bottom-6 right-6 z-40 group"
         title="Need help? Click for the quick start guide"
         aria-label="Open help guide"
       >
-        {/* Pulse ring for attention */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-500 to-rose-500 animate-ping opacity-30"></div>
-
-        {/* Main button */}
-        <div className="relative bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 rounded-full p-4 shadow-2xl border-4 border-black hover:scale-110 hover:rotate-12 transition-all duration-300">
-          <QuestionMarkCircleIcon className="w-8 h-8 text-black" />
+        {/* Main button - smaller and subtle */}
+        <div className="relative bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg border-2 border-gray-300 hover:border-orange-500 hover:scale-105 transition-all duration-200">
+          <QuestionMarkCircleIcon className="w-5 h-5 text-gray-600 group-hover:text-orange-600" />
         </div>
 
         {/* Tooltip */}
