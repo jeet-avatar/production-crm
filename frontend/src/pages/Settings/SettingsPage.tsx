@@ -96,6 +96,7 @@ export function SettingsPage() {
   // Integrations
   const [googleVoiceNumber, setGoogleVoiceNumber] = useState('');
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
+  const [showGoogleVoiceGuide, setShowGoogleVoiceGuide] = useState(false);
 
   // Fetch user data on component mount
   useEffect(() => {
@@ -1033,6 +1034,37 @@ export function SettingsPage() {
                   </div>
 
                   <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    {/* Show setup guide if no number configured */}
+                    {!googleVoiceNumber && (
+                      <div className="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-200 rounded-lg p-6 mb-4">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                              <PhoneIcon className="h-6 w-6 text-white" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-lg font-bold text-gray-900 mb-2">
+                              🎉 Get Your FREE Google Voice Number in 2 Minutes!
+                            </h4>
+                            <p className="text-sm text-gray-700 mb-4">
+                              Get a free phone number for calls and SMS. No credit card required. Takes less than 2 minutes!
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setShowGoogleVoiceGuide(true)}
+                              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                            >
+                              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                              </svg>
+                              Get FREE Google Voice Number Now
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Google Voice Number
@@ -1439,6 +1471,224 @@ export function SettingsPage() {
           )}
         </div>
       </div>
+
+      {/* Google Voice Setup Guide Modal */}
+      {showGoogleVoiceGuide && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Get Your FREE Google Voice Number</h2>
+                <p className="text-sm text-gray-600 mt-1">Takes less than 2 minutes • No credit card required</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleVoiceGuide(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Step 1 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                    1
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Visit Google Voice</h3>
+                  <p className="text-gray-700 mb-3">
+                    Open a new tab and go to <strong>voice.google.com</strong>
+                  </p>
+                  <a
+                    href="https://voice.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Open Google Voice
+                  </a>
+                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600">
+                      💡 <strong>Tip:</strong> Make sure you're signed in to your Google account
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
+
+              {/* Step 2 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                    2
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Choose Your Number</h3>
+                  <p className="text-gray-700 mb-3">
+                    Click <strong>"Get a Voice number"</strong> and search for a number by:
+                  </p>
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span>Area code (e.g., 415, 212, 310)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span>City name</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-600">✓</span>
+                      <span>Specific digits you want</span>
+                    </li>
+                  </ul>
+                  <div className="mt-3 p-3 bg-green-50 rounded-lg">
+                    <p className="text-sm text-green-800">
+                      🎯 <strong>Pro Tip:</strong> Pick a number in your local area code for better deliverability
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
+
+              {/* Step 3 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                    3
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Complete Setup</h3>
+                  <p className="text-gray-700 mb-3">
+                    Google will ask for a <strong>forwarding number</strong> (your real phone):
+                  </p>
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-600">📱</span>
+                      <span>Enter your mobile number</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-600">✉️</span>
+                      <span>Verify with the code sent via SMS</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-purple-600">✅</span>
+                      <span>Click "Finish" - you're done!</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
+
+              {/* Step 4 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                    4
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Copy Your Number</h3>
+                  <p className="text-gray-700 mb-3">
+                    After setup, copy your new Google Voice number. It will look like:
+                  </p>
+                  <div className="p-4 bg-gray-100 rounded-lg font-mono text-lg text-center">
+                    +1 (555) 123-4567
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Make sure to include the <strong>+1</strong> country code!
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
+
+              {/* Step 5 */}
+              <div className="flex gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                    5
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Add to BrandMonkz CRM</h3>
+                  <p className="text-gray-700 mb-3">
+                    Come back to this page and:
+                  </p>
+                  <ul className="space-y-2 text-gray-700">
+                    <li className="flex items-start gap-2">
+                      <span className="text-pink-600">1.</span>
+                      <span>Paste your Google Voice number in the input field above</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-pink-600">2.</span>
+                      <span>Click "Save"</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-pink-600">3.</span>
+                      <span>Start making FREE calls and sending FREE SMS!</span>
+                    </li>
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => setShowGoogleVoiceGuide(false)}
+                    className="mt-4 w-full px-6 py-3 bg-gradient-to-r from-pink-600 to-orange-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all"
+                  >
+                    Got it! Close Guide
+                  </button>
+                </div>
+              </div>
+
+              {/* Bonus Benefits */}
+              <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border-2 border-green-200">
+                <h4 className="font-bold text-gray-900 mb-3">🎁 Bonus: What You Get FREE</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="text-gray-700">Unlimited SMS</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="text-gray-700">Unlimited calling (US/Canada)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="text-gray-700">Voicemail transcription</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="text-gray-700">Call screening</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="text-gray-700">Spam filtering</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-green-600">✅</span>
+                    <span className="text-gray-700">Mobile & desktop apps</span>
+                  </div>
+                </div>
+                <p className="mt-4 text-center text-lg font-bold text-green-800">
+                  💰 Total Value: $102/year • Your Cost: $0 FOREVER
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
