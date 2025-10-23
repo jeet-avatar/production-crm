@@ -107,7 +107,7 @@ function StatCard({ title, value, change, trend, icon: Icon, gradient, iconColor
     >
       <div className="flex items-start justify-between mb-4">
         <div className={`w-12 h-12 rounded-xl ${iconColor} flex items-center justify-center shadow-md`}>
-          <Icon className="h-6 w-6 text-white" />
+          <Icon className="h-6 w-6 text-black" />
         </div>
         {change && (
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
@@ -274,7 +274,7 @@ export function DashboardPage() {
       <div className="mb-8 pb-6 border-b border-gray-200 bg-white/50 backdrop-blur-sm -mx-8 px-8 -mt-8 pt-8 shadow-sm">
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md`}>
-            <SparklesIcon className="h-6 w-6 text-white" />
+            <SparklesIcon className="h-6 w-6 text-black" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
         </div>
@@ -410,7 +410,7 @@ export function DashboardPage() {
             <div>
               <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
-                  <FireIcon className="h-5 w-5 text-white" />
+                  <FireIcon className="h-5 w-5 text-black" />
                 </div>
                 Sales Pipeline
               </h3>
@@ -502,7 +502,7 @@ export function DashboardPage() {
         <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
-              <ChartBarIcon className="h-5 w-5 text-white" />
+              <ChartBarIcon className="h-5 w-5 text-black" />
             </div>
             Top Deals
           </h3>
@@ -598,7 +598,7 @@ export function DashboardPage() {
           <div>
             <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
-                <ClockIcon className="h-5 w-5 text-white" />
+                <ClockIcon className="h-5 w-5 text-black" />
               </div>
               Recent Activity
             </h3>
