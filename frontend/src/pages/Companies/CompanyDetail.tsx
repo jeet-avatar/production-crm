@@ -378,18 +378,18 @@ export function CompanyDetail() {
                 type="button"
                 onClick={handleEnrich}
                 disabled={enriching}
-                className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-sm font-semibold rounded-lg hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 title={!company.website ? "AI will search the web and LinkedIn to find company information" : "AI Enrich Data - Scrape website and find key contacts"}
               >
                 {enriching ? (
                   <>
-                    <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                    Enriching...
+                    <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                    <span>Enriching...</span>
                   </>
                 ) : (
                   <>
-                    <SparklesIcon className="w-4 h-4" />
-                    AI Enrich
+                    <SparklesIcon className="w-5 h-5" />
+                    <span>AI Enrich</span>
                   </>
                 )}
               </button>
