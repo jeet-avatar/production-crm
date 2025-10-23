@@ -306,10 +306,10 @@ export function CompanyDetail() {
       <div className="mb-6">
         <button
           onClick={() => navigate('/companies')}
-          className="btn-secondary flex items-center gap-2 mb-4"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md mb-4"
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          Back to Companies
+          <span>Back to Companies</span>
         </button>
 
         <div className="flex items-start justify-between">
@@ -367,10 +367,10 @@ export function CompanyDetail() {
                 href={company.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all shadow-sm hover:shadow-md"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
                 title="Visit website"
               >
-                <GlobeAltIcon className="w-4 h-4" />
+                <GlobeAltIcon className="w-5 h-5" />
               </a>
             )}
             {company.enrichmentStatus !== 'enriching' && (
@@ -399,31 +399,31 @@ export function CompanyDetail() {
               type="button"
               onClick={handleSocialFlow}
               disabled={socialFlowing}
-              className={`${buttonStyles.gradient.socialFlow} disabled:opacity-50 disabled:cursor-not-allowed`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               title="🚀 Premium: SocialFlow - Credit Rating, Social Media, Tech Stack & More"
             >
               {socialFlowing ? (
                 <>
-                  <ArrowPathIcon className="w-4 h-4 animate-spin" />
-                  Analyzing...
+                  <ArrowPathIcon className="w-5 h-5 animate-spin" />
+                  <span>Analyzing...</span>
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                   </svg>
-                  SocialFlow
+                  <span>SocialFlow</span>
                 </>
               )}
             </button>
             <button
               type="button"
               onClick={() => setShowCampaignModal(true)}
-              className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-sm font-semibold rounded-lg hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
               title="Add to campaign"
             >
-              <PaperAirplaneIcon className="w-4 h-4" />
-              Campaign
+              <PaperAirplaneIcon className="w-5 h-5" />
+              <span>Campaign</span>
             </button>
             <button
               type="button"
@@ -596,7 +596,7 @@ export function CompanyDetail() {
                 <button
                   onClick={handleSocialFlow}
                   disabled={socialFlowing}
-                  className="ml-2 px-3 py-1 text-xs bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg hover:from-orange-700 hover:to-rose-700 transition-colors disabled:opacity-50"
+                  className="ml-2 px-3 py-1 text-xs bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Re-enrich with latest data"
                 >
                   {socialFlowing ? 'Re-enriching...' : '🔄 Re-enrich'}
@@ -809,10 +809,10 @@ export function CompanyDetail() {
               </h2>
               <button
                 onClick={() => navigate(`/contacts?addContact=true&companyId=${company.id}&companyName=${encodeURIComponent(company.name)}`)}
-                className="btn-primary flex items-center gap-2"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
               >
-                <PlusIcon className="w-4 h-4" />
-                Add Contact
+                <PlusIcon className="w-5 h-5" />
+                <span>Add Contact</span>
               </button>
             </div>
 
@@ -871,9 +871,9 @@ export function CompanyDetail() {
                         e.stopPropagation();
                         window.location.href = `mailto:${contact.email}`;
                       }}
-                      className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-white transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
                     >
-                      <EnvelopeIcon className="w-4 h-4" />
+                      <EnvelopeIcon className="w-5 h-5" />
                     </button>
                   </div>
                 ))
@@ -1064,15 +1064,15 @@ export function CompanyDetail() {
                 <button
                   type="button"
                   onClick={() => setShowDeleteModal(false)}
-                  className="btn-secondary"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-50 transition-all shadow-md"
                   disabled={deleting}
                 >
-                  Cancel
+                  <span>Cancel</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all shadow-md"
                   disabled={deleting}
                 >
                   <TrashIcon className="h-5 w-5" />
