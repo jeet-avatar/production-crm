@@ -561,41 +561,72 @@ export function ContactDetail() {
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setShowCallOptions(!showCallOptions)}
+                  onClick={() => {
+                    console.log('Make Call clicked, showCallOptions:', showCallOptions);
+                    setShowCallOptions(!showCallOptions);
+                  }}
                   className="apple-button-secondary w-full flex items-center justify-center gap-2"
                   disabled={!contact.phone}
                 >
                   <PhoneIcon className="h-4 w-4" />
                   Make Call
+                  <svg
+                    className={`h-4 w-4 transition-transform ${showCallOptions ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
 
                 {showCallOptions && (
-                  <div className="absolute z-10 mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-200 py-1">
-                    <button
-                      type="button"
-                      onClick={() => handleMakeCall('phone')}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                    >
-                      <PhoneIcon className="h-4 w-4 text-gray-600" />
-                      <div>
-                        <div className="font-medium">Phone Call</div>
-                        <div className="text-xs text-gray-500">{contact.phone || 'No number'}</div>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleMakeCall('meet')}
-                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 border-t border-gray-100"
-                    >
-                      <svg className="h-4 w-4 text-gray-600" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15,8.5V7a1,1,0,0,0-1-1H4A1,1,0,0,0,3,7V17a1,1,0,0,0,1,1H14a1,1,0,0,0,1-1V15.5l5,3.5V5Z"/>
-                      </svg>
-                      <div>
-                        <div className="font-medium">Google Meet</div>
-                        <div className="text-xs text-gray-500">Start video call</div>
-                      </div>
-                    </button>
-                  </div>
+                  <>
+                    {/* Backdrop to close dropdown when clicking outside */}
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowCallOptions(false)}
+                    ></div>
+
+                    {/* Dropdown menu */}
+                    <div className="absolute z-20 mt-2 w-full bg-white rounded-lg shadow-xl border-2 border-gray-300 py-2 animate-fadeIn">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          console.log('Phone Call clicked');
+                          handleMakeCall('phone');
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm hover:bg-blue-50 flex items-center gap-3 transition-colors"
+                      >
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <PhoneIcon className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-900">Phone Call (FREE)</div>
+                          <div className="text-xs text-gray-600">Via Google Voice: {contact.phone || 'No number'}</div>
+                        </div>
+                      </button>
+                      <div className="border-t border-gray-200 my-1"></div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          console.log('Google Meet clicked');
+                          handleMakeCall('meet');
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm hover:bg-green-50 flex items-center gap-3 transition-colors"
+                      >
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                          <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15,8.5V7a1,1,0,0,0-1-1H4A1,1,0,0,0,3,7V17a1,1,0,0,0,1,1H14a1,1,0,0,0,1-1V15.5l5,3.5V5Z"/>
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-900">Google Meet (FREE)</div>
+                          <div className="text-xs text-gray-600">Start instant video call</div>
+                        </div>
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
               <button
