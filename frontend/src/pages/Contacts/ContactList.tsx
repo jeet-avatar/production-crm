@@ -254,10 +254,10 @@ export function ContactList() {
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg border border-gray-300 transition-all hover:border-gray-400"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black text-sm font-bold rounded-xl border-2 border-black transition-all hover:scale-105 shadow-md"
                 title="View help and quick start guide"
               >
-                <QuestionMarkCircleIcon className="h-4 w-4" />
+                <QuestionMarkCircleIcon className="h-5 w-5" />
                 <span>Help</span>
               </button>
             </div>
@@ -311,16 +311,16 @@ export function ContactList() {
             {/* Secondary actions - white buttons with colored icons */}
             <button
               onClick={() => setShowLeadDiscovery(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-all shadow-sm hover:shadow hover:border-gray-400"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              <SparklesIcon className="h-5 w-5 text-blue-600" />
+              <SparklesIcon className="h-5 w-5 text-black" />
               <span>Discover Leads</span>
             </button>
             <button
               onClick={() => setShowAICSVImport(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-300 transition-all shadow-sm hover:shadow hover:border-gray-400"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              <DocumentArrowUpIcon className="h-5 w-5 text-green-600" />
+              <DocumentArrowUpIcon className="h-5 w-5 text-black" />
               <span>Import CSV</span>
             </button>
 
