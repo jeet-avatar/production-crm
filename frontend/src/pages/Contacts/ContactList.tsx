@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon, QuestionMarkCircleIcon, XMarkIcon, LightBulbIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusIcon, PencilIcon, TrashIcon, UserIcon, PhoneIcon, EnvelopeIcon, DocumentArrowUpIcon, ChevronDownIcon, ChevronRightIcon, BuildingOfficeIcon, SparklesIcon, QuestionMarkCircleIcon, XMarkIcon, LightBulbIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 // Commented out unused imports
 // import { SparklesIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { contactsApi, companiesApi } from '../../services/api';
@@ -74,6 +74,10 @@ export function ContactList() {
   const [totalContacts, setTotalContacts] = useState(0);
   const [contactsPerPage, setContactsPerPage] = useState(10);
   const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set());
+
+  // Bulk operations state
+  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   // Check if we should open the add contact modal from query params
   useEffect(() => {
@@ -185,7 +189,7 @@ export function ContactList() {
 
   const handleDeleteContact = async (id: string) => {
     if (!confirm('Are you sure you want to delete this contact?')) return;
-    
+
     try {
       await contactsApi.delete(id);
       loadContacts();
@@ -197,6 +201,85 @@ export function ContactList() {
   const handleEditContact = (contact: Contact) => {
     setEditingContact(contact);
     setShowModal(true);
+  };
+
+  // Bulk operations handlers
+  const toggleContactSelection = (contactId: string) => {
+    const newSelected = new Set(selectedContacts);
+    if (newSelected.has(contactId)) {
+      newSelected.delete(contactId);
+    } else {
+      newSelected.add(contactId);
+    }
+    setSelectedContacts(newSelected);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedContacts.size === contacts.length) {
+      setSelectedContacts(new Set());
+    } else {
+      setSelectedContacts(new Set(contacts.map(c => c.id)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedContacts.size === 0) return;
+
+    if (!confirm(`Are you sure you want to delete ${selectedContacts.size} contact(s)?`)) return;
+
+    try {
+      // Delete all selected contacts
+      await Promise.all(
+        Array.from(selectedContacts).map(id => contactsApi.delete(id))
+      );
+
+      setSelectedContacts(new Set());
+      loadContacts();
+      alert(`✅ Successfully deleted ${selectedContacts.size} contact(s)`);
+    } catch (err) {
+      setError('Failed to delete some contacts');
+    }
+  };
+
+  const handleExportCSV = () => {
+    // Get contacts to export (selected or all filtered)
+    const contactsToExport = selectedContacts.size > 0
+      ? contacts.filter(c => selectedContacts.has(c.id))
+      : contacts;
+
+    if (contactsToExport.length === 0) {
+      alert('No contacts to export');
+      return;
+    }
+
+    // Create CSV content
+    const headers = ['First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Status', 'Role', 'Tags'];
+    const csvContent = [
+      headers.join(','),
+      ...contactsToExport.map(contact => [
+        contact.firstName || '',
+        contact.lastName || '',
+        contact.email || '',
+        contact.phone || '',
+        contact.company?.name || '',
+        contact.status || '',
+        contact.role || '',
+        contact.tags.map(t => t.name).join(';') || ''
+      ].map(field => `"${field}"`).join(','))
+    ].join('\n');
+
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `contacts_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    alert(`✅ Exported ${contactsToExport.length} contact(s) to CSV`);
   };
 
   const handleAddContact = () => {
@@ -318,8 +401,26 @@ export function ContactList() {
           )}
 
           <div className="flex items-center gap-2">
+            {/* Export CSV Button */}
+            <button
+              type="button"
+              onClick={handleExportCSV}
+              disabled={contacts.length === 0}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-300 transition-all shadow-sm hover:scale-105 hover:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              title={selectedContacts.size > 0 ? `Export ${selectedContacts.size} selected contacts` : 'Export all contacts'}
+            >
+              <ArrowDownTrayIcon className="h-5 w-5" />
+              <span>Export CSV</span>
+              {selectedContacts.size > 0 && (
+                <span className="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-bold">
+                  {selectedContacts.size}
+                </span>
+              )}
+            </button>
+
             {/* Secondary actions - white buttons with colored icons */}
             <button
+              type="button"
               onClick={() => setShowLeadDiscovery(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
@@ -327,6 +428,7 @@ export function ContactList() {
               <span>Discover Leads</span>
             </button>
             <button
+              type="button"
               onClick={() => setShowAICSVImport(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
@@ -336,6 +438,7 @@ export function ContactList() {
 
             {/* Primary action - gradient button stands out */}
             <button
+              type="button"
               onClick={handleAddContact}
               className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
@@ -409,12 +512,59 @@ export function ContactList() {
           </div>
         )}
 
+        {/* Bulk Actions Toolbar */}
+        {selectedContacts.size > 0 && (
+          <div className="mx-6 my-4 bg-gradient-to-r from-orange-50 to-rose-50 border-2 border-orange-300 rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-lg font-bold text-gray-900">
+                  {selectedContacts.size} contact{selectedContacts.size > 1 ? 's' : ''} selected
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedContacts(new Set())}
+                  className="text-sm text-gray-600 hover:text-gray-900 underline"
+                >
+                  Clear selection
+                </button>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleExportCSV}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-semibold rounded-lg border-2 border-gray-300 hover:border-orange-500 transition-all"
+                >
+                  <ArrowDownTrayIcon className="h-4 w-4" />
+                  <span>Export Selected</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkDelete}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-all"
+                >
+                  <TrashIcon className="h-4 w-4" />
+                  <span>Delete Selected</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Contacts Table */}
         <div className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="apple-table">
             <thead>
               <tr>
+                <th className="table-header w-12">
+                  <input
+                    type="checkbox"
+                    checked={contacts.length > 0 && selectedContacts.size === contacts.length}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                    title="Select all contacts"
+                  />
+                </th>
                 <th className="table-header">Contact</th>
                 <th className="table-header">Role</th>
                 <th className="table-header">Company</th>
@@ -426,7 +576,7 @@ export function ContactList() {
             <tbody>
               {contacts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="table-cell text-center py-16">
+                  <td colSpan={7} className="table-cell text-center py-16">
                     {searchTerm || statusFilter ? (
                       // No results found state (when filters are active)
                       <>
@@ -485,10 +635,21 @@ export function ContactList() {
                     <React.Fragment key={companyName}>
                       {/* Company header row with first contact */}
                       <tr className="hover:bg-gray-50">
+                        <td className="table-cell w-12">
+                          <input
+                            type="checkbox"
+                            checked={selectedContacts.has(displayContact.id)}
+                            onChange={() => toggleContactSelection(displayContact.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                            aria-label={`Select ${displayContact.firstName} ${displayContact.lastName}`}
+                          />
+                        </td>
                         <td className="table-cell">
                           <div className="flex items-center space-x-3">
                             {hasMultipleContacts && (
                               <button
+                                type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleCompany(companyName);
