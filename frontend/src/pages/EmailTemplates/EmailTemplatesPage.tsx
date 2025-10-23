@@ -16,6 +16,7 @@ import { CreateTemplateModal } from './CreateTemplateModal';
 import { SendEmailModal } from './SendEmailModal';
 import { EmailTemplatesHelpGuide } from '../../components/EmailTemplatesHelpGuide';
 import { PreviewTemplateModal } from './PreviewTemplateModal';
+import { EditTemplateModal } from './EditTemplateModal';
 
 interface EmailTemplate {
   id: string;
@@ -37,6 +38,7 @@ export function EmailTemplatesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [sendingTemplate, setSendingTemplate] = useState<EmailTemplate | null>(null);
   const [previewingTemplate, setPreviewingTemplate] = useState<EmailTemplate | null>(null);
   const [showGuide, setShowGuide] = useState(false);
@@ -110,7 +112,34 @@ export function EmailTemplatesPage() {
 
   const handleEditTemplate = (template: EmailTemplate) => {
     setEditingTemplate(template);
-    setShowCreateModal(true);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEditedTemplate = async (templateData: any) => {
+    if (!editingTemplate) return;
+
+    try {
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + `/api/email-templates/${editingTemplate.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(templateData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update template');
+      }
+
+      await fetchTemplates();
+      setShowEditModal(false);
+      setEditingTemplate(null);
+    } catch (err: any) {
+      console.error('Error updating template:', err);
+      throw err;
+    }
   };
 
   const handleSendEmail = (template: EmailTemplate) => {
@@ -378,6 +407,19 @@ export function EmailTemplatesPage() {
           isOpen={!!sendingTemplate}
           onClose={handleSendModalClose}
           template={sendingTemplate}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {editingTemplate && showEditModal && (
+        <EditTemplateModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingTemplate(null);
+          }}
+          onSave={handleSaveEditedTemplate}
+          template={editingTemplate}
         />
       )}
 
