@@ -13,13 +13,13 @@
 }
 
 :root {
-  /* Modern color palette */
-  --color-primary-50: #eff6ff;
-  --color-primary-100: #dbeafe;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-primary-900: #1e3a8a;
+  /* Modern color palette - BrandMonkz Orange-Rose Theme */
+  --color-primary-50: #fff7ed;
+  --color-primary-100: #ffedd5;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  --color-primary-900: #7c2d12;
 
   --color-gray-50: #f8fafc;
   --color-gray-100: #f1f5f9;
@@ -643,24 +643,28 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   padding: 0.625rem 1rem;
   border-radius: var(--radius-md);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  transition: var(--transition-fast);
-  border: 1px solid transparent;
+  transition: all 150ms ease-in-out;
+  border: 2px solid #000000;
   cursor: pointer;
-  background-color: var(--color-primary-600);
-  color: #ffffff;
+  background: linear-gradient(to right, #f97316, #f43f5e);
+  color: #000000;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-primary-700);
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
 }
 
 .btn-primary:focus {
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
 }
 
 .btn-primary:disabled {
