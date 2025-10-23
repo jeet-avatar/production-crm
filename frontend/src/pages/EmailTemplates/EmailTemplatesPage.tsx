@@ -9,11 +9,13 @@ import {
   DocumentDuplicateIcon,
   CheckCircleIcon,
   QuestionMarkCircleIcon,
+  EyeIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
 import { CreateTemplateModal } from './CreateTemplateModal';
 import { SendEmailModal } from './SendEmailModal';
 import { EmailTemplatesHelpGuide } from '../../components/EmailTemplatesHelpGuide';
+import { PreviewTemplateModal } from './PreviewTemplateModal';
 
 interface EmailTemplate {
   id: string;
@@ -36,6 +38,7 @@ export function EmailTemplatesPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
   const [sendingTemplate, setSendingTemplate] = useState<EmailTemplate | null>(null);
+  const [previewingTemplate, setPreviewingTemplate] = useState<EmailTemplate | null>(null);
   const [showGuide, setShowGuide] = useState(false);
 
   useEffect(() => {
@@ -318,6 +321,14 @@ export function EmailTemplatesPage() {
                 {/* Actions */}
                 <div className="border-t-2 border-gray-100 pt-4 flex gap-2">
                   <button
+                    onClick={() => setPreviewingTemplate(template)}
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-orange-500 text-orange-600 rounded-xl font-bold tracking-wide shadow-md hover:bg-orange-50 hover:shadow-lg hover:scale-105 transition-all text-sm"
+                    title="Preview template"
+                  >
+                    <EyeIcon className="h-4 w-4" />
+                    Preview
+                  </button>
+                  <button
                     onClick={() => handleSendEmail(template)}
                     className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-md hover:shadow-lg hover:scale-105 transition-all text-sm`}
                   >
@@ -367,6 +378,15 @@ export function EmailTemplatesPage() {
           isOpen={!!sendingTemplate}
           onClose={handleSendModalClose}
           template={sendingTemplate}
+        />
+      )}
+
+      {/* Preview Modal */}
+      {previewingTemplate && (
+        <PreviewTemplateModal
+          isOpen={!!previewingTemplate}
+          onClose={() => setPreviewingTemplate(null)}
+          template={previewingTemplate}
         />
       )}
 

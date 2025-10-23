@@ -5,6 +5,7 @@ import { AppError } from '../middleware/errorHandler';
 import { prisma } from '../app';
 import { logger } from '../utils/logger';
 import passport from '../config/passport';
+import { DefaultTemplateService } from '../services/default-template.service';
 
 const router = Router();
 
@@ -66,6 +67,11 @@ router.post('/register', validateRegistration, async (req: Request, res: Respons
     // Generate token
     const token = AuthUtils.generateToken(user as any);
 
+    // Create default email template for new user (async, don't wait)
+    DefaultTemplateService.ensureDefaultTemplate(user.id).catch((err) => {
+      logger.error('Failed to create default template on registration:', err);
+    });
+
     logger.info(`New user registered: ${email}`);
 
     res.status(201).json({
@@ -115,6 +121,11 @@ router.post('/login', validateLogin, async (req: Request, res: Response, next: N
 
     // Generate token
     const token = AuthUtils.generateToken(user);
+
+    // Ensure user has default email template (async, don't wait)
+    DefaultTemplateService.ensureDefaultTemplate(user.id).catch((err) => {
+      logger.error('Failed to ensure default template on login:', err);
+    });
 
     logger.info(`User logged in: ${email}`);
 
