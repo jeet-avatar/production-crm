@@ -115,6 +115,7 @@ export function ActivitiesPage() {
     endTime: '',
     attendees: [''],
     location: 'Online',
+    calendarPlatform: 'google', // google, zoom, teams
   });
 
   const [sendInvitation, setSendInvitation] = useState(false);
@@ -372,6 +373,7 @@ export function ActivitiesPage() {
         endTime: oneHourLater.toISOString().slice(0, 16),
         attendees: activity.contact?.email ? [activity.contact.email] : [''],
         location: 'Online',
+        calendarPlatform: 'google', // Default to Google Calendar
       });
       setSendInvitation(false); // Reset invitation checkbox
     }
@@ -486,6 +488,7 @@ export function ActivitiesPage() {
           attendees: attendees,
           location: meetingForm.location,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          calendarPlatform: meetingForm.calendarPlatform,
           sendInvitation: sendInvitation,
         }),
       });
@@ -1313,6 +1316,80 @@ export function ActivitiesPage() {
                       rows={4}
                       placeholder="Meeting description..."
                     />
+                  </div>
+
+                  {/* Calendar Platform Selection */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-3">
+                      Calendar Platform <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {/* Google Calendar */}
+                      <button
+                        type="button"
+                        onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'google' }))}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                          meetingForm.calendarPlatform === 'google'
+                            ? 'border-orange-500 bg-orange-50 shadow-md'
+                            : 'border-gray-300 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <svg className="w-8 h-8" viewBox="0 0 48 48" fill="none">
+                          <path d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" fill="#FFC107"/>
+                          <path d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" fill="#FF3D00"/>
+                          <path d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" fill="#4CAF50"/>
+                          <path d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" fill="#1976D2"/>
+                        </svg>
+                        <span className={`text-sm font-bold ${
+                          meetingForm.calendarPlatform === 'google' ? 'text-orange-700' : 'text-gray-700'
+                        }`}>
+                          Google
+                        </span>
+                      </button>
+
+                      {/* Zoom */}
+                      <button
+                        type="button"
+                        onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'zoom' }))}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                          meetingForm.calendarPlatform === 'zoom'
+                            ? 'border-orange-500 bg-orange-50 shadow-md'
+                            : 'border-gray-300 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <svg className="w-8 h-8" viewBox="0 0 48 48" fill="none">
+                          <rect width="48" height="48" rx="8" fill="#2D8CFF"/>
+                          <path d="M18 14h-8c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V16c0-1.1-.9-2-2-2zm20 4l-8 6v-4c0-1.1-.9-2-2-2h-4v12h4c1.1 0 2-.9 2-2v-4l8 6V18z" fill="white"/>
+                        </svg>
+                        <span className={`text-sm font-bold ${
+                          meetingForm.calendarPlatform === 'zoom' ? 'text-orange-700' : 'text-gray-700'
+                        }`}>
+                          Zoom
+                        </span>
+                      </button>
+
+                      {/* Microsoft Teams */}
+                      <button
+                        type="button"
+                        onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'teams' }))}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
+                          meetingForm.calendarPlatform === 'teams'
+                            ? 'border-orange-500 bg-orange-50 shadow-md'
+                            : 'border-gray-300 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <svg className="w-8 h-8" viewBox="0 0 48 48" fill="none">
+                          <path d="M24 4C12.954 4 4 12.954 4 24s8.954 20 20 20 20-8.954 20-20S35.046 4 24 4z" fill="#5059C9"/>
+                          <path d="M31 16h-6v16h6c1.1 0 2-.9 2-2V18c0-1.1-.9-2-2-2z" fill="white"/>
+                          <path d="M15 20h8v8h-8c-1.1 0-2-.9-2-2v-4c0-1.1.9-2 2-2z" fill="white"/>
+                        </svg>
+                        <span className={`text-sm font-bold ${
+                          meetingForm.calendarPlatform === 'teams' ? 'text-orange-700' : 'text-gray-700'
+                        }`}>
+                          Teams
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
