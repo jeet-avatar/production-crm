@@ -112,8 +112,8 @@ function StatCard({ title, value, change, trend, icon: Icon, gradient, iconColor
         {change && (
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
             trend === 'up'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
+              ? 'bg-orange-100 text-orange-700'
+              : 'bg-rose-100 text-rose-700'
           }`}>
             {trend === 'up' ? (
               <ArrowTrendingUpIcon className="h-3 w-3" />
@@ -152,7 +152,7 @@ function CircularProgress({ percentage, size = 80 }: { percentage: number; size?
           cx={size / 2}
           cy={size / 2}
           r={size / 2 - 5}
-          stroke={isGood ? '#10B981' : '#F59E0B'}
+          stroke={isGood ? '#f97316' : '#f59e0b'}
           strokeWidth="8"
           fill="none"
           strokeDasharray={circumference}
@@ -162,7 +162,7 @@ function CircularProgress({ percentage, size = 80 }: { percentage: number; size?
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`text-lg font-bold ${isGood ? 'text-green-600' : 'text-orange-600'}`}>
+        <span className={`text-lg font-bold ${isGood ? 'text-orange-600' : 'text-amber-600'}`}>
           {percentage.toFixed(0)}%
         </span>
       </div>
@@ -288,23 +288,23 @@ export function DashboardPage() {
           value={formatCurrency(stats.totalRevenue)}
           icon={CurrencyDollarIcon}
           gradient="from-orange-50 to-white"
-          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.deals.gradient}`}
+          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
           delay={0}
         />
         <StatCard
           title="Active Deals"
           value={stats.activeDeals}
           icon={ChartBarIcon}
-          gradient="from-amber-50 to-white"
-          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.contacts.gradient}`}
+          gradient="from-orange-50 to-white"
+          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
           delay={100}
         />
         <StatCard
           title="Total Contacts"
           value={formatNumber(stats.totalContacts)}
           icon={UserGroupIcon}
-          gradient="from-yellow-50 to-white"
-          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.companies.gradient}`}
+          gradient="from-orange-50 to-white"
+          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
           delay={200}
         />
         <StatCard
@@ -312,7 +312,7 @@ export function DashboardPage() {
           value={stats.totalCompanies}
           icon={BuildingOfficeIcon}
           gradient="from-orange-50 to-white"
-          iconColor={`bg-gradient-to-br ${gradients.pages.dashboard.activities.gradient}`}
+          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
           delay={300}
         />
       </div>
@@ -329,27 +329,30 @@ export function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => navigate('/contacts')}
-              className={`bg-gradient-to-r ${gradients.semantic.success.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              <UserGroupIcon className="w-4 h-4" />
-              Add Contact
+              <UserGroupIcon className="h-5 w-5" />
+              <span>Add Contact</span>
             </button>
 
             <button
+              type="button"
               onClick={() => navigate('/companies')}
-              className={`bg-gradient-to-r ${gradients.semantic.info.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              <BuildingOfficeIcon className="w-4 h-4" />
-              Add Company
+              <BuildingOfficeIcon className="h-5 w-5" />
+              <span>Add Company</span>
             </button>
 
             <button
+              type="button"
               onClick={() => navigate('/deals')}
-              className="bg-white text-orange-600 hover:bg-orange-50 font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              <BoltIcon className="w-4 h-4" />
-              Create Deal
+              <BoltIcon className="h-5 w-5" />
+              <span>Create Deal</span>
             </button>
           </div>
         </div>
@@ -380,11 +383,11 @@ export function DashboardPage() {
                       / {metric.label.includes('Revenue') ? formatCurrency(metric.target) : metric.target}
                     </span>
                   </div>
-                  <Sparkline data={metric.trend} color={isOnTarget ? '#10B981' : '#F59E0B'} />
+                  <Sparkline data={metric.trend} color={isOnTarget ? '#f97316' : '#f59e0b'} />
                 </div>
                 <CircularProgress percentage={percentage} />
               </div>
-              <div className={`flex items-center gap-2 text-sm font-medium ${isOnTarget ? 'text-green-600' : 'text-orange-600'}`}>
+              <div className={`flex items-center gap-2 text-sm font-medium ${isOnTarget ? 'text-orange-600' : 'text-rose-600'}`}>
                 {isOnTarget ? (
                   <CheckCircleIcon className="h-5 w-5" />
                 ) : (
@@ -406,7 +409,7 @@ export function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradients.semantic.warning.gradient} flex items-center justify-center`}>
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
                   <FireIcon className="h-5 w-5 text-white" />
                 </div>
                 Sales Pipeline
@@ -414,10 +417,11 @@ export function DashboardPage() {
               <p className="text-xs font-medium text-gray-600 mt-1">Deal distribution by stage</p>
             </div>
             <button
+              type="button"
               onClick={() => navigate('/deals')}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
             >
-              View All
+              <span>View All</span>
             </button>
           </div>
 
@@ -484,7 +488,7 @@ export function DashboardPage() {
         {/* Top Deals with Company Initials */}
         <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center`}>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
               <ChartBarIcon className="h-5 w-5 text-white" />
             </div>
             Top Deals
@@ -492,9 +496,9 @@ export function DashboardPage() {
           <div className="space-y-3">
             {stats.topDeals.map((deal, index) => {
               const dealGradients = [
-                gradients.pages.dashboard.deals.gradient,
-                gradients.pages.dashboard.contacts.gradient,
-                gradients.pages.dashboard.companies.gradient
+                'from-orange-500 to-rose-500',
+                'from-orange-400 to-rose-400',
+                'from-orange-600 to-rose-600'
               ];
               const colors = [
                 `bg-gradient-to-br ${dealGradients[0]}`,
@@ -562,7 +566,7 @@ export function DashboardPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${gradients.semantic.info.gradient} flex items-center justify-center`}>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
                 <ClockIcon className="h-5 w-5 text-white" />
               </div>
               Recent Activity
@@ -570,10 +574,11 @@ export function DashboardPage() {
             <p className="text-sm text-gray-500 mt-1">Latest updates from your team</p>
           </div>
           <button
+            type="button"
             onClick={() => navigate('/activities')}
-            className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
           >
-            View All
+            <span>View All</span>
           </button>
         </div>
 
@@ -584,7 +589,7 @@ export function DashboardPage() {
               className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200 hover:shadow-sm group"
               onClick={() => navigate('/activities')}
             >
-              <div className={`flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200`}>
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
                 <span className="text-2xl">{getActivityIcon(activity.type)}</span>
               </div>
               <div className="flex-1 min-w-0">
