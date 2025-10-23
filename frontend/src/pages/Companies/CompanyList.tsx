@@ -506,7 +506,7 @@ export function CompanyList() {
                               e.stopPropagation();
                               handleEditCompany(company);
                             }}
-                            className="px-3 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+                            className="px-3 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black text-xs font-semibold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                             title="Edit company"
                           >
                             <PencilIcon className="h-3.5 w-3.5" />
