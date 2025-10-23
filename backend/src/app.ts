@@ -32,6 +32,7 @@ import dashboardRoutes from './routes/dashboard';
 import enrichmentRoutes from './routes/enrichment';
 import emailComposerRoutes from './routes/emailComposer';
 import csvImportRoutes from './routes/csvImport';
+import calendarAuthRoutes from './routes/calendar-auth';
 import positionRoutes from './routes/positions';
 import emailServerRoutes from './routes/emailServers';
 // import emailTrackingRoutes from "./routes/emailTracking";
@@ -287,6 +288,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/enrichment', enrichmentRoutes);
 app.use('/api/email-composer', emailComposerRoutes);
 app.use('/api/csv-import', csvImportRoutes);
+app.use('/api/calendar', calendarAuthRoutes); // Enterprise calendar OAuth
 app.use('/api/positions', positionRoutes);
 app.use('/api/email-servers', emailServerRoutes);
 // app.use("/api/tracking", emailTrackingRoutes);

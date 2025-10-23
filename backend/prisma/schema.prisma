@@ -136,19 +136,28 @@ model User {
   passwordResetToken  String? // Reset token
   passwordResetExpiry DateTime? // Reset token expiry (1 hour)
 
-  // Notification Preferences
-  emailNotifications Boolean @default(true)
-  dealUpdates        Boolean @default(true)
-  newContacts        Boolean @default(false)
-  weeklyReport       Boolean @default(true)
-  marketingEmails    Boolean @default(false)
+  // Calendar OAuth Fields (for enterprise-level calendar sync)
+  // Google Calendar
+  googleCalendarAccessToken   String?
+  googleCalendarRefreshToken  String?
+  googleCalendarTokenExpiry   DateTime?
+  googleCalendarConnected     Boolean   @default(false)
+  googleCalendarEmail         String? // Which Google account is connected
 
-  // User Preferences
-  language           String  @default("en") // Language preference (en, es, fr, etc.)
-  dateFormat         String  @default("MM/DD/YYYY") // Date format preference
-  timeFormat         String  @default("12h") // 12h or 24h
-  theme              String  @default("light") // light, dark, or system
-  compactView        Boolean @default(false) // Compact UI mode
+  // Zoom
+  zoomAccessToken    String?
+  zoomRefreshToken   String?
+  zoomTokenExpiry    DateTime?
+  zoomConnected      Boolean   @default(false)
+  zoomUserId         String? // Zoom user ID
+  zoomUserEmail      String? // Zoom account email
+
+  // Microsoft Outlook/Teams
+  outlookAccessToken   String?
+  outlookRefreshToken  String?
+  outlookTokenExpiry   DateTime?
+  outlookConnected     Boolean   @default(false)
+  outlookEmail         String? // Which Outlook account is connected
 
   // Relationships
   contacts           Contact[]
@@ -164,10 +173,8 @@ model User {
   tags               Tag[]
   positions          Position[]
   leads              Lead[]
-  videoTemplates     VideoTemplate[] @relation("VideoTemplates")
+  videoTemplates     VideoTemplate[]     @relation("VideoTemplates")
   videoCampaigns     VideoCampaign[]
-  activityLogs       ActivityLog[]
-  uiConfigs          UIConfig[]
 
   // Team relationships
   accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
@@ -182,7 +189,7 @@ model User {
   sharedActivities ActivityShare[]
 
   // Assigned data relationships
-  assignedContacts Contact[] @relation("AssignedContacts")
+  assignedContacts  Contact[] @relation("AssignedContacts")
   assignedCompanies Company[] @relation("AssignedCompanies")
 
   @@index([accountOwnerId])
@@ -200,7 +207,7 @@ model Contact {
   phone         String?
   title         String?
   role          String? // CEO, CFO, CTO, Controller, IT Director, etc.
-  status        ContactStatus? // No default - must be set explicitly by user
+  status        ContactStatus @default(LEAD)
   source        String?
   score         Int           @default(0)
   customFields  Json?
@@ -260,7 +267,7 @@ model Company {
   logo        String?
 
   // Data Source Tracking
-  dataSource String?   @map("data_source") // "manual", "apollo", "csv_import", "ai_enrichment" - no default, set by system
+  dataSource String?   @default("manual") @map("data_source") // "manual", "apollo", "csv_import", "ai_enrichment"
   importedAt DateTime? @map("imported_at")
   intent     String?   @db.Text // Intent of hiring for the position
   hiringInfo String?   @map("hiring_info") @db.Text // Recent hiring post info
@@ -306,7 +313,7 @@ model Company {
   aiEmployeeRange  String?
   aiRevenue        String?
   aiFoundedYear    Int?
-  enrichmentStatus String? // pending, enriching, enriched, failed - no default, set by enrichment process
+  enrichmentStatus String?  @default("pending") // pending, enriching, enriched, failed
 
   // Decision Makers Data (Page 3 of CSV)
   jobPostings  String? @db.Text // Recent job postings
@@ -323,14 +330,14 @@ model Company {
   assignedToId String? // Team member this company is assigned to
 
   // Relationships
-  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assignedTo User?             @relation("AssignedCompanies", fields: [assignedToId], references: [id], onDelete: SetNull)
-  contacts   Contact[]
-  deals      Deal[]
-  campaigns       CampaignCompany[]
-  positions       Position[]
-  shares          CompanyShare[] // Team members this company is shared with
-  videoCampaigns  VideoCampaignCompany[] @relation("VideoCampaigns")
+  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo     User?                  @relation("AssignedCompanies", fields: [assignedToId], references: [id], onDelete: SetNull)
+  contacts       Contact[]
+  deals          Deal[]
+  campaigns      CampaignCompany[]
+  positions      Position[]
+  shares         CompanyShare[] // Team members this company is shared with
+  videoCampaigns VideoCampaignCompany[] @relation("VideoCampaigns")
 
   @@index([userId])
   @@index([assignedToId])
@@ -474,18 +481,15 @@ model Activity {
 }
 
 model EmailTemplate {
-  id           String   @id @default(cuid())
-  name         String
-  subject      String
-  htmlContent  String
-  textContent  String?
-  variables    Json? // Array of variable names like ["firstName", "companyName"]
-  templateType String   @default("custom") // welcome, followup, reminder, custom
-  fromEmail    String   @default("support@brandmonkz.com")
-  fromName     String   @default("BrandMonkz")
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  subject     String
+  htmlContent String
+  textContent String?
+  variables   Json? // Array of variable names like ["firstName", "companyName"]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Foreign keys
   userId String
@@ -495,8 +499,27 @@ model EmailTemplate {
   campaigns Campaign[]
 
   @@index([userId])
-  @@index([templateType])
   @@map("email_templates")
+}
+
+model SystemEmailTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  type        String // welcome, subscription_upgrade, notification, etc.
+  subject     String
+  htmlContent String
+  textContent String?
+  variables   Json? // Array of variable names
+  fromEmail   String // Email address to send from (must be SES verified)
+  fromName    String? // Name to show in "From" field
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([type]) // One template per type (except custom)
+  @@index([type])
+  @@index([isActive])
+  @@map("system_email_templates")
 }
 
 model Campaign {
@@ -1057,89 +1080,102 @@ model VideoTemplate {
   tags         String[] @default([]) // Searchable tags
 
   // Template ownership
-  isSystem     Boolean  @default(false) // System template vs user-uploaded
-  userId       String? // null for system templates
+  isSystem Boolean @default(false) // System template vs user-uploaded
+  userId   String? // null for system templates
 
   // User preferences
-  isFavorite   Boolean  @default(false)
-  isPublic     Boolean  @default(false) // Share with team
-  usageCount   Int      @default(0) // Track popularity
+  isFavorite Boolean @default(false)
+  isPublic   Boolean @default(false) // Share with team
+  usageCount Int     @default(0) // Track popularity
+
+  // Free template integration (Mixkit, Pexels, etc.)
+  sourceProvider String? // Mixkit, Pexels, Custom
+  downloadUrl    String? @db.Text // External download URL for free templates
+  license        String? @db.Text // License information
+  software       String? // Premiere Pro, After Effects, Final Cut Pro
+  isFree         Boolean @default(false) // Free template from external source
+  isPremium      Boolean @default(false) // Premium template
 
   // Metadata
-  metadata     Json? // Additional metadata
+  metadata Json? // Additional metadata
 
   // Timestamps
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
-  user         User?          @relation("VideoTemplates", fields: [userId], references: [id], onDelete: Cascade)
-  campaigns    VideoCampaign[]
+  user      User?           @relation("VideoTemplates", fields: [userId], references: [id], onDelete: Cascade)
+  campaigns VideoCampaign[]
 
   @@index([userId])
   @@index([category])
   @@index([isSystem])
   @@index([isFavorite])
   @@index([usageCount])
+  @@index([isFree])
+  @@index([sourceProvider])
   @@map("video_templates")
 }
 
 // Video Campaign
 model VideoCampaign {
-  id              String               @id @default(cuid())
-  name            String
-  status          VideoCampaignStatus  @default(DRAFT)
+  id     String              @id @default(cuid())
+  name   String
+  status VideoCampaignStatus @default(DRAFT)
 
   // Video Source
-  videoSource     VideoSourceType      @default(TEMPLATE)
-  templateId      String? // If using template from library
-  customVideoUrl  String? // If uploaded custom video or URL
+  videoSource    VideoSourceType @default(TEMPLATE)
+  templateId     String? // If using template from library
+  customVideoUrl String? // If uploaded custom video or URL
 
   // Video Content
-  narrationScript String               @db.Text
-  tone            String? // professional, friendly, enthusiastic, persuasive - must be selected by user
+  narrationScript String @db.Text
+  tone            String @default("professional") // professional, friendly, enthusiastic, persuasive
 
-  // Voice Settings - ElevenLabs Integration
-  voiceId         String? // ElevenLabs voice ID selected by user (no hardcoded default)
-  customVoiceUrl  String? // Custom uploaded voice file URL
+  // Voice Settings
+  voiceId        String? // ElevenLabs voice ID or preset voice ID
+  customVoiceUrl String? // URL to custom uploaded voice sample
 
   // Visual Elements
-  clientLogoUrl   String? // Client company logo
-  userLogoUrl     String? // User's company logo
-  bgmUrl          String? // Background music URL
-  bgmVolume       Float                @default(0.1) // BGM volume (0.0 to 1.0)
+  clientLogoUrl String? // Client company logo
+  userLogoUrl   String? // User's company logo
+  bgmUrl        String? // Background music URL
+  bgmVolume     Float   @default(0.1) // BGM volume (0.0 to 1.0)
 
   // Text Overlays (JSON array)
-  textOverlays    Json? // [{text, startTime, duration, fontSize, color, position}]
+  textOverlays Json? // [{text, startTime, duration, fontSize, color, position}]
 
   // Generated Video
-  videoUrl        String? // Final generated video URL (S3)
-  thumbnailUrl    String? // Video thumbnail
-  duration        Int? // Final video duration in seconds
+  videoUrl     String? // Final generated video URL (S3)
+  thumbnailUrl String? // Video thumbnail
+  duration     Int? // Final video duration in seconds
 
   // Generation metadata
-  generatedAt     DateTime?
-  generationError String?              @db.Text
-  generationTime  Int? // Time taken to generate in seconds
+  generatedAt         DateTime?
+  generationError     String?   @db.Text
+  generationTime      Int? // Time taken to generate in seconds
+  processingStartedAt DateTime? // When video generation started
+  progressPercent     Int?      @default(0) // Progress percentage (0-100)
+  estimatedCompletion DateTime? // Estimated completion time
 
   // Analytics
-  views           Int                  @default(0)
-  clicks          Int                  @default(0)
-  shares          Int                  @default(0)
-  downloads       Int                  @default(0)
+  views     Int @default(0)
+  clicks    Int @default(0)
+  shares    Int @default(0)
+  downloads Int @default(0)
 
   // Timestamps
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Foreign Keys
-  userId          String
+  userId String
 
   // Relationships
-  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  template        VideoTemplate?       @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  companies       VideoCampaignCompany[]
-  jobs            VideoGenerationJob[]
+  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template  VideoTemplate?         @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  companies VideoCampaignCompany[]
+  jobs      VideoGenerationJob[]
 
   @@index([userId])
   @@index([status])
@@ -1155,19 +1191,19 @@ model VideoCampaignCompany {
   companyId  String
 
   // Tracking
-  sentAt     DateTime?
-  viewed     Boolean  @default(false)
-  clicked    Boolean  @default(false)
-  viewedAt   DateTime?
-  clickedAt  DateTime?
-  viewCount  Int      @default(0)
+  sentAt    DateTime?
+  viewed    Boolean   @default(false)
+  clicked   Boolean   @default(false)
+  viewedAt  DateTime?
+  clickedAt DateTime?
+  viewCount Int       @default(0)
 
   // Metadata
-  addedAt    DateTime @default(now())
+  addedAt DateTime @default(now())
 
   // Relationships
-  campaign   VideoCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  company    Company       @relation("VideoCampaigns", fields: [companyId], references: [id], onDelete: Cascade)
+  campaign VideoCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  company  Company       @relation("VideoCampaigns", fields: [companyId], references: [id], onDelete: Cascade)
 
   @@id([campaignId, companyId])
   @@index([campaignId])
@@ -1177,177 +1213,36 @@ model VideoCampaignCompany {
 
 // Video Generation Job Queue
 model VideoGenerationJob {
-  id           String   @id @default(cuid())
-  campaignId   String
+  id         String @id @default(cuid())
+  campaignId String
 
   // Job Status
-  status       String   @default("pending") // pending, processing, completed, failed
-  progress     Int      @default(0) // 0-100
+  status   String @default("pending") // pending, processing, completed, failed
+  progress Int    @default(0) // 0-100
 
   // Job Details
   startedAt    DateTime?
   completedAt  DateTime?
-  errorMessage String?  @db.Text
+  errorMessage String?   @db.Text
 
   // Queue metadata
-  queueId      String? // Bull queue job ID
-  attempts     Int      @default(0)
-  maxAttempts  Int      @default(3)
+  queueId     String? // Bull queue job ID
+  attempts    Int     @default(0)
+  maxAttempts Int     @default(3)
 
   // Processing metadata
-  currentStep  String? // Which step is currently processing
-  logs         Json? // Processing logs array
+  currentStep String? // Which step is currently processing
+  logs        Json? // Processing logs array
 
   // Timestamps
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
-  campaign     VideoCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaign VideoCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
   @@index([campaignId])
   @@index([status])
   @@index([createdAt])
   @@map("video_generation_jobs")
-}
-
-// ===================================
-// ACTIVITY LOGS (AUDIT TRAIL)
-// ===================================
-
-enum ActivityLogAction {
-  USER_LOGIN
-  USER_LOGOUT
-  USER_CREATED
-  USER_UPDATED
-  USER_DELETED
-  CONTACT_CREATED
-  CONTACT_UPDATED
-  CONTACT_DELETED
-  COMPANY_CREATED
-  COMPANY_UPDATED
-  COMPANY_DELETED
-  DEAL_CREATED
-  DEAL_UPDATED
-  DEAL_DELETED
-  EMAIL_SENT
-  VIDEO_GENERATED
-  DATABASE_QUERY
-  SETTINGS_CHANGED
-  PASSWORD_RESET
-  API_KEY_ROTATED
-  TEAM_INVITE_SENT
-  TEAM_MEMBER_REMOVED
-}
-
-model ActivityLog {
-  id          String            @id @default(cuid())
-  action      ActivityLogAction
-  entityType  String? // contacts, companies, deals, users
-  entityId    String? // ID of the entity affected
-  description String? // Human-readable description
-  ipAddress   String?
-  userAgent   String?
-  metadata    Json? // Additional context data
-  createdAt   DateTime          @default(now())
-
-  // Foreign keys
-  userId String?
-
-  // Relationships
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([action])
-  @@index([createdAt])
-  @@index([entityType])
-  @@index([ipAddress])
-  @@map("activity_logs")
-}
-
-// UI Configuration Models for Super Admin
-model UIConfig {
-  id          String   @id @default(cuid())
-  key         String   @unique // e.g., "navigation", "theme", "branding"
-  value       Json // Flexible JSON structure for any UI config
-  isActive    Boolean  @default(true)
-  version     Int      @default(1)
-  description String? // What this config controls
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  createdBy   String?
-
-  user User? @relation(fields: [createdBy], references: [id], onDelete: SetNull)
-
-  @@index([key])
-  @@index([isActive])
-  @@map("ui_configs")
-}
-
-model NavigationItem {
-  id          String   @id @default(cuid())
-  label       String // Display name
-  path        String // Route path
-  icon        String? // Icon name
-  order       Int      @default(0) // Display order
-  isVisible   Boolean  @default(true)
-  isActive    Boolean  @default(true)
-  parentId    String? // For nested navigation
-  roles       String[] // Which roles can see this (JSON array)
-  badge       String? // Optional badge text
-  badgeColor  String? // Badge color
-  metadata    Json? // Additional settings
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  parent   NavigationItem?  @relation("NavigationHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
-  children NavigationItem[] @relation("NavigationHierarchy")
-
-  @@index([order])
-  @@index([isVisible])
-  @@index([parentId])
-  @@map("navigation_items")
-}
-
-model ThemeConfig {
-  id              String   @id @default(cuid())
-  name            String   @unique
-  primaryColor    String // Hex color
-  secondaryColor  String
-  accentColor     String
-  backgroundColor String
-  textColor       String
-  sidebarColor    String?
-  headerColor     String?
-  buttonStyles    Json? // Custom button styles
-  fontFamily      String?
-  fontSize        String?
-  borderRadius    String?
-  customCSS       String? @db.Text // Additional custom CSS
-  isActive        Boolean  @default(false) // Only one active at a time
-  isDefault       Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([isActive])
-  @@map("theme_configs")
-}
-
-model BrandingConfig {
-  id              String   @id @default(cuid())
-  companyName     String
-  logoUrl         String?
-  faviconUrl      String?
-  loginBgImage    String?
-  dashboardBanner String?
-  footerText      String?
-  supportEmail    String?
-  supportPhone    String?
-  socialLinks     Json? // Twitter, LinkedIn, etc.
-  metadata        Json? // Additional branding data
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@map("branding_configs")
 }
