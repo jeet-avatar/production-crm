@@ -38,6 +38,7 @@ interface Contact {
     firstName: string;
     lastName: string;
   };
+  customFields?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
 }
@@ -362,6 +363,28 @@ export function ContactDetail() {
                   </div>
                 )}
               </div>
+
+              {/* Custom Fields */}
+              {contact.customFields && Object.keys(contact.customFields).length > 0 && (
+                <div className="apple-card">
+                  <h3 className="apple-heading-3 mb-4 flex items-center gap-2">
+                    <SparklesIcon className="h-5 w-5 text-orange-600" />
+                    Custom Fields
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(contact.customFields).map(([key, value]) => (
+                      <div key={key} className="bg-gradient-to-br from-orange-50 to-rose-50 p-4 rounded-lg border border-orange-200">
+                        <label className="block text-sm font-semibold text-gray-800 mb-1">
+                          {key}
+                        </label>
+                        <p className="text-sm text-gray-900 font-medium">
+                          {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {contact.company && (
                 <div className="apple-card">
