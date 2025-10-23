@@ -10,10 +10,12 @@ import {
   CheckIcon,
   XMarkIcon,
   SparklesIcon,
+  PhoneIcon,
+  CalendarIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
 
-type SettingsTab = 'profile' | 'account' | 'notifications' | 'security' | 'preferences' | 'billing';
+type SettingsTab = 'profile' | 'account' | 'notifications' | 'security' | 'preferences' | 'billing' | 'integrations';
 
 interface UserData {
   id: string;
@@ -90,6 +92,10 @@ export function SettingsPage() {
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   const [currentPlan, setCurrentPlan] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
+
+  // Integrations
+  const [googleVoiceNumber, setGoogleVoiceNumber] = useState('');
+  const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
 
   // Fetch user data on component mount
   useEffect(() => {
@@ -450,6 +456,7 @@ export function SettingsPage() {
     { id: 'notifications' as SettingsTab, name: 'Notifications', icon: BellIcon },
     { id: 'security' as SettingsTab, name: 'Security', icon: ShieldCheckIcon },
     { id: 'preferences' as SettingsTab, name: 'Preferences', icon: GlobeAltIcon },
+    { id: 'integrations' as SettingsTab, name: 'Integrations', icon: PhoneIcon },
     { id: 'billing' as SettingsTab, name: 'Billing', icon: CreditCardIcon },
   ];
 
@@ -989,6 +996,223 @@ export function SettingsPage() {
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {/* Integrations Tab */}
+          {activeTab === 'integrations' && (
+            <div className="card">
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-900">Integrations</h2>
+                <p className="text-sm text-gray-600 mt-1">Connect external services to enhance your CRM</p>
+              </div>
+              <div className="p-6 space-y-8">
+                {/* Google Voice Integration */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <PhoneIcon className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Google Voice</h3>
+                        <p className="text-sm text-gray-600">Make calls directly from the CRM using your Google Voice number</p>
+                      </div>
+                    </div>
+                    {googleVoiceNumber ? (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <CheckIcon className="h-4 w-4" />
+                        Connected
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                        Not Connected
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Google Voice Number
+                      </label>
+                      <div className="flex gap-3">
+                        <input
+                          type="tel"
+                          value={googleVoiceNumber}
+                          onChange={(e) => setGoogleVoiceNumber(e.target.value)}
+                          placeholder="Enter your Google Voice number (e.g., +1 234 567 8900)"
+                          className="input flex-1"
+                        />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              setIsSaving(true);
+                              // Save Google Voice number to user profile
+                              const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/profile`, {
+                                method: 'PUT',
+                                headers: {
+                                  'Authorization': `Bearer ${localStorage.getItem('crmToken')}`,
+                                  'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ googleVoiceNumber }),
+                              });
+
+                              if (!response.ok) throw new Error('Failed to save');
+
+                              alert('✅ Google Voice number saved successfully!');
+                            } catch (err) {
+                              alert('❌ Failed to save Google Voice number');
+                            } finally {
+                              setIsSaving(false);
+                            }
+                          }}
+                          className="btn-primary whitespace-nowrap"
+                          disabled={isSaving}
+                        >
+                          {isSaving ? 'Saving...' : 'Save'}
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        📱 Don't have a Google Voice number? <a href="https://voice.google.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Get one for free</a>
+                      </p>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-4">
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">How it works:</h4>
+                      <ul className="text-sm text-gray-600 space-y-1.5">
+                        <li>• Click "Make Call" on any contact</li>
+                        <li>• Choose "Phone Call" option</li>
+                        <li>• Your Google Voice app will open with the number pre-filled</li>
+                        <li>• All calls are automatically logged in your CRM</li>
+                      </ul>
+                    </div>
+
+                    {googleVoiceNumber && (
+                      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                        <div className="flex gap-3">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="text-sm">
+                            <p className="font-medium text-blue-900">Your Google Voice number is connected!</p>
+                            <p className="text-blue-700 mt-1">Number: {googleVoiceNumber}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Google Calendar Integration */}
+                <div className="border-t border-gray-200 pt-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <CalendarIcon className="h-6 w-6 text-red-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Google Calendar</h3>
+                        <p className="text-sm text-gray-600">Sync meetings and activities with your Google Calendar</p>
+                      </div>
+                    </div>
+                    {googleCalendarConnected ? (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <CheckIcon className="h-4 w-4" />
+                        Connected
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                        Not Connected
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                    {!googleCalendarConnected ? (
+                      <>
+                        <p className="text-sm text-gray-600">
+                          Connect your Google Calendar to automatically sync meetings, create calendar events, and send invitations.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            window.location.href = `${import.meta.env.VITE_API_URL}/api/calendar/google/connect`;
+                          }}
+                          className="btn-primary"
+                        >
+                          Connect Google Calendar
+                        </button>
+                      </>
+                    ) : (
+                      <div className="bg-green-50 border border-green-100 rounded-lg p-4">
+                        <div className="flex gap-3">
+                          <CheckIcon className="h-5 w-5 text-green-600 flex-shrink-0" />
+                          <div className="text-sm">
+                            <p className="font-medium text-green-900">Google Calendar is connected!</p>
+                            <p className="text-green-700 mt-1">Meetings and activities are automatically synced</p>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (confirm('Are you sure you want to disconnect Google Calendar?')) {
+                                  try {
+                                    await fetch(`${import.meta.env.VITE_API_URL}/api/calendar/google/disconnect`, {
+                                      method: 'POST',
+                                      headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('crmToken')}`,
+                                        'Content-Type': 'application/json',
+                                      },
+                                    });
+                                    setGoogleCalendarConnected(false);
+                                    alert('✅ Google Calendar disconnected');
+                                  } catch (err) {
+                                    alert('❌ Failed to disconnect');
+                                  }
+                                }
+                              }}
+                              className="text-sm text-green-700 hover:text-green-800 underline mt-2"
+                            >
+                              Disconnect
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Coming Soon: Other Integrations */}
+                <div className="border-t border-gray-200 pt-8">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Coming Soon</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-lg p-4 opacity-60">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <SparklesIcon className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Zoom</h4>
+                          <p className="text-xs text-gray-600">Video conferencing</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 opacity-60">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                          <EnvelopeIcon className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Gmail</h4>
+                          <p className="text-xs text-gray-600">Email integration</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
