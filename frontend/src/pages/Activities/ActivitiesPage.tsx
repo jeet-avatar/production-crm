@@ -78,6 +78,7 @@ export function ActivitiesPage() {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
   const [showHelpGuide, setShowHelpGuide] = useState(false);
+  const [expandedEmails, setExpandedEmails] = useState<Set<string>>(new Set());
 
   // Email templates state
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
@@ -448,6 +449,37 @@ export function ActivitiesPage() {
     setTimeout(() => setNotification(null), 5000);
   };
 
+  const toggleEmailExpansion = (activityId: string) => {
+    setExpandedEmails(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(activityId)) {
+        newSet.delete(activityId);
+      } else {
+        newSet.add(activityId);
+      }
+      return newSet;
+    });
+  };
+
+  const getEmailPreview = (description: string | undefined, maxLines: number = 2) => {
+    if (!description) return 'No content';
+
+    // Remove HTML tags
+    const plainText = description.replace(/<[^>]*>/g, '');
+
+    // Split into lines and take first N lines
+    const lines = plainText.split('\n').filter(line => line.trim().length > 0);
+    const preview = lines.slice(0, maxLines).join(' ');
+
+    // Limit to reasonable character count (approximately 2 lines)
+    const charLimit = 150;
+    if (preview.length > charLimit) {
+      return preview.substring(0, charLimit) + '...';
+    }
+
+    return preview || 'No content';
+  };
+
   const addField = (field: 'to' | 'cc' | 'bcc' | 'attendees') => {
     if (field === 'attendees') {
       setMeetingForm(prev => ({ ...prev, attendees: [...prev.attendees, ''] }));
@@ -725,7 +757,48 @@ export function ActivitiesPage() {
                           </div>
                         </div>
 
-                        <p className="text-gray-600 text-sm mb-3">{activity.description || 'No description'}</p>
+                        {/* Email content with Read More functionality */}
+                        {isEmail && activity.emailStatus === 'sent' ? (
+                          <div className="mb-3">
+                            <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
+                              <div className="text-sm text-gray-600 mb-2">
+                                {expandedEmails.has(activity.id) ? (
+                                  <div
+                                    className="whitespace-pre-wrap"
+                                    dangerouslySetInnerHTML={{
+                                      __html: activity.description || 'No content'
+                                    }}
+                                  />
+                                ) : (
+                                  <p className="line-clamp-2">{getEmailPreview(activity.description)}</p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => toggleEmailExpansion(activity.id)}
+                                className="inline-flex items-center gap-1 text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors"
+                              >
+                                {expandedEmails.has(activity.id) ? (
+                                  <>
+                                    <span>Show Less</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                    </svg>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span>Read More</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 text-sm mb-3">{activity.description || 'No description'}</p>
+                        )}
 
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span>{formatDate(activity.createdAt)}</span>
