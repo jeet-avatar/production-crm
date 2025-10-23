@@ -291,7 +291,7 @@ export function CompanyDetail() {
   if (error || !company) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
-        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-r-lg">
+        <div className="bg-rose-50 border-l-4 border-rose-500 text-rose-700 px-6 py-4 rounded-r-lg">
           {error || 'Company not found'}
         </div>
       </div>
@@ -608,15 +608,15 @@ export function CompanyDetail() {
                 <div className="mb-4 p-3 bg-white rounded-lg border border-gray-200">
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Enrichment Status:</h3>
                   <div className="space-y-1 text-xs">
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.creditRating?.success ? 'text-green-700' : 'text-red-600'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.creditRating?.success ? 'text-orange-700' : 'text-rose-600'}`}>
                       {company.socialFlowData.enrichmentStatus.creditRating?.success ? '✅' : '❌'}
                       <span>Credit Rating {company.socialFlowData.enrichmentStatus.creditRating?.error && `- ${company.socialFlowData.enrichmentStatus.creditRating.error}`}</span>
                     </div>
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.socialMedia?.success ? 'text-green-700' : 'text-red-600'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.socialMedia?.success ? 'text-orange-700' : 'text-rose-600'}`}>
                       {company.socialFlowData.enrichmentStatus.socialMedia?.success ? '✅' : '❌'}
                       <span>Social Media {company.socialFlowData.enrichmentStatus.socialMedia?.error && `- ${company.socialFlowData.enrichmentStatus.socialMedia.error}`}</span>
                     </div>
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? 'text-green-700' : 'text-red-600'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? 'text-orange-700' : 'text-rose-600'}`}>
                       {company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? '✅' : '❌'}
                       <span>AI Analysis {company.socialFlowData.enrichmentStatus.aiAnalysis?.error && `- ${company.socialFlowData.enrichmentStatus.aiAnalysis.error}`}</span>
                     </div>
@@ -673,7 +673,7 @@ export function CompanyDetail() {
                       )}
                       {company.socialFlowData.socialMedia.youtube && (
                         <a href={company.socialFlowData.socialMedia.youtube} target="_blank" rel="noopener noreferrer"
-                           className="flex items-center gap-2 text-red-600 hover:text-red-800 hover:underline">
+                           className="flex items-center gap-2 text-rose-600 hover:text-rose-800 hover:underline">
                           <span>📺 YouTube</span>
                         </a>
                       )}
@@ -748,9 +748,9 @@ export function CompanyDetail() {
 
           {/* Intent & Hiring Info */}
           {company.intent && (
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6">
+            <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-orange-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <FireIcon className="w-5 h-5 text-green-600" />
+                <FireIcon className="w-5 h-5 text-orange-600" />
                 Intent of Hiring
               </h2>
               <p className="text-gray-700 leading-relaxed">{company.intent}</p>
@@ -792,7 +792,7 @@ export function CompanyDetail() {
 
                 {company.aiPitch && (
                   <div className="bg-white rounded-lg p-4 border border-orange-200">
-                    <div className="text-sm font-semibold text-green-700 mb-2">AI Solution Pitch</div>
+                    <div className="text-sm font-semibold text-orange-700 mb-2">AI Solution Pitch</div>
                     <p className="text-gray-700 text-sm whitespace-pre-wrap">{company.aiPitch}</p>
                   </div>
                 )}
