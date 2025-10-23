@@ -506,71 +506,89 @@ export function DashboardPage() {
             </div>
             Top Deals
           </h3>
-          <div className="space-y-3">
-            {stats.topDeals.map((deal, index) => {
-              const dealGradients = [
-                'from-orange-500 to-rose-500',
-                'from-orange-400 to-rose-400',
-                'from-orange-600 to-rose-600'
-              ];
-              const colors = [
-                `bg-gradient-to-br ${dealGradients[0]}`,
-                `bg-gradient-to-br ${dealGradients[1]}`,
-                `bg-gradient-to-br ${dealGradients[2]}`
-              ];
-              const bgColors = ['bg-orange-50', 'bg-amber-50', 'bg-yellow-50'];
+          {stats.topDeals.length > 0 ? (
+            <div className="space-y-3">
+              {stats.topDeals.map((deal, index) => {
+                const dealGradients = [
+                  'from-orange-500 to-rose-500',
+                  'from-orange-400 to-rose-400',
+                  'from-orange-600 to-rose-600'
+                ];
+                const colors = [
+                  `bg-gradient-to-br ${dealGradients[0]}`,
+                  `bg-gradient-to-br ${dealGradients[1]}`,
+                  `bg-gradient-to-br ${dealGradients[2]}`
+                ];
+                const bgColors = ['bg-orange-50', 'bg-amber-50', 'bg-yellow-50'];
 
-              return (
-                <div
-                  key={deal.id}
-                  className={`p-4 rounded-xl ${bgColors[index]} hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-300 group`}
-                  onClick={() => navigate('/deals')}
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    {/* Company Logo Placeholder */}
-                    <div className={`w-12 h-12 rounded-xl ${colors[index]} flex items-center justify-center text-white font-bold shadow-md group-hover:scale-110 transition-transform duration-200`}>
-                      {getInitials(deal.company)}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-medium text-orange-600 bg-white px-2 py-0.5 rounded-full shadow-sm">
-                          #{index + 1}
-                        </span>
-                        <h4 className="text-sm font-medium text-gray-900">{deal.company}</h4>
+                return (
+                  <div
+                    key={deal.id}
+                    className={`p-4 rounded-xl ${bgColors[index]} hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-300 group`}
+                    onClick={() => navigate('/deals')}
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      {/* Company Logo Placeholder */}
+                      <div className={`w-12 h-12 rounded-xl ${colors[index]} flex items-center justify-center text-white font-bold shadow-md group-hover:scale-110 transition-transform duration-200`}>
+                        {getInitials(deal.company)}
                       </div>
-                      <p className="text-xs font-medium text-gray-600">{deal.stage}</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs font-medium text-orange-600 bg-white px-2 py-0.5 rounded-full shadow-sm">
+                            #{index + 1}
+                          </span>
+                          <h4 className="text-sm font-medium text-gray-900">{deal.company}</h4>
+                        </div>
+                        <p className="text-xs font-medium text-gray-600">{deal.stage}</p>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-4xl font-bold tracking-tight text-gray-900">{formatCurrency(deal.value)}</span>
-                  </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-4xl font-bold tracking-tight text-gray-900">{formatCurrency(deal.value)}</span>
+                    </div>
 
-                  {/* Probability Bar */}
-                  <div className="mb-2">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-xs font-medium text-gray-600">Win Probability</span>
-                      <span className="text-sm font-medium text-gray-900">{deal.probability}%</span>
+                    {/* Probability Bar */}
+                    <div className="mb-2">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-xs font-medium text-gray-600">Win Probability</span>
+                        <span className="text-sm font-medium text-gray-900">{deal.probability}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          className={`h-2 rounded-full ${colors[index]} transition-all duration-500 shadow-sm`}
+                          style={{ width: `${deal.probability}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div
-                        className={`h-2 rounded-full ${colors[index]} transition-all duration-500 shadow-sm`}
-                        style={{ width: `${deal.probability}%` }}
-                      ></div>
-                    </div>
-                  </div>
 
-                  {/* Owner Avatar */}
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
-                    <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold text-gray-700">
-                      {getInitials(deal.owner)}
+                    {/* Owner Avatar */}
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
+                      <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold text-gray-700">
+                        {getInitials(deal.owner)}
+                      </div>
+                      <span className="text-xs text-gray-600">{deal.owner}</span>
                     </div>
-                    <span className="text-xs text-gray-600">{deal.owner}</span>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <ChartBarIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-sm font-medium text-gray-500 text-center">No deals yet</p>
+              <p className="text-xs text-gray-400 mt-1 text-center">Start tracking deals to see your top opportunities</p>
+              <button
+                type="button"
+                onClick={() => navigate('/deals')}
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md text-sm"
+              >
+                <PlusIcon className="w-4 h-4" />
+                <span>Create Deal</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
