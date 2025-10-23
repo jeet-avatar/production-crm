@@ -1399,10 +1399,13 @@ export function SettingsPage() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                       {pricingPlans.map((plan) => {
-                        // Get dynamic gradient for this plan
-                        const planGradient = gradients.pages.pricing[plan.id as keyof typeof gradients.pages.pricing];
-                        const headerGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient}` : 'bg-gradient-to-r from-gray-500 to-gray-700';
-                        const buttonGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}` : 'bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-700 hover:to-rose-700';
+                        // Get dynamic gradient for this plan with safe fallback
+                        const pricingGradients = gradients?.pages?.pricing || {};
+                        const planGradient = pricingGradients[plan.id as keyof typeof pricingGradients];
+                        const headerGradientClass = planGradient?.gradient ? `bg-gradient-to-r ${planGradient.gradient}` : 'bg-gradient-to-r from-gray-500 to-gray-700';
+                        const buttonGradientClass = (planGradient?.gradient && planGradient?.hover)
+                          ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}`
+                          : 'bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-700 hover:to-rose-700';
 
                         return (
                         <div
