@@ -135,7 +135,7 @@ export function SettingsPage() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
 
       const response = await fetch(`${apiUrl}/api/users/me`, {
         headers: {
@@ -197,7 +197,7 @@ export function SettingsPage() {
     try {
       setIsSaving(true);
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
       const response = await fetch(`${apiUrl}/api/users/me`, {
         method: 'PUT',
         headers: {
@@ -231,7 +231,7 @@ export function SettingsPage() {
     try {
       setIsSaving(true);
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
       const response = await fetch(`${apiUrl}/api/users/me/preferences`, {
         method: 'PUT',
         headers: {
@@ -257,7 +257,7 @@ export function SettingsPage() {
     try {
       setIsSaving(true);
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
       const response = await fetch(`${apiUrl}/api/users/me/account`, {
         method: 'PUT',
         headers: {
@@ -292,7 +292,7 @@ export function SettingsPage() {
     try {
       setIsSaving(true);
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
       const response = await fetch(`${apiUrl}/api/users/me`, {
         method: 'DELETE',
         headers: {
@@ -318,7 +318,7 @@ export function SettingsPage() {
     try {
       setIsSaving(true);
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
       const response = await fetch(`${apiUrl}/api/users/me/display-preferences`, {
         method: 'PUT',
         headers: {
@@ -343,7 +343,7 @@ export function SettingsPage() {
   const fetchPricingPlans = async () => {
     try {
       setIsLoadingPlans(true);
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
       const response = await fetch(`${apiUrl}/api/pricing/config`);
 
       if (!response.ok) throw new Error('Failed to fetch pricing plans');
@@ -362,7 +362,7 @@ export function SettingsPage() {
   const fetchCurrentSubscription = async () => {
     try {
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
 
       const response = await fetch(`${apiUrl}/api/subscriptions/current`, {
         headers: {
@@ -423,7 +423,7 @@ export function SettingsPage() {
       }
 
       const token = localStorage.getItem('crmToken');
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const apiUrl = import.meta.env.VITE_API_URL || window.location.origin;
 
       const priceId = billingCycle === 'monthly' ? plan.stripeMonthlyPriceId : plan.stripeAnnualPriceId;
 
