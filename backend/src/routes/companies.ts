@@ -879,13 +879,30 @@ function parseCompanyData(record: any, fieldMapping: Record<string, string>): an
     }
 
     // Extract domain from website if not provided
+    // BUT: Don't extract domain from social media URLs (LinkedIn, Facebook, Twitter, etc.)
     if (companyData.website && !companyData.domain) {
       try {
         const url = companyData.website.startsWith('http')
           ? companyData.website
           : 'https://' + companyData.website;
         const urlObj = new URL(url);
-        companyData.domain = urlObj.hostname;
+        const hostname = urlObj.hostname;
+
+        // Skip social media domains - they should go into their respective fields
+        const socialMediaDomains = ['linkedin.com', 'facebook.com', 'twitter.com', 'x.com', 'instagram.com', 'youtube.com'];
+        const isSocialMedia = socialMediaDomains.some(domain => hostname.includes(domain));
+
+        if (!isSocialMedia) {
+          companyData.domain = hostname;
+        } else {
+          console.log('[parseCompanyData] Skipping domain extraction from social media URL:', companyData.website);
+          // Move LinkedIn URL to the linkedin field if it's not already set
+          if (hostname.includes('linkedin.com') && !companyData.linkedin) {
+            companyData.linkedin = companyData.website;
+          }
+          // Clear website field if it's a social media URL
+          delete companyData.website;
+        }
       } catch (error: any) {
         console.warn('[parseCompanyData] Failed to extract domain from website:', companyData.website, error.message);
         // Invalid URL, skip domain extraction
