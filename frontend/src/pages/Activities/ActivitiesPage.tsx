@@ -1244,11 +1244,6 @@ export function ActivitiesPage() {
                   <p className="text-sm text-gray-500 mt-1">Activity: {selectedActivity.subject}</p>
                 </div>
                 <div className="p-6 space-y-4">
-                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-                    <p className="text-sm text-orange-800 font-medium">
-                      Note: Google Calendar integration requires OAuth setup. Meeting link is a placeholder.
-                    </p>
-                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Meeting Title *</label>
                     <input
