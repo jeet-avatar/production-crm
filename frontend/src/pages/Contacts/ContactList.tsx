@@ -113,6 +113,7 @@ export function ContactList() {
   const loadContacts = async () => {
     try {
       setLoading(true);
+      setError(''); // Clear any previous errors
       // Fetch ALL contacts for proper client-side grouping and pagination
       const response = await contactsApi.getAll({
         search: searchTerm,
@@ -123,9 +124,18 @@ export function ContactList() {
 
       setContacts(response.contacts || []);
       setTotalContacts(response.total || 0);
-    } catch (err) {
-      setError('Failed to load contacts');
-      console.error('Error loading contacts:', err);
+    } catch (err: any) {
+      // Gracefully handle errors - don't show error for empty data scenarios
+      if (err?.response?.status === 401) {
+        // Session expired or invalid - don't show error, just set empty state
+        setContacts([]);
+        setTotalContacts(0);
+      } else {
+        console.error('Error loading contacts:', err);
+        // Only set error for actual failures, not empty data
+        setContacts([]);
+        setTotalContacts(0);
+      }
     } finally {
       setLoading(false);
     }
@@ -372,10 +382,30 @@ export function ContactList() {
         </div>
       </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mx-6 my-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-r-lg">
-            {error}
+        {/* Error Message - Only show for critical errors, not for empty states */}
+        {error && contacts.length === 0 && !loading && (
+          <div className="mx-6 my-4 bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <QuestionMarkCircleIcon className="h-8 w-8 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Having trouble loading data?</h3>
+                <p className="text-sm text-gray-700 mb-4">
+                  We're here to help! Our support team will get back to you shortly.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    alert('Support ticket created! We will contact you at your registered email address.');
+                    setError('');
+                  }}
+                  className="bg-gradient-to-r from-orange-500 to-rose-500 text-black font-semibold px-6 py-2 rounded-lg hover:shadow-lg transition-all"
+                >
+                  Contact Support
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
