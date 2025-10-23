@@ -3,8 +3,10 @@ import { PrismaClient } from '@prisma/client';
 import { authenticate, getAccountOwnerId } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { TwilioService } from '../services/twilio.service';
-import { EmailService } from '../services/google-smtp.service';
+import { EmailService } from '../services/email.service';
 import { GoogleCalendarService } from '../services/google-calendar.service';
+import { ZoomService } from '../services/zoom.service';
+import { ZoomUserService } from '../services/zoom-user.service';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -368,11 +370,21 @@ router.post('/:id/send-email', async (req, res, next) => {
   }
 });
 
-// POST /api/activities/:id/create-meeting - Create Google Meet meeting
+// POST /api/activities/:id/create-meeting - Create calendar meeting (Google/Zoom/Teams)
 router.post('/:id/create-meeting', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { title, description, startTime, endTime, attendees, location, timezone } = req.body;
+    const {
+      title,
+      description,
+      startTime,
+      endTime,
+      attendees,
+      location,
+      timezone,
+      calendarPlatform = 'google',
+      sendInvitation = false
+    } = req.body;
     const userId = req.user!.id;
 
     // Validate inputs
@@ -384,19 +396,6 @@ router.post('/:id/create-meeting', async (req, res, next) => {
       throw new AppError('At least one attendee email is required', 400);
     }
 
-    // Get user with Google tokens
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new AppError('User not found', 404);
-    }
-
-    // Note: For now, we'll create the activity without Google Calendar integration
-    // Users will need to authorize Google Calendar access first
-    // TODO: Implement Google OAuth flow
-
     // Verify activity belongs to user
     const activity = await prisma.activity.findFirst({
       where: { id, userId },
@@ -406,9 +405,134 @@ router.post('/:id/create-meeting', async (req, res, next) => {
       throw new AppError('Activity not found', 404);
     }
 
-    // For now, create a meeting link placeholder
-    // In production, this would call GoogleCalendarService
-    const meetingLink = `https://meet.google.com/${Math.random().toString(36).substring(7)}`;
+    // Get user with calendar OAuth tokens
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        googleCalendarAccessToken: true,
+        googleCalendarRefreshToken: true,
+        googleCalendarConnected: true,
+        zoomAccessToken: true,
+        zoomRefreshToken: true,
+        zoomConnected: true,
+        zoomUserId: true,
+      },
+    });
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    let meetingLink = '';
+    let meetingPassword = '';
+    let calendarEventId = '';
+    let meetingPlatform = calendarPlatform;
+
+    // Calculate duration in minutes
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const durationMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+
+    // Create meeting based on selected platform - ENTERPRISE OAUTH VERSION
+    if (calendarPlatform === 'zoom') {
+      // Check if user has connected Zoom
+      if (!user.zoomConnected || !user.zoomRefreshToken || !user.zoomUserId) {
+        throw new AppError(
+          'Please connect your Zoom account in Settings to create Zoom meetings. Go to Settings → Calendar Connections.',
+          400
+        );
+      }
+
+      try {
+        // Use USER's Zoom account (not app's account)
+        const zoomService = new ZoomUserService(
+          user.zoomAccessToken!,
+          user.zoomRefreshToken!,
+          user.zoomUserId!
+        );
+
+        const zoomMeeting = await zoomService.createMeeting({
+          topic: title,
+          agenda: description || '',
+          startTime: start,
+          duration: durationMinutes,
+          timezone: timezone || 'America/New_York',
+          settings: {
+            hostVideo: true,
+            participantVideo: true,
+            joinBeforeHost: true,
+            muteUponEntry: false,
+            waitingRoom: false,
+            autoRecording: 'none',
+          },
+        });
+
+        meetingLink = zoomMeeting.joinUrl;
+        meetingPassword = zoomMeeting.password;
+        calendarEventId = zoomMeeting.id.toString();
+
+        // Update user's tokens if they were refreshed
+        const newAccessToken = zoomService.getAccessToken();
+        if (newAccessToken !== user.zoomAccessToken) {
+          await prisma.user.update({
+            where: { id: userId },
+            data: {
+              zoomAccessToken: newAccessToken,
+              zoomRefreshToken: zoomService.getRefreshToken(),
+            },
+          });
+        }
+
+        console.log(`[Zoom Meeting Created in USER's Account] User: ${userId}, ID: ${zoomMeeting.id}, Link: ${meetingLink}`);
+      } catch (error: any) {
+        console.error('[Zoom User Meeting Creation Failed]:', error.message);
+        throw new AppError(`Failed to create Zoom meeting: ${error.message}`, 500);
+      }
+    } else if (calendarPlatform === 'google') {
+      // Check if user has connected Google Calendar
+      if (!user.googleCalendarConnected || !user.googleCalendarRefreshToken) {
+        throw new AppError(
+          'Please connect your Google Calendar in Settings to create Google Meet meetings. Go to Settings → Calendar Connections.',
+          400
+        );
+      }
+
+      try {
+        // Use USER's Google Calendar (not app's account)
+        const calendarService = new GoogleCalendarService(
+          user.googleCalendarAccessToken!,
+          user.googleCalendarRefreshToken!
+        );
+
+        const event = await calendarService.createMeeting({
+          summary: title,
+          description: description || '',
+          startTime: start,
+          endTime: end,
+          attendees,
+          location: location || 'Online',
+          timezone: timezone || 'America/New_York',
+        });
+
+        meetingLink = event.meetLink;
+        calendarEventId = event.id || '';
+        meetingPassword = ''; // Google Meet doesn't use passwords
+
+        console.log(`[Google Meet Created in USER's Calendar] User: ${userId}, Link: ${meetingLink}`);
+      } catch (error: any) {
+        console.error('[Google Calendar Meeting Creation Failed]:', error.message);
+        throw new AppError(`Failed to create Google Calendar meeting: ${error.message}`, 500);
+      }
+    } else if (calendarPlatform === 'teams') {
+      // Microsoft Teams - not yet implemented
+      throw new AppError(
+        'Microsoft Teams integration is not yet available. Please use Google Calendar or Zoom.',
+        501
+      );
+    } else {
+      throw new AppError('Invalid calendar platform. Must be: google, zoom, or teams', 400);
+    }
 
     // Update activity with meeting metadata
     const updatedActivity = await prisma.activity.update({
@@ -416,13 +540,13 @@ router.post('/:id/create-meeting', async (req, res, next) => {
       data: {
         type: 'MEETING',
         meetingLink: meetingLink,
-        meetingStartTime: new Date(startTime),
-        meetingEndTime: new Date(endTime),
+        meetingStartTime: start,
+        meetingEndTime: end,
         meetingAttendees: attendees,
         meetingLocation: location || 'Online',
         meetingTimezone: timezone || 'America/New_York',
         subject: title,
-        description: description || '',
+        description: `${description || ''}\n\n🔗 Meeting Link: ${meetingLink}${meetingPassword ? `\n🔐 Password: ${meetingPassword}` : ''}`,
       },
       include: {
         contact: {
@@ -442,11 +566,17 @@ router.post('/:id/create-meeting', async (req, res, next) => {
       },
     });
 
+    // TODO: Send calendar invitations via email if sendInvitation is true
+    // This would involve generating .ics files and sending via EmailService
+
     res.json({
       success: true,
-      message: 'Meeting created successfully',
+      message: `${meetingPlatform.charAt(0).toUpperCase() + meetingPlatform.slice(1)} meeting created successfully`,
       activity: updatedActivity,
-      note: 'Google Calendar integration requires OAuth authorization. Meeting link is a placeholder.',
+      meetingLink: meetingLink,
+      meetingPassword: meetingPassword,
+      platform: meetingPlatform,
+      calendarEventId: calendarEventId,
     });
   } catch (error) {
     next(error);
@@ -547,6 +677,28 @@ router.get('/:id/sms-status', async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+});
+
+// GET /api/activities/zoom/test - Test Zoom connection
+router.get('/zoom/test', async (req, res, next) => {
+  try {
+    const zoomService = new ZoomService();
+    const isConnected = await zoomService.testConnection();
+
+    res.json({
+      success: true,
+      connected: isConnected,
+      message: isConnected
+        ? 'Zoom connection successful'
+        : 'Zoom connection failed. Please check your credentials.',
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      connected: false,
+      message: error.message,
+    });
   }
 });
 
