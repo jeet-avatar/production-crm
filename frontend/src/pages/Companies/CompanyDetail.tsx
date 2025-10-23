@@ -894,7 +894,7 @@ export function CompanyDetail() {
               Company Info
             </h3>
             <div className="space-y-4">
-              {company.website && (
+              {company.website && !company.website.includes('linkedin.com') && (
                 <div>
                   <div className="text-xs text-gray-500 mb-1">Website</div>
                   <a
@@ -903,7 +903,13 @@ export function CompanyDetail() {
                     rel="noopener noreferrer"
                     className="text-orange-600 hover:underline text-sm break-all"
                   >
-                    {company.domain || new URL(company.website).hostname}
+                    {(() => {
+                      // Only show domain if it's not linkedin.com
+                      const displayDomain = company.domain && !company.domain.includes('linkedin.com')
+                        ? company.domain
+                        : new URL(company.website).hostname;
+                      return displayDomain.includes('linkedin.com') ? null : displayDomain;
+                    })() || company.website}
                   </a>
                 </div>
               )}
