@@ -494,13 +494,13 @@ export function ContactList() {
               type="button"
               onClick={handleExportCSV}
               disabled={contacts.length === 0}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-300 transition-all shadow-sm hover:scale-105 hover:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               title={selectedContacts.size > 0 ? `Export ${selectedContacts.size} selected contacts` : 'Export all contacts'}
             >
               <ArrowDownTrayIcon className="h-5 w-5" />
               <span>Export CSV</span>
               {selectedContacts.size > 0 && (
-                <span className="ml-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-bold">
+                <span className="ml-1 px-2 py-0.5 bg-white text-black rounded-full text-xs font-bold">
                   {selectedContacts.size}
                 </span>
               )}
@@ -511,36 +511,38 @@ export function ContactList() {
               type="button"
               onClick={findDuplicates}
               disabled={contacts.length < 2}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-300 transition-all shadow-sm hover:scale-105 hover:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               title="Find and remove duplicate contacts"
             >
               <UserIcon className="h-5 w-5" />
               <span>Find Duplicates</span>
             </button>
 
-            {/* Secondary actions - white buttons with colored icons */}
+            {/* Discover Leads Button */}
             <button
               type="button"
               onClick={() => setShowLeadDiscovery(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
             >
-              <SparklesIcon className="h-5 w-5 text-black" />
+              <SparklesIcon className="h-5 w-5" />
               <span>Discover Leads</span>
             </button>
+
+            {/* Import CSV Button */}
             <button
               type="button"
               onClick={() => setShowAICSVImport(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
             >
-              <DocumentArrowUpIcon className="h-5 w-5 text-black" />
+              <DocumentArrowUpIcon className="h-5 w-5" />
               <span>Import CSV</span>
             </button>
 
-            {/* Primary action - gradient button stands out */}
+            {/* Add Contact Button */}
             <button
               type="button"
               onClick={handleAddContact}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
             >
               <PlusIcon className="h-5 w-5" />
               <span>Add Contact</span>
