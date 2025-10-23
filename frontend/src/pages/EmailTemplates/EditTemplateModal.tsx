@@ -39,6 +39,7 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
     subject: template.subject,
 
     // Content
+    toName: 'John',
     headline: 'Transform Your Business with AI',
     bodyContent: "We're excited to share our latest insights on how AI is transforming the enterprise landscape.",
 
@@ -161,7 +162,7 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
   const generateUpdatedHTML = () => {
     const gradient = `linear-gradient(to right, ${formData.primaryColor}, ${formData.secondaryColor})`;
 
-    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${formData.subject}</title><style>body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background-color:#f3f4f6}.container{max-width:600px;margin:0 auto;background:#fff}.header{background:${gradient};padding:30px 40px;text-align:center;border-radius:8px 8px 0 0}.header img{height:60px;max-width:200px;margin-bottom:10px}.header h1{margin:20px 0 0;color:${formData.textOnGradient};font-size:28px;font-weight:bold}.content{padding:40px;color:#1f2937;line-height:1.6}.greeting{font-size:18px;font-weight:600;margin-bottom:20px;color:#111827}.body-text{font-size:16px;color:#374151;margin-bottom:30px}.video-player{position:relative;background:linear-gradient(135deg,#fef3c7 0%,#fce7f3 100%);border-radius:12px;padding:0;margin:30px 0;border:2px solid ${formData.primaryColor};overflow:hidden}.video-player a{display:block;position:relative;text-decoration:none}.video-thumbnail-wrapper{position:relative;width:100%;padding-top:56.25%;background:#000}.video-thumbnail-wrapper img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}.play-button-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;background:${gradient};border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);transition:all 0.3s ease;border:4px solid ${formData.textOnGradient}}.play-button-overlay:hover{transform:translate(-50%,-50%) scale(1.1);box-shadow:0 6px 30px rgba(0,0,0,0.4)}.play-icon{width:0;height:0;border-left:24px solid ${formData.textOnGradient};border-top:16px solid transparent;border-bottom:16px solid transparent;margin-left:6px}.video-info{padding:20px;text-align:center;background:rgba(255,255,255,0.95)}.video-title{margin:0 0 8px 0;color:#1f2937;font-size:18px;font-weight:bold}.video-duration{color:#6b7280;font-size:14px;margin:0}.signature{margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:14px}.signature-name{font-weight:600;color:#111827;font-size:16px}.footer{background-color:#1f2937;color:#9ca3af;padding:30px 40px;text-align:center;font-size:13px;line-height:1.6;border-radius:0 0 8px 8px}.footer a{color:${formData.primaryColor};text-decoration:underline;font-weight:600}@media screen and (max-width:600px){.container{width:100%!important}.header{padding:20px!important}.header h1{font-size:24px!important}.content{padding:20px!important}.play-button-overlay{width:60px!important;height:60px!important}.play-icon{border-left:18px solid ${formData.textOnGradient}!important;border-top:12px solid transparent!important;border-bottom:12px solid transparent!important}.footer{padding:20px!important}}</style></head><body><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:#f3f4f6;padding:40px 0"><tr><td align="center"><table role="presentation" class="container" cellspacing="0" cellpadding="0" border="0" width="600"><tr><td class="header">${formData.clientLogoUrl ? `<img src="${formData.clientLogoUrl}" alt="Client Logo" style="margin-bottom:15px"/>` : ''}<img src="${formData.companyLogoUrl}" alt="Company Logo"><h1>${formData.headline}</h1></td></tr><tr><td class="content"><div class="greeting">Hi {{firstName}},</div><div class="body-text">${formData.bodyContent}</div>${formData.videoUrl ? `<div class="video-player"><a href="${formData.videoUrl}" target="_blank"><div class="video-thumbnail-wrapper"><img src="${formData.videoThumbnailUrl}" alt="${formData.videoTitle}"><div class="play-button-overlay"><div class="play-icon"></div></div></div><div class="video-info"><h3 class="video-title">${formData.videoTitle}</h3><p class="video-duration">▶ Click to play video</p></div></a></div>` : ''}<div class="signature"><div class="signature-name">${formData.senderName}</div><div>${formData.senderTitle}</div><div style="margin-top:10px">${formData.companyName}</div></div></td></tr><tr><td class="footer"><div style="margin-bottom:20px"><strong>${formData.companyName}</strong><br>${formData.companyAddress}<br>${formData.companyCity}, ${formData.companyState} ${formData.companyZip}<br><a href="mailto:${formData.contactEmail}">${formData.contactEmail}</a> | ${formData.contactPhone}</div><div style="margin:20px 0"><a href="${formData.linkedInUrl}" target="_blank">LinkedIn</a> | <a href="${formData.twitterUrl}" target="_blank">Twitter</a> | <a href="${formData.facebookUrl}" target="_blank">Facebook</a> | <a href="${formData.youtubeUrl}" target="_blank">YouTube</a></div><div style="margin:20px 0"><a href="${formData.unsubscribeUrl}" target="_blank">Unsubscribe</a> | <a href="${formData.privacyPolicyUrl}" target="_blank">Privacy Policy</a></div><div style="margin-top:20px;font-size:12px;color:#6b7280">&copy; ${new Date().getFullYear()} ${formData.companyName}. All rights reserved.</div></td></tr></table></td></tr></table></body></html>`;
+    return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${formData.subject}</title><style>body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background-color:#f3f4f6}.container{max-width:600px;margin:0 auto;background:#fff}.header{background:${gradient};padding:30px 40px;text-align:center;border-radius:8px 8px 0 0}.header img{height:60px;max-width:200px;margin-bottom:10px}.header h1{margin:20px 0 0;color:${formData.textOnGradient};font-size:28px;font-weight:bold}.content{padding:40px;color:#1f2937;line-height:1.6}.greeting{font-size:18px;font-weight:600;margin-bottom:20px;color:#111827}.body-text{font-size:16px;color:#374151;margin-bottom:30px}.video-player{position:relative;background:linear-gradient(135deg,#fef3c7 0%,#fce7f3 100%);border-radius:12px;padding:0;margin:30px 0;border:2px solid ${formData.primaryColor};overflow:hidden}.video-player a{display:block;position:relative;text-decoration:none}.video-thumbnail-wrapper{position:relative;width:100%;padding-top:56.25%;background:#000}.video-thumbnail-wrapper img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}.play-button-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;background:${gradient};border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);transition:all 0.3s ease;border:4px solid ${formData.textOnGradient}}.play-button-overlay:hover{transform:translate(-50%,-50%) scale(1.1);box-shadow:0 6px 30px rgba(0,0,0,0.4)}.play-icon{width:0;height:0;border-left:24px solid ${formData.textOnGradient};border-top:16px solid transparent;border-bottom:16px solid transparent;margin-left:6px}.video-info{padding:20px;text-align:center;background:rgba(255,255,255,0.95)}.video-title{margin:0 0 8px 0;color:#1f2937;font-size:18px;font-weight:bold}.video-duration{color:#6b7280;font-size:14px;margin:0}.signature{margin-top:40px;padding-top:20px;border-top:1px solid #e5e7eb;color:#6b7280;font-size:14px}.signature-name{font-weight:600;color:#111827;font-size:16px}.footer{background-color:#1f2937;color:#9ca3af;padding:30px 40px;text-align:center;font-size:13px;line-height:1.6;border-radius:0 0 8px 8px}.footer a{color:${formData.primaryColor};text-decoration:underline;font-weight:600}@media screen and (max-width:600px){.container{width:100%!important}.header{padding:20px!important}.header h1{font-size:24px!important}.content{padding:20px!important}.play-button-overlay{width:60px!important;height:60px!important}.play-icon{border-left:18px solid ${formData.textOnGradient}!important;border-top:12px solid transparent!important;border-bottom:12px solid transparent!important}.footer{padding:20px!important}}</style></head><body><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color:#f3f4f6;padding:40px 0"><tr><td align="center"><table role="presentation" class="container" cellspacing="0" cellpadding="0" border="0" width="600"><tr><td class="header">${formData.clientLogoUrl ? `<img src="${formData.clientLogoUrl}" alt="Client Logo" style="margin-bottom:15px"/>` : ''}<img src="${formData.companyLogoUrl}" alt="Company Logo"><h1>${formData.headline}</h1></td></tr><tr><td class="content"><div class="greeting">Hi ${formData.toName},</div><div class="body-text">${formData.bodyContent}</div>${formData.videoUrl ? `<div class="video-player"><a href="${formData.videoUrl}" target="_blank"><div class="video-thumbnail-wrapper"><img src="${formData.videoThumbnailUrl}" alt="${formData.videoTitle}"><div class="play-button-overlay"><div class="play-icon"></div></div></div><div class="video-info"><h3 class="video-title">${formData.videoTitle}</h3><p class="video-duration">▶ Click to play video</p></div></a></div>` : ''}<div class="signature"><div class="signature-name">${formData.senderName}</div><div>${formData.senderTitle}</div><div style="margin-top:10px">${formData.companyName}</div></div></td></tr><tr><td class="footer"><div style="margin-bottom:20px"><strong>${formData.companyName}</strong><br>${formData.companyAddress}<br>${formData.companyCity}, ${formData.companyState} ${formData.companyZip}<br><a href="mailto:${formData.contactEmail}">${formData.contactEmail}</a> | ${formData.contactPhone}</div><div style="margin:20px 0"><a href="${formData.linkedInUrl}" target="_blank">LinkedIn</a> | <a href="${formData.twitterUrl}" target="_blank">Twitter</a> | <a href="${formData.facebookUrl}" target="_blank">Facebook</a> | <a href="${formData.youtubeUrl}" target="_blank">YouTube</a></div><div style="margin:20px 0"><a href="${formData.unsubscribeUrl}" target="_blank">Unsubscribe</a> | <a href="${formData.privacyPolicyUrl}" target="_blank">Privacy Policy</a></div><div style="margin-top:20px;font-size:12px;color:#6b7280">&copy; ${new Date().getFullYear()} ${formData.companyName}. All rights reserved.</div></td></tr></table></td></tr></table></body></html>`;
   };
 
   const handleSave = async () => {
@@ -344,6 +345,17 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
                         <h3 className="text-lg font-bold text-gray-900 mb-3">Email Content</h3>
                         <div className="space-y-3">
                           <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">To Name (Recipient)</label>
+                            <input
+                              type="text"
+                              value={formData.toName || ''}
+                              onChange={(e) => setFormData(prev => ({ ...prev, toName: e.target.value }))}
+                              placeholder="John"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">This will be used in "Hi John," greeting</p>
+                          </div>
+                          <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Headline</label>
                             <input
                               type="text"
@@ -368,19 +380,67 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
                       <div>
                         <h3 className="text-lg font-bold text-gray-900 mb-3">Video</h3>
                         <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Select from Video Campaigns</label>
-                            <select
-                              value={formData.selectedVideoId}
-                              onChange={(e) => handleVideoSelect(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-                            >
-                              <option value="">-- Select a video --</option>
-                              {videos.map(video => (
-                                <option key={video.id} value={video.id}>{video.name}</option>
-                              ))}
-                            </select>
-                          </div>
+                          {videos.length === 0 ? (
+                            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                              <div className="flex items-center gap-3">
+                                <div className="flex-shrink-0">
+                                  <svg className="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                  </svg>
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-bold text-yellow-900">No Videos Found</h4>
+                                  <p className="text-sm text-yellow-700 mt-1">You need to create a video campaign first before you can use it in an email template.</p>
+                                  <a
+                                    href="/campaigns"
+                                    className="inline-block mt-3 px-4 py-2 bg-yellow-600 text-white rounded-lg font-bold hover:bg-yellow-700"
+                                  >
+                                    Create Video Campaign
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Select from Video Library</label>
+                                <select
+                                  value={formData.selectedVideoId}
+                                  onChange={(e) => handleVideoSelect(e.target.value)}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                                >
+                                  <option value="">-- Select a video --</option>
+                                  {videos.map(video => (
+                                    <option key={video.id} value={video.id}>{video.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1 border-t border-gray-300"></div>
+                                <span className="text-sm text-gray-500 font-medium">OR</span>
+                                <div className="flex-1 border-t border-gray-300"></div>
+                              </div>
+
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Upload New Video</label>
+                                <button
+                                  type="button"
+                                  onClick={() => window.location.href = '/campaigns'}
+                                  className="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition-all"
+                                >
+                                  <div className="flex items-center justify-center gap-2">
+                                    <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <span className="text-sm font-medium text-gray-700">Upload Video to Library</span>
+                                  </div>
+                                </button>
+                                <p className="text-xs text-gray-500 mt-1">This will take you to Video Campaigns to upload</p>
+                              </div>
+                            </>
+                          )}
+
                           {formData.videoUrl && (
                             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                               <p className="text-sm font-medium text-green-900">✓ Video selected: {formData.videoTitle}</p>
