@@ -80,6 +80,13 @@ export function ActivitiesPage() {
   const [showHelpGuide, setShowHelpGuide] = useState(false);
   const [expandedEmails, setExpandedEmails] = useState<Set<string>>(new Set());
 
+  // Companies and Contacts state
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [contacts, setContacts] = useState<any[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedContactId, setSelectedContactId] = useState<string>('');
+  const [filteredContacts, setFilteredContacts] = useState<any[]>([]);
+
   // Email templates state
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
@@ -129,6 +136,8 @@ export function ActivitiesPage() {
 
   useEffect(() => {
     fetchActivities();
+    fetchCompanies();
+    fetchContacts();
   }, []);
 
   const fetchActivities = async () => {
@@ -161,6 +170,48 @@ export function ActivitiesPage() {
       setError(err.message || 'Failed to load activities');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      if (!token) return;
+
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/companies', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCompanies(data.companies || []);
+      }
+    } catch (err) {
+      console.error('Error fetching companies:', err);
+    }
+  };
+
+  const fetchContacts = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      if (!token) return;
+
+      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api/contacts', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setContacts(data.contacts || []);
+      }
+    } catch (err) {
+      console.error('Error fetching contacts:', err);
     }
   };
 
@@ -259,11 +310,42 @@ export function ActivitiesPage() {
     }));
   };
 
+  const handleCompanyChange = (companyId: string) => {
+    setSelectedCompanyId(companyId);
+    setSelectedContactId(''); // Reset contact when company changes
+
+    // Filter contacts by selected company
+    if (companyId) {
+      const filtered = contacts.filter((contact: any) => contact.companyId === companyId);
+      setFilteredContacts(filtered);
+    } else {
+      setFilteredContacts(contacts);
+    }
+  };
+
+  const handleContactChange = (contactId: string) => {
+    setSelectedContactId(contactId);
+
+    // Find the selected contact and populate email field
+    const contact = contacts.find((c: any) => c.id === contactId);
+    if (contact && contact.email) {
+      setEmailForm(prev => ({
+        ...prev,
+        to: [contact.email]
+      }));
+    }
+  };
+
   const handleOpenModal = (type: 'email' | 'call' | 'meeting' | 'task', activity: Activity) => {
     setModalType(type);
     setSelectedActivity(activity);
 
     if (type === 'email') {
+      // Reset selections
+      setSelectedCompanyId('');
+      setSelectedContactId('');
+      setFilteredContacts(contacts);
+
       setEmailForm({
         to: activity.contact?.email ? [activity.contact.email] : [''],
         cc: [''],
@@ -907,6 +989,50 @@ export function ActivitiesPage() {
 
                 {/* Scrollable Content */}
                 <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
+                  {/* Company Selection */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Select Company
+                    </label>
+                    <select
+                      value={selectedCompanyId}
+                      onChange={(e) => handleCompanyChange(e.target.value)}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                      aria-label="Select company"
+                    >
+                      <option value="">-- Select a company --</option>
+                      {companies.map((company: any) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Contact Selection */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Select Contact
+                    </label>
+                    <select
+                      value={selectedContactId}
+                      onChange={(e) => handleContactChange(e.target.value)}
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                      disabled={!selectedCompanyId && filteredContacts.length === 0}
+                      aria-label="Select contact"
+                    >
+                      <option value="">-- Select a contact --</option>
+                      {(selectedCompanyId ? filteredContacts : contacts).map((contact: any) => (
+                        <option key={contact.id} value={contact.id}>
+                          {contact.firstName} {contact.lastName} {contact.email ? `(${contact.email})` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedCompanyId && filteredContacts.length === 0 && (
+                      <p className="text-xs text-gray-500 mt-1">No contacts found for this company</p>
+                    )}
+                  </div>
+
                   {/* Email Template Selector - Compact */}
                   {emailTemplates.length > 0 && (
                     <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-3">
