@@ -697,10 +697,28 @@ async function processCSVRecord(record: any, fieldMapping: Record<string, string
 
   logger.info(`[CSV Import] Parsed contact: firstName="${contactData.firstName}", lastName="${contactData.lastName}", email="${contactData.email}", company="${companyData.name}"`);
 
-  // Skip contacts without a valid first name
-  if (!contactData.firstName || !contactData.firstName.trim()) {
-    logger.warn(`[CSV Import] Skipping contact - no first name`);
+  // Check if this is a company-only record (no contact info)
+  const hasContactInfo = !!(contactData.firstName && contactData.firstName.trim());
+  const hasCompanyInfo = !!(companyData.name && companyData.name.trim());
+
+  // If no first name AND no company name, skip this record entirely
+  if (!hasContactInfo && !hasCompanyInfo) {
+    logger.warn(`[CSV Import] Skipping record - no contact or company information`);
     return { skipped: true };
+  }
+
+  // If we have company info but no contact info, create company only
+  if (!hasContactInfo && hasCompanyInfo) {
+    logger.info(`[CSV Import] Company-only record detected: "${companyData.name}"`);
+
+    // Create or update the company (this will capture ALL company data: website, industry, location, description, etc.)
+    const companyId = await findOrCreateCompany(companyData, userId);
+    logger.info(`[CSV Import] Company created/found: ${companyId}`);
+
+    return {
+      companyId,
+      companyOnly: true,
+    };
   }
 
   if (!contactData.lastName) contactData.lastName = '';
@@ -775,6 +793,7 @@ router.post('/csv-import', upload.array('files', 10), async (req, res, next) => 
     }
 
     const allImportedContacts: any[] = [];
+    const allImportedCompanies: string[] = [];
     const allErrors: string[] = [];
     const allDuplicates: string[] = [];
     let totalProcessed = 0;
@@ -815,6 +834,10 @@ router.post('/csv-import', upload.array('files', 10), async (req, res, next) => 
             continue;
           }
 
+          if (result.companyOnly && result.companyId) {
+            allImportedCompanies.push(result.companyId);
+          }
+
           if (result.contact) {
             allImportedContacts.push(result.contact);
           }
@@ -827,7 +850,8 @@ router.post('/csv-import', upload.array('files', 10), async (req, res, next) => 
     res.json({
       message: 'CSV import completed',
       totalProcessed,
-      imported: allImportedContacts.length,
+      contactsImported: allImportedContacts.length,
+      companiesImported: allImportedCompanies.length,
       duplicates: allDuplicates.length,
       duplicatesList: allDuplicates,
       errors: allErrors.length > 0 ? allErrors : undefined,
