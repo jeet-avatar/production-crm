@@ -985,10 +985,10 @@ export function EditTemplateModal({
                             </div>
 
                             {/* Email Content */}
-                            <div className="bg-gray-50 p-6">
+                            <div className="flex-1 overflow-auto">
                               <iframe
                                 srcDoc={previewHTML}
-                                className="w-full border-0 bg-white rounded-lg shadow-md"
+                                className="w-full h-full border-0 bg-white"
                                 title="Email Preview"
                                 sandbox=""
                                 style={{ minHeight: '800px', height: 'auto' }}
