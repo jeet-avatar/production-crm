@@ -760,8 +760,8 @@ export function EditTemplateModal({
                 <div className="flex-1 flex overflow-hidden">
 
                   {/* LEFT: Form Editor */}
-                  <div className="w-1/2 overflow-y-auto p-6 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
-                    <div className="space-y-6 max-w-2xl pb-8">
+                  <div className="w-2/5 overflow-y-auto p-6 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+                    <div className="space-y-6 pb-8">
 
                       {/* Template Name & Subject */}
                       <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100">
@@ -840,8 +840,8 @@ export function EditTemplateModal({
                   </div>
 
                   {/* RIGHT: Preview */}
-                  <div className="w-1/2 bg-gray-100 p-6 flex flex-col">
-                    <div className="flex justify-between items-center mb-4">
+                  <div className="w-3/5 bg-white flex flex-col">
+                    <div className="flex justify-between items-center px-6 py-3 bg-gray-50 border-b-2 border-gray-200">
                       <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                         <EyeIcon className="h-5 w-5" />
                         Live Preview
@@ -850,10 +850,10 @@ export function EditTemplateModal({
                         <button
                           type="button"
                           onClick={() => setPreviewTab('html')}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
                             previewTab === 'html'
                               ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg'
-                              : 'bg-white text-gray-700 hover:bg-gray-50'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                           }`}
                         >
                           HTML
@@ -861,10 +861,10 @@ export function EditTemplateModal({
                         <button
                           type="button"
                           onClick={() => setPreviewTab('text')}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                          className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
                             previewTab === 'text'
                               ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg'
-                              : 'bg-white text-gray-700 hover:bg-gray-50'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
                           }`}
                         >
                           Plain Text
@@ -872,16 +872,17 @@ export function EditTemplateModal({
                       </div>
                     </div>
 
-                    <div className="flex-1 bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200">
+                    <div className="flex-1 bg-white overflow-hidden">
                       {previewTab === 'html' ? (
                         <iframe
                           srcDoc={previewHTML}
                           className="w-full h-full border-0"
                           title="Email Preview"
                           sandbox="allow-same-origin"
+                          style={{ minHeight: 'calc(90vh - 250px)' }}
                         />
                       ) : (
-                        <div className="w-full h-full overflow-auto p-6">
+                        <div className="w-full h-full overflow-auto p-6 bg-gray-50">
                           <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 leading-relaxed">
                             {previewText}
                           </pre>
