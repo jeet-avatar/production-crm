@@ -212,8 +212,10 @@ app.use('/api/auth/register', authLimiter);
 app.use('/api/auth/reset-password', authLimiter);
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Note: Video uploads use multipart/form-data (multer), not JSON
+// So these limits don't affect video uploads - multer has its own 500MB limit
+app.use(express.json({ limit: '50mb' })); // Increased for large template HTML content
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 // Initialize Passport
