@@ -870,7 +870,7 @@ export function EditTemplateModal({
                             srcDoc={previewHTML}
                             className="w-full max-w-full border-0 bg-white shadow-lg rounded"
                             title="Email Preview"
-                            sandbox="allow-same-origin allow-scripts"
+                            sandbox=""
                             style={{ minHeight: '800px', height: 'auto' }}
                           />
                         </div>
