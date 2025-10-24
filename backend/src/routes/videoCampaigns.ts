@@ -437,29 +437,51 @@ router.post('/templates/upload', upload.single('video'), async (req, res, next) 
 // POST /api/video-campaigns/upload-logo - Upload logo file
 router.post('/upload-logo', upload.single('logo'), async (req, res, next) => {
   try {
+    logger.info('Logo upload request received', {
+      hasFile: !!req.file,
+      userId: req.user?.id,
+      hasAuth: !!req.user,
+    });
+
+    if (!req.user) {
+      logger.error('Logo upload: No authenticated user');
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
     if (!req.file) {
+      logger.error('Logo upload: No file in request');
       return res.status(400).json({ error: 'No logo file uploaded' });
     }
 
     const file = req.file;
+    logger.info('Logo file received', {
+      filename: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+    });
 
     // Validate file type
-    const allowedMimes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+    const allowedMimes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml', 'image/gif', 'image/webp'];
     if (!allowedMimes.includes(file.mimetype)) {
-      return res.status(400).json({ error: 'Invalid file type. Only PNG, JPG, and SVG are allowed.' });
+      logger.error('Logo upload: Invalid file type', { mimetype: file.mimetype });
+      return res.status(400).json({ error: `Invalid file type: ${file.mimetype}. Only PNG, JPG, GIF, WEBP, and SVG are allowed.` });
     }
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      return res.status(400).json({ error: 'File too large. Maximum size is 5MB.' });
+      logger.error('Logo upload: File too large', { size: file.size });
+      return res.status(400).json({ error: `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Maximum size is 5MB.` });
     }
 
     // Generate unique filename
     const timestamp = Date.now();
-    const fileExtension = file.originalname.split('.').pop();
-    const s3Key = `logos/${req.user!.id}/${timestamp}.${fileExtension}`;
+    const fileExtension = file.originalname.split('.').pop() || 'jpg';
+    const s3Key = `logos/${req.user.id}/${timestamp}.${fileExtension}`;
+
+    logger.info('Uploading logo to S3', { s3Key, bucket: S3_BUCKET });
 
     // Upload to S3
+    // Note: ACL removed - bucket policy makes all objects public
     const uploadCommand = new PutObjectCommand({
       Bucket: S3_BUCKET,
       Key: s3Key,
@@ -470,11 +492,21 @@ router.post('/upload-logo', upload.single('logo'), async (req, res, next) => {
     await s3Client.send(uploadCommand);
 
     const logoUrl = `https://${CLOUDFRONT_DOMAIN}/${s3Key}`;
+    logger.info('Logo uploaded successfully', { logoUrl });
 
     return res.status(201).json({ logoUrl });
-  } catch (error) {
-    logger.error('Logo upload error:', error);
-    return next(error);
+  } catch (error: any) {
+    logger.error('Logo upload error:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name,
+    });
+    return res.status(500).json({
+      error: 'Logo upload failed',
+      details: error.message || 'Unknown error',
+      code: error.code,
+    });
   }
 });
 
