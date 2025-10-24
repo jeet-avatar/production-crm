@@ -967,22 +967,60 @@ export function EditTemplateModal({
                       </div>
                     </div>
 
-                    <div className="flex-1 overflow-auto bg-gray-50">
+                    <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-100 to-gray-200">
                       {previewTab === 'html' ? (
-                        <div className="w-full h-full min-h-[calc(90vh-250px)] flex items-start justify-center p-6">
-                          <iframe
-                            srcDoc={previewHTML}
-                            className="w-[600px] max-w-[95%] border-0 bg-white shadow-2xl rounded-lg"
-                            title="Email Preview"
-                            sandbox=""
-                            style={{ minHeight: '800px', height: 'auto' }}
-                          />
+                        <div className="w-full h-full min-h-[calc(90vh-250px)] flex items-start justify-center p-8">
+                          {/* Email Client Frame */}
+                          <div className="w-[650px] max-w-[95%] bg-white rounded-xl shadow-2xl border border-gray-300 overflow-hidden">
+                            {/* Email Client Header */}
+                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-300 px-6 py-3 flex items-center gap-3">
+                              <div className="flex gap-2">
+                                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                              </div>
+                              <div className="flex-1 text-center">
+                                <span className="text-sm font-semibold text-gray-700">Email Preview</span>
+                              </div>
+                            </div>
+
+                            {/* Email Content */}
+                            <div className="bg-gray-50 p-6">
+                              <iframe
+                                srcDoc={previewHTML}
+                                className="w-full border-0 bg-white rounded-lg shadow-md"
+                                title="Email Preview"
+                                sandbox=""
+                                style={{ minHeight: '800px', height: 'auto' }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       ) : (
-                        <div className="w-full h-full p-6">
-                          <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 leading-relaxed bg-white p-6 rounded shadow-lg">
-                            {previewText}
-                          </pre>
+                        <div className="w-full h-full min-h-[calc(90vh-250px)] flex items-start justify-center p-8">
+                          {/* Email Client Frame for Text */}
+                          <div className="w-[650px] max-w-[95%] bg-white rounded-xl shadow-2xl border border-gray-300 overflow-hidden">
+                            {/* Email Client Header */}
+                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-300 px-6 py-3 flex items-center gap-3">
+                              <div className="flex gap-2">
+                                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                              </div>
+                              <div className="flex-1 text-center">
+                                <span className="text-sm font-semibold text-gray-700">Email Preview (Plain Text)</span>
+                              </div>
+                            </div>
+
+                            {/* Text Content */}
+                            <div className="bg-gray-50 p-6">
+                              <div className="bg-white p-6 rounded-lg shadow-md">
+                                <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 leading-relaxed">
+                                  {previewText}
+                                </pre>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
