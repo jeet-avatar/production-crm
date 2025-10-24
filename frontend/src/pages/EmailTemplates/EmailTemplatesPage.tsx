@@ -120,6 +120,13 @@ export function EmailTemplatesPage() {
 
     try {
       const token = localStorage.getItem('crmToken');
+
+      console.log('📤 Sending template update request:', {
+        templateId: editingTemplate.id,
+        templateName: templateData.name,
+        htmlContentLength: templateData.htmlContent?.length,
+      });
+
       const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + `/api/email-templates/${editingTemplate.id}`, {
         method: 'PUT',
         headers: {
@@ -130,14 +137,47 @@ export function EmailTemplatesPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update template');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Server rejected template update:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+        });
+        throw new Error(errorData.error || 'Failed to update template');
       }
 
+      const responseData = await response.json();
+      console.log('📥 Server response:', {
+        message: responseData.message,
+        templateId: responseData.template?.id,
+        templateName: responseData.template?.name,
+        updatedAt: responseData.template?.updatedAt,
+      });
+
+      // Verify the response contains the updated template
+      if (!responseData.template) {
+        console.error('❌ Server did not return updated template');
+        throw new Error('Server did not return updated template');
+      }
+
+      // Verify the template ID matches
+      if (responseData.template.id !== editingTemplate.id) {
+        console.error('❌ Template ID mismatch:', {
+          expected: editingTemplate.id,
+          received: responseData.template.id,
+        });
+        throw new Error('Template ID mismatch in server response');
+      }
+
+      console.log('✅ Template update verified successfully');
+
+      // Re-fetch all templates to confirm the update persisted
       await fetchTemplates();
+
       setShowEditModal(false);
       setEditingTemplate(null);
     } catch (err: any) {
-      console.error('Error updating template:', err);
+      console.error('❌ Error updating template:', err);
       throw err;
     }
   };
