@@ -73,6 +73,14 @@ export function EditTemplateModal({
   const [showHtmlEditor, setShowHtmlEditor] = useState<boolean>(false);
   const [showDraftBanner, setShowDraftBanner] = useState<boolean>(false);
 
+  // Resizable panel state
+  const [previewWidth, setPreviewWidth] = useState<number>(() => {
+    const saved = localStorage.getItem('emailPreviewWidth');
+    return saved ? parseInt(saved, 10) : 75; // Default 75%
+  });
+  const [isResizing, setIsResizing] = useState<boolean>(false);
+  const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
+
   // ===================================================================
   // SMART VARIABLE DETECTION & CONFIGURATION
   // ===================================================================
@@ -387,6 +395,49 @@ export function EditTemplateModal({
 
     return () => clearTimeout(timer);
   }, [templateName, subject, variables, isOpen, template?.id]);
+
+  // ===================================================================
+  // RESIZABLE PANEL HANDLERS
+  // ===================================================================
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const container = document.getElementById('email-editor-container');
+      if (!container) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const mouseX = e.clientX - containerRect.left;
+      const newPreviewWidth = (mouseX / containerRect.width) * 100;
+
+      // Constrain between 20% and 90%
+      const constrainedWidth = Math.min(Math.max(newPreviewWidth, 20), 90);
+      setPreviewWidth(constrainedWidth);
+      localStorage.setItem('emailPreviewWidth', constrainedWidth.toString());
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
+  // Toggle full-screen preview
+  const toggleFullScreen = () => {
+    setIsFullScreen(!isFullScreen);
+  };
 
   // ===================================================================
   // SAVE TEMPLATE
@@ -745,11 +796,18 @@ export function EditTemplateModal({
                   </div>
                 )}
 
-                {/* BODY - Split View */}
-                <div className="flex-1 flex overflow-hidden">
+                {/* BODY - Resizable Split View */}
+                <div id="email-editor-container" className="flex-1 flex overflow-hidden relative">
 
                   {/* LEFT: Form Editor */}
-                  <div className="w-1/4 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+                  {!isFullScreen && (
+                  <div
+                    className="overflow-y-auto p-4 bg-gray-50 transition-all duration-200"
+                    style={{
+                      width: `${100 - previewWidth}%`,
+                      maxHeight: 'calc(90vh - 180px)'
+                    }}
+                  >
                     <div className="space-y-3 pb-4">
 
                       {/* Template Name & Subject - COMPACT */}
@@ -829,15 +887,60 @@ export function EditTemplateModal({
 
                     </div>
                   </div>
+                  )}
+
+                  {/* RESIZE HANDLE */}
+                  {!isFullScreen && (
+                  <div
+                    className={`w-1 bg-gray-300 hover:bg-orange-500 cursor-col-resize relative group transition-colors ${
+                      isResizing ? 'bg-orange-500' : ''
+                    }`}
+                    onMouseDown={handleMouseDown}
+                  >
+                    <div className="absolute inset-y-0 -left-1 -right-1 flex items-center justify-center">
+                      <div className="w-1 h-16 bg-gray-400 rounded-full group-hover:bg-orange-500 group-hover:h-24 transition-all" />
+                    </div>
+                  </div>
+                  )}
 
                   {/* RIGHT: Preview */}
-                  <div className="w-3/4 bg-white flex flex-col">
+                  <div
+                    className="bg-white flex flex-col transition-all duration-200"
+                    style={{
+                      width: isFullScreen ? '100%' : `${previewWidth}%`
+                    }}
+                  >
                     <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                       <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
                         <EyeIcon className="h-5 w-5 text-orange-500" />
                         Live Preview
+                        {isFullScreen && (
+                          <span className="ml-2 text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full font-bold">
+                            Full Screen
+                          </span>
+                        )}
                       </h3>
-                      <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+                      <div className="flex items-center gap-2">
+                        {/* Full Screen Toggle */}
+                        <button
+                          type="button"
+                          onClick={toggleFullScreen}
+                          className="p-2 hover:bg-white/50 rounded-lg transition-all group"
+                          title={isFullScreen ? 'Exit Full Screen' : 'Full Screen Preview'}
+                        >
+                          {isFullScreen ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-orange-500">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-orange-500">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                            </svg>
+                          )}
+                        </button>
+
+                        {/* HTML/Text Tabs */}
+                        <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
                         <button
                           type="button"
                           onClick={() => setPreviewTab('html')}
@@ -860,6 +963,7 @@ export function EditTemplateModal({
                         >
                           📄 Text
                         </button>
+                      </div>
                       </div>
                     </div>
 
