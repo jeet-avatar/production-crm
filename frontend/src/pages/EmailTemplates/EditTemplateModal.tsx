@@ -868,7 +868,7 @@ export function EditTemplateModal({
                         <div className="w-full h-full min-h-[calc(90vh-250px)] flex items-start justify-center p-6">
                           <iframe
                             srcDoc={previewHTML}
-                            className="w-full max-w-full border-0 bg-white shadow-lg rounded"
+                            className="w-[600px] max-w-[95%] border-0 bg-white shadow-2xl rounded-lg"
                             title="Email Preview"
                             sandbox=""
                             style={{ minHeight: '800px', height: 'auto' }}
