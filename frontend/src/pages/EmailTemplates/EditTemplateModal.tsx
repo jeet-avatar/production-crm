@@ -749,7 +749,7 @@ export function EditTemplateModal({
                 <div className="flex-1 flex overflow-hidden">
 
                   {/* LEFT: Form Editor */}
-                  <div className="w-2/5 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+                  <div className="w-1/3 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
                     <div className="space-y-3 pb-4">
 
                       {/* Template Name & Subject - COMPACT */}
@@ -831,7 +831,7 @@ export function EditTemplateModal({
                   </div>
 
                   {/* RIGHT: Preview */}
-                  <div className="w-3/5 bg-white flex flex-col">
+                  <div className="w-2/3 bg-white flex flex-col">
                     <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                       <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
                         <EyeIcon className="h-5 w-5 text-orange-500" />
