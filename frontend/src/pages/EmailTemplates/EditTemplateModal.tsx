@@ -863,18 +863,20 @@ export function EditTemplateModal({
                       </div>
                     </div>
 
-                    <div className="flex-1 bg-white overflow-hidden">
+                    <div className="flex-1 overflow-auto bg-gray-50">
                       {previewTab === 'html' ? (
-                        <iframe
-                          srcDoc={previewHTML}
-                          className="w-full h-full border-0"
-                          title="Email Preview"
-                          sandbox="allow-same-origin"
-                          style={{ minHeight: 'calc(90vh - 250px)' }}
-                        />
+                        <div className="w-full h-full min-h-[calc(90vh-250px)] flex items-start justify-center p-6">
+                          <iframe
+                            srcDoc={previewHTML}
+                            className="w-full max-w-full border-0 bg-white shadow-lg rounded"
+                            title="Email Preview"
+                            sandbox="allow-same-origin"
+                            style={{ minHeight: '800px', height: 'auto' }}
+                          />
+                        </div>
                       ) : (
-                        <div className="w-full h-full overflow-auto p-6 bg-gray-50">
-                          <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 leading-relaxed">
+                        <div className="w-full h-full p-6">
+                          <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 leading-relaxed bg-white p-6 rounded shadow-lg">
                             {previewText}
                           </pre>
                         </div>
