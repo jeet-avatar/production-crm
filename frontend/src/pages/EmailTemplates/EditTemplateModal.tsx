@@ -832,33 +832,33 @@ export function EditTemplateModal({
 
                   {/* RIGHT: Preview */}
                   <div className="w-3/5 bg-white flex flex-col">
-                    <div className="flex justify-between items-center px-6 py-3 bg-gray-50 border-b-2 border-gray-200">
-                      <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                        <EyeIcon className="h-5 w-5" />
+                    <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                      <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                        <EyeIcon className="h-5 w-5 text-orange-500" />
                         Live Preview
                       </h3>
-                      <div className="flex gap-2">
+                      <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
                         <button
                           type="button"
                           onClick={() => setPreviewTab('html')}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
+                          className={`px-4 py-1.5 rounded-md font-semibold transition-all text-xs ${
                             previewTab === 'html'
-                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg'
-                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-md'
+                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                           }`}
                         >
-                          HTML
+                          🌐 HTML
                         </button>
                         <button
                           type="button"
                           onClick={() => setPreviewTab('text')}
-                          className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
+                          className={`px-4 py-1.5 rounded-md font-semibold transition-all text-xs ${
                             previewTab === 'text'
-                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg'
-                              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-md'
+                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                           }`}
                         >
-                          Plain Text
+                          📄 Text
                         </button>
                       </div>
                     </div>
