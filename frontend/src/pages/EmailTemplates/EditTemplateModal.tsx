@@ -218,15 +218,29 @@ export function EditTemplateModal({
     }
 
     setVariables(vars);
-    setHtmlContent(template.htmlContent);
+
+    // Unescape HTML content to handle AI-generated templates with escape characters
+    const cleanHtml = template.htmlContent
+      .replace(/\\n/g, '\n')
+      .replace(/\\t/g, '\t')
+      .replace(/\\"/g, '"')
+      .replace(/\\'/g, "'");
+
+    setHtmlContent(cleanHtml);
   }, [template?.htmlContent, template?.id]);
 
   // ===================================================================
   // GENERATE PREVIEW HTML
   // ===================================================================
   const previewHTML = useMemo(() => {
-    let html = htmlContent;
+    // First, unescape the HTML content to handle AI-generated templates with escape characters
+    let html = htmlContent
+      .replace(/\\n/g, '\n')  // Replace \n with actual newlines
+      .replace(/\\t/g, '\t')  // Replace \t with actual tabs
+      .replace(/\\"/g, '"')   // Replace \" with actual quotes
+      .replace(/\\'/g, "'");  // Replace \' with actual quotes
 
+    // Then replace variables with their values
     variables.forEach(variable => {
       const regex = new RegExp(`\\{\\{${variable.name}\\}\\}`, 'g');
       html = html.replace(regex, variable.value || `[${variable.label}]`);
@@ -746,8 +760,8 @@ export function EditTemplateModal({
                 <div className="flex-1 flex overflow-hidden">
 
                   {/* LEFT: Form Editor */}
-                  <div className="w-1/2 overflow-y-auto p-6 bg-gray-50">
-                    <div className="space-y-6 max-w-2xl">
+                  <div className="w-1/2 overflow-y-auto p-6 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+                    <div className="space-y-6 max-w-2xl pb-8">
 
                       {/* Template Name & Subject */}
                       <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100">
