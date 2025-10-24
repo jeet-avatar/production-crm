@@ -26,11 +26,9 @@ interface VideoCampaign {
 export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTemplateModalProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [videos, setVideos] = useState<VideoCampaign[]>([]);
+  const [previewTab, setPreviewTab] = useState<'html' | 'text'>('html');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showDraftRecovery, setShowDraftRecovery] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Track upload states for logo fields
   const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
@@ -168,9 +166,36 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
     return updatedHTML;
   };
 
+  const generatePlainText = (): string => {
+    if (!template.textContent) {
+      // If no text content, strip HTML tags from HTML content
+      const html = generateUpdatedHTML();
+      return html
+        .replace(/<style[^>]*>.*?<\/style>/gs, '')
+        .replace(/<script[^>]*>.*?<\/script>/gs, '')
+        .replace(/<[^>]+>/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    let updatedText = template.textContent;
+
+    // Replace each {{variable}} with its value
+    Object.entries(variableValues).forEach(([varName, value]) => {
+      const regex = new RegExp(`{{${varName}}}`, 'g');
+      updatedText = updatedText.replace(regex, value || '');
+    });
+
+    return updatedText;
+  };
+
   const previewHTML = useMemo(() => {
     return generateUpdatedHTML();
-  }, [variableValues]);
+  }, [variableValues, template.htmlContent]);
+
+  const previewText = useMemo(() => {
+    return generatePlainText();
+  }, [variableValues, template.htmlContent, template.textContent]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -264,28 +289,118 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
     setShowDraftRecovery(false);
   };
 
+  // User-friendly field configuration - Maps technical variable names to friendly labels
+  const getFieldConfig = (varName: string) => {
+    const configs: Record<string, { label: string; description: string; placeholder: string; icon: string; type: 'image' | 'video' | 'text' | 'textarea' | 'email' | 'url' | 'color' }> = {
+      // Logo & Image Fields
+      logoUrl: { label: 'Company Logo', description: 'Upload your company logo (PNG, JPG, or SVG recommended)', placeholder: 'https://example.com/logo.png', icon: '🏢', type: 'image' },
+      companyLogoUrl: { label: 'Company Logo', description: 'Your company\'s brand logo', placeholder: 'Upload or paste logo URL', icon: '🏢', type: 'image' },
+      clientLogoUrl: { label: 'Client Logo', description: 'Your client\'s company logo', placeholder: 'Upload or paste client logo URL', icon: '👔', type: 'image' },
+
+      // Video Fields
+      videoUrl: { label: 'Video Content', description: 'Upload video or paste YouTube/Vimeo link', placeholder: 'https://youtube.com/watch?v=...', icon: '🎥', type: 'video' },
+      videoThumbnailUrl: { label: 'Video Thumbnail', description: 'Preview image for the video', placeholder: 'Auto-generated or upload custom', icon: '🖼️', type: 'image' },
+      videoTitle: { label: 'Video Title', description: 'Descriptive title for your video', placeholder: 'e.g., "Watch Our Product Demo"', icon: '📝', type: 'text' },
+
+      // Content Fields
+      headline: { label: 'Email Headline', description: 'Main heading displayed at the top of your email', placeholder: 'e.g., "Transform Your Business Today"', icon: '📰', type: 'text' },
+      tagline: { label: 'Tagline', description: 'Short subtitle under the headline', placeholder: 'e.g., "Your Success Partner"', icon: '✨', type: 'text' },
+      subject: { label: 'Email Subject', description: 'Subject line recipients see in their inbox', placeholder: 'e.g., "Exclusive Offer Inside"', icon: '📧', type: 'text' },
+      previewText: { label: 'Preview Text', description: 'Text shown in email preview (before opening)', placeholder: 'e.g., "Don\'t miss this opportunity..."', icon: '👁️', type: 'text' },
+      bodyContent: { label: 'Main Message', description: 'The main body content of your email', placeholder: 'Write your message here...', icon: '📝', type: 'textarea' },
+      closingText: { label: 'Closing Message', description: 'Text displayed before your signature', placeholder: 'e.g., "Looking forward to working with you"', icon: '✍️', type: 'textarea' },
+
+      // Recipient Fields
+      firstName: { label: 'First Name', description: 'Recipient\'s first name', placeholder: 'e.g., John', icon: '👤', type: 'text' },
+      lastName: { label: 'Last Name', description: 'Recipient\'s last name', placeholder: 'e.g., Smith', icon: '👤', type: 'text' },
+      toName: { label: 'Recipient Name', description: 'Full name of the person receiving this email', placeholder: 'e.g., John Smith', icon: '👤', type: 'text' },
+      email: { label: 'Email Address', description: 'Recipient\'s email address', placeholder: 'email@example.com', icon: '📧', type: 'email' },
+
+      // Company Info
+      companyName: { label: 'Company Name', description: 'Your company\'s legal name', placeholder: 'e.g., Acme Corporation', icon: '🏢', type: 'text' },
+      companyAddress: { label: 'Street Address', description: 'Company street address', placeholder: '123 Main Street', icon: '📍', type: 'text' },
+      companyCity: { label: 'City', description: 'City name', placeholder: 'New York', icon: '🏙️', type: 'text' },
+      companyState: { label: 'State/Province', description: 'State or province', placeholder: 'NY', icon: '🗺️', type: 'text' },
+      companyZip: { label: 'ZIP/Postal Code', description: 'Postal code', placeholder: '10001', icon: '📮', type: 'text' },
+
+      // Sender Info
+      senderName: { label: 'Your Name', description: 'Name that appears in the signature', placeholder: 'e.g., Jane Doe', icon: '✍️', type: 'text' },
+      senderTitle: { label: 'Your Title', description: 'Your job title', placeholder: 'e.g., Sales Manager', icon: '💼', type: 'text' },
+      senderEmail: { label: 'Your Email', description: 'Your contact email', placeholder: 'you@company.com', icon: '📧', type: 'email' },
+
+      // Contact Info
+      contactEmail: { label: 'Contact Email', description: 'General contact email address', placeholder: 'contact@company.com', icon: '📧', type: 'email' },
+      contactPhone: { label: 'Phone Number', description: 'Contact phone number', placeholder: '+1 (555) 123-4567', icon: '📞', type: 'text' },
+      phone: { label: 'Phone', description: 'Phone number', placeholder: '+1 (555) 123-4567', icon: '📞', type: 'text' },
+
+      // CTA Fields
+      ctaText: { label: 'Button Text', description: 'Text displayed on your call-to-action button', placeholder: 'e.g., "Get Started Now"', icon: '🔘', type: 'text' },
+      ctaUrl: { label: 'Button Link', description: 'URL the button links to', placeholder: 'https://yoursite.com/signup', icon: '🔗', type: 'url' },
+      addToFeedUrl: { label: 'Feed URL', description: 'Link to add to daily feed', placeholder: 'https://yoursite.com/feed', icon: '📰', type: 'url' },
+
+      // Services
+      service1Title: { label: 'Service 1 Name', description: 'First service offering', placeholder: 'e.g., "Consulting"', icon: '📊', type: 'text' },
+      service1Url: { label: 'Service 1 Link', description: 'Link to service 1 details', placeholder: 'https://yoursite.com/consulting', icon: '🔗', type: 'url' },
+      service2Title: { label: 'Service 2 Name', description: 'Second service offering', placeholder: 'e.g., "Training"', icon: '📈', type: 'text' },
+      service2Url: { label: 'Service 2 Link', description: 'Link to service 2 details', placeholder: 'https://yoursite.com/training', icon: '🔗', type: 'url' },
+      service3Title: { label: 'Service 3 Name', description: 'Third service offering', placeholder: 'e.g., "Support"', icon: '💡', type: 'text' },
+      service3Url: { label: 'Service 3 Link', description: 'Link to service 3 details', placeholder: 'https://yoursite.com/support', icon: '🔗', type: 'url' },
+
+      // Social Media
+      linkedInUrl: { label: 'LinkedIn', description: 'Your LinkedIn profile or company page', placeholder: 'https://linkedin.com/company/yourcompany', icon: '💼', type: 'url' },
+      twitterUrl: { label: 'Twitter/X', description: 'Your Twitter/X profile', placeholder: 'https://twitter.com/yourcompany', icon: '🐦', type: 'url' },
+      facebookUrl: { label: 'Facebook', description: 'Your Facebook page', placeholder: 'https://facebook.com/yourcompany', icon: '👥', type: 'url' },
+      instagramUrl: { label: 'Instagram', description: 'Your Instagram profile', placeholder: 'https://instagram.com/yourcompany', icon: '📷', type: 'url' },
+      youtubeUrl: { label: 'YouTube', description: 'Your YouTube channel', placeholder: 'https://youtube.com/@yourcompany', icon: '▶️', type: 'url' },
+
+      // Design/Colors
+      primaryColor: { label: 'Primary Color', description: 'Main brand color (hex code)', placeholder: '#667eea', icon: '🎨', type: 'color' },
+      secondaryColor: { label: 'Secondary Color', description: 'Accent color (hex code)', placeholder: '#764ba2', icon: '🎨', type: 'color' },
+      textOnGradient: { label: 'Text Color', description: 'Text color on gradient backgrounds', placeholder: '#ffffff', icon: '🖍️', type: 'color' },
+
+      // Legal/Footer
+      unsubscribeUrl: { label: 'Unsubscribe Link', description: 'Link to unsubscribe page', placeholder: 'https://yoursite.com/unsubscribe', icon: '🔗', type: 'url' },
+      privacyPolicyUrl: { label: 'Privacy Policy', description: 'Link to your privacy policy', placeholder: 'https://yoursite.com/privacy', icon: '🔒', type: 'url' },
+      preferencesUrl: { label: 'Email Preferences', description: 'Link to email preferences page', placeholder: 'https://yoursite.com/preferences', icon: '⚙️', type: 'url' },
+      trackingPixelUrl: { label: 'Tracking Pixel', description: 'Analytics tracking pixel URL', placeholder: 'https://analytics.com/pixel.gif', icon: '📊', type: 'url' },
+
+      // Date/Time
+      currentYear: { label: 'Current Year', description: 'Auto-filled with current year', placeholder: new Date().getFullYear().toString(), icon: '📅', type: 'text' },
+      date: { label: 'Date', description: 'Current date', placeholder: new Date().toLocaleDateString(), icon: '📅', type: 'text' },
+
+      // Position/Role
+      position: { label: 'Position/Role', description: 'Job position or role', placeholder: 'e.g., Marketing Director', icon: '💼', type: 'text' },
+    };
+
+    // Return config if exists, otherwise generate a generic one
+    return configs[varName] || {
+      label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+      description: `Enter value for ${varName}`,
+      placeholder: `Enter ${varName}...`,
+      icon: '📄',
+      type: varName.toLowerCase().includes('url') ? 'url' :
+            varName.toLowerCase().includes('email') ? 'email' :
+            varName.toLowerCase().includes('color') ? 'color' : 'text'
+    };
+  };
+
   // Render form field based on variable name and type
   const renderFormField = (varName: string) => {
-    const isMediaField = varName.toLowerCase().includes('logo') ||
-                        varName.toLowerCase().includes('image') ||
-                        varName.toLowerCase().includes('video') ||
-                        varName.toLowerCase().includes('thumbnail');
-
+    const config = getFieldConfig(varName);
     const isUploading = uploadingFields[varName];
     const value = variableValues[varName] || '';
 
-    // Format variable name for display
-    const displayName = varName
-      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-      .replace(/^./, str => str.toUpperCase()); // Capitalize first letter
+    // Check if this is a media field (image/video)
+    const isMediaField = config.type === 'image' || config.type === 'video';
 
     if (isMediaField) {
       return (
-        <div key={varName}>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            <PhotoIcon className="h-4 w-4 inline mr-1" />
-            {displayName}
+        <div key={varName} className="space-y-2">
+          <label className="block text-sm font-medium text-gray-900 mb-1">
+            <span className="text-xl mr-2">{config.icon}</span>
+            {config.label}
           </label>
+          <p className="text-xs text-gray-500 mb-2">{config.description}</p>
           <div className="flex gap-2">
             <input
               type="url"
@@ -294,31 +409,34 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
                 setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
                 setHasUnsavedChanges(true);
               }}
-              placeholder={`Enter URL or upload file`}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              placeholder={config.placeholder}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
+              aria-label={config.label}
             />
             <label className={`cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
               <input
                 type="file"
-                accept={varName.toLowerCase().includes('video') ? 'video/*' : 'image/*'}
+                accept={config.type === 'video' ? 'video/*' : 'image/*'}
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) handleFileUpload(varName, file);
                 }}
                 disabled={isUploading}
+                aria-label={`Upload ${config.label}`}
               />
-              <div className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg font-bold hover:shadow-lg transition-all">
-                {isUploading ? 'Uploading...' : 'Upload'}
+              <div className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-lg font-bold hover:shadow-lg transition-all whitespace-nowrap">
+                {isUploading ? '⏳ Uploading...' : '📤 Upload'}
               </div>
             </label>
           </div>
           {value && (
-            <div className="mt-2">
-              {varName.toLowerCase().includes('video') ? (
-                <video src={value} className="w-full max-w-xs rounded" controls />
+            <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <p className="text-xs text-gray-600 mb-2">Preview:</p>
+              {config.type === 'video' ? (
+                <video src={value} className="w-full max-w-md rounded shadow-sm" controls />
               ) : (
-                <img src={value} alt={displayName} className="max-w-xs max-h-20 rounded" />
+                <img src={value} alt={config.label} className="max-w-md max-h-32 rounded shadow-sm object-contain" />
               )}
             </div>
           )}
@@ -326,16 +444,52 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
       );
     }
 
-    // Text/URL fields
-    const isLongText = varName.toLowerCase().includes('content') ||
-                      varName.toLowerCase().includes('body') ||
-                      varName.toLowerCase().includes('description');
+    // Color picker for color fields
+    if (config.type === 'color') {
+      return (
+        <div key={varName} className="space-y-2">
+          <label className="block text-sm font-medium text-gray-900 mb-1">
+            <span className="text-xl mr-2">{config.icon}</span>
+            {config.label}
+          </label>
+          <p className="text-xs text-gray-500 mb-2">{config.description}</p>
+          <div className="flex gap-2 items-center">
+            <input
+              type="color"
+              value={value || config.placeholder}
+              onChange={(e) => {
+                setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
+                setHasUnsavedChanges(true);
+              }}
+              className="h-10 w-20 border border-gray-300 rounded cursor-pointer"
+              aria-label={config.label}
+            />
+            <input
+              type="text"
+              value={value}
+              onChange={(e) => {
+                setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
+                setHasUnsavedChanges(true);
+              }}
+              placeholder={config.placeholder}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm font-mono"
+              aria-label={`${config.label} hex code`}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // Text/Textarea fields
+    const isLongText = config.type === 'textarea';
 
     return (
-      <div key={varName}>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {displayName}
+      <div key={varName} className="space-y-2">
+        <label className="block text-sm font-medium text-gray-900 mb-1">
+          <span className="text-xl mr-2">{config.icon}</span>
+          {config.label}
         </label>
+        <p className="text-xs text-gray-500 mb-2">{config.description}</p>
         {isLongText ? (
           <textarea
             value={value}
@@ -343,18 +497,22 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
               setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
               setHasUnsavedChanges(true);
             }}
+            placeholder={config.placeholder}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm resize-y"
+            aria-label={config.label}
           />
         ) : (
           <input
-            type="text"
+            type={config.type}
             value={value}
             onChange={(e) => {
               setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
               setHasUnsavedChanges(true);
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+            placeholder={config.placeholder}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
+            aria-label={config.label}
           />
         )}
       </div>
@@ -573,14 +731,52 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
                   {/* Right: Preview */}
                   <div className="w-1/2 overflow-y-auto bg-gray-50 p-6">
                     {showPreview ? (
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-3">Preview</h3>
-                        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                          <iframe
-                            srcDoc={previewHTML}
-                            className="w-full h-[70vh] border-0"
-                            title="Email Preview"
-                          />
+                      <div className="h-full flex flex-col">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-lg font-bold text-gray-900">Preview</h3>
+
+                          {/* Tab Buttons */}
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setPreviewTab('html')}
+                              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                previewTab === 'html'
+                                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              HTML
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setPreviewTab('text')}
+                              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                                previewTab === 'text'
+                                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white'
+                                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                              }`}
+                            >
+                              Plain Text
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Preview Content */}
+                        <div className="flex-1 bg-white rounded-lg shadow-lg overflow-hidden">
+                          {previewTab === 'html' ? (
+                            <iframe
+                              srcDoc={previewHTML}
+                              className="w-full h-full border-0"
+                              title="Email HTML Preview"
+                            />
+                          ) : (
+                            <div className="w-full h-full overflow-auto p-6">
+                              <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800">
+                                {previewText}
+                              </pre>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (
