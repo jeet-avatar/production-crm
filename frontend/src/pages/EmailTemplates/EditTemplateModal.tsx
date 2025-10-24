@@ -757,6 +757,7 @@ export function EditTemplateModal({
                         <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
                           <span className="text-lg">📋</span>
                           <h3 className="text-sm font-bold text-gray-900">Template Settings</h3>
+                          <span className="ml-auto text-[10px] px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-bold">v3.0 Compact</span>
                         </div>
                         <div className="space-y-3">
                           <div>
