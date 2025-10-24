@@ -428,12 +428,12 @@ export function EditTemplateModal({
   };
 
   // ===================================================================
-  // RENDER VARIABLE FIELD
+  // RENDER VARIABLE FIELD - COMPACT & EFFICIENT
   // ===================================================================
   const renderVariableField = (variable: TemplateVariable): JSX.Element => {
     const isUploading = uploadingField === variable.name;
 
-    // Image/Video upload field
+    // Image/Video upload field - COMPACT VERSION
     if (variable.type === 'image' || variable.type === 'video') {
       const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const file = e.target.files?.[0];
@@ -441,51 +441,40 @@ export function EditTemplateModal({
       };
 
       return (
-        <div key={variable.name} className="mb-6">
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            <span className="text-xl mr-2">{variable.icon}</span>
+        <div key={variable.name} className="mb-3">
+          <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+            <span className="text-sm">{variable.icon}</span>
             {variable.label}
           </label>
 
           {variable.value && (
-            <div className="mb-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                  <span className="text-sm text-green-700 font-medium">Uploaded</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updateVariableValue(variable.name, '')}
-                  className="text-xs text-red-600 hover:text-red-700 font-medium"
-                >
-                  Remove
-                </button>
-              </div>
+            <div className="mb-2 p-2 bg-green-50 border border-green-200 rounded flex items-center gap-2">
+              <CheckCircleIcon className="h-4 w-4 text-green-600 flex-shrink-0" />
               {variable.type === 'image' && (
                 <img
                   src={variable.value}
                   alt={variable.label}
-                  className="max-h-32 rounded border border-green-200"
+                  className="h-8 w-8 object-cover rounded flex-shrink-0"
                 />
               )}
-              {variable.type === 'video' && (
-                <video
-                  src={variable.value}
-                  className="max-h-32 rounded border border-green-200"
-                  controls
-                />
-              )}
+              <span className="text-xs text-green-700 flex-1 truncate">Uploaded</span>
+              <button
+                type="button"
+                onClick={() => updateVariableValue(variable.name, '')}
+                className="text-xs text-red-600 hover:text-red-700 flex-shrink-0"
+              >
+                ✕
+              </button>
             </div>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <input
               type="url"
               value={variable.value}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
-              placeholder={variable.placeholder}
-              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="URL or upload..."
+              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
             />
             <label className={`cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
               <input
@@ -495,20 +484,20 @@ export function EditTemplateModal({
                 className="hidden"
                 disabled={isUploading}
               />
-              <div className="px-6 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-lg font-bold hover:shadow-lg transition-all whitespace-nowrap flex items-center gap-2">
+              <div className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded text-xs font-bold hover:shadow transition-all whitespace-nowrap flex items-center gap-1">
                 {isUploading ? (
                   <>
-                    <ArrowPathIcon className="h-5 w-5 animate-spin" />
-                    Uploading...
+                    <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" />
+                    <span className="hidden sm:inline">...</span>
                   </>
                 ) : (
                   <>
                     {variable.type === 'video' ? (
-                      <VideoCameraIcon className="h-5 w-5" />
+                      <VideoCameraIcon className="h-3.5 w-3.5" />
                     ) : (
-                      <PhotoIcon className="h-5 w-5" />
+                      <PhotoIcon className="h-3.5 w-3.5" />
                     )}
-                    Upload
+                    <span className="hidden sm:inline">Upload</span>
                   </>
                 )}
               </div>
@@ -518,57 +507,57 @@ export function EditTemplateModal({
       );
     }
 
-    // Color picker field
+    // Color picker field - COMPACT VERSION
     if (variable.type === 'color') {
       return (
-        <div key={variable.name} className="mb-6">
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            <span className="text-xl mr-2">{variable.icon}</span>
+        <div key={variable.name} className="mb-3">
+          <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+            <span className="text-sm">{variable.icon}</span>
             {variable.label}
           </label>
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-2 items-center">
             <input
               type="color"
               value={variable.value || '#667eea'}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
-              className="h-12 w-20 border-2 border-gray-300 rounded-lg cursor-pointer"
+              className="h-8 w-12 border border-gray-300 rounded cursor-pointer"
             />
             <input
               type="text"
               value={variable.value}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
-              placeholder={variable.placeholder}
-              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono"
+              placeholder="#667eea"
+              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 font-mono"
             />
           </div>
         </div>
       );
     }
 
-    // Textarea field
+    // Textarea field - COMPACT VERSION
     if (variable.type === 'textarea') {
       return (
-        <div key={variable.name} className="mb-6">
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            <span className="text-xl mr-2">{variable.icon}</span>
+        <div key={variable.name} className="mb-3">
+          <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+            <span className="text-sm">{variable.icon}</span>
             {variable.label}
           </label>
           <textarea
             value={variable.value}
             onChange={(e: ChangeEvent<HTMLTextAreaElement>) => updateVariableValue(variable.name, e.target.value)}
             placeholder={variable.placeholder}
-            rows={4}
-            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-y"
+            rows={3}
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 resize-y"
           />
         </div>
       );
     }
 
-    // Text/Email/URL input field
+    // Text/Email/URL input field - COMPACT VERSION
     return (
-      <div key={variable.name} className="mb-6">
-        <label className="block text-sm font-semibold text-gray-900 mb-2">
-          <span className="text-xl mr-2">{variable.icon}</span>
+      <div key={variable.name} className="mb-3">
+        <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+          <span className="text-sm">{variable.icon}</span>
           {variable.label}
         </label>
         <input
@@ -576,7 +565,7 @@ export function EditTemplateModal({
           value={variable.value}
           onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
           placeholder={variable.placeholder}
-          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
         />
       </div>
     );
@@ -760,18 +749,18 @@ export function EditTemplateModal({
                 <div className="flex-1 flex overflow-hidden">
 
                   {/* LEFT: Form Editor */}
-                  <div className="w-2/5 overflow-y-auto p-6 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
-                    <div className="space-y-6 pb-8">
+                  <div className="w-2/5 overflow-y-auto p-4 bg-gray-50" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+                    <div className="space-y-3 pb-4">
 
-                      {/* Template Name & Subject */}
-                      <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                          <span className="text-2xl">📋</span>
-                          Template Settings
-                        </h3>
-                        <div className="space-y-4">
+                      {/* Template Name & Subject - COMPACT */}
+                      <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                          <span className="text-lg">📋</span>
+                          <h3 className="text-sm font-bold text-gray-900">Template Settings</h3>
+                        </div>
+                        <div className="space-y-3">
                           <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">
                               Template Name
                             </label>
                             <input
@@ -779,11 +768,11 @@ export function EditTemplateModal({
                               value={templateName}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => setTemplateName(e.target.value)}
                               placeholder="My Email Template"
-                              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">
                               Subject Line
                             </label>
                             <input
@@ -791,33 +780,34 @@ export function EditTemplateModal({
                               value={subject}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
                               placeholder="Your consultation is ready"
-                              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
                             />
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => setShowHtmlEditor(true)}
-                          className="mt-4 w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                          className="mt-3 w-full px-3 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded text-xs font-bold hover:shadow transition-all flex items-center justify-center gap-1.5"
                         >
-                          <SparklesIcon className="h-5 w-5" />
+                          <SparklesIcon className="h-4 w-4" />
                           Edit HTML & Add Variables
                         </button>
                       </div>
 
-                      {/* Render variable fields by category */}
+                      {/* Render variable fields by category - COMPACT */}
                       {(Object.entries(variablesByCategory) as [CategoryKey, TemplateVariable[]][]).map(([category, vars]) => {
                         if (vars.length === 0) return null;
 
                         const { title, icon } = categoryLabels[category];
 
                         return (
-                          <div key={category} className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100">
-                            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                              <span className="text-2xl">{icon}</span>
-                              {title}
-                            </h3>
-                            <div className="space-y-4">
+                          <div key={category} className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                              <span className="text-lg">{icon}</span>
+                              <h3 className="text-sm font-bold text-gray-900">{title}</h3>
+                              <span className="ml-auto text-xs text-gray-500">{vars.length}</span>
+                            </div>
+                            <div className="space-y-0">
                               {vars.map(renderVariableField)}
                             </div>
                           </div>
