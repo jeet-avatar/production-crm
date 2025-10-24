@@ -1,134 +1,295 @@
-import { Fragment, useState, useEffect, useMemo } from 'react';
+import { Fragment, useState, useEffect, useMemo, ChangeEvent } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, EyeIcon, DocumentTextIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import {
+  XMarkIcon,
+  EyeIcon,
+  PhotoIcon,
+  VideoCameraIcon,
+  CheckCircleIcon,
+  ArrowPathIcon,
+  ClockIcon,
+  SparklesIcon
+} from '@heroicons/react/24/outline';
+
+// ===================================================================
+// EMAIL TEMPLATE CREATOR - Clean, Type-Safe Implementation
+// ===================================================================
 
 interface EditTemplateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (templateData: any) => Promise<void>;
-  template: {
-    id: string;
+  onSave: (templateData: {
     name: string;
     subject: string;
     htmlContent: string;
-    textContent: string | null;
-    variables: string[];
+    textContent: string;
+  }) => Promise<void>;
+  template?: {
+    id?: string;
+    name?: string;
+    subject?: string;
+    htmlContent?: string;
+    textContent?: string | null;
+    variables?: string[];
   };
 }
 
-interface VideoCampaign {
-  id: string;
+interface TemplateVariable {
   name: string;
-  videoUrl: string;
-  thumbnailUrl: string;
+  value: string;
+  type: 'text' | 'textarea' | 'url' | 'email' | 'color' | 'image' | 'video';
+  label: string;
+  placeholder: string;
+  icon: string;
+  category: 'basic' | 'content' | 'media' | 'contact' | 'design' | 'legal';
 }
 
-export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTemplateModalProps) {
-  const [isSaving, setIsSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
+type CategoryKey = 'basic' | 'content' | 'media' | 'contact' | 'design' | 'legal';
+
+interface CategoryLabel {
+  title: string;
+  icon: string;
+}
+
+export function EditTemplateModal({
+  isOpen,
+  onClose,
+  onSave,
+  template
+}: EditTemplateModalProps): JSX.Element {
+  // ===================================================================
+  // STATE MANAGEMENT
+  // ===================================================================
+  const [templateName, setTemplateName] = useState<string>(template?.name || 'New Template');
+  const [subject, setSubject] = useState<string>(template?.subject || '');
+  const [htmlContent, setHtmlContent] = useState<string>(template?.htmlContent || '');
+  const [variables, setVariables] = useState<TemplateVariable[]>([]);
+
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   const [previewTab, setPreviewTab] = useState<'html' | 'text'>('html');
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showDraftRecovery, setShowDraftRecovery] = useState(false);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const [autoSaving, setAutoSaving] = useState<boolean>(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showHtmlEditor, setShowHtmlEditor] = useState<boolean>(false);
+  const [showDraftBanner, setShowDraftBanner] = useState<boolean>(false);
 
-  // Track upload states for logo fields
-  const [uploadingFields, setUploadingFields] = useState<Record<string, boolean>>({});
-
-  const getDraftKey = () => `emailTemplate_draft_${template.id}`;
-
-  // NEW APPROACH: Extract variable values from the template's HTML
-  // Instead of regenerating HTML, we preserve the original and just replace {{variables}}
-  const extractVariableValues = (htmlContent: string, variables: string[]): Record<string, string> => {
-    const values: Record<string, string> = {};
-
-    variables.forEach(varName => {
-      // Try to find existing value in HTML by looking for the variable placeholder
-      const regex = new RegExp(`{{${varName}}}`, 'g');
-      // For now, initialize with empty string - user will fill in
-      values[varName] = '';
-    });
-
-    return values;
-  };
-
-  // Initialize form data with variables from the template
-  const [templateName, setTemplateName] = useState(template.name);
-  const [subject, setSubject] = useState(template.subject);
-  const [variableValues, setVariableValues] = useState<Record<string, string>>(() =>
-    extractVariableValues(template.htmlContent, template.variables || [])
-  );
-
-  // Categorize variables for better UI organization
-  const categorizeVariable = (varName: string): string => {
+  // ===================================================================
+  // SMART VARIABLE DETECTION & CONFIGURATION
+  // ===================================================================
+  const getVariableConfig = (varName: string): Omit<TemplateVariable, 'name' | 'value'> => {
     const lower = varName.toLowerCase();
 
-    if (lower.includes('logo') || lower.includes('image')) return 'media';
-    if (lower.includes('video') || lower.includes('thumbnail')) return 'media';
-    if (lower.includes('company') || lower.includes('sender') || lower.includes('signature')) return 'company';
-    if (lower.includes('social') || lower.includes('linkedin') || lower.includes('twitter') || lower.includes('facebook') || lower.includes('instagram')) return 'social';
-    if (lower.includes('unsubscribe') || lower.includes('privacy') || lower.includes('legal')) return 'legal';
-    if (lower.includes('address') || lower.includes('city') || lower.includes('state') || lower.includes('zip') || lower.includes('phone') || lower.includes('email')) return 'contact';
-    if (lower.includes('color') || lower.includes('gradient') || lower.includes('theme')) return 'design';
-    if (lower.includes('service') || lower.includes('cta') || lower.includes('button')) return 'cta';
+    // Media fields
+    if (lower.includes('logo') || (lower.includes('image') && !lower.includes('url'))) {
+      return {
+        type: 'image',
+        label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace('Url', ''),
+        placeholder: 'Upload or enter URL',
+        icon: '🖼️',
+        category: 'media'
+      };
+    }
+    if (lower.includes('video')) {
+      return {
+        type: 'video',
+        label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace('Url', ''),
+        placeholder: 'Upload video or enter URL',
+        icon: '🎥',
+        category: 'media'
+      };
+    }
 
-    return 'content';
+    // Color fields
+    if (lower.includes('color')) {
+      return {
+        type: 'color',
+        label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+        placeholder: '#667eea',
+        icon: '🎨',
+        category: 'design'
+      };
+    }
+
+    // Email fields
+    if (lower.includes('email')) {
+      return {
+        type: 'email',
+        label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+        placeholder: 'email@example.com',
+        icon: '📧',
+        category: 'contact'
+      };
+    }
+
+    // URL fields
+    if (lower.includes('url') || lower.includes('link')) {
+      return {
+        type: 'url',
+        label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace('Url', ' Link'),
+        placeholder: 'https://example.com',
+        icon: '🔗',
+        category: 'contact'
+      };
+    }
+
+    // Long text fields
+    if (lower.includes('message') || lower.includes('description') || lower.includes('content') || lower.includes('body')) {
+      return {
+        type: 'textarea',
+        label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+        placeholder: 'Enter your message...',
+        icon: '📝',
+        category: 'content'
+      };
+    }
+
+    // Legal fields
+    if (lower.includes('unsubscribe') || lower.includes('privacy') || lower.includes('terms') || lower.includes('legal')) {
+      return {
+        type: 'url',
+        label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+        placeholder: 'https://example.com',
+        icon: '⚖️',
+        category: 'legal'
+      };
+    }
+
+    // Default text field
+    return {
+      type: 'text',
+      label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+      placeholder: `Enter ${varName}...`,
+      icon: '📄',
+      category: 'basic'
+    };
   };
 
-  const organizedVariables = useMemo(() => {
-    const organized: Record<string, string[]> = {
-      content: [],
-      media: [],
-      cta: [],
-      company: [],
-      contact: [],
-      social: [],
-      design: [],
-      legal: [],
-    };
+  // ===================================================================
+  // EXTRACT VARIABLES FROM HTML TEMPLATE & LOAD DRAFT
+  // ===================================================================
+  useEffect(() => {
+    if (!template?.htmlContent) return;
 
-    (template.variables || []).forEach(varName => {
-      const category = categorizeVariable(varName);
-      organized[category].push(varName);
+    const regex = /\{\{([a-zA-Z0-9_]+)\}\}/g;
+    const matches = template.htmlContent.matchAll(regex);
+    const foundVars = new Set<string>();
+
+    for (const match of matches) {
+      foundVars.add(match[1]);
+    }
+
+    const vars: TemplateVariable[] = Array.from(foundVars).map(varName => ({
+      name: varName,
+      value: '',
+      ...getVariableConfig(varName)
+    }));
+
+    // Load saved draft if exists
+    const draftKey = `template_draft_${template?.id || 'new'}`;
+    const savedDraft = localStorage.getItem(draftKey);
+
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+
+        // Show draft recovery banner
+        setShowDraftBanner(true);
+
+        // Restore template name and subject
+        if (draft.templateName) setTemplateName(draft.templateName);
+        if (draft.subject) setSubject(draft.subject);
+
+        // Restore variable values from draft
+        if (draft.variables && Array.isArray(draft.variables)) {
+          const draftVarMap = new Map<string, string>(
+            draft.variables.map((v: TemplateVariable) => [v.name, v.value])
+          );
+
+          vars.forEach(v => {
+            const savedValue = draftVarMap.get(v.name);
+            if (savedValue !== undefined) {
+              v.value = savedValue;
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load draft:', err);
+      }
+    }
+
+    setVariables(vars);
+    setHtmlContent(template.htmlContent);
+  }, [template?.htmlContent, template?.id]);
+
+  // ===================================================================
+  // GENERATE PREVIEW HTML
+  // ===================================================================
+  const previewHTML = useMemo(() => {
+    let html = htmlContent;
+
+    variables.forEach(variable => {
+      const regex = new RegExp(`\\{\\{${variable.name}\\}\\}`, 'g');
+      html = html.replace(regex, variable.value || `[${variable.label}]`);
     });
 
-    return organized;
-  }, [template.variables]);
+    return html;
+  }, [htmlContent, variables]);
 
-  // Handle logo/image upload for any variable
-  const handleFileUpload = async (varName: string, file: File) => {
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+  // ===================================================================
+  // GENERATE PLAIN TEXT VERSION
+  // ===================================================================
+  const previewText = useMemo(() => {
+    const div = document.createElement('div');
+    div.innerHTML = previewHTML;
+
+    const scripts = div.getElementsByTagName('script');
+    const styles = div.getElementsByTagName('style');
+
+    while (scripts.length > 0) scripts[0].remove();
+    while (styles.length > 0) styles[0].remove();
+
+    return div.textContent || div.innerText || '';
+  }, [previewHTML]);
+
+  // ===================================================================
+  // FILE UPLOAD HANDLER
+  // ===================================================================
+  const handleFileUpload = async (varName: string, file: File): Promise<void> => {
+    const isVideo = file.type.startsWith('video/');
+    const isImage = file.type.startsWith('image/');
+
+    if (!isVideo && !isImage) {
       alert('Please select a valid image or video file');
       return;
     }
 
-    const maxSize = file.type.startsWith('video/') ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
+    const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      alert(`File is too large. Maximum size is ${file.type.startsWith('video/') ? '100MB' : '5MB'}.`);
+      alert(`File too large. Max ${isVideo ? '100MB' : '5MB'}`);
       return;
     }
 
     try {
-      setUploadingFields(prev => ({ ...prev, [varName]: true }));
+      setUploadingField(varName);
 
       const token = localStorage.getItem('crmToken');
-      if (!token) {
-        alert('Not authenticated. Please log in again.');
-        return;
-      }
+      if (!token) throw new Error('Not authenticated');
 
       const formData = new FormData();
-      formData.append(file.type.startsWith('video/') ? 'video' : 'logo', file);
+      formData.append(isVideo ? 'video' : 'logo', file);
 
-      const endpoint = file.type.startsWith('video/')
+      const endpoint = isVideo
         ? '/api/video-campaigns/templates/upload'
         : '/api/video-campaigns/upload-logo';
 
-      const response = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000') + endpoint, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        (import.meta.env.VITE_API_URL || 'http://localhost:3000') + endpoint,
+        {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -138,390 +299,310 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
       const data = await response.json();
       const uploadedUrl = data.logoUrl || data.videoUrl || data.url;
 
-      if (!uploadedUrl) {
-        throw new Error('Server did not return a URL');
-      }
+      if (!uploadedUrl) throw new Error('No URL returned');
 
-      setVariableValues(prev => ({ ...prev, [varName]: uploadedUrl }));
-      setHasUnsavedChanges(true);
-
-    } catch (err: any) {
-      console.error(`Upload error for ${varName}:`, err);
-      alert(`Failed to upload: ${err.message}`);
+      updateVariableValue(varName, uploadedUrl);
+    } catch (err) {
+      const error = err as Error;
+      alert(`Upload failed: ${error.message}`);
     } finally {
-      setUploadingFields(prev => ({ ...prev, [varName]: false }));
+      setUploadingField(null);
     }
   };
 
-  // Generate the updated HTML by replacing {{variables}} with actual values
-  const generateUpdatedHTML = (): string => {
-    let updatedHTML = template.htmlContent;
-
-    // Replace each {{variable}} with its value
-    Object.entries(variableValues).forEach(([varName, value]) => {
-      const regex = new RegExp(`{{${varName}}}`, 'g');
-      updatedHTML = updatedHTML.replace(regex, value || '');
-    });
-
-    return updatedHTML;
+  // ===================================================================
+  // UPDATE VARIABLE VALUE
+  // ===================================================================
+  const updateVariableValue = (varName: string, value: string): void => {
+    setVariables(prev =>
+      prev.map(v => (v.name === varName ? { ...v, value } : v))
+    );
   };
 
-  const generatePlainText = (): string => {
-    if (!template.textContent) {
-      // If no text content, strip HTML tags from HTML content
-      const html = generateUpdatedHTML();
-      return html
-        .replace(/<style[^>]*>.*?<\/style>/gs, '')
-        .replace(/<script[^>]*>.*?<\/script>/gs, '')
-        .replace(/<[^>]+>/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
+  // ===================================================================
+  // UPDATE HTML AND RE-EXTRACT VARIABLES
+  // ===================================================================
+  const handleHtmlUpdate = (newHtml: string): void => {
+    setHtmlContent(newHtml);
+
+    // Re-extract variables from updated HTML
+    const regex = /\{\{([a-zA-Z0-9_]+)\}\}/g;
+    const matches = newHtml.matchAll(regex);
+    const foundVars = new Set<string>();
+
+    for (const match of matches) {
+      foundVars.add(match[1]);
     }
 
-    let updatedText = template.textContent;
+    // Keep existing values, add new variables
+    const existingVarMap = new Map<string, string>(
+      variables.map((v: TemplateVariable) => [v.name, v.value])
+    );
 
-    // Replace each {{variable}} with its value
-    Object.entries(variableValues).forEach(([varName, value]) => {
-      const regex = new RegExp(`{{${varName}}}`, 'g');
-      updatedText = updatedText.replace(regex, value || '');
-    });
+    const updatedVars: TemplateVariable[] = Array.from(foundVars).map(varName => ({
+      name: varName,
+      value: existingVarMap.get(varName) || '',
+      ...getVariableConfig(varName)
+    }));
 
-    return updatedText;
+    setVariables(updatedVars);
+    setShowHtmlEditor(false);
   };
 
-  const previewHTML = useMemo(() => {
-    return generateUpdatedHTML();
-  }, [variableValues, template.htmlContent]);
+  // ===================================================================
+  // AUTO-SAVE DRAFT
+  // ===================================================================
+  useEffect(() => {
+    if (!isOpen) return;
 
-  const previewText = useMemo(() => {
-    return generatePlainText();
-  }, [variableValues, template.htmlContent, template.textContent]);
+    const timer = setTimeout(() => {
+      setAutoSaving(true);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const htmlContent = generateUpdatedHTML();
-      const updatedTemplate = {
-        name: templateName,
+      const draft = {
+        templateName,
         subject,
-        htmlContent,
-        textContent: template.textContent,
-        variables: template.variables,
+        variables,
+        timestamp: Date.now()
       };
 
-      await onSave(updatedTemplate);
+      localStorage.setItem(`template_draft_${template?.id || 'new'}`, JSON.stringify(draft));
+      setLastSaved(new Date());
 
-      // Clear draft
-      localStorage.removeItem(getDraftKey());
-      setHasUnsavedChanges(false);
-    } catch (err: any) {
-      console.error('Error saving template:', err);
-      alert(err.message || 'Failed to save template');
+      setTimeout(() => setAutoSaving(false), 1000);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [templateName, subject, variables, isOpen, template?.id]);
+
+  // ===================================================================
+  // SAVE TEMPLATE
+  // ===================================================================
+  const handleSave = async (): Promise<void> => {
+    if (!templateName.trim()) {
+      alert('Please enter a template name');
+      return;
+    }
+    if (!subject.trim()) {
+      alert('Please enter a subject line');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      let finalHTML = htmlContent;
+      variables.forEach(variable => {
+        const regex = new RegExp(`\\{\\{${variable.name}\\}\\}`, 'g');
+        finalHTML = finalHTML.replace(regex, variable.value || '');
+      });
+
+      await onSave({
+        name: templateName,
+        subject,
+        htmlContent: finalHTML,
+        textContent: previewText,
+      });
+
+      localStorage.removeItem(`template_draft_${template?.id || 'new'}`);
+      onClose();
+    } catch (err) {
+      const error = err as Error;
+      alert(`Save failed: ${error.message}`);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleClose = () => {
-    if (hasUnsavedChanges) {
-      if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
-        return;
-      }
-    }
-    onClose();
-  };
+  // ===================================================================
+  // RENDER VARIABLE FIELD
+  // ===================================================================
+  const renderVariableField = (variable: TemplateVariable): JSX.Element => {
+    const isUploading = uploadingField === variable.name;
 
-  // Auto-save draft every 5 seconds
-  useEffect(() => {
-    if (!hasUnsavedChanges || !isOpen) return;
-
-    const timer = setTimeout(() => {
-      const draft = {
-        templateName,
-        subject,
-        variableValues,
-        timestamp: Date.now(),
+    // Image/Video upload field
+    if (variable.type === 'image' || variable.type === 'video') {
+      const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
+        const file = e.target.files?.[0];
+        if (file) handleFileUpload(variable.name, file);
       };
-      localStorage.setItem(getDraftKey(), JSON.stringify(draft));
-    }, 5000);
 
-    return () => clearTimeout(timer);
-  }, [templateName, subject, variableValues, hasUnsavedChanges, isOpen]);
-
-  // Check for existing draft when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      const draftKey = getDraftKey();
-      const savedDraft = localStorage.getItem(draftKey);
-      if (savedDraft) {
-        try {
-          const draft = JSON.parse(savedDraft);
-          const draftAge = Date.now() - draft.timestamp;
-          if (draftAge < 24 * 60 * 60 * 1000) {
-            setShowDraftRecovery(true);
-          } else {
-            localStorage.removeItem(draftKey);
-          }
-        } catch (error) {
-          console.error('Error loading draft:', error);
-        }
-      }
-    }
-  }, [isOpen]);
-
-  const handleRecoverDraft = () => {
-    const savedDraft = localStorage.getItem(getDraftKey());
-    if (savedDraft) {
-      try {
-        const draft = JSON.parse(savedDraft);
-        setTemplateName(draft.templateName);
-        setSubject(draft.subject);
-        setVariableValues(draft.variableValues);
-        setShowDraftRecovery(false);
-      } catch (error) {
-        console.error('Error recovering draft:', error);
-      }
-    }
-  };
-
-  const handleDiscardDraft = () => {
-    localStorage.removeItem(getDraftKey());
-    setShowDraftRecovery(false);
-  };
-
-  // User-friendly field configuration - Maps technical variable names to friendly labels
-  const getFieldConfig = (varName: string) => {
-    const configs: Record<string, { label: string; description: string; placeholder: string; icon: string; type: 'image' | 'video' | 'text' | 'textarea' | 'email' | 'url' | 'color' }> = {
-      // Logo & Image Fields
-      logoUrl: { label: 'Company Logo', description: 'Upload your company logo (PNG, JPG, or SVG recommended)', placeholder: 'https://example.com/logo.png', icon: '🏢', type: 'image' },
-      companyLogoUrl: { label: 'Company Logo', description: 'Your company\'s brand logo', placeholder: 'Upload or paste logo URL', icon: '🏢', type: 'image' },
-      clientLogoUrl: { label: 'Client Logo', description: 'Your client\'s company logo', placeholder: 'Upload or paste client logo URL', icon: '👔', type: 'image' },
-
-      // Video Fields
-      videoUrl: { label: 'Video Content', description: 'Upload video or paste YouTube/Vimeo link', placeholder: 'https://youtube.com/watch?v=...', icon: '🎥', type: 'video' },
-      videoThumbnailUrl: { label: 'Video Thumbnail', description: 'Preview image for the video', placeholder: 'Auto-generated or upload custom', icon: '🖼️', type: 'image' },
-      videoTitle: { label: 'Video Title', description: 'Descriptive title for your video', placeholder: 'e.g., "Watch Our Product Demo"', icon: '📝', type: 'text' },
-
-      // Content Fields
-      headline: { label: 'Email Headline', description: 'Main heading displayed at the top of your email', placeholder: 'e.g., "Transform Your Business Today"', icon: '📰', type: 'text' },
-      tagline: { label: 'Tagline', description: 'Short subtitle under the headline', placeholder: 'e.g., "Your Success Partner"', icon: '✨', type: 'text' },
-      subject: { label: 'Email Subject', description: 'Subject line recipients see in their inbox', placeholder: 'e.g., "Exclusive Offer Inside"', icon: '📧', type: 'text' },
-      previewText: { label: 'Preview Text', description: 'Text shown in email preview (before opening)', placeholder: 'e.g., "Don\'t miss this opportunity..."', icon: '👁️', type: 'text' },
-      bodyContent: { label: 'Main Message', description: 'The main body content of your email', placeholder: 'Write your message here...', icon: '📝', type: 'textarea' },
-      closingText: { label: 'Closing Message', description: 'Text displayed before your signature', placeholder: 'e.g., "Looking forward to working with you"', icon: '✍️', type: 'textarea' },
-
-      // Recipient Fields
-      firstName: { label: 'First Name', description: 'Recipient\'s first name', placeholder: 'e.g., John', icon: '👤', type: 'text' },
-      lastName: { label: 'Last Name', description: 'Recipient\'s last name', placeholder: 'e.g., Smith', icon: '👤', type: 'text' },
-      toName: { label: 'Recipient Name', description: 'Full name of the person receiving this email', placeholder: 'e.g., John Smith', icon: '👤', type: 'text' },
-      email: { label: 'Email Address', description: 'Recipient\'s email address', placeholder: 'email@example.com', icon: '📧', type: 'email' },
-
-      // Company Info
-      companyName: { label: 'Company Name', description: 'Your company\'s legal name', placeholder: 'e.g., Acme Corporation', icon: '🏢', type: 'text' },
-      companyAddress: { label: 'Street Address', description: 'Company street address', placeholder: '123 Main Street', icon: '📍', type: 'text' },
-      companyCity: { label: 'City', description: 'City name', placeholder: 'New York', icon: '🏙️', type: 'text' },
-      companyState: { label: 'State/Province', description: 'State or province', placeholder: 'NY', icon: '🗺️', type: 'text' },
-      companyZip: { label: 'ZIP/Postal Code', description: 'Postal code', placeholder: '10001', icon: '📮', type: 'text' },
-
-      // Sender Info
-      senderName: { label: 'Your Name', description: 'Name that appears in the signature', placeholder: 'e.g., Jane Doe', icon: '✍️', type: 'text' },
-      senderTitle: { label: 'Your Title', description: 'Your job title', placeholder: 'e.g., Sales Manager', icon: '💼', type: 'text' },
-      senderEmail: { label: 'Your Email', description: 'Your contact email', placeholder: 'you@company.com', icon: '📧', type: 'email' },
-
-      // Contact Info
-      contactEmail: { label: 'Contact Email', description: 'General contact email address', placeholder: 'contact@company.com', icon: '📧', type: 'email' },
-      contactPhone: { label: 'Phone Number', description: 'Contact phone number', placeholder: '+1 (555) 123-4567', icon: '📞', type: 'text' },
-      phone: { label: 'Phone', description: 'Phone number', placeholder: '+1 (555) 123-4567', icon: '📞', type: 'text' },
-
-      // CTA Fields
-      ctaText: { label: 'Button Text', description: 'Text displayed on your call-to-action button', placeholder: 'e.g., "Get Started Now"', icon: '🔘', type: 'text' },
-      ctaUrl: { label: 'Button Link', description: 'URL the button links to', placeholder: 'https://yoursite.com/signup', icon: '🔗', type: 'url' },
-      addToFeedUrl: { label: 'Feed URL', description: 'Link to add to daily feed', placeholder: 'https://yoursite.com/feed', icon: '📰', type: 'url' },
-
-      // Services
-      service1Title: { label: 'Service 1 Name', description: 'First service offering', placeholder: 'e.g., "Consulting"', icon: '📊', type: 'text' },
-      service1Url: { label: 'Service 1 Link', description: 'Link to service 1 details', placeholder: 'https://yoursite.com/consulting', icon: '🔗', type: 'url' },
-      service2Title: { label: 'Service 2 Name', description: 'Second service offering', placeholder: 'e.g., "Training"', icon: '📈', type: 'text' },
-      service2Url: { label: 'Service 2 Link', description: 'Link to service 2 details', placeholder: 'https://yoursite.com/training', icon: '🔗', type: 'url' },
-      service3Title: { label: 'Service 3 Name', description: 'Third service offering', placeholder: 'e.g., "Support"', icon: '💡', type: 'text' },
-      service3Url: { label: 'Service 3 Link', description: 'Link to service 3 details', placeholder: 'https://yoursite.com/support', icon: '🔗', type: 'url' },
-
-      // Social Media
-      linkedInUrl: { label: 'LinkedIn', description: 'Your LinkedIn profile or company page', placeholder: 'https://linkedin.com/company/yourcompany', icon: '💼', type: 'url' },
-      twitterUrl: { label: 'Twitter/X', description: 'Your Twitter/X profile', placeholder: 'https://twitter.com/yourcompany', icon: '🐦', type: 'url' },
-      facebookUrl: { label: 'Facebook', description: 'Your Facebook page', placeholder: 'https://facebook.com/yourcompany', icon: '👥', type: 'url' },
-      instagramUrl: { label: 'Instagram', description: 'Your Instagram profile', placeholder: 'https://instagram.com/yourcompany', icon: '📷', type: 'url' },
-      youtubeUrl: { label: 'YouTube', description: 'Your YouTube channel', placeholder: 'https://youtube.com/@yourcompany', icon: '▶️', type: 'url' },
-
-      // Design/Colors
-      primaryColor: { label: 'Primary Color', description: 'Main brand color (hex code)', placeholder: '#667eea', icon: '🎨', type: 'color' },
-      secondaryColor: { label: 'Secondary Color', description: 'Accent color (hex code)', placeholder: '#764ba2', icon: '🎨', type: 'color' },
-      textOnGradient: { label: 'Text Color', description: 'Text color on gradient backgrounds', placeholder: '#ffffff', icon: '🖍️', type: 'color' },
-
-      // Legal/Footer
-      unsubscribeUrl: { label: 'Unsubscribe Link', description: 'Link to unsubscribe page', placeholder: 'https://yoursite.com/unsubscribe', icon: '🔗', type: 'url' },
-      privacyPolicyUrl: { label: 'Privacy Policy', description: 'Link to your privacy policy', placeholder: 'https://yoursite.com/privacy', icon: '🔒', type: 'url' },
-      preferencesUrl: { label: 'Email Preferences', description: 'Link to email preferences page', placeholder: 'https://yoursite.com/preferences', icon: '⚙️', type: 'url' },
-      trackingPixelUrl: { label: 'Tracking Pixel', description: 'Analytics tracking pixel URL', placeholder: 'https://analytics.com/pixel.gif', icon: '📊', type: 'url' },
-
-      // Date/Time
-      currentYear: { label: 'Current Year', description: 'Auto-filled with current year', placeholder: new Date().getFullYear().toString(), icon: '📅', type: 'text' },
-      date: { label: 'Date', description: 'Current date', placeholder: new Date().toLocaleDateString(), icon: '📅', type: 'text' },
-
-      // Position/Role
-      position: { label: 'Position/Role', description: 'Job position or role', placeholder: 'e.g., Marketing Director', icon: '💼', type: 'text' },
-    };
-
-    // Return config if exists, otherwise generate a generic one
-    return configs[varName] || {
-      label: varName.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-      description: `Enter value for ${varName}`,
-      placeholder: `Enter ${varName}...`,
-      icon: '📄',
-      type: varName.toLowerCase().includes('url') ? 'url' :
-            varName.toLowerCase().includes('email') ? 'email' :
-            varName.toLowerCase().includes('color') ? 'color' : 'text'
-    };
-  };
-
-  // Render form field based on variable name and type
-  const renderFormField = (varName: string) => {
-    const config = getFieldConfig(varName);
-    const isUploading = uploadingFields[varName];
-    const value = variableValues[varName] || '';
-
-    // Check if this is a media field (image/video)
-    const isMediaField = config.type === 'image' || config.type === 'video';
-
-    if (isMediaField) {
       return (
-        <div key={varName} className="space-y-2">
-          <label className="block text-sm font-medium text-gray-900 mb-1">
-            <span className="text-xl mr-2">{config.icon}</span>
-            {config.label}
+        <div key={variable.name} className="mb-6">
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            <span className="text-xl mr-2">{variable.icon}</span>
+            {variable.label}
           </label>
-          <p className="text-xs text-gray-500 mb-2">{config.description}</p>
+
+          {variable.value && (
+            <div className="mb-3 p-3 bg-green-50 border-2 border-green-200 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircleIcon className="h-5 w-5 text-green-600" />
+                  <span className="text-sm text-green-700 font-medium">Uploaded</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => updateVariableValue(variable.name, '')}
+                  className="text-xs text-red-600 hover:text-red-700 font-medium"
+                >
+                  Remove
+                </button>
+              </div>
+              {variable.type === 'image' && (
+                <img
+                  src={variable.value}
+                  alt={variable.label}
+                  className="max-h-32 rounded border border-green-200"
+                />
+              )}
+              {variable.type === 'video' && (
+                <video
+                  src={variable.value}
+                  className="max-h-32 rounded border border-green-200"
+                  controls
+                />
+              )}
+            </div>
+          )}
+
           <div className="flex gap-2">
             <input
               type="url"
-              value={value}
-              onChange={(e) => {
-                setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
-                setHasUnsavedChanges(true);
-              }}
-              placeholder={config.placeholder}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
-              aria-label={config.label}
+              value={variable.value}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
+              placeholder={variable.placeholder}
+              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
             <label className={`cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
               <input
                 type="file"
-                accept={config.type === 'video' ? 'video/*' : 'image/*'}
+                accept={variable.type === 'video' ? 'video/*' : 'image/*'}
+                onChange={handleFileChange}
                 className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFileUpload(varName, file);
-                }}
                 disabled={isUploading}
-                aria-label={`Upload ${config.label}`}
               />
-              <div className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-lg font-bold hover:shadow-lg transition-all whitespace-nowrap">
-                {isUploading ? '⏳ Uploading...' : '📤 Upload'}
+              <div className="px-6 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-lg font-bold hover:shadow-lg transition-all whitespace-nowrap flex items-center gap-2">
+                {isUploading ? (
+                  <>
+                    <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    {variable.type === 'video' ? (
+                      <VideoCameraIcon className="h-5 w-5" />
+                    ) : (
+                      <PhotoIcon className="h-5 w-5" />
+                    )}
+                    Upload
+                  </>
+                )}
               </div>
             </label>
           </div>
-          {value && (
-            <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-              <p className="text-xs text-gray-600 mb-2">Preview:</p>
-              {config.type === 'video' ? (
-                <video src={value} className="w-full max-w-md rounded shadow-sm" controls />
-              ) : (
-                <img src={value} alt={config.label} className="max-w-md max-h-32 rounded shadow-sm object-contain" />
-              )}
-            </div>
-          )}
         </div>
       );
     }
 
-    // Color picker for color fields
-    if (config.type === 'color') {
+    // Color picker field
+    if (variable.type === 'color') {
       return (
-        <div key={varName} className="space-y-2">
-          <label className="block text-sm font-medium text-gray-900 mb-1">
-            <span className="text-xl mr-2">{config.icon}</span>
-            {config.label}
+        <div key={variable.name} className="mb-6">
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            <span className="text-xl mr-2">{variable.icon}</span>
+            {variable.label}
           </label>
-          <p className="text-xs text-gray-500 mb-2">{config.description}</p>
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-3 items-center">
             <input
               type="color"
-              value={value || config.placeholder}
-              onChange={(e) => {
-                setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
-                setHasUnsavedChanges(true);
-              }}
-              className="h-10 w-20 border border-gray-300 rounded cursor-pointer"
-              aria-label={config.label}
+              value={variable.value || '#667eea'}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
+              className="h-12 w-20 border-2 border-gray-300 rounded-lg cursor-pointer"
             />
             <input
               type="text"
-              value={value}
-              onChange={(e) => {
-                setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
-                setHasUnsavedChanges(true);
-              }}
-              placeholder={config.placeholder}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm font-mono"
-              aria-label={`${config.label} hex code`}
+              value={variable.value}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
+              placeholder={variable.placeholder}
+              className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono"
             />
           </div>
         </div>
       );
     }
 
-    // Text/Textarea fields
-    const isLongText = config.type === 'textarea';
-
-    return (
-      <div key={varName} className="space-y-2">
-        <label className="block text-sm font-medium text-gray-900 mb-1">
-          <span className="text-xl mr-2">{config.icon}</span>
-          {config.label}
-        </label>
-        <p className="text-xs text-gray-500 mb-2">{config.description}</p>
-        {isLongText ? (
+    // Textarea field
+    if (variable.type === 'textarea') {
+      return (
+        <div key={variable.name} className="mb-6">
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            <span className="text-xl mr-2">{variable.icon}</span>
+            {variable.label}
+          </label>
           <textarea
-            value={value}
-            onChange={(e) => {
-              setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
-              setHasUnsavedChanges(true);
-            }}
-            placeholder={config.placeholder}
+            value={variable.value}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => updateVariableValue(variable.name, e.target.value)}
+            placeholder={variable.placeholder}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm resize-y"
-            aria-label={config.label}
+            className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-y"
           />
-        ) : (
-          <input
-            type={config.type}
-            value={value}
-            onChange={(e) => {
-              setVariableValues(prev => ({ ...prev, [varName]: e.target.value }));
-              setHasUnsavedChanges(true);
-            }}
-            placeholder={config.placeholder}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
-            aria-label={config.label}
-          />
-        )}
+        </div>
+      );
+    }
+
+    // Text/Email/URL input field
+    return (
+      <div key={variable.name} className="mb-6">
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <span className="text-xl mr-2">{variable.icon}</span>
+          {variable.label}
+        </label>
+        <input
+          type={variable.type}
+          value={variable.value}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
+          placeholder={variable.placeholder}
+          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        />
       </div>
     );
   };
 
+  // ===================================================================
+  // GROUP VARIABLES BY CATEGORY
+  // ===================================================================
+  const variablesByCategory = useMemo(() => {
+    const grouped: Record<CategoryKey, TemplateVariable[]> = {
+      basic: [],
+      content: [],
+      media: [],
+      contact: [],
+      design: [],
+      legal: []
+    };
+
+    variables.forEach(v => {
+      grouped[v.category].push(v);
+    });
+
+    return grouped;
+  }, [variables]);
+
+  const categoryLabels: Record<CategoryKey, CategoryLabel> = {
+    basic: { title: 'Basic Information', icon: '📋' },
+    content: { title: 'Content', icon: '✍️' },
+    media: { title: 'Media (Logos & Videos)', icon: '🎬' },
+    contact: { title: 'Contact & Links', icon: '📞' },
+    design: { title: 'Design & Colors', icon: '🎨' },
+    legal: { title: 'Legal & Footer', icon: '⚖️' }
+  };
+
+  // ===================================================================
+  // RENDER UI
+  // ===================================================================
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={handleClose}>
+    <Transition show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -531,10 +612,10 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-30" />
+          <div className="fixed inset-0 bg-black bg-opacity-50" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto">
+        <div className="fixed inset-0 overflow-hidden">
           <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
@@ -545,269 +626,296 @@ export function EditTemplateModal({ isOpen, onClose, onSave, template }: EditTem
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all">
-                {/* Header */}
+              <Dialog.Panel className="w-full max-w-[95vw] h-[90vh] transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all flex flex-col">
+
+                {/* HEADER */}
                 <div className="bg-gradient-to-r from-orange-500 to-rose-500 px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <Dialog.Title className="text-2xl font-bold text-black">
-                      Edit Email Template
-                    </Dialog.Title>
-                    <button
-                      type="button"
-                      onClick={handleClose}
-                      className="rounded-xl bg-white bg-opacity-20 p-2 text-black hover:bg-opacity-30"
-                      aria-label="Close"
-                    >
-                      <XMarkIcon className="h-6 w-6" />
-                    </button>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                        <SparklesIcon className="h-7 w-7" />
+                        Email Template Editor
+                      </h2>
+                      <p className="text-white text-sm opacity-90 mt-1">
+                        Fill in the fields to customize your template
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      {(autoSaving || lastSaved) && (
+                        <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg">
+                          {autoSaving ? (
+                            <>
+                              <ArrowPathIcon className="h-4 w-4 text-white animate-spin" />
+                              <span className="text-white text-sm font-medium">Saving...</span>
+                            </>
+                          ) : lastSaved ? (
+                            <>
+                              <ClockIcon className="h-4 w-4 text-white" />
+                              <span className="text-white text-sm font-medium">
+                                Saved {Math.floor((Date.now() - lastSaved.getTime()) / 1000)}s ago
+                              </span>
+                            </>
+                          ) : null}
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="text-white hover:bg-white/20 p-2 rounded-lg transition-all"
+                      >
+                        <XMarkIcon className="h-6 w-6" />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                {/* Draft Recovery Banner */}
-                {showDraftRecovery && (
-                  <div className="bg-blue-50 border-b-2 border-blue-200 px-6 py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-blue-500 text-white rounded-full p-2">
-                          <DocumentTextIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-blue-900">Draft Found!</h4>
-                          <p className="text-sm text-blue-700">We found unsaved changes from your previous editing session.</p>
-                        </div>
+                {/* DRAFT RECOVERY BANNER */}
+                {showDraftBanner && (
+                  <div className="bg-blue-50 border-b-2 border-blue-200 px-6 py-3 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <ClockIcon className="h-5 w-5 text-blue-600" />
+                      <div>
+                        <p className="text-sm font-semibold text-blue-900">Draft Recovered!</p>
+                        <p className="text-xs text-blue-700">Your previous work has been restored</p>
                       </div>
-                      <div className="flex gap-2">
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowDraftBanner(false)}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+
+                {/* HTML EDITOR MODAL */}
+                {showHtmlEditor && (
+                  <div className="absolute inset-0 bg-white z-10 flex flex-col">
+                    <div className="bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-4 flex justify-between items-center">
+                      <h3 className="text-xl font-bold text-white">Edit HTML Template</h3>
+                      <button
+                        type="button"
+                        onClick={() => setShowHtmlEditor(false)}
+                        className="text-white hover:bg-white/20 p-2 rounded-lg"
+                      >
+                        <XMarkIcon className="h-6 w-6" />
+                      </button>
+                    </div>
+                    <div className="flex-1 p-6 overflow-auto">
+                      <div className="flex justify-between items-start mb-4">
+                        <p className="text-sm text-gray-600">
+                          Add new variables using <code className="bg-gray-100 px-2 py-1 rounded text-sm">{"{{variableName}}"}</code> syntax.
+                          Examples: <code className="bg-gray-100 px-2 py-1 rounded text-sm">{"{{instagramUrl}}"}</code>, <code className="bg-gray-100 px-2 py-1 rounded text-sm">{"{{clientLogo}}"}</code>
+                        </p>
                         <button
                           type="button"
-                          onClick={handleRecoverDraft}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600"
+                          onClick={() => setHtmlContent('')}
+                          className="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 text-sm whitespace-nowrap ml-4"
                         >
-                          Recover Draft
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleDiscardDraft}
-                          className="px-4 py-2 bg-white border-2 border-blue-300 text-blue-700 rounded-lg font-bold hover:bg-blue-50"
-                        >
-                          Discard
+                          Clear All
                         </button>
                       </div>
+                      <textarea
+                        value={htmlContent}
+                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setHtmlContent(e.target.value)}
+                        className="w-full h-[calc(100%-80px)] p-4 border-2 border-gray-300 rounded-lg font-mono text-sm"
+                        placeholder="Enter your HTML template here..."
+                      />
+                    </div>
+                    <div className="bg-gray-100 px-6 py-4 border-t-2 border-gray-200 flex justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowHtmlEditor(false)}
+                        className="px-6 py-2 border-2 border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-200"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleHtmlUpdate(htmlContent)}
+                        className="px-6 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg font-bold hover:shadow-lg"
+                      >
+                        Update & Re-scan Variables
+                      </button>
                     </div>
                   </div>
                 )}
 
-                {/* Auto-save Indicator */}
-                <div className="bg-gray-100 border-b border-gray-200 px-6 py-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600">
-                      {hasUnsavedChanges ? (
-                        <span className="text-orange-600 font-medium">● Auto-saving every 5 seconds...</span>
-                      ) : (
-                        <span className="text-green-600 font-medium">✓ All changes saved</span>
-                      )}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setShowPreview(!showPreview)}
-                      className="flex items-center gap-2 px-3 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                      {showPreview ? 'Hide Preview' : 'Show Preview'}
-                    </button>
-                  </div>
-                </div>
+                {/* BODY - Split View */}
+                <div className="flex-1 flex overflow-hidden">
 
-                {/* Content */}
-                <div className="flex h-[80vh]">
-                  {/* Left: Form */}
-                  <div className="w-1/2 overflow-y-auto border-r border-gray-200 p-6">
-                    <div className="space-y-6">
-                      {/* Basic Info */}
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-3">Basic Information</h3>
-                        <div className="space-y-3">
+                  {/* LEFT: Form Editor */}
+                  <div className="w-1/2 overflow-y-auto p-6 bg-gray-50">
+                    <div className="space-y-6 max-w-2xl">
+
+                      {/* Template Name & Subject */}
+                      <div className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <span className="text-2xl">📋</span>
+                          Template Settings
+                        </h3>
+                        <div className="space-y-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Template Name</label>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Template Name
+                            </label>
                             <input
                               type="text"
                               value={templateName}
-                              onChange={(e) => {
-                                setTemplateName(e.target.value);
-                                setHasUnsavedChanges(true);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                              onChange={(e: ChangeEvent<HTMLInputElement>) => setTemplateName(e.target.value)}
+                              placeholder="My Email Template"
+                              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Subject Line</label>
+                            <label className="block text-sm font-semibold text-gray-900 mb-2">
+                              Subject Line
+                            </label>
                             <input
                               type="text"
                               value={subject}
-                              onChange={(e) => {
-                                setSubject(e.target.value);
-                                setHasUnsavedChanges(true);
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                              onChange={(e: ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
+                              placeholder="Your consultation is ready"
+                              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             />
                           </div>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowHtmlEditor(true)}
+                          className="mt-4 w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                        >
+                          <SparklesIcon className="h-5 w-5" />
+                          Edit HTML & Add Variables
+                        </button>
                       </div>
 
-                      {/* Dynamic Form Fields Based on Template Variables */}
-                      {organizedVariables.content.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Content</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.content.map(renderFormField)}
+                      {/* Render variable fields by category */}
+                      {(Object.entries(variablesByCategory) as [CategoryKey, TemplateVariable[]][]).map(([category, vars]) => {
+                        if (vars.length === 0) return null;
+
+                        const { title, icon } = categoryLabels[category];
+
+                        return (
+                          <div key={category} className="bg-white p-6 rounded-xl shadow-sm border-2 border-gray-100">
+                            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                              <span className="text-2xl">{icon}</span>
+                              {title}
+                            </h3>
+                            <div className="space-y-4">
+                              {vars.map(renderVariableField)}
+                            </div>
                           </div>
+                        );
+                      })}
+
+                      {variables.length === 0 && (
+                        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-8 text-center">
+                          <SparklesIcon className="h-12 w-12 text-yellow-600 mx-auto mb-3" />
+                          <h3 className="text-lg font-bold text-yellow-900 mb-2">No Variables Found</h3>
+                          <p className="text-sm text-yellow-700">
+                            This template doesn&apos;t have any editable variables.
+                            <br />
+                            Use <code className="bg-yellow-100 px-2 py-1 rounded">{"{{variableName}}"}</code> in your HTML to create editable fields.
+                          </p>
                         </div>
                       )}
 
-                      {organizedVariables.media.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Media (Logos & Videos)</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.media.map(renderFormField)}
-                          </div>
-                        </div>
-                      )}
+                    </div>
+                  </div>
 
-                      {organizedVariables.cta.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Call-to-Action</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.cta.map(renderFormField)}
-                          </div>
-                        </div>
-                      )}
+                  {/* RIGHT: Preview */}
+                  <div className="w-1/2 bg-gray-100 p-6 flex flex-col">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <EyeIcon className="h-5 w-5" />
+                        Live Preview
+                      </h3>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewTab('html')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                            previewTab === 'html'
+                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg'
+                              : 'bg-white text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          HTML
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewTab('text')}
+                          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                            previewTab === 'text'
+                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg'
+                              : 'bg-white text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          Plain Text
+                        </button>
+                      </div>
+                    </div>
 
-                      {organizedVariables.company.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Company & Sender Info</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.company.map(renderFormField)}
-                          </div>
-                        </div>
-                      )}
-
-                      {organizedVariables.contact.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Contact Information</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.contact.map(renderFormField)}
-                          </div>
-                        </div>
-                      )}
-
-                      {organizedVariables.social.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Social Media Links</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.social.map(renderFormField)}
-                          </div>
-                        </div>
-                      )}
-
-                      {organizedVariables.design.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Design & Colors</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.design.map(renderFormField)}
-                          </div>
-                        </div>
-                      )}
-
-                      {organizedVariables.legal.length > 0 && (
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">Legal & Footer</h3>
-                          <div className="space-y-3">
-                            {organizedVariables.legal.map(renderFormField)}
-                          </div>
+                    <div className="flex-1 bg-white rounded-xl shadow-lg overflow-hidden border-2 border-gray-200">
+                      {previewTab === 'html' ? (
+                        <iframe
+                          srcDoc={previewHTML}
+                          className="w-full h-full border-0"
+                          title="Email Preview"
+                          sandbox="allow-same-origin"
+                        />
+                      ) : (
+                        <div className="w-full h-full overflow-auto p-6">
+                          <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 leading-relaxed">
+                            {previewText}
+                          </pre>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  {/* Right: Preview */}
-                  <div className="w-1/2 overflow-y-auto bg-gray-50 p-6">
-                    {showPreview ? (
-                      <div className="h-full flex flex-col">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-lg font-bold text-gray-900">Preview</h3>
-
-                          {/* Tab Buttons */}
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setPreviewTab('html')}
-                              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                                previewTab === 'html'
-                                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100'
-                              }`}
-                            >
-                              HTML
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setPreviewTab('text')}
-                              className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                                previewTab === 'text'
-                                  ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100'
-                              }`}
-                            >
-                              Plain Text
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Preview Content */}
-                        <div className="flex-1 bg-white rounded-lg shadow-lg overflow-hidden">
-                          {previewTab === 'html' ? (
-                            <iframe
-                              srcDoc={previewHTML}
-                              className="w-full h-full border-0"
-                              title="Email HTML Preview"
-                            />
-                          ) : (
-                            <div className="w-full h-full overflow-auto p-6">
-                              <pre className="whitespace-pre-wrap font-mono text-sm text-gray-800">
-                                {previewText}
-                              </pre>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-gray-400">
-                        <div className="text-center">
-                          <EyeIcon className="h-16 w-16 mx-auto mb-4" />
-                          <p>Click "Show Preview" to see your email template</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
                 </div>
 
-                {/* Footer */}
-                <div className="bg-gray-100 px-6 py-4 flex justify-between items-center border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="px-6 py-2 border-2 border-gray-300 rounded-lg font-bold hover:bg-gray-200"
-                  >
-                    Cancel
-                  </button>
+                {/* FOOTER */}
+                <div className="bg-gray-100 px-6 py-4 flex justify-between items-center border-t-2 border-gray-200">
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      disabled={isSaving}
+                      className="px-6 py-3 border-2 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-200 transition-all disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    {lastSaved && (
+                      <span className="text-sm text-gray-600 flex items-center gap-2">
+                        <ClockIcon className="h-4 w-4" />
+                        Draft auto-saved
+                      </span>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="px-6 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg font-bold hover:shadow-lg disabled:opacity-50"
+                    className="px-8 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-xl font-bold hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
                   >
-                    {isSaving ? 'Saving...' : 'Save Template'}
+                    {isSaving ? (
+                      <>
+                        <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircleIcon className="h-5 w-5" />
+                        Save Template
+                      </>
+                    )}
                   </button>
                 </div>
+
               </Dialog.Panel>
             </Transition.Child>
           </div>
