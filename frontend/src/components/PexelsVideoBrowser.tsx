@@ -389,7 +389,7 @@ export function PexelsVideoBrowser({
             <div className="flex gap-3">
               <button
                 onClick={() => handleSelectVideo(previewVideo)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 <CheckCircleIcon className="w-5 h-5" />
                 Use This Video

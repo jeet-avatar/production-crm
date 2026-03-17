@@ -53,7 +53,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-rose-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-950 flex">
       {/* Left side - Form */}
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
@@ -170,7 +170,7 @@ export function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-900 placeholder-gray-400"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-gray-900 placeholder-gray-400"
                   placeholder={BRANDING.login.emailPlaceholder}
                 />
               </div>
@@ -189,13 +189,13 @@ export function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 outline-none transition-all text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-gray-900 placeholder-gray-400"
                     placeholder={BRANDING.login.passwordPlaceholder}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-orange-600 transition-colors focus:outline-none"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-indigo-400 transition-colors focus:outline-none"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -214,7 +214,7 @@ export function LoginPage() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-300 rounded cursor-pointer"
+                    className="h-4 w-4 text-indigo-400 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
                   />
                   <span className="ml-2 block text-sm font-medium text-gray-700">
                     {BRANDING.login.rememberMeText}
@@ -222,7 +222,7 @@ export function LoginPage() {
                 </label>
 
                 <div className="text-sm">
-                  <a href="/forgot-password" className="font-medium text-orange-600 hover:text-rose-600 transition-colors">
+                  <a href="/forgot-password" className="font-medium text-indigo-400 hover:text-purple-400 transition-colors">
                     {BRANDING.login.forgotPasswordText}
                   </a>
                 </div>
@@ -232,7 +232,7 @@ export function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-6 bg-gradient-to-r from-orange-600 to-rose-600 text-white font-bold rounded-xl hover:from-orange-700 hover:to-rose-700 focus:outline-none focus:ring-4 focus:ring-orange-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+                className="w-full py-3 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -251,7 +251,7 @@ export function LoginPage() {
             {/* Sign Up Link */}
             <p className="mt-6 text-center text-base font-medium text-gray-700">
               {BRANDING.login.noAccountText}{' '}
-              <a href="/signup" className="text-orange-600 hover:text-rose-600 font-bold transition-colors">
+              <a href="/signup" className="text-indigo-400 hover:text-purple-400 font-bold transition-colors">
                 {BRANDING.login.signUpLinkText}
               </a>
             </p>
@@ -318,7 +318,7 @@ export function LoginPage() {
                     </text>
                   </svg>
                 </div>
-                <p className="text-xl text-orange-100">
+                <p className="text-xl text-indigo-200">
                   {BRANDING.tagline}
                 </p>
               </div>
@@ -326,7 +326,7 @@ export function LoginPage() {
               <h1 className="text-3xl font-bold tracking-tight mb-6">
                 {BRANDING.login.brandingPanel.heading}
               </h1>
-              <p className="text-lg text-orange-100 mb-8">
+              <p className="text-lg text-indigo-200 mb-8">
                 {BRANDING.login.brandingPanel.description}
               </p>
 
@@ -340,7 +340,7 @@ export function LoginPage() {
                     </div>
                     <div>
                       <p className="font-semibold">{feature.title}</p>
-                      <p className="text-sm text-orange-100">{feature.description}</p>
+                      <p className="text-sm text-indigo-200">{feature.description}</p>
                     </div>
                   </div>
                 ))}</div>

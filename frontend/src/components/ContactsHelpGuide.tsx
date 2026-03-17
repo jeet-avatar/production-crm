@@ -24,12 +24,12 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-[40px]">
           <div className="flex items-center gap-3 mb-3">
-            <UserGroupIcon className="w-12 h-12 text-black" />
-            <h2 className="text-4xl font-bold text-black">
+            <UserGroupIcon className="w-12 h-12 text-white" />
+            <h2 className="text-4xl font-bold text-white">
               Contacts Guide
             </h2>
           </div>
-          <p className="text-lg text-black/90 mb-6">
+          <p className="text-lg text-white/90 mb-6">
             Master contact management and build stronger relationships
           </p>
 
@@ -39,8 +39,8 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               type="button"
               onClick={() => setActiveTab('quickstart')}
               className={activeTab === 'quickstart'
-                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg"
-                : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+                ? "bg-white text-white font-bold px-6 py-3 rounded-xl shadow-lg"
+                : "bg-white/40 text-white/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
               }
             >
               Quick Start
@@ -49,8 +49,8 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               type="button"
               onClick={() => setActiveTab('features')}
               className={activeTab === 'features'
-                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg"
-                : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+                ? "bg-white text-white font-bold px-6 py-3 rounded-xl shadow-lg"
+                : "bg-white/40 text-white/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
               }
             >
               Features
@@ -59,8 +59,8 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               type="button"
               onClick={() => setActiveTab('tips')}
               className={activeTab === 'tips'
-                ? "bg-white text-black font-bold px-6 py-3 rounded-xl shadow-lg"
-                : "bg-white/40 text-black/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+                ? "bg-white text-white font-bold px-6 py-3 rounded-xl shadow-lg"
+                : "bg-white/40 text-white/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
               }
             >
               Pro Tips
@@ -73,7 +73,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
 
           {activeTab === 'quickstart' && (
             <>
-              <p className="text-lg text-black mb-6">
+              <p className="text-lg text-white mb-6">
                 Follow these steps to effectively manage your contacts and build strong relationships.
               </p>
 
@@ -81,12 +81,12 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
               <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl shadow-sm p-6 hover:border-orange-200 hover:shadow-md transition-all">
                 <div className="flex items-start gap-4">
                   <div className="bg-orange-100 rounded-xl w-12 h-12 flex items-center justify-center flex-shrink-0">
-                    <span className="text-2xl font-bold text-orange-600">1</span>
+                    <span className="text-2xl font-bold text-indigo-400">1</span>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <PlusIcon className="w-6 h-6 text-orange-600" />
+                      <PlusIcon className="w-6 h-6 text-indigo-400" />
                       <h3 className="text-xl font-semibold text-gray-900">Add Your First Contact</h3>
                     </div>
                     <p className="text-gray-600 mb-4">
@@ -172,7 +172,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
 
           {activeTab === 'features' && (
             <>
-              <p className="text-lg text-black mb-6">
+              <p className="text-lg text-white mb-6">
                 Powerful features to manage and grow your contact database.
               </p>
 
@@ -206,7 +206,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
 
           {activeTab === 'tips' && (
             <>
-              <p className="text-lg text-black mb-6">
+              <p className="text-lg text-white mb-6">
                 Pro tips to get the most out of contact management.
               </p>
 
@@ -215,8 +215,8 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
                   <div className="flex items-start gap-3">
                     <LightBulbIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-xl font-bold text-black mb-2">Use Tags Consistently</h4>
-                      <p className="text-black/80">Create a standard tagging system and stick to it for better organization and reporting</p>
+                      <h4 className="text-xl font-bold text-white mb-2">Use Tags Consistently</h4>
+                      <p className="text-white/80">Create a standard tagging system and stick to it for better organization and reporting</p>
                     </div>
                   </div>
                 </div>
@@ -225,8 +225,8 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
                   <div className="flex items-start gap-3">
                     <LightBulbIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-xl font-bold text-black mb-2">Enrich Early</h4>
-                      <p className="text-black/80">Use AI enrichment right after importing to get complete contact profiles immediately</p>
+                      <h4 className="text-xl font-bold text-white mb-2">Enrich Early</h4>
+                      <p className="text-white/80">Use AI enrichment right after importing to get complete contact profiles immediately</p>
                     </div>
                   </div>
                 </div>
@@ -235,8 +235,8 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
                   <div className="flex items-start gap-3">
                     <LightBulbIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
                     <div>
-                      <h4 className="text-xl font-bold text-black mb-2">Regular Cleanup</h4>
-                      <p className="text-black/80">Schedule monthly reviews to remove duplicates and update outdated information</p>
+                      <h4 className="text-xl font-bold text-white mb-2">Regular Cleanup</h4>
+                      <p className="text-white/80">Schedule monthly reviews to remove duplicates and update outdated information</p>
                     </div>
                   </div>
                 </div>
@@ -251,7 +251,7 @@ export function ContactsHelpGuide({ onClose }: HelpGuideProps) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
           >
             Got it, thanks!
           </button>

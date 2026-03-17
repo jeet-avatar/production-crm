@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrandMonkz Theme Comparison — Pick Your Direction</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #f1f5f9; }
+
+.header {
+  text-align: center;
+  padding: 60px 20px 40px;
+}
+.header h1 {
+  font-family: 'Lexend', sans-serif;
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #818CF8, #A78BFA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.header p { color: #94A3B8; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+.comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px 60px;
+}
+
+.theme-card {
+  border-radius: 24px;
+  overflow: hidden;
+  border: 2px solid rgba(255,255,255,0.1);
+  transition: all 0.3s ease;
+}
+.theme-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-4px); }
+
+.theme-label {
+  padding: 20px 24px;
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.badge {
+  font-size: 0.7rem;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ========== OPTION A: Orange/Rose (Current seconf) ========== */
+.theme-a { background: #fff; }
+.theme-a .theme-label { background: linear-gradient(135deg, #f97316, #f43f5e); color: #000; }
+.theme-a .badge { background: rgba(0,0,0,0.15); color: #000; }
+
+.theme-a .mock-app {
+  background: linear-gradient(135deg, #fff7ed, #fff, #fff1f2);
+  min-height: 500px;
+  display: flex;
+}
+
+.theme-a .mock-sidebar {
+  width: 220px;
+  background: #fff;
+  border-right: 2px solid #e2e8f0;
+  padding: 20px 12px;
+  flex-shrink: 0;
+}
+.theme-a .mock-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 16px;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+.theme-a .mock-logo-icon {
+  width: 36px; height: 36px;
+  background: #FF6B35;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 800; font-size: 16px;
+}
+.theme-a .mock-logo-text { font-weight: 700; font-size: 15px; color: #1C1C1E; }
+.theme-a .mock-logo-text span { color: #FF6B35; }
+
+.theme-a .mock-nav-item {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.theme-a .mock-nav-item.active {
+  background: linear-gradient(135deg, #f97316, #f43f5e);
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+.theme-a .mock-nav-item:not(.active):hover { background: #fff7ed; }
+
+.theme-a .mock-main { flex: 1; padding: 24px; }
+
+.theme-a .mock-header-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.theme-a .mock-header-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #f97316, #f43f5e);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #000; font-size: 18px;
+}
+.theme-a .mock-header-title { font-size: 22px; font-weight: 700; color: #0f172a; }
+
+.theme-a .mock-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;
+}
+.theme-a .mock-stat {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+.theme-a .mock-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.theme-a .mock-stat-value { font-size: 24px; font-weight: 800; color: #0f172a; margin-top: 6px; }
+.theme-a .mock-stat-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #f97316, #f43f5e);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.theme-a .mock-action-bar {
+  background: linear-gradient(135deg, #f97316, #f43f5e);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.theme-a .mock-action-bar .label { font-weight: 700; color: #000; font-size: 15px; }
+.theme-a .mock-action-bar .btns { display: flex; gap: 8px; }
+.theme-a .mock-action-bar .btn-a {
+  padding: 8px 14px; border-radius: 10px;
+  background: rgba(0,0,0,0.1); border: 2px solid #000;
+  font-weight: 700; font-size: 12px; color: #000;
+}
+
+.theme-a .mock-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+}
+.theme-a .mock-card-title { font-weight: 700; color: #0f172a; font-size: 14px; margin-bottom: 12px; }
+
+.theme-a .mock-btn-primary {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #f97316, #f43f5e);
+  color: #000; font-weight: 700; border: 2px solid #000;
+  border-radius: 12px; font-size: 13px;
+}
+
+.theme-a .mock-input {
+  width: 100%; padding: 10px 14px;
+  border: 2px solid #d1d5db; border-radius: 12px;
+  background: #fff; font-size: 13px; color: #0f172a;
+}
+
+/* ========== OPTION B: Indigo Noir (Our dark theme) ========== */
+.theme-b { background: #080810; }
+.theme-b .theme-label { background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff; }
+.theme-b .badge { background: rgba(255,255,255,0.2); color: #fff; }
+
+.theme-b .mock-app {
+  background: linear-gradient(180deg, #0F0F1A, #080810);
+  min-height: 500px;
+  display: flex;
+  padding: 12px;
+  gap: 12px;
+}
+
+.theme-b .mock-sidebar {
+  width: 220px;
+  background: #161625;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: 20px 12px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.theme-b .mock-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 16px;
+}
+.theme-b .mock-logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 800; font-size: 16px;
+  box-shadow: 0 0 20px rgba(99,102,241,0.3);
+}
+.theme-b .mock-logo-text {
+  font-weight: 700; font-size: 15px;
+  background: linear-gradient(135deg, #818CF8, #A78BFA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.theme-b .mock-nav-item {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #94A3B8;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.theme-b .mock-nav-item.active {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818CF8;
+  box-shadow: 0 0 12px rgba(99,102,241,0.1);
+}
+.theme-b .mock-nav-item:not(.active):hover { background: rgba(255,255,255,0.04); color: #CBD5E1; }
+
+.theme-b .mock-main { flex: 1; padding: 12px; }
+
+.theme-b .mock-header-bar {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.theme-b .mock-header-icon {
+  width: 36px; height: 36px;
+  color: #818CF8; font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+}
+.theme-b .mock-header-title { font-size: 22px; font-weight: 700; color: #F1F5F9; font-family: 'Lexend', sans-serif; }
+
+.theme-b .mock-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;
+}
+.theme-b .mock-stat {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 16px;
+  transition: all 0.2s;
+}
+.theme-b .mock-stat:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 0 20px rgba(99,102,241,0.12);
+  transform: translateY(-2px);
+}
+.theme-b .mock-stat-label { font-size: 10px; color: #64748B; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.theme-b .mock-stat-value { font-size: 24px; font-weight: 800; color: #F1F5F9; margin-top: 6px; font-family: 'Lexend', sans-serif; }
+.theme-b .mock-stat-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 0 12px rgba(99,102,241,0.2);
+}
+
+.theme-b .mock-action-bar {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+  box-shadow: 0 0 30px rgba(99,102,241,0.2);
+}
+.theme-b .mock-action-bar .label { font-weight: 700; color: #fff; font-size: 15px; }
+.theme-b .mock-action-bar .btns { display: flex; gap: 8px; }
+.theme-b .mock-action-bar .btn-a {
+  padding: 8px 14px; border-radius: 10px;
+  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);
+  font-weight: 600; font-size: 12px; color: #fff;
+}
+
+.theme-b .mock-card {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 16px;
+}
+.theme-b .mock-card-title { font-weight: 700; color: #F1F5F9; font-size: 14px; margin-bottom: 12px; }
+
+.theme-b .mock-btn-primary {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: #fff; font-weight: 600; border: none;
+  border-radius: 12px; font-size: 13px;
+  box-shadow: 0 0 20px rgba(99,102,241,0.3);
+}
+
+.theme-b .mock-input {
+  width: 100%; padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 12px;
+  background: rgba(255,255,255,0.04); font-size: 13px; color: #F1F5F9;
+}
+.theme-b .mock-input:focus { border-color: rgba(99,102,241,0.5); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+
+/* ========== Pros/Cons ========== */
+.pros-cons {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  max-width: 1400px; margin: 0 auto; padding: 0 40px 80px;
+}
+.pros-cons-card {
+  border-radius: 20px;
+  padding: 32px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.pros-cons-card h3 {
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.pros-cons-card ul { list-style: none; }
+.pros-cons-card li {
+  padding: 8px 0;
+  font-size: 14px;
+  color: #94A3B8;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.pros-cons-card li::before { flex-shrink: 0; font-size: 16px; }
+.pro::before { content: "✅"; }
+.con::before { content: "⚠️"; }
+.neutral::before { content: "💡"; }
+
+.section-title {
+  text-align: center;
+  font-family: 'Lexend', sans-serif;
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+  color: #CBD5E1;
+}
+
+/* Login comparison */
+.login-comparison {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  max-width: 1400px; margin: 0 auto; padding: 0 40px 60px;
+}
+
+.mock-login-a {
+  background: linear-gradient(135deg, #fff7ed, #fff, #fff1f2);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+}
+.mock-login-a h2 { color: #0f172a; font-size: 20px; margin-bottom: 8px; }
+.mock-login-a p { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+
+.mock-login-b {
+  background: linear-gradient(135deg, #0F0F1A, #080810);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.mock-login-b h2 { color: #F1F5F9; font-size: 20px; margin-bottom: 8px; font-family: 'Lexend'; }
+.mock-login-b p { color: #94A3B8; font-size: 13px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>BrandMonkz Theme Decision</h1>
+  <p>Compare the two directions side by side. Pick the one that fits BrandMonkz's brand identity.</p>
+</div>
+
+<!-- Dashboard Comparison -->
+<div style="text-align:center; margin-bottom: 20px;">
+  <span class="section-title">Dashboard View</span>
+</div>
+
+<div class="comparison">
+  <!-- OPTION A: Orange/Rose -->
+  <div class="theme-card theme-a">
+    <div class="theme-label">
+      Option A: Orange / Rose (Current)
+      <span class="badge">LIVE on seconf</span>
+    </div>
+    <div class="mock-app">
+      <div class="mock-sidebar">
+        <div class="mock-logo">
+          <div class="mock-logo-icon">B</div>
+          <div class="mock-logo-text">Brand<span>Monkz</span></div>
+        </div>
+        <div class="mock-nav-item active">Dashboard</div>
+        <div class="mock-nav-item">Contacts</div>
+        <div class="mock-nav-item">Companies</div>
+        <div class="mock-nav-item">Deals</div>
+        <div class="mock-nav-item">Campaigns</div>
+        <div class="mock-nav-item">Video Campaigns</div>
+        <div class="mock-nav-item">Settings</div>
+      </div>
+      <div class="mock-main">
+        <div class="mock-header-bar">
+          <div class="mock-header-icon">✨</div>
+          <div class="mock-header-title">Dashboard</div>
+        </div>
+        <div class="mock-stats">
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Revenue</div><div class="mock-stat-value">$45K</div></div>
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Deals</div><div class="mock-stat-value">23</div></div>
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Contacts</div><div class="mock-stat-value">1.2K</div></div>
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Companies</div><div class="mock-stat-value">89</div></div>
+        </div>
+        <div class="mock-action-bar">
+          <div class="label">Quick Actions</div>
+          <div class="btns">
+            <div class="btn-a">+ Contact</div>
+            <div class="btn-a">+ Company</div>
+            <div class="btn-a">+ Deal</div>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-title">Sales Pipeline</div>
+          <div style="display:flex; height:32px; border-radius:8px; overflow:hidden; gap:2px;">
+            <div style="flex:3; background:#f97316;"></div>
+            <div style="flex:2; background:#fb923c;"></div>
+            <div style="flex:2; background:#fdba74;"></div>
+            <div style="flex:1; background:#fed7aa;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION B: Indigo Noir -->
+  <div class="theme-card theme-b">
+    <div class="theme-label">
+      Option B: Indigo Noir (Dark Glass)
+      <span class="badge">NEW — ready to merge</span>
+    </div>
+    <div class="mock-app">
+      <div class="mock-sidebar">
+        <div class="mock-logo">
+          <div class="mock-logo-icon">B</div>
+          <div class="mock-logo-text">BrandMonkz</div>
+        </div>
+        <div class="mock-nav-item active">Dashboard</div>
+        <div class="mock-nav-item">Contacts</div>
+        <div class="mock-nav-item">Companies</div>
+        <div class="mock-nav-item">Deals</div>
+        <div class="mock-nav-item">Campaigns</div>
+        <div class="mock-nav-item">Video Campaigns</div>
+        <div class="mock-nav-item">Settings</div>
+      </div>
+      <div class="mock-main">
+        <div class="mock-header-bar">
+          <div class="mock-header-icon">✨</div>
+          <div class="mock-header-title">Dashboard</div>
+        </div>
+        <div class="mock-stats">
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Revenue</div><div class="mock-stat-value">$45K</div></div>
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Deals</div><div class="mock-stat-value">23</div></div>
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Contacts</div><div class="mock-stat-value">1.2K</div></div>
+          <div class="mock-stat"><div class="mock-stat-icon"></div><div class="mock-stat-label">Companies</div><div class="mock-stat-value">89</div></div>
+        </div>
+        <div class="mock-action-bar">
+          <div class="label">Quick Actions</div>
+          <div class="btns">
+            <div class="btn-a">+ Contact</div>
+            <div class="btn-a">+ Company</div>
+            <div class="btn-a">+ Deal</div>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-title">Sales Pipeline</div>
+          <div style="display:flex; height:32px; border-radius:8px; overflow:hidden; gap:2px;">
+            <div style="flex:3; background:#6366F1;"></div>
+            <div style="flex:2; background:#818CF8;"></div>
+            <div style="flex:2; background:#A5B4FC;"></div>
+            <div style="flex:1; background:#C7D2FE;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Login Comparison -->
+<div style="text-align:center; margin-bottom: 20px;">
+  <span class="section-title">Login Page</span>
+</div>
+
+<div class="login-comparison">
+  <div class="mock-login-a">
+    <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:20px;">
+      <div style="width:40px; height:40px; background:#FF6B35; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;">B</div>
+      <span style="font-weight:700; font-size:18px; color:#1C1C1E;">Brand<span style="color:#FF6B35;">Monkz</span></span>
+    </div>
+    <h2>Welcome back</h2>
+    <p>Sign in to your account</p>
+    <div style="max-width:300px; margin:0 auto;">
+      <input class="mock-input" placeholder="Email address" style="margin-bottom:10px; border:2px solid #d1d5db; background:#fff; color:#0f172a;">
+      <input class="mock-input" placeholder="Password" type="password" style="margin-bottom:16px; border:2px solid #d1d5db; background:#fff; color:#0f172a;">
+      <div class="mock-btn-primary" style="width:100%; text-align:center; background:linear-gradient(135deg, #f97316, #f43f5e); color:#000; border:2px solid #000; padding:12px;">Sign In</div>
+    </div>
+  </div>
+
+  <div class="mock-login-b">
+    <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:20px;">
+      <div style="width:40px; height:40px; background:linear-gradient(135deg, #6366F1, #8B5CF6); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:800; box-shadow:0 0 20px rgba(99,102,241,0.3);">B</div>
+      <span style="font-weight:700; font-size:18px; background:linear-gradient(135deg, #818CF8, #A78BFA); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">BrandMonkz</span>
+    </div>
+    <h2>Welcome back</h2>
+    <p>Sign in to your account</p>
+    <div style="max-width:300px; margin:0 auto;">
+      <input class="mock-input" placeholder="Email address" style="margin-bottom:10px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.04); color:#F1F5F9;">
+      <input class="mock-input" placeholder="Password" type="password" style="margin-bottom:16px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.04); color:#F1F5F9;">
+      <div class="mock-btn-primary" style="width:100%; text-align:center; padding:12px;">Sign In</div>
+    </div>
+  </div>
+</div>
+
+<!-- Pros / Cons -->
+<div style="text-align:center; margin-bottom: 20px;">
+  <span class="section-title">Trade-offs</span>
+</div>
+
+<div class="pros-cons">
+  <div class="pros-cons-card" style="background: rgba(249,115,22,0.05);">
+    <h3 style="color: #f97316;">Option A: Orange / Rose</h3>
+    <ul>
+      <li class="pro">Already live on production (seconf branch)</li>
+      <li class="pro">Has newer features: AIChat, Video Campaigns, Logo component, branding config, Super Admin</li>
+      <li class="pro">Warm, energetic — feels approachable for SMB CRM</li>
+      <li class="pro">Light theme = better readability in bright environments</li>
+      <li class="con">Generic SaaS look — similar to many CRMs</li>
+      <li class="con">Orange/rose can feel less "premium" or "enterprise"</li>
+      <li class="con">No glassmorphism or depth effects</li>
+    </ul>
+  </div>
+
+  <div class="pros-cons-card" style="background: rgba(99,102,241,0.05);">
+    <h3 style="color: #818CF8;">Option B: Indigo Noir</h3>
+    <ul>
+      <li class="pro">Premium, high-end look (Linear, Raycast, Arc aesthetic)</li>
+      <li class="pro">Glassmorphism, ambient blobs, spring animations</li>
+      <li class="pro">Dark mode = modern, reduces eye strain</li>
+      <li class="pro">Stands out from competitor CRMs visually</li>
+      <li class="con">Needs rebase onto seconf — merge conflicts (~15 files)</li>
+      <li class="con">Missing newer seconf features (AIChat, Video, branding config)</li>
+      <li class="con">Dark themes can reduce readability for data-heavy tables</li>
+      <li class="neutral">Can add the seconf features after rebase (~2-3 hours)</li>
+    </ul>
+  </div>
+</div>
+
+<div style="text-align:center; padding: 40px 20px 80px; max-width: 700px; margin: 0 auto;">
+  <h2 style="font-family: 'Lexend'; font-size: 1.5rem; color: #CBD5E1; margin-bottom: 12px;">Decision</h2>
+  <p style="color: #64748B; line-height: 1.6;">
+    <strong style="color:#F1F5F9;">Option A</strong> is safer — it's already live with all features.<br>
+    <strong style="color:#F1F5F9;">Option B</strong> is bolder — premium feel but needs rebase work.<br><br>
+    A third option: <strong style="color:#A5B4FC;">keep Option A's features and apply Indigo Noir on top</strong> (rebase). This gives you both the new features AND the premium dark look.
+  </p>
+</div>
+
+</body>
+</html>

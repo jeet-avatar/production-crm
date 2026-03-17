@@ -227,11 +227,11 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-6 rounded-t-2xl flex-shrink-0">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2">Email Server Management</h2>
-              <p className="text-orange-100 text-lg">Configure and verify your sending emails</p>
+              <p className="text-indigo-200 text-lg">Configure and verify your sending emails</p>
             </div>
             <button
               onClick={onClose}
@@ -263,7 +263,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
           {!showAddForm && (
             <button
               onClick={() => setShowAddForm(true)}
-              className="w-full mb-6 px-6 py-4 border-2 border-dashed border-orange-300 rounded-xl text-orange-600 font-semibold hover:bg-orange-50 hover:border-orange-400 transition-all flex items-center justify-center gap-2"
+              className="w-full mb-6 px-6 py-4 border-2 border-dashed border-orange-300 rounded-xl text-indigo-400 font-semibold hover:bg-orange-50 hover:border-orange-400 transition-all flex items-center justify-center gap-2"
             >
               <PlusIcon className="h-5 w-5" />
               Add New Email Server
@@ -283,7 +283,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g., My Gmail Account"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
@@ -292,7 +292,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                   <select
                     value={formData.provider}
                     onChange={(e) => handleProviderChange(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   >
                     <option value="gmail">Gmail</option>
                     <option value="outlook">Outlook/Office365</option>
@@ -308,7 +308,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     value={formData.host}
                     onChange={(e) => setFormData({ ...formData, host: e.target.value })}
                     placeholder="smtp.gmail.com"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
@@ -318,7 +318,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     type="number"
                     value={formData.port}
                     onChange={(e) => setFormData({ ...formData, port: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
@@ -329,7 +329,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     placeholder="your@email.com"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
@@ -340,7 +340,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
@@ -351,7 +351,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     value={formData.fromEmail}
                     onChange={(e) => setFormData({ ...formData, fromEmail: e.target.value })}
                     placeholder="sender@company.com"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
@@ -362,7 +362,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     value={formData.fromName}
                     onChange={(e) => setFormData({ ...formData, fromName: e.target.value })}
                     placeholder="Your Company"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
               </div>
@@ -371,7 +371,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                 <button
                   onClick={handleAddServer}
                   disabled={loading}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 transition-all"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-all"
                 >
                   {loading ? 'Adding...' : 'Add Server'}
                 </button>
@@ -397,7 +397,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <ServerIcon className="h-6 w-6 text-orange-600" />
+                      <ServerIcon className="h-6 w-6 text-indigo-400" />
                       <h3 className="text-xl font-bold text-gray-900">{server.name}</h3>
                       {server.isVerified ? (
                         <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
@@ -446,7 +446,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                     <button
                       onClick={() => sendVerificationCode(server.id)}
                       disabled={loading}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 transition-all"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-all"
                     >
                       <EnvelopeIcon className="h-4 w-4" />
                       Send Verification Code
@@ -472,7 +472,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                       <button
                         onClick={verifyCode}
                         disabled={loading || verificationCode.length !== 6}
-                        className="px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 transition-all"
+                        className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-all"
                       >
                         Verify
                       </button>
@@ -500,7 +500,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
           </p>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
           >
             Close
           </button>

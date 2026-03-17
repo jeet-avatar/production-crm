@@ -98,7 +98,7 @@ export function VideoCampaignsPage() {
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
+                className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
                 title="Show Help Guide"
               >
                 <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -106,7 +106,7 @@ export function VideoCampaignsPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(true)}
-                className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 <PlusIcon className="w-4 h-4" />
                 Create Campaign
@@ -123,7 +123,7 @@ export function VideoCampaignsPage() {
                 onClick={() => setSelectedStatus(status)}
                 className={`px-4 py-2.5 rounded-xl font-bold capitalize transition-all tracking-wide ${
                   selectedStatus === status
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl hover:scale-105`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
                     : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 shadow-sm'
                 }`}
               >
@@ -165,7 +165,7 @@ export function VideoCampaignsPage() {
           /* Empty State */
           <div className="text-center py-20">
             <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-100 to-rose-100 rounded-full mb-6 shadow-lg">
-              <VideoCameraIcon className="w-12 h-12 text-orange-600" />
+              <VideoCameraIcon className="w-12 h-12 text-indigo-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               No video campaigns yet
@@ -177,7 +177,7 @@ export function VideoCampaignsPage() {
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
             >
               <PlusIcon className="w-4 h-4" />
               Create Your First Campaign
@@ -262,7 +262,7 @@ export function VideoCampaignsPage() {
                         <button
                           type="button"
                           onClick={() => window.open(campaign.videoUrl, '_blank')}
-                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                          className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
                         >
                           <PlayIcon className="w-4 h-4" />
                           Play

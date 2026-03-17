@@ -213,17 +213,17 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
         <div className="relative bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-[40px]">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-black">
+              <h2 className="text-2xl font-bold text-white">
                 {contact ? 'Edit Contact' : 'Add New Contact'}
               </h2>
-              <p className="text-black/90 text-sm mt-1">
+              <p className="text-white/90 text-sm mt-1">
                 {contact ? 'Update contact information' : 'Create a new contact in your CRM'}
               </p>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-black/80 hover:text-black hover:bg-white/20 rounded-lg transition-all duration-200"
+              className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
               title="Close"
             >
               <XMarkIcon className="h-6 w-6" />
@@ -263,7 +263,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     required
                     value={formData.firstName}
                     onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                     placeholder="John"
                   />
                 </div>
@@ -278,7 +278,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     required
                     value={formData.lastName}
                     onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                     placeholder="Doe"
                   />
                 </div>
@@ -294,7 +294,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     id="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                     placeholder="john.doe@example.com (leave blank if unknown)"
                   />
                 </div>
@@ -308,7 +308,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     id="phone"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                     placeholder="(555) 123-4567 or +1-555-123-4567"
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -334,7 +334,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     id="role"
                     value={formData.role}
                     onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
                   >
                     <option value="">Select Role</option>
                     <option value="CEO">CEO</option>
@@ -365,7 +365,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     id="companyId"
                     value={formData.companyId}
                     onChange={(e) => setFormData(prev => ({ ...prev, companyId: e.target.value, companyName: '' }))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 mb-2"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 mb-2"
                   >
                     <option value="">Select existing company</option>
                     {companies.map((company) => (
@@ -381,7 +381,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     value={formData.companyName}
                     onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value, companyId: '' }))}
                     disabled={!!formData.companyId}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   {formData.companyName && !formData.companyId && (
                     <p className="mt-2 text-xs text-green-600">
@@ -433,7 +433,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                       onClick={() => handleTagToggle(tag.id)}
                       className={`px-4 py-2 text-sm font-medium rounded-full border-2 transition-all duration-200 ${
                         formData.tagIds.includes(tag.id)
-                          ? 'bg-orange-100 border-orange-500 text-orange-700 shadow-sm'
+                          ? 'bg-orange-100 border-indigo-500 text-orange-700 shadow-sm'
                           : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-100'
                       }`}
                     >
@@ -458,7 +458,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 px-8 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                className="inline-flex items-center gap-2 px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
                 disabled={loading}
               >
                 {loading ? (

@@ -210,10 +210,10 @@ export function VideoCampaignsPage() {
         <div className="w-full max-w-5xl">
           {/* Success Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-6 shadow-2xl">
-              <PlayIcon className="w-10 h-10 text-black" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mb-6 shadow-2xl">
+              <PlayIcon className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-5xl font-bold text-black mb-4">
+            <h1 className="text-5xl font-bold text-white mb-4">
               🎉 Your Video is Ready!
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -257,7 +257,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={() => setShowEmailModal(true)}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold border-2 border-black transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold border border-indigo-500/30 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                 >
                   <EnvelopeIcon className="w-5 h-5" />
                   Send as Email
@@ -266,7 +266,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={handleDownload}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold border-2 border-black transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold border border-indigo-500/30 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
                   Download
@@ -275,7 +275,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold border-2 border-black transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold border border-indigo-500/30 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                 >
                   <ShareIcon className="w-5 h-5" />
                   Share
@@ -284,7 +284,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={handleStartNew}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold border-2 border-black transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold border border-indigo-500/30 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                 >
                   <VideoCameraIcon className="w-5 h-5" />
                   New Video
@@ -335,7 +335,7 @@ export function VideoCampaignsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-5xl font-bold text-black">
+              <h1 className="text-5xl font-bold text-white">
                 Video Library
               </h1>
               <p className="text-gray-600 mt-2">
@@ -346,7 +346,7 @@ export function VideoCampaignsPage() {
               <button
                 type="button"
                 onClick={() => setShowAutoGenerate(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-black rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-purple-200/50 hover:scale-105 transition-all shadow-lg active:scale-95"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold border border-indigo-500/30 hover:shadow-2xl hover:shadow-purple-200/50 hover:scale-105 transition-all shadow-lg active:scale-95"
               >
                 <SparklesIcon className="w-5 h-5" />
                 AI Auto-Generate
@@ -354,7 +354,7 @@ export function VideoCampaignsPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateNew(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-105 transition-all shadow-lg active:scale-95"
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold border border-indigo-500/30 hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-105 transition-all shadow-lg active:scale-95"
               >
                 <VideoCameraIcon className="w-5 h-5" />
                 Create New Video
@@ -372,7 +372,7 @@ export function VideoCampaignsPage() {
                   onClick={() => setActiveFilter(filter)}
                   className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ease-in-out capitalize tracking-wide ${
                     activeFilter === filter
-                      ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-black border-2 border-black shadow-lg hover:shadow-xl hover:scale-105'
+                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border border-indigo-500/30 shadow-lg hover:shadow-xl hover:scale-105'
                       : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:scale-105 shadow-sm'
                   }`}
                 >
@@ -394,10 +394,10 @@ export function VideoCampaignsPage() {
         {/* Empty State */}
         {!loadingVideos && previousVideos.length === 0 && (
           <div className="text-center py-32">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-500 to-rose-500 rounded-full mb-6 shadow-lg">
-              <VideoCameraIcon className="w-12 h-12 text-black" />
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mb-6 shadow-lg">
+              <VideoCameraIcon className="w-12 h-12 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-black mb-3">
+            <h2 className="text-3xl font-bold text-white mb-3">
               No videos yet
             </h2>
             <p className="text-gray-600 mb-8">
@@ -406,7 +406,7 @@ export function VideoCampaignsPage() {
             <button
               type="button"
               onClick={() => setShowCreateNew(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold border-2 border-black hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-105 transition-all shadow-lg active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold border border-indigo-500/30 hover:shadow-2xl hover:shadow-orange-200/50 hover:scale-105 transition-all shadow-lg active:scale-95"
             >
               <VideoCameraIcon className="w-5 h-5" />
               Create New Video
@@ -420,7 +420,7 @@ export function VideoCampaignsPage() {
             {filteredVideos.map((campaign) => (
               <div
                 key={campaign.id}
-                className="bg-white rounded-2xl overflow-hidden border-2 border-orange-200 hover:border-orange-500 shadow-md hover:shadow-xl hover:shadow-orange-200/50 transition-all duration-300"
+                className="bg-white rounded-2xl overflow-hidden border-2 border-orange-200 hover:border-indigo-500 shadow-md hover:shadow-xl hover:shadow-orange-200/50 transition-all duration-300"
               >
                 {/* Video Player Section */}
                 <div className="relative aspect-video bg-gray-900 rounded-t-xl overflow-hidden">
@@ -483,7 +483,7 @@ export function VideoCampaignsPage() {
 
                   {/* Metadata */}
                   <div className="flex items-center gap-3 text-sm text-gray-600 mb-4">
-                    <UsersIcon className="w-4 h-4 text-orange-500" />
+                    <UsersIcon className="w-4 h-4 text-indigo-400" />
                     <span>{campaign._count?.companies || 0} companies</span>
                   </div>
 
@@ -494,7 +494,7 @@ export function VideoCampaignsPage() {
                         <button
                           type="button"
                           onClick={(e) => handlePlayVideo(campaign, e)}
-                          className="flex-1 bg-gradient-to-r from-orange-500 to-rose-500 text-black px-4 py-2.5 rounded-xl font-bold border-2 border-black flex items-center justify-center gap-2 hover:shadow-lg hover:scale-105 transition-all active:scale-95"
+                          className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 py-2.5 rounded-xl font-bold border border-indigo-500/30 flex items-center justify-center gap-2 hover:shadow-lg hover:scale-105 transition-all active:scale-95"
                         >
                           <PlayIconSolid className="w-4 h-4" />
                           Play
@@ -503,10 +503,10 @@ export function VideoCampaignsPage() {
                         <button
                           type="button"
                           onClick={(e) => handleDownloadVideo(campaign, e)}
-                          className="p-2.5 bg-white border-2 border-orange-500 rounded-xl hover:bg-orange-50 hover:scale-105 transition-all active:scale-95"
+                          className="p-2.5 bg-white border-2 border-indigo-500 rounded-xl hover:bg-orange-50 hover:scale-105 transition-all active:scale-95"
                           title="Download video"
                         >
-                          <ArrowDownTrayIcon className="w-5 h-5 text-orange-600" />
+                          <ArrowDownTrayIcon className="w-5 h-5 text-indigo-400" />
                         </button>
                       </>
                     )}
@@ -540,7 +540,7 @@ export function VideoCampaignsPage() {
         {/* Empty Filter State */}
         {!loadingVideos && previousVideos.length > 0 && filteredVideos.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-gray-600 text-lg">No videos found with status: <span className="font-bold text-orange-600">{activeFilter}</span></p>
+            <p className="text-gray-600 text-lg">No videos found with status: <span className="font-bold text-indigo-400">{activeFilter}</span></p>
           </div>
         )}
       </div>

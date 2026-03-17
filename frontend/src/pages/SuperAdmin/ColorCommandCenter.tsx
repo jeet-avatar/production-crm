@@ -73,7 +73,7 @@ export function ColorCommandCenter() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center shadow-xl">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl">
               <SwatchIcon className="w-8 h-8 text-white" />
             </div>
             <div>
@@ -89,7 +89,7 @@ export function ColorCommandCenter() {
         <div className="card mb-8">
           <div className="p-6 border-b border-gray-100">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <SparklesIcon className="w-6 h-6 text-rose-600" />
+              <SparklesIcon className="w-6 h-6 text-purple-400" />
               Theme Presets
             </h2>
             <p className="text-sm text-gray-600 mt-1">One-click theme changes that apply across ALL pages</p>
@@ -108,7 +108,7 @@ export function ColorCommandCenter() {
                 >
                   {selectedTheme === key && (
                     <div className="absolute top-3 right-3">
-                      <div className="w-6 h-6 bg-gradient-to-r from-orange-500 to-rose-500 rounded-full flex items-center justify-center">
+                      <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
                         <CheckIcon className="w-4 h-4 text-white" />
                       </div>
                     </div>
@@ -118,8 +118,8 @@ export function ColorCommandCenter() {
                   <div className="flex gap-2">
                     {key === 'default' && (
                       <>
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600"></div>
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600"></div>
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600"></div>
+                        <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600"></div>
                       </>
                     )}
                     {key === 'ocean' && (
@@ -161,7 +161,7 @@ export function ColorCommandCenter() {
               <div className="flex gap-4">
                 <button
                   onClick={() => setPreviewMode(!previewMode)}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-orange-700 hover:to-rose-700 transition-all"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all"
                 >
                   <ArrowPathIcon className="w-5 h-5" />
                   {previewMode ? 'Exit Preview' : 'Preview Theme'}

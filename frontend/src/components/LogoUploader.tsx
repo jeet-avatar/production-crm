@@ -169,7 +169,7 @@ export function LogoUploader({
         <button
           type="button"
           onClick={() => setShowHelp(!showHelp)}
-          className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
+          className="p-1 text-gray-400 hover:text-indigo-400 transition-colors"
           title="Show help"
         >
           <QuestionMarkCircleIcon className="w-5 h-5" />
@@ -180,7 +180,7 @@ export function LogoUploader({
       {showHelp && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm space-y-2">
           <div className="flex items-start gap-2">
-            <QuestionMarkCircleIcon className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+            <QuestionMarkCircleIcon className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
             <div className="prose prose-sm max-w-none text-gray-700">
               {(helpText || defaultHelpText).split('\n').map((line, i) => {
                 if (line.startsWith('**') && line.endsWith('**')) {
@@ -226,7 +226,7 @@ export function LogoUploader({
           <button
             type="button"
             onClick={() => setUrl('')}
-            className="mt-2 text-sm text-orange-600 hover:text-orange-700 font-medium"
+            className="mt-2 text-sm text-indigo-400 hover:text-orange-700 font-medium"
           >
             Change logo
           </button>
@@ -239,7 +239,7 @@ export function LogoUploader({
               type="button"
               onClick={handleFetchLogo}
               disabled={isFetchingLogo}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
             >
               <SparklesIcon className="w-5 h-5" />
               {isFetchingLogo ? 'Fetching logo...' : `Auto-fetch logo from ${companyDomain}`}
@@ -253,7 +253,7 @@ export function LogoUploader({
             onDragLeave={handleDragLeave}
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer ${
               isDragging
-                ? 'border-orange-500 bg-orange-50'
+                ? 'border-indigo-500 bg-orange-50'
                 : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50'
             }`}
             onClick={() => fileInputRef.current?.click()}
@@ -267,7 +267,7 @@ export function LogoUploader({
               <div className="flex flex-col items-center gap-2">
                 <ArrowUpTrayIcon className="w-10 h-10 text-gray-400" />
                 <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-orange-600">Click to upload</span> or drag and drop
+                  <span className="font-semibold text-indigo-400">Click to upload</span> or drag and drop
                 </p>
                 <p className="text-xs text-gray-500">PNG, JPG, or SVG (max 5MB)</p>
               </div>
@@ -300,7 +300,7 @@ export function LogoUploader({
               value={url}
               onChange={(e) => handleUrlChange(e.target.value)}
               placeholder={placeholder}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
           </div>
         </div>
