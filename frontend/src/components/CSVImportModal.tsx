@@ -140,19 +140,19 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-[40px]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <DocumentArrowUpIcon className="w-8 h-8 text-black" />
-              <h2 className="text-3xl font-bold text-black">AI CSV Import</h2>
+              <DocumentArrowUpIcon className="w-8 h-8 text-white" />
+              <h2 className="text-3xl font-bold text-white">AI CSV Import</h2>
             </div>
             <button
               type="button"
               onClick={handleClose}
-              className="text-black hover:bg-white/20 rounded-lg p-2 transition-colors"
+              className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
               aria-label="Close modal"
             >
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
-          <p className="text-black/90 mt-2">Import contacts with automatic field mapping and AI enrichment</p>
+          <p className="text-white/90 mt-2">Import contacts with automatic field mapping and AI enrichment</p>
         </div>
 
         {/* Step Indicators */}
@@ -190,9 +190,9 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-4 border-dashed border-orange-300 rounded-[32px] p-12 text-center cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all"
+                className="border-4 border-dashed border-orange-300 rounded-[32px] p-12 text-center cursor-pointer hover:border-indigo-500 hover:bg-orange-50 transition-all"
               >
-                <DocumentArrowUpIcon className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+                <DocumentArrowUpIcon className="w-16 h-16 text-indigo-400 mx-auto mb-4" />
                 <p className="text-lg font-semibold text-gray-700 mb-2">Click to browse files</p>
                 <p className="text-sm text-gray-500">or drag and drop CSV files here</p>
                 <p className="text-xs text-gray-400 mt-2">Maximum 10 files, 10MB each</p>
@@ -214,7 +214,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                   {selectedFiles.map((file, index) => (
                     <div key={index} className="flex items-center justify-between bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
                       <div className="flex items-center gap-3">
-                        <DocumentArrowUpIcon className="w-6 h-6 text-orange-600" />
+                        <DocumentArrowUpIcon className="w-6 h-6 text-indigo-400" />
                         <div>
                           <p className="font-medium text-gray-800">{file.name}</p>
                           <p className="text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</p>
@@ -236,7 +236,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
               <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
                 <h4 className="font-semibold text-orange-800 mb-2">✨ AI Field Mapping</h4>
                 <p className="text-sm text-orange-700">AI automatically detects and maps CSV columns:</p>
-                <ul className="text-sm text-orange-600 mt-2 space-y-1 ml-4">
+                <ul className="text-sm text-indigo-400 mt-2 space-y-1 ml-4">
                   <li>• Email, E-mail, Mail → email</li>
                   <li>• First Name, FirstName, fname → firstName</li>
                   <li>• Company, Organization → company</li>
@@ -250,7 +250,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
           {currentStep === 2 && previewData && (
             <div className="space-y-6">
               <div className="text-center">
-                <EyeIcon className="w-16 h-16 text-orange-600 mx-auto mb-4" />
+                <EyeIcon className="w-16 h-16 text-indigo-400 mx-auto mb-4" />
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Preview Data</h3>
                 <p className="text-gray-600">Found {previewData.totalRows} rows in CSV file</p>
               </div>
@@ -298,7 +298,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
           {/* Step 3: Enrich Option */}
           {currentStep === 3 && (
             <div className="flex flex-col items-center justify-center py-12 space-y-6">
-              <SparklesIcon className="w-20 h-20 text-rose-600" />
+              <SparklesIcon className="w-20 h-20 text-purple-400" />
               <div className="text-center max-w-2xl">
                 <h3 className="text-2xl font-bold text-gray-800 mb-4">AI Data Enrichment</h3>
                 <p className="text-gray-600 mb-6">
@@ -325,7 +325,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
             <div className="flex flex-col items-center justify-center py-16">
               <div className="relative">
                 <div className="w-20 h-20 border-8 border-orange-200 border-t-orange-600 rounded-full animate-spin" />
-                <DocumentArrowUpIcon className="w-10 h-10 text-orange-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                <DocumentArrowUpIcon className="w-10 h-10 text-indigo-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
               </div>
               <h3 className="text-2xl font-bold text-gray-800 mt-8 mb-2">Importing Contacts...</h3>
               <p className="text-gray-600">Please wait while we process your CSV files</p>
@@ -336,14 +336,14 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
           {currentStep === 5 && importResults && (
             <div className="space-y-6">
               <div className="text-center">
-                <CheckCircleIcon className="w-20 h-20 text-orange-600 mx-auto mb-4" />
+                <CheckCircleIcon className="w-20 h-20 text-indigo-400 mx-auto mb-4" />
                 <h3 className="text-3xl font-bold text-gray-800 mb-2">Import Complete!</h3>
                 <p className="text-gray-600">Your contacts have been successfully imported</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 text-center">
-                  <p className="text-4xl font-bold text-orange-600">{importResults.contactsImported || importResults.imported || 0}</p>
+                  <p className="text-4xl font-bold text-indigo-400">{importResults.contactsImported || importResults.imported || 0}</p>
                   <p className="text-sm font-medium text-gray-600 mt-2">Contacts Imported</p>
                 </div>
                 <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center">
@@ -351,7 +351,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                   <p className="text-sm font-medium text-gray-600 mt-2">Companies Created</p>
                 </div>
                 <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 text-center">
-                  <p className="text-4xl font-bold text-orange-600">{importResults.totalProcessed || 0}</p>
+                  <p className="text-4xl font-bold text-indigo-400">{importResults.totalProcessed || 0}</p>
                   <p className="text-sm font-medium text-gray-600 mt-2">Total Processed</p>
                 </div>
                 <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 text-center">
@@ -445,7 +445,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 type="button"
                 onClick={handleNext}
                 disabled={selectedFiles.length === 0 || loading}
-                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-black rounded-xl font-semibold hover:shadow-xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white border border-indigo-500/30 rounded-xl font-semibold hover:shadow-xl transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next: Preview Data
               </button>
@@ -471,7 +471,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                     handleImport();
                   }}
                   disabled={loading}
-                  className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-black rounded-xl font-semibold hover:shadow-xl transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white border border-indigo-500/30 rounded-xl font-semibold hover:shadow-xl transition-all shadow-md disabled:opacity-50 flex items-center gap-2"
                 >
                   <SparklesIcon className="w-5 h-5" />
                   Enrich & Import
@@ -483,7 +483,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
               <button
                 type="button"
                 onClick={handleComplete}
-                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black border-2 border-black rounded-xl font-semibold hover:shadow-xl transition-all shadow-md active:scale-95"
+                className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white border border-indigo-500/30 rounded-xl font-semibold hover:shadow-xl transition-all shadow-md active:scale-95"
               >
                 View Contacts
               </button>
@@ -498,7 +498,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 // Helper Components
 function StepIndicator({ number, label, active }: { number: number; label: string; active: boolean }) {
   return (
-    <div className={`flex items-center gap-2 ${active ? 'text-orange-600' : 'text-gray-400'}`}>
+    <div className={`flex items-center gap-2 ${active ? 'text-indigo-400' : 'text-gray-400'}`}>
       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${active ? 'bg-orange-600 text-white' : 'bg-gray-200'}`}>
         {number}
       </div>

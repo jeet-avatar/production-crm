@@ -217,10 +217,10 @@ export function TagsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Tags</h1>
         <p className="text-gray-600 mb-3">Organize and categorize your contacts, companies, and deals</p>
-        <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm">
+        <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-l-4 border-indigo-500 p-4 rounded-r-xl shadow-sm">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-5 w-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
               </svg>
             </div>
@@ -247,7 +247,7 @@ export function TagsPage() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+          className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
         >
           <PlusIcon className="h-5 w-5" />
           Add Tag
@@ -266,7 +266,7 @@ export function TagsPage() {
             {!searchQuery && (
               <button
                 onClick={() => setShowAddModal(true)}
-                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Add Tag
@@ -301,7 +301,7 @@ export function TagsPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => openEditModal(tag)}
-                      className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all"
+                      className="p-2 text-gray-400 hover:text-indigo-400 hover:bg-orange-50 rounded-xl transition-all"
                     >
                       <PencilIcon className="h-4 w-4" />
                     </button>
@@ -398,7 +398,7 @@ export function TagsPage() {
                   <button
                     type="submit"
                     disabled={isSaving}
-                    className={`px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`px-6 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {isSaving ? 'Saving...' : (editingTag ? 'Update Tag' : 'Add Tag')}
                   </button>

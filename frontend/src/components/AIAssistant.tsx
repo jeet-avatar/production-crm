@@ -185,7 +185,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-orange-600 to-rose-600 text-black p-4 rounded-full shadow-2xl hover:shadow-orange-500/50 hover:scale-110 transition-all duration-300 z-50 group"
+        className="fixed bottom-6 right-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:shadow-orange-500/50 hover:scale-110 transition-all duration-300 z-50 group"
       >
         <SparklesIcon className="w-6 h-6 animate-pulse" />
         <span className="absolute -top-12 right-0 bg-gray-900 text-white text-sm px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
@@ -202,7 +202,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
       }`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-4 rounded-t-2xl flex items-center justify-between">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
         <div className="flex items-center gap-3">
           <SparklesIcon className="w-6 h-6" />
           <div>
@@ -236,7 +236,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
           {insights.length > 0 && (
             <div className="bg-gradient-to-r from-orange-50 to-rose-50 border-b border-rose-200 p-4">
               <div className="flex items-center gap-2 mb-2">
-                <LightBulbIcon className="w-5 h-5 text-rose-600" />
+                <LightBulbIcon className="w-5 h-5 text-purple-400" />
                 <h4 className="font-semibold text-rose-900">AI Observations</h4>
               </div>
               <div className="space-y-1">
@@ -275,7 +275,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
                         <button
                           key={index}
                           onClick={() => setInputMessage(question)}
-                          className="w-full text-left text-sm text-rose-600 hover:bg-rose-50 p-2 rounded-lg transition-colors"
+                          className="w-full text-left text-sm text-purple-400 hover:bg-rose-50 p-2 rounded-lg transition-colors"
                         >
                           {question}
                         </button>
@@ -302,8 +302,8 @@ export default function AIAssistant({ context, title, placeholder, contextData }
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                     message.role === 'user'
-                      ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black'
-                      : 'bg-gray-100 text-gray-900 border-2 border-orange-100'
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                      : 'bg-gray-100 text-gray-900 border-2 border-indigo-100'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
@@ -320,17 +320,17 @@ export default function AIAssistant({ context, title, placeholder, contextData }
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-2xl px-4 py-3 border-2 border-orange-100">
+                <div className="bg-gray-100 rounded-2xl px-4 py-3 border-2 border-indigo-100">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-rose-600 font-medium">AI is analyzing...</span>
+                    <span className="text-xs text-purple-400 font-medium">AI is analyzing...</span>
                     <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-rose-500 rounded-full animate-bounce" />
+                      <div className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-bounce" />
                       <div
-                        className="w-2 h-2 bg-gradient-to-r from-orange-500 to-rose-500 rounded-full animate-bounce"
+                        className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-bounce"
                         style={{ animationDelay: '0.1s' }}
                       />
                       <div
-                        className="w-2 h-2 bg-gradient-to-r from-orange-500 to-rose-500 rounded-full animate-bounce"
+                        className="w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-bounce"
                         style={{ animationDelay: '0.2s' }}
                       />
                     </div>
@@ -351,13 +351,13 @@ export default function AIAssistant({ context, title, placeholder, contextData }
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about this section..."
                 rows={2}
-                className="flex-1 resize-none rounded-xl border-2 border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-orange-500/20 transition-all p-3 text-sm bg-white"
+                className="flex-1 resize-none rounded-xl border-2 border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-indigo-500/20 transition-all p-3 text-sm bg-white"
                 disabled={isLoading}
               />
               <button
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || isLoading}
-                className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-3 rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 <PaperAirplaneIcon className="w-5 h-5" />
               </button>

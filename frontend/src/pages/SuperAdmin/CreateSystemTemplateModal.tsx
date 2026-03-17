@@ -224,24 +224,24 @@ export function CreateSystemTemplateModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-black rounded-t-2xl`}>
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-white rounded-t-2xl`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <EnvelopeIcon className="h-6 w-6 text-black" />
+                <EnvelopeIcon className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h2 className="text-2xl font-bold">
                   {editingTemplate ? 'Edit System Template' : 'Create System Template'}
                 </h2>
-                <p className="text-black/80 text-sm mt-1">
+                <p className="text-white/80 text-sm mt-1">
                   System-wide email templates for automated messages
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-black/80 hover:text-black hover:bg-white/20 rounded-lg transition-all duration-200"
+              className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -447,11 +447,11 @@ export function CreateSystemTemplateModal({
             <button
               onClick={handleSubmit}
               disabled={isSaving}
-              className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg hover:opacity-90 font-semibold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:opacity-90 font-semibold transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isSaving ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border border-indigo-500/30 border-t-transparent"></div>
                   Saving...
                 </>
               ) : (

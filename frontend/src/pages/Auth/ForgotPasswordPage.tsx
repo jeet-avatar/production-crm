@@ -64,7 +64,7 @@ export function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <button
                 onClick={() => setSuccess(false)}
-                className="text-sm text-orange-600 hover:text-rose-600 font-medium"
+                className="text-sm text-indigo-400 hover:text-purple-400 font-medium"
               >
                 Didn't receive the email? Try again
               </button>
@@ -141,7 +141,7 @@ export function ForgotPasswordPage() {
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
             Need help?{' '}
-            <a href="mailto:support@brandmonkz.com" className="text-orange-600 hover:text-rose-600 font-medium">
+            <a href="mailto:support@brandmonkz.com" className="text-indigo-400 hover:text-purple-400 font-medium">
               Contact Support
             </a>
           </p>

@@ -39,7 +39,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
         'All metrics update in real-time as data changes',
       ],
       buttonLabel: 'View Metrics',
-      gradient: 'from-orange-600 to-rose-600',
+      gradient: 'from-indigo-600 to-purple-600',
     },
     {
       title: 'Select Time Ranges',
@@ -112,7 +112,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
       icon: ArrowTrendingUpIcon,
       title: 'Real-Time Metrics',
       description: 'All analytics update automatically as data changes. No manual refresh needed - see revenue, deals, and pipeline instantly.',
-      gradient: 'from-orange-600 to-rose-600',
+      gradient: 'from-indigo-600 to-purple-600',
     },
     {
       icon: CalendarIcon,
@@ -142,7 +142,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
       icon: DocumentChartBarIcon,
       title: 'Lead Source Analysis',
       description: 'Identify which marketing channels generate the most leads and revenue to optimize your marketing strategy.',
-      gradient: 'from-orange-600 to-rose-600',
+      gradient: 'from-indigo-600 to-purple-600',
     },
     {
       icon: PresentationChartLineIcon,
@@ -175,7 +175,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Check Analytics Daily',
       description: 'Review key metrics every morning to spot trends early. Use the 7-day view to track daily performance and quickly identify issues or opportunities.',
-      gradient: 'from-orange-600 to-rose-600',
+      gradient: 'from-indigo-600 to-purple-600',
     },
     {
       icon: LightBulbIcon,
@@ -205,7 +205,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
       icon: LightBulbIcon,
       title: 'Identify Seasonal Patterns',
       description: 'Use 1-year view to spot seasonal trends. Plan inventory, staffing, and marketing campaigns around high/low revenue months.',
-      gradient: 'from-orange-600 to-rose-600',
+      gradient: 'from-indigo-600 to-purple-600',
     },
     {
       icon: LightBulbIcon,
@@ -228,8 +228,8 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-3xl">
           <div className="flex justify-between items-start mb-3">
             <div>
-              <h2 className="text-4xl font-bold text-black mb-3">Analytics Guide</h2>
-              <p className="text-lg text-black/90">Make data-driven decisions with powerful insights</p>
+              <h2 className="text-4xl font-bold text-white mb-3">Analytics Guide</h2>
+              <p className="text-lg text-white/90">Make data-driven decisions with powerful insights</p>
             </div>
           </div>
 
@@ -240,8 +240,8 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('quickstart')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'quickstart'
-                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
-                  : 'bg-white/40 text-black/70 hover:bg-white/60'
+                  ? 'bg-white text-white font-bold shadow-lg border border-indigo-500/30'
+                  : 'bg-white/40 text-white/70 hover:bg-white/60'
               }`}
             >
               Quick Start
@@ -251,8 +251,8 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('features')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'features'
-                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
-                  : 'bg-white/40 text-black/70 hover:bg-white/60'
+                  ? 'bg-white text-white font-bold shadow-lg border border-indigo-500/30'
+                  : 'bg-white/40 text-white/70 hover:bg-white/60'
               }`}
             >
               Features
@@ -262,8 +262,8 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('tips')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'tips'
-                  ? 'bg-white text-black font-bold shadow-lg border-2 border-black'
-                  : 'bg-white/40 text-black/70 hover:bg-white/60'
+                  ? 'bg-white text-white font-bold shadow-lg border border-indigo-500/30'
+                  : 'bg-white/40 text-white/70 hover:bg-white/60'
               }`}
             >
               Pro Tips
@@ -275,7 +275,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
           {activeTab === 'quickstart' && (
             <>
-              <p className="text-lg text-black mb-6">
+              <p className="text-lg text-white mb-6">
                 Learn how to read and interpret your CRM analytics for better business decisions.
               </p>
 
@@ -288,23 +288,23 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
                     className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
-                        <span className="text-2xl font-bold text-black">{index + 1}</span>
+                      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
+                        <span className="text-2xl font-bold text-white">{index + 1}</span>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-2xl font-bold text-black mb-2">{step.title}</h3>
-                        <p className="text-black/80 mb-4">{step.description}</p>
+                        <h3 className="text-2xl font-bold text-white mb-2">{step.title}</h3>
+                        <p className="text-white/80 mb-4">{step.description}</p>
                         <ul className="space-y-2 mb-6">
                           {step.details.map((detail, idx) => (
-                            <li key={idx} className="flex items-start gap-2 text-black/80">
-                              <CheckCircleIcon className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                            <li key={idx} className="flex items-start gap-2 text-white/80">
+                              <CheckCircleIcon className="h-5 w-5 text-indigo-400 flex-shrink-0 mt-0.5" />
                               <span>{detail}</span>
                             </li>
                           ))}
                         </ul>
                         <button
                           type="button"
-                          className="w-full mt-6 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all"
+                          className="w-full mt-6 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all"
                         >
                           {step.buttonLabel}
                         </button>
@@ -318,7 +318,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
 
           {activeTab === 'features' && (
             <>
-              <p className="text-lg text-black mb-6">
+              <p className="text-lg text-white mb-6">
                 Discover powerful analytics features to track performance and grow your business.
               </p>
 
@@ -331,12 +331,12 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
                       className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-6 w-6 text-black" />
+                        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
+                          <Icon className="h-6 w-6 text-white" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-black mb-2">{feature.title}</h3>
-                          <p className="text-black/80">{feature.description}</p>
+                          <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                          <p className="text-white/80">{feature.description}</p>
                         </div>
                       </div>
                     </div>
@@ -348,7 +348,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
 
           {activeTab === 'tips' && (
             <>
-              <p className="text-lg text-black mb-6">
+              <p className="text-lg text-white mb-6">
                 Master analytics best practices to drive revenue growth and business success.
               </p>
 
@@ -360,12 +360,12 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
                     className="bg-gradient-to-br from-orange-100 via-rose-50 to-orange-50 border-3 border-black rounded-3xl shadow-xl p-6 hover:shadow-2xl transition-all"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
-                        <Icon className="h-6 w-6 text-black" />
+                      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
+                        <Icon className="h-6 w-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-black mb-2">{tip.title}</h3>
-                        <p className="text-black/80">{tip.description}</p>
+                        <h3 className="text-xl font-bold text-white mb-2">{tip.title}</h3>
+                        <p className="text-white/80">{tip.description}</p>
                       </div>
                     </div>
                   </div>
@@ -380,7 +380,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
           <button
             type="button"
             onClick={onClose}
-            className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
           >
             Got it, thanks!
           </button>

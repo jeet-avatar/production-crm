@@ -225,10 +225,10 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
 
   const Step = ({ number, label, active }: { number: number; label: string; active: boolean }) => (
     <div className="flex items-center">
-      <div className={`flex items-center justify-center w-10 h-10 rounded-full ${active ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-black' : 'bg-gray-200 text-gray-600'} font-semibold`}>
+      <div className={`flex items-center justify-center w-10 h-10 rounded-full ${active ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white' : 'bg-gray-200 text-gray-600'} font-semibold`}>
         {number}
       </div>
-      <span className={`ml-3 text-sm font-medium ${active ? 'text-rose-600' : 'text-gray-500'}`}>
+      <span className={`ml-3 text-sm font-medium ${active ? 'text-purple-400' : 'text-gray-500'}`}>
         {label}
       </span>
     </div>
@@ -239,7 +239,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
       <div className="bg-white rounded-2xl shadow-2xl border-4 border-rose-300 w-full max-w-6xl max-h-[90vh] flex flex-col">
 
         {/* Header with gradient */}
-        <div className="bg-gradient-to-r from-orange-600 to-rose-600 px-8 py-6 border-b-4 border-orange-700">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 border-b-4 border-orange-700">
           <div className="flex items-center justify-between">
             <h2 className="text-3xl font-bold text-white">Import Companies with AI Enhancement</h2>
             <button
@@ -316,7 +316,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
         {/* STEP 2: AI Processing */}
         {currentStep === 2 && (
           <div className="text-center py-12">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-orange-600 to-rose-600 mx-auto mb-6 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 mx-auto mb-6 flex items-center justify-center">
               <SparklesIcon className="w-10 h-10 text-white animate-pulse" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -374,19 +374,19 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     {company.industry && (
                       <div className={`${company.aiEnhanced?.includes('industry') ? 'bg-rose-50' : 'bg-gray-50'} rounded p-2`}>
-                        <span className={`${company.aiEnhanced?.includes('industry') ? 'text-rose-600' : 'text-gray-600'} font-medium`}>Industry: </span>
+                        <span className={`${company.aiEnhanced?.includes('industry') ? 'text-purple-400' : 'text-gray-600'} font-medium`}>Industry: </span>
                         <span className="text-gray-700">{company.industry}</span>
                         {company.aiEnhanced?.includes('industry') && (
-                          <span className="ml-1 text-xs text-rose-600">✨ AI Found</span>
+                          <span className="ml-1 text-xs text-purple-400">✨ AI Found</span>
                         )}
                       </div>
                     )}
                     {(company.headquarters || company.location) && (
                       <div className={`${company.aiEnhanced?.includes('headquarters') ? 'bg-orange-50' : 'bg-gray-50'} rounded p-2`}>
-                        <span className={`${company.aiEnhanced?.includes('headquarters') ? 'text-orange-600' : 'text-gray-600'} font-medium`}>HQ: </span>
+                        <span className={`${company.aiEnhanced?.includes('headquarters') ? 'text-indigo-400' : 'text-gray-600'} font-medium`}>HQ: </span>
                         <span className="text-gray-700">{company.headquarters || company.location}</span>
                         {company.aiEnhanced?.includes('headquarters') && (
-                          <span className="ml-1 text-xs text-orange-600">✨ AI Found</span>
+                          <span className="ml-1 text-xs text-indigo-400">✨ AI Found</span>
                         )}
                       </div>
                     )}
@@ -405,7 +405,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                     <p className="text-sm text-gray-600 mt-2 italic">
                       "{company.description.substring(0, 150)}..."
                       {company.aiEnhanced?.includes('description') && (
-                        <span className="ml-1 text-xs text-rose-600">✨ AI Found</span>
+                        <span className="ml-1 text-xs text-purple-400">✨ AI Found</span>
                       )}
                     </p>
                   )}
@@ -446,7 +446,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                 </button>
                 <button
                   onClick={handleAIEnrichment}
-                  className="px-8 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
+                  className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
                 >
                   <SparklesIcon className="w-5 h-5" />
                   Enhance with AI
@@ -457,7 +457,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
               <button
                 onClick={handleImport}
                 disabled={importing}
-                className="px-8 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
+                className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2"
               >
                 {importing ? (
                   <>

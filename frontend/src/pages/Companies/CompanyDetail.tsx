@@ -306,7 +306,7 @@ export function CompanyDetail() {
       <div className="mb-6">
         <button
           onClick={() => navigate('/companies')}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md mb-4"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md mb-4"
         >
           <ArrowLeftIcon className="w-4 h-4" />
           <span>Back to Companies</span>
@@ -315,7 +315,7 @@ export function CompanyDetail() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-6">
             {/* Company logo */}
-            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-orange-600 to-rose-600 text-black text-3xl font-bold flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white text-3xl font-bold flex items-center justify-center shadow-lg">
               {company.logo ? (
                 <img src={company.logo} alt={company.name} className="w-full h-full rounded-xl object-cover" />
               ) : (
@@ -367,7 +367,7 @@ export function CompanyDetail() {
                 href={company.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
                 title="Visit website"
               >
                 <GlobeAltIcon className="w-5 h-5" />
@@ -378,7 +378,7 @@ export function CompanyDetail() {
                 type="button"
                 onClick={handleEnrich}
                 disabled={enriching}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 title={!company.website ? "AI will search the web and LinkedIn to find company information" : "AI Enrich Data - Scrape website and find key contacts"}
               >
                 {enriching ? (
@@ -399,7 +399,7 @@ export function CompanyDetail() {
               type="button"
               onClick={handleSocialFlow}
               disabled={socialFlowing}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               title="🚀 Premium: SocialFlow - Credit Rating, Social Media, Tech Stack & More"
             >
               {socialFlowing ? (
@@ -419,7 +419,7 @@ export function CompanyDetail() {
             <button
               type="button"
               onClick={() => setShowCampaignModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
               title="Add to campaign"
             >
               <PaperAirplaneIcon className="w-5 h-5" />
@@ -428,7 +428,7 @@ export function CompanyDetail() {
             <button
               type="button"
               onClick={() => setShowEditForm(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
               title="Edit company"
             >
               <PencilIcon className="h-5 w-5" />
@@ -437,7 +437,7 @@ export function CompanyDetail() {
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
               title="Delete company"
             >
               <TrashIcon className="h-5 w-5" />
@@ -462,7 +462,7 @@ export function CompanyDetail() {
           {/* Enriching Status */}
           {company.enrichmentStatus === 'enriching' && (
             <div className="bg-orange-50 rounded-lg p-4 flex items-center gap-3 border border-orange-200">
-              <ArrowPathIcon className="w-5 h-5 animate-spin text-orange-600" />
+              <ArrowPathIcon className="w-5 h-5 animate-spin text-indigo-400" />
               <span className="text-orange-800 font-medium">
                 AI is analyzing this company's website and gathering intelligence...
               </span>
@@ -473,7 +473,7 @@ export function CompanyDetail() {
           {company.enrichmentStatus === 'enriched' && company.aiDescription && (
             <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-xl p-6 border border-orange-200">
               <div className="flex items-center gap-2 mb-4">
-                <SparklesIcon className="w-5 h-5 text-orange-600" />
+                <SparklesIcon className="w-5 h-5 text-indigo-400" />
                 <h2 className="text-xl font-bold text-gray-900">AI Company Intelligence</h2>
                 {company.enrichedAt && (
                   <span className="text-sm text-gray-500 ml-auto">
@@ -583,7 +583,7 @@ export function CompanyDetail() {
           {company.socialFlowEnriched && company.socialFlowData && (
             <div className="bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 p-6 rounded-xl shadow-lg border-2 border-yellow-400 mb-6">
               <div className="flex items-center gap-2 mb-4">
-                <svg className="w-6 h-6 text-rose-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
                   <path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-4a1 1 0 01-1-1V6a1 1 0 011-1z"/>
                 </svg>
@@ -596,7 +596,7 @@ export function CompanyDetail() {
                 <button
                   onClick={handleSocialFlow}
                   disabled={socialFlowing}
-                  className="ml-2 px-3 py-1 text-xs bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="ml-2 px-3 py-1 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   title="Re-enrich with latest data"
                 >
                   {socialFlowing ? 'Re-enriching...' : '🔄 Re-enrich'}
@@ -608,15 +608,15 @@ export function CompanyDetail() {
                 <div className="mb-4 p-3 bg-white rounded-lg border border-gray-200">
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Enrichment Status:</h3>
                   <div className="space-y-1 text-xs">
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.creditRating?.success ? 'text-orange-700' : 'text-rose-600'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.creditRating?.success ? 'text-orange-700' : 'text-purple-400'}`}>
                       {company.socialFlowData.enrichmentStatus.creditRating?.success ? '✅' : '❌'}
                       <span>Credit Rating {company.socialFlowData.enrichmentStatus.creditRating?.error && `- ${company.socialFlowData.enrichmentStatus.creditRating.error}`}</span>
                     </div>
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.socialMedia?.success ? 'text-orange-700' : 'text-rose-600'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.socialMedia?.success ? 'text-orange-700' : 'text-purple-400'}`}>
                       {company.socialFlowData.enrichmentStatus.socialMedia?.success ? '✅' : '❌'}
                       <span>Social Media {company.socialFlowData.enrichmentStatus.socialMedia?.error && `- ${company.socialFlowData.enrichmentStatus.socialMedia.error}`}</span>
                     </div>
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? 'text-orange-700' : 'text-rose-600'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? 'text-orange-700' : 'text-purple-400'}`}>
                       {company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? '✅' : '❌'}
                       <span>AI Analysis {company.socialFlowData.enrichmentStatus.aiAnalysis?.error && `- ${company.socialFlowData.enrichmentStatus.aiAnalysis.error}`}</span>
                     </div>
@@ -655,7 +655,7 @@ export function CompanyDetail() {
                     <div className="space-y-2">
                       {company.socialFlowData.socialMedia.twitter && (
                         <a href={company.socialFlowData.socialMedia.twitter} target="_blank" rel="noopener noreferrer"
-                           className="flex items-center gap-2 text-orange-600 hover:text-orange-800 hover:underline">
+                           className="flex items-center gap-2 text-indigo-400 hover:text-orange-800 hover:underline">
                           <span>🐦 Twitter/X</span>
                         </a>
                       )}
@@ -673,7 +673,7 @@ export function CompanyDetail() {
                       )}
                       {company.socialFlowData.socialMedia.youtube && (
                         <a href={company.socialFlowData.socialMedia.youtube} target="_blank" rel="noopener noreferrer"
-                           className="flex items-center gap-2 text-rose-600 hover:text-rose-800 hover:underline">
+                           className="flex items-center gap-2 text-purple-400 hover:text-rose-800 hover:underline">
                           <span>📺 YouTube</span>
                         </a>
                       )}
@@ -738,7 +738,7 @@ export function CompanyDetail() {
                     <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
                       👥 Employee Information
                     </h3>
-                    <p className="text-2xl font-bold text-rose-600">{company.socialFlowData.employees}</p>
+                    <p className="text-2xl font-bold text-purple-400">{company.socialFlowData.employees}</p>
                     <p className="text-gray-500 text-sm">Estimated employees</p>
                   </div>
                 )}
@@ -750,7 +750,7 @@ export function CompanyDetail() {
           {company.intent && (
             <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-orange-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <FireIcon className="w-5 h-5 text-orange-600" />
+                <FireIcon className="w-5 h-5 text-indigo-400" />
                 Intent of Hiring
               </h2>
               <p className="text-gray-700 leading-relaxed">{company.intent}</p>
@@ -760,7 +760,7 @@ export function CompanyDetail() {
           {company.hiringInfo && (
             <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-rose-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <BriefcaseIcon className="w-5 h-5 text-rose-600" />
+                <BriefcaseIcon className="w-5 h-5 text-purple-400" />
                 Recent Hiring Activity
               </h2>
               <p className="text-gray-700 leading-relaxed">{company.hiringInfo}</p>
@@ -771,7 +771,7 @@ export function CompanyDetail() {
           {(company.hiringIntent || company.techStack || company.aiPitch) && (
             <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-orange-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <ExclamationCircleIcon className="w-5 h-5 text-orange-600" />
+                <ExclamationCircleIcon className="w-5 h-5 text-indigo-400" />
                 AI Insights
               </h2>
 
@@ -809,7 +809,7 @@ export function CompanyDetail() {
               </h2>
               <button
                 onClick={() => navigate(`/contacts?addContact=true&companyId=${company.id}&companyName=${encodeURIComponent(company.name)}`)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
               >
                 <PlusIcon className="w-5 h-5" />
                 <span>Add Contact</span>
@@ -825,7 +825,7 @@ export function CompanyDetail() {
                     onClick={() => navigate(`/contacts/${contact.id}`)}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-600 to-rose-600 text-black font-semibold flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold flex items-center justify-center">
                         {(contact.firstName?.[0] || '?').toUpperCase()}{(contact.lastName?.[0] || '?').toUpperCase()}
                       </div>
                       <div>
@@ -871,7 +871,7 @@ export function CompanyDetail() {
                         e.stopPropagation();
                         window.location.href = `mailto:${contact.email}`;
                       }}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
                     >
                       <EnvelopeIcon className="w-5 h-5" />
                     </button>
@@ -901,7 +901,7 @@ export function CompanyDetail() {
                     href={company.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-orange-600 hover:underline text-sm break-all"
+                    className="text-indigo-400 hover:underline text-sm break-all"
                   >
                     {company.domain || new URL(company.website).hostname}
                   </a>
@@ -950,7 +950,7 @@ export function CompanyDetail() {
                     href={company.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-orange-600 hover:underline text-sm flex items-center gap-1"
+                    className="text-indigo-400 hover:underline text-sm flex items-center gap-1"
                   >
                     View Profile
                     <GlobeAltIcon className="w-3 h-3" />
@@ -1005,7 +1005,7 @@ export function CompanyDetail() {
           {company.jobPostings && (
             <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 p-6">
               <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <DocumentTextIcon className="w-4 h-4 text-orange-600" />
+                <DocumentTextIcon className="w-4 h-4 text-indigo-400" />
                 Recent Job Postings
               </h3>
               <div className="text-xs text-gray-700 whitespace-pre-wrap bg-white p-3 rounded-lg border border-orange-200 max-h-48 overflow-y-auto">
@@ -1072,7 +1072,7 @@ export function CompanyDetail() {
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all shadow-md"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all shadow-md"
                   disabled={deleting}
                 >
                   <TrashIcon className="h-5 w-5" />

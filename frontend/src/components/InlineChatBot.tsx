@@ -164,7 +164,7 @@ export default function InlineChatBot({
     <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border-2 border-orange-200 overflow-hidden shadow-lg">
       {/* Header */}
       <div
-        className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-4 flex items-center justify-between cursor-pointer hover:from-orange-700 hover:to-rose-700 transition-all"
+        className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 flex items-center justify-between cursor-pointer hover:from-indigo-700 hover:to-purple-700 transition-all"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
@@ -234,8 +234,8 @@ export default function InlineChatBot({
                   <div
                     className={`max-w-[85%] rounded-xl px-4 py-2 ${
                       message.role === 'user'
-                        ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black'
-                        : 'bg-gray-100 text-gray-900 border border-orange-100'
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                        : 'bg-gray-100 text-gray-900 border border-indigo-100'
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -253,7 +253,7 @@ export default function InlineChatBot({
                 {message.suggestion && (
                   <div className="ml-4 bg-gradient-to-br from-orange-50 to-rose-50 border-2 border-orange-300 rounded-xl p-4 shadow-md">
                     <div className="flex items-center gap-2 mb-3">
-                      <CodeBracketIcon className="w-5 h-5 text-orange-600" />
+                      <CodeBracketIcon className="w-5 h-5 text-indigo-400" />
                       <h4 className="font-bold text-sm text-gray-900">Suggested Change</h4>
                       <span className="ml-auto px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
                         Requires Approval
@@ -306,9 +306,9 @@ export default function InlineChatBot({
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-xl px-4 py-2 border border-orange-100">
+                <div className="bg-gray-100 rounded-xl px-4 py-2 border border-indigo-100">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-orange-600 font-medium">
+                    <span className="text-xs text-indigo-400 font-medium">
                       {actionMode ? 'Analyzing UI & generating suggestions...' : 'Analyzing...'}
                     </span>
                     <div className="flex gap-1">
@@ -337,14 +337,14 @@ export default function InlineChatBot({
                     : 'Ask about this section...'
                 }
                 rows={2}
-                className="flex-1 resize-none rounded-lg border-2 border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all p-2 text-sm"
+                className="flex-1 resize-none rounded-lg border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all p-2 text-sm"
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || isLoading}
-                className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-2 rounded-lg hover:shadow-lg hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg hover:shadow-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 aria-label="Send message"
                 title="Send message"
               >

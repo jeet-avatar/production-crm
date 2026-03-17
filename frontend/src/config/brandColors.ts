@@ -4,43 +4,43 @@
  * This is the SINGLE SOURCE OF TRUTH for all colors and gradients in the application.
  * Change colors here and they will automatically apply across ALL pages.
  *
- * Design Philosophy:
- * - Primary: Orange-Rose (Energy, Innovation, Vibrant)
- * - Success: Green-Emerald (Growth, Success, Prosperity)
- * - Warning: Orange-Red (Energy, Urgency, Attention)
- * - Info: Orange-Rose (Information, Clarity, Energy)
- * - Danger: Red-Orange (Critical, Important, Action Required)
- * - Premium: Orange-Rose (Luxury, Premium, Exclusive)
+ * Design Philosophy: Indigo Noir
+ * - Primary: Indigo-Purple (Premium, Intelligence, Innovation)
+ * - Success: Emerald-Green (Growth, Success, Prosperity)
+ * - Warning: Amber-Orange (Attention, Caution)
+ * - Info: Indigo-Violet (Clarity, Knowledge)
+ * - Danger: Red-Rose (Critical, Important, Action Required)
+ * - Premium: Indigo-Purple (Luxury, Premium, Exclusive)
  */
 
 // ============================================================================
-// CORE BRAND COLORS - Main brand identity (BrandMonkz Vibrant Coral Theme)
+// CORE BRAND COLORS - Main brand identity (Indigo Noir Theme)
 // ============================================================================
 export const BRAND_COLORS = {
   primary: {
     name: 'Primary Brand',
-    gradient: 'from-orange-400 to-rose-500',
-    hover: 'hover:from-orange-500 hover:to-rose-600',
-    solid: 'bg-orange-400',
-    text: 'text-orange-500',
-    border: 'border-orange-400',
-    ring: 'ring-orange-400',
-    shadow: 'shadow-orange-400/30',
-    lightBg: 'from-orange-50 to-rose-50',
-    description: 'Main brand gradient - Vibrant Coral Energy'
+    gradient: 'from-indigo-500 to-purple-600',
+    hover: 'hover:from-indigo-600 hover:to-purple-700',
+    solid: 'bg-indigo-500',
+    text: 'text-indigo-400',
+    border: 'border-indigo-500',
+    ring: 'ring-indigo-500',
+    shadow: 'shadow-purple-500/30',
+    lightBg: 'from-indigo-50 to-purple-50',
+    description: 'Main brand gradient - Indigo Noir Premium'
   },
 
   secondary: {
     name: 'Secondary Accent',
-    gradient: 'from-orange-600 to-rose-600',
-    hover: 'hover:from-orange-700 hover:to-rose-700',
-    solid: 'bg-orange-600',
-    text: 'text-orange-600',
-    border: 'border-orange-600',
-    ring: 'ring-orange-600',
-    shadow: 'shadow-orange-500/30',
-    lightBg: 'from-orange-50 to-rose-50',
-    description: 'Secondary brand accent - Vibrant Energy'
+    gradient: 'from-purple-600 to-indigo-600',
+    hover: 'hover:from-purple-700 hover:to-indigo-700',
+    solid: 'bg-purple-600',
+    text: 'text-purple-400',
+    border: 'border-purple-600',
+    ring: 'ring-purple-600',
+    shadow: 'shadow-indigo-500/30',
+    lightBg: 'from-purple-50 to-indigo-50',
+    description: 'Secondary brand accent - Deep Indigo'
   }
 } as const;
 
@@ -50,66 +50,66 @@ export const BRAND_COLORS = {
 export const SEMANTIC_COLORS = {
   success: {
     name: 'Success',
-    gradient: 'from-green-500 to-emerald-600',
-    hover: 'hover:from-green-600 hover:to-emerald-700',
-    solid: 'bg-green-500',
-    text: 'text-green-600',
-    border: 'border-green-500',
-    ring: 'ring-green-500',
-    shadow: 'shadow-green-500/30',
-    lightBg: 'from-green-50 to-emerald-50',
+    gradient: 'from-emerald-500 to-green-600',
+    hover: 'hover:from-emerald-600 hover:to-green-700',
+    solid: 'bg-emerald-500',
+    text: 'text-emerald-400',
+    border: 'border-emerald-500',
+    ring: 'ring-emerald-500',
+    shadow: 'shadow-emerald-500/30',
+    lightBg: 'from-emerald-50 to-green-50',
     description: 'Success states - Growth & Prosperity'
   },
 
   warning: {
     name: 'Warning',
-    gradient: 'from-orange-500 to-red-600',
-    hover: 'hover:from-orange-600 hover:to-red-700',
-    solid: 'bg-orange-500',
-    text: 'text-orange-600',
-    border: 'border-orange-500',
-    ring: 'ring-orange-500',
-    shadow: 'shadow-orange-500/30',
-    lightBg: 'from-orange-50 to-red-50',
-    description: 'Warning & Attention - Energy & Urgency'
+    gradient: 'from-amber-500 to-orange-600',
+    hover: 'hover:from-amber-600 hover:to-orange-700',
+    solid: 'bg-amber-500',
+    text: 'text-amber-400',
+    border: 'border-amber-500',
+    ring: 'ring-amber-500',
+    shadow: 'shadow-amber-500/30',
+    lightBg: 'from-amber-50 to-orange-50',
+    description: 'Warning & Attention'
   },
 
   danger: {
     name: 'Danger',
-    gradient: 'from-red-600 to-orange-600',
-    hover: 'hover:from-red-700 hover:to-orange-700',
-    solid: 'bg-red-600',
-    text: 'text-red-600',
-    border: 'border-red-600',
-    ring: 'ring-red-600',
+    gradient: 'from-red-500 to-rose-600',
+    hover: 'hover:from-red-600 hover:to-rose-700',
+    solid: 'bg-red-500',
+    text: 'text-red-400',
+    border: 'border-red-500',
+    ring: 'ring-red-500',
     shadow: 'shadow-red-500/30',
-    lightBg: 'from-red-50 to-orange-50',
+    lightBg: 'from-red-50 to-rose-50',
     description: 'Critical & Destructive actions'
   },
 
   info: {
     name: 'Information',
-    gradient: 'from-orange-500 to-rose-600',
-    hover: 'hover:from-orange-600 hover:to-rose-700',
-    solid: 'bg-orange-500',
-    text: 'text-orange-600',
-    border: 'border-orange-500',
-    ring: 'ring-orange-500',
-    shadow: 'shadow-orange-500/30',
-    lightBg: 'from-orange-50 to-rose-50',
+    gradient: 'from-indigo-500 to-violet-600',
+    hover: 'hover:from-indigo-600 hover:to-violet-700',
+    solid: 'bg-indigo-500',
+    text: 'text-indigo-400',
+    border: 'border-indigo-500',
+    ring: 'ring-indigo-500',
+    shadow: 'shadow-indigo-500/30',
+    lightBg: 'from-indigo-50 to-violet-50',
     description: 'Information & Clarity'
   },
 
   premium: {
     name: 'Premium',
-    gradient: 'from-orange-600 to-rose-600',
-    hover: 'hover:from-orange-700 hover:to-rose-700',
-    solid: 'bg-orange-600',
-    text: 'text-orange-600',
-    border: 'border-orange-600',
-    ring: 'ring-orange-600',
-    shadow: 'shadow-orange-500/30',
-    lightBg: 'from-orange-50 to-rose-50',
+    gradient: 'from-indigo-600 to-purple-600',
+    hover: 'hover:from-indigo-700 hover:to-purple-700',
+    solid: 'bg-indigo-600',
+    text: 'text-indigo-400',
+    border: 'border-indigo-600',
+    ring: 'ring-indigo-600',
+    shadow: 'shadow-indigo-500/30',
+    lightBg: 'from-indigo-50 to-purple-50',
     description: 'Premium & Exclusive features'
   }
 } as const;
@@ -121,32 +121,32 @@ export const PAGE_COLORS = {
   // Settings Page Tabs
   settings: {
     profile: {
-      gradient: 'from-orange-500 to-rose-600',
-      shadow: 'shadow-orange-500/30',
+      gradient: 'from-indigo-500 to-purple-600',
+      shadow: 'shadow-indigo-500/30',
       description: 'Profile - Professional & Trustworthy'
     },
     account: {
-      gradient: 'from-green-500 to-emerald-600',
-      shadow: 'shadow-green-500/30',
+      gradient: 'from-emerald-500 to-green-600',
+      shadow: 'shadow-emerald-500/30',
       description: 'Account - Growth & Prosperity'
     },
     notifications: {
-      gradient: 'from-orange-500 to-red-600',
-      shadow: 'shadow-orange-500/30',
+      gradient: 'from-amber-500 to-orange-600',
+      shadow: 'shadow-amber-500/30',
       description: 'Notifications - Attention & Alerts'
     },
     security: {
-      gradient: 'from-orange-500 to-rose-600',
-      shadow: 'shadow-orange-500/30',
+      gradient: 'from-violet-500 to-purple-600',
+      shadow: 'shadow-violet-500/30',
       description: 'Security - Protection & Trust'
     },
     preferences: {
-      gradient: 'from-orange-400 to-rose-600',
-      shadow: 'shadow-orange-500/30',
+      gradient: 'from-indigo-400 to-purple-600',
+      shadow: 'shadow-indigo-500/30',
       description: 'Preferences - Personal & Custom'
     },
     billing: {
-      gradient: 'from-red-500 to-orange-600',
+      gradient: 'from-red-500 to-rose-600',
       shadow: 'shadow-red-500/30',
       description: 'Billing - Financial & Important'
     }
@@ -155,7 +155,7 @@ export const PAGE_COLORS = {
   // Super Admin Tabs
   superAdmin: {
     main: {
-      gradient: 'from-red-500 to-pink-600',
+      gradient: 'from-red-500 to-rose-600',
       shadow: 'shadow-red-500/30',
       description: 'Super Admin - Power & Authority'
     }
@@ -164,19 +164,19 @@ export const PAGE_COLORS = {
   // Dashboard Stats
   dashboard: {
     deals: {
-      gradient: 'from-emerald-500 to-emerald-600',
+      gradient: 'from-emerald-500 to-green-600',
       description: 'Deals - Revenue & Success'
     },
     contacts: {
-      gradient: 'from-orange-500 to-orange-600',
+      gradient: 'from-indigo-500 to-purple-600',
       description: 'Contacts - Network & Connections'
     },
     companies: {
-      gradient: 'from-orange-500 to-rose-600',
+      gradient: 'from-violet-500 to-indigo-600',
       description: 'Companies - Business & Growth'
     },
     activities: {
-      gradient: 'from-orange-500 to-orange-600',
+      gradient: 'from-purple-500 to-indigo-600',
       description: 'Activities - Energy & Action'
     }
   },
@@ -184,23 +184,23 @@ export const PAGE_COLORS = {
   // Campaign Stats
   campaigns: {
     sent: {
-      gradient: 'from-orange-500 to-orange-600',
-      lightBg: 'from-orange-50 to-orange-100',
+      gradient: 'from-indigo-500 to-purple-600',
+      lightBg: 'from-indigo-50 to-purple-50',
       description: 'Sent - Delivered & Completed'
     },
     opened: {
-      gradient: 'from-green-500 to-green-600',
-      lightBg: 'from-green-50 to-green-100',
+      gradient: 'from-emerald-500 to-green-600',
+      lightBg: 'from-emerald-50 to-green-50',
       description: 'Opened - Engagement & Interest'
     },
     clicked: {
-      gradient: 'from-orange-500 to-rose-600',
-      lightBg: 'from-orange-50 to-rose-100',
+      gradient: 'from-violet-500 to-purple-600',
+      lightBg: 'from-violet-50 to-purple-50',
       description: 'Clicked - Action & Conversion'
     },
     bounced: {
-      gradient: 'from-orange-500 to-orange-600',
-      lightBg: 'from-orange-50 to-orange-100',
+      gradient: 'from-amber-500 to-orange-600',
+      lightBg: 'from-amber-50 to-orange-50',
       description: 'Bounced - Issues & Attention'
     }
   },
@@ -213,21 +213,21 @@ export const PAGE_COLORS = {
       description: 'Free - Entry Level'
     },
     starter: {
-      gradient: 'from-orange-500 to-rose-600',
-      hover: 'hover:from-orange-600 hover:to-rose-700',
-      shadow: 'shadow-orange-500/30',
+      gradient: 'from-indigo-500 to-purple-600',
+      hover: 'hover:from-indigo-600 hover:to-purple-700',
+      shadow: 'shadow-indigo-500/30',
       description: 'Starter - Getting Started'
     },
     professional: {
-      gradient: 'from-red-500 to-orange-600',
-      hover: 'hover:from-red-600 hover:to-orange-700',
-      shadow: 'shadow-red-500/30',
+      gradient: 'from-purple-500 to-indigo-600',
+      hover: 'hover:from-purple-600 hover:to-indigo-700',
+      shadow: 'shadow-purple-500/30',
       description: 'Professional - Most Popular'
     },
     enterprise: {
-      gradient: 'from-orange-500 to-rose-600',
-      hover: 'hover:from-orange-600 hover:to-rose-700',
-      shadow: 'shadow-orange-500/30',
+      gradient: 'from-violet-600 to-purple-700',
+      hover: 'hover:from-violet-700 hover:to-purple-800',
+      shadow: 'shadow-violet-500/30',
       description: 'Enterprise - Premium & Unlimited'
     }
   },
@@ -235,11 +235,11 @@ export const PAGE_COLORS = {
   // AI Assistant
   aiAssistant: {
     header: {
-      gradient: 'from-orange-600 to-rose-600',
+      gradient: 'from-indigo-600 to-purple-600',
       description: 'AI - Intelligence & Innovation'
     },
     success: {
-      lightBg: 'from-green-50 to-orange-50',
+      lightBg: 'from-emerald-50 to-indigo-50',
       description: 'AI Success state'
     }
   }
@@ -250,16 +250,16 @@ export const PAGE_COLORS = {
 // ============================================================================
 export const NEUTRAL_COLORS = {
   background: {
-    page: 'from-gray-50 via-orange-50/30 to-rose-50/30',
+    page: 'from-gray-50 via-indigo-50/30 to-purple-50/30',
     card: 'bg-white',
     subtle: 'from-gray-50 to-gray-100',
-    description: 'Page backgrounds - Clean & Professional'
+    description: 'Page backgrounds - Dark Glass'
   },
 
   border: {
     default: 'border-gray-200',
     hover: 'hover:border-gray-300',
-    focus: 'focus:border-orange-500',
+    focus: 'focus:border-indigo-500',
     description: 'Borders & Dividers'
   },
 
@@ -281,7 +281,7 @@ export const NEUTRAL_COLORS = {
  */
 export function getButtonGradient(type: keyof typeof BRAND_COLORS | keyof typeof SEMANTIC_COLORS) {
   const color = (BRAND_COLORS[type as keyof typeof BRAND_COLORS] || SEMANTIC_COLORS[type as keyof typeof SEMANTIC_COLORS]);
-  return `bg-gradient-to-r ${color.gradient} ${color.hover} text-black shadow-lg ${color.shadow} hover:shadow-xl transition-all duration-200`;
+  return `bg-gradient-to-r ${color.gradient} ${color.hover} text-white shadow-lg ${color.shadow} hover:shadow-xl transition-all duration-200`;
 }
 
 /**
@@ -306,8 +306,8 @@ export function getIconGradient(type: keyof typeof BRAND_COLORS | keyof typeof S
 
 export const THEME_PRESETS = {
   default: {
-    name: 'BrandMonkz Original',
-    description: 'Blue-Purple brand with vibrant accents',
+    name: 'Indigo Noir',
+    description: 'Dark glassmorphism with indigo-purple accents',
     colors: BRAND_COLORS
   },
 

@@ -50,7 +50,7 @@ export function VoiceSelector({ value, onChange }: VoiceSelectorProps) {
         <button
           type="button"
           onClick={() => setShowHelp(!showHelp)}
-          className="p-1 text-gray-400 hover:text-orange-600 transition-colors"
+          className="p-1 text-gray-400 hover:text-indigo-400 transition-colors"
           title="Show help"
         >
           <QuestionMarkCircleIcon className="w-5 h-5" />

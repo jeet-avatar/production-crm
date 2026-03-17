@@ -48,7 +48,7 @@ export function ErrorDisplay({
             gradient: "from-orange-500 to-orange-600",
             bg: "bg-orange-50",
             border: "border-orange-300",
-            iconColor: "text-orange-500",
+            iconColor: "text-indigo-400",
             title: title || "Invalid Request",
             defaultMessage: message || "The request contains invalid data. Please check your input.",
           };
@@ -67,7 +67,7 @@ export function ErrorDisplay({
         if (code === 404) {
           return {
             icon: DocumentTextIcon,
-            gradient: "from-orange-500 to-rose-600",
+            gradient: "from-indigo-500 to-purple-600",
             bg: "bg-rose-50",
             border: "border-rose-300",
             iconColor: "text-rose-500",
@@ -80,7 +80,7 @@ export function ErrorDisplay({
           gradient: "from-orange-500 to-orange-600",
           bg: "bg-orange-50",
           border: "border-orange-300",
-          iconColor: "text-orange-500",
+          iconColor: "text-indigo-400",
           title: title || `Error ${code}`,
           defaultMessage: message || "Client error occurred. Please check your request.",
         };
@@ -230,7 +230,7 @@ export function ErrorDisplay({
           <div className="text-center text-sm text-gray-500 pt-4 border-t-2 border-gray-200">
             <p>
               Need help?{" "}
-              <a href="mailto:support@brandmonkz.com" className="text-orange-600 hover:underline font-medium">
+              <a href="mailto:support@brandmonkz.com" className="text-indigo-400 hover:underline font-medium">
                 Contact Support
               </a>
             </p>
