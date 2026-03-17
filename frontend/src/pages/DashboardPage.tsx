@@ -142,7 +142,7 @@ function CircularProgress({ percentage, size = 80 }: { percentage: number; size?
           cx={size / 2}
           cy={size / 2}
           r={size / 2 - 5}
-          stroke="#E5E7EB"
+          stroke="var(--color-gray-300)"
           strokeWidth="8"
           fill="none"
         />
@@ -265,14 +265,14 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 min-h-screen">
-      {/* Header with subtle shadow */}
-      <div className="mb-8 pb-6 border-b border-gray-200 bg-white/50 backdrop-blur-sm -mx-8 px-8 -mt-8 pt-8 shadow-sm">
+    <div className="p-8 min-h-screen">
+      {/* Header */}
+      <div className="mb-8 pb-6" style={{ borderBottom: '1px solid var(--glass-border)' }}>
         <div className="flex items-center gap-3 mb-2">
-          <SparklesIcon className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
+          <SparklesIcon className="h-8 w-8" style={{ color: 'var(--accent-primary)' }} />
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
         </div>
-        <p className="text-sm font-medium text-gray-700">Welcome back! Here's what's happening with your business today.</p>
+        <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Welcome back! Here's what's happening with your business today.</p>
       </div>
 
       {/* Main Stats Grid - Responsive */}
@@ -281,7 +281,7 @@ export function DashboardPage() {
           title="Total Revenue"
           value={formatCurrency(stats.totalRevenue)}
           icon={CurrencyDollarIcon}
-          gradient="from-emerald-50 to-white"
+          gradient="from-emerald-50 to-gray-50"
           iconColor="bg-gradient-to-br from-emerald-500 to-emerald-600"
           delay={0}
         />
@@ -289,7 +289,7 @@ export function DashboardPage() {
           title="Active Deals"
           value={stats.activeDeals}
           icon={ChartBarIcon}
-          gradient="from-blue-50 to-white"
+          gradient="from-blue-50 to-gray-50"
           iconColor="bg-gradient-to-br from-blue-500 to-blue-600"
           delay={100}
         />
@@ -297,7 +297,7 @@ export function DashboardPage() {
           title="Total Contacts"
           value={formatNumber(stats.totalContacts)}
           icon={UserGroupIcon}
-          gradient="from-purple-50 to-white"
+          gradient="from-purple-50 to-gray-50"
           iconColor="bg-gradient-to-br from-purple-500 to-purple-600"
           delay={200}
         />
@@ -305,14 +305,14 @@ export function DashboardPage() {
           title="Companies"
           value={stats.totalCompanies}
           icon={BuildingOfficeIcon}
-          gradient="from-orange-50 to-white"
+          gradient="from-orange-50 to-gray-50"
           iconColor="bg-gradient-to-br from-orange-500 to-orange-600"
           delay={300}
         />
       </div>
 
       {/* Quick Actions Bar - Elegant and Less Tall */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200">
+      <div className="text-white rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200" style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <RocketLaunchIcon className="h-6 w-6" />
@@ -358,7 +358,7 @@ export function DashboardPage() {
           return (
             <div
               key={index}
-              className={`card bg-white hover:shadow-lg transition-all duration-200 transform ${
+              className={`glass-card p-6 hover:shadow-lg transition-all duration-200 transform ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
               style={{ transitionDelay: `${400 + index * 100}ms` }}
@@ -396,7 +396,7 @@ export function DashboardPage() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Sales Pipeline with Horizontal Bar Chart */}
-        <div className="lg:col-span-2 card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
+        <div className="lg:col-span-2 glass-card p-6 hover:shadow-lg transition-all duration-200">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
@@ -474,9 +474,9 @@ export function DashboardPage() {
         </div>
 
         {/* Top Deals with Company Initials */}
-        <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
+        <div className="glass-card p-6 hover:shadow-lg transition-all duration-200">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            <ChartBarIcon className="h-6 w-6 text-blue-600" />
+            <ChartBarIcon className="h-6 w-6" style={{ color: 'var(--accent-primary)' }} />
             Top Deals
           </h3>
           <div className="space-y-3">
@@ -497,7 +497,7 @@ export function DashboardPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-medium ${colors[index].replace('bg-', 'text-')} bg-white px-2 py-0.5 rounded-full shadow-sm`}>
+                        <span className={`text-xs font-medium ${colors[index].replace('bg-', 'text-')} px-2 py-0.5 rounded-full`} style={{ background: 'var(--glass-bg)' }}>
                           #{index + 1}
                         </span>
                         <h4 className="text-sm font-medium text-gray-900">{deal.company}</h4>
@@ -539,11 +539,11 @@ export function DashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
+      <div className="glass-card p-6 hover:shadow-lg transition-all duration-200">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-              <ClockIcon className="h-6 w-6 text-blue-500" />
+              <ClockIcon className="h-6 w-6" style={{ color: 'var(--accent-primary)' }} />
               Recent Activity
             </h3>
             <p className="text-sm text-gray-500 mt-1">Latest updates from your team</p>

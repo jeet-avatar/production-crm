@@ -70,17 +70,17 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
+    <div className="min-h-screen flex" style={{ background: 'linear-gradient(135deg, var(--bg-base), var(--bg-deep))' }}>
       {/* Left side - Form */}
       <div className="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-20 xl:px-24">
         <div className="mx-auto w-full max-w-sm lg:w-96">
           {/* Logo */}
           <div>
             <div className="flex items-center mb-8">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-2xl">C</span>
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', boxShadow: '0 0 20px rgba(99,102,241,0.3)' }}>
+                <span className="text-white font-bold text-2xl">B</span>
               </div>
-              <span className="ml-3 text-2xl font-bold tracking-tight text-gray-900">CRM Pro</span>
+              <span className="ml-3 text-2xl font-bold tracking-tight" style={{ background: 'linear-gradient(135deg, #818CF8, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>BrandMonkz</span>
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">Welcome back</h2>
             <p className="mt-2 text-base font-medium text-gray-600">
@@ -94,7 +94,8 @@ export function LoginPage() {
               <button
                 type="button"
                 onClick={handleGoogleLogin}
-                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-gray-700 text-base font-semibold border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg transition-all shadow-md active:scale-95"
+                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 text-base font-semibold rounded-xl transition-all active:scale-95"
+                style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)' }}
               >
                 <GoogleIcon />
                 Continue with Google
@@ -107,7 +108,7 @@ export function LoginPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                <span className="px-3 text-sm font-semibold text-gray-500 uppercase tracking-wider" style={{ background: 'var(--bg-base)' }}>
                   Or continue with email
                 </span>
               </div>
@@ -196,7 +197,8 @@ export function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base font-semibold rounded-xl hover:shadow-xl hover:scale-105 active:scale-95 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full flex justify-center items-center gap-2 px-6 py-3.5 text-white text-base font-semibold rounded-xl hover:shadow-xl active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)', boxShadow: '0 0 20px rgba(99,102,241,0.3)' }}
               >
                 {isLoading ? (
                   <>
@@ -222,7 +224,7 @@ export function LoginPage() {
 
       {/* Right side - Branding */}
       <div className="hidden lg:block relative w-0 flex-1">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700">
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #4F46E5, #7C3AED, #6366F1)' }}>
           <div className="h-full w-full flex flex-col items-center justify-center p-12 text-white">
             <div className="max-w-md">
               <h1 className="text-4xl font-bold tracking-tight mb-6">
