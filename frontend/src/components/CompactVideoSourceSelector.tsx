@@ -301,7 +301,7 @@ export function CompactVideoSourceSelector({
           value={templateSearch}
           onChange={(e) => setTemplateSearch(e.target.value)}
           placeholder="Search templates..."
-          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
 
         <div className="max-h-[400px] overflow-y-auto space-y-2">
@@ -324,7 +324,7 @@ export function CompactVideoSourceSelector({
               >
                 {/* NEW Badge */}
                 {isNewTemplate(template) && index === 0 && (
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-600 to-rose-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
                     NEW!
                   </div>
                 )}
@@ -343,7 +343,7 @@ export function CompactVideoSourceSelector({
                     <div className="flex items-center gap-2">
                       <h4 className="font-bold text-sm text-gray-900 truncate">{template.name}</h4>
                       {isNewTemplate(template) && (
-                        <span className="text-xs font-bold text-orange-600">✨ New</span>
+                        <span className="text-xs font-bold text-indigo-400">✨ New</span>
                       )}
                     </div>
                     <p className="text-xs text-gray-600 truncate">{template.category}</p>
@@ -462,7 +462,7 @@ export function CompactVideoSourceSelector({
         <button
           onClick={handleAIGenerate}
           disabled={!aiPrompt.trim() || aiGenerating}
-          className={`w-full py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {aiGenerating ? 'Generating...' : '✨ Generate Video Template'}
         </button>
@@ -509,7 +509,7 @@ export function CompactVideoSourceSelector({
         <button
           onClick={handleUploadSubmit}
           disabled={!uploadUrl.trim()}
-          className={`w-full py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           Use This Video
         </button>

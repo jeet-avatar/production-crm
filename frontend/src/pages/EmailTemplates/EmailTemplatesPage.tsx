@@ -249,10 +249,10 @@ export function EmailTemplatesPage() {
         <p className="text-gray-600 mb-3">
           Create and manage reusable email templates for your campaigns
         </p>
-        <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-l-4 border-orange-500 p-4 rounded-r-xl shadow-sm">
+        <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-l-4 border-indigo-500 p-4 rounded-r-xl shadow-sm">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-5 w-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
             </div>
@@ -274,14 +274,14 @@ export function EmailTemplatesPage() {
             placeholder="Search templates..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
           />
         </div>
         <div className="flex gap-3">
           <button
             type="button"
             onClick={() => setShowGuide(true)}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-orange-500 text-orange-600 rounded-xl font-bold tracking-wide shadow-md hover:bg-orange-50 hover:shadow-lg hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-indigo-500 text-indigo-400 rounded-xl font-bold tracking-wide shadow-md hover:bg-orange-50 hover:shadow-lg hover:scale-105 transition-all"
             title="View Email Templates Guide"
           >
             <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -290,7 +290,7 @@ export function EmailTemplatesPage() {
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+            className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
           >
             <PlusIcon className="h-5 w-5" />
             Create Template
@@ -317,7 +317,7 @@ export function EmailTemplatesPage() {
             {!searchQuery && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Create Template
@@ -339,7 +339,7 @@ export function EmailTemplatesPage() {
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md bg-gradient-to-br ${gradients.brand.primary.gradient}`}
                     >
-                      <EnvelopeIcon className="h-6 w-6 text-black" />
+                      <EnvelopeIcon className="h-6 w-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-bold text-gray-900 truncate">{template.name}</h3>
@@ -391,7 +391,7 @@ export function EmailTemplatesPage() {
                 <div className="border-t-2 border-gray-100 pt-4 flex gap-2">
                   <button
                     onClick={() => setPreviewingTemplate(template)}
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-orange-500 text-orange-600 rounded-xl font-bold tracking-wide shadow-md hover:bg-orange-50 hover:shadow-lg hover:scale-105 transition-all text-sm"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border-2 border-indigo-500 text-indigo-400 rounded-xl font-bold tracking-wide shadow-md hover:bg-orange-50 hover:shadow-lg hover:scale-105 transition-all text-sm"
                     title="Preview template"
                   >
                     <EyeIcon className="h-4 w-4" />
@@ -399,21 +399,21 @@ export function EmailTemplatesPage() {
                   </button>
                   <button
                     onClick={() => handleSendEmail(template)}
-                    className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-md hover:shadow-lg hover:scale-105 transition-all text-sm`}
+                    className={`flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-md hover:shadow-lg hover:scale-105 transition-all text-sm`}
                   >
                     <PaperAirplaneIcon className="h-4 w-4" />
                     Send
                   </button>
                   <button
                     onClick={() => handleEditTemplate(template)}
-                    className="p-2.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all"
+                    className="p-2.5 text-gray-400 hover:text-indigo-400 hover:bg-orange-50 rounded-xl transition-all"
                     title="Edit"
                   >
                     <PencilIcon className="h-5 w-5" />
                   </button>
                   <button
                     onClick={() => handleDuplicateTemplate(template)}
-                    className="p-2.5 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all"
+                    className="p-2.5 text-gray-400 hover:text-indigo-400 hover:bg-orange-50 rounded-xl transition-all"
                     title="Duplicate"
                   >
                     <DocumentDuplicateIcon className="h-5 w-5" />

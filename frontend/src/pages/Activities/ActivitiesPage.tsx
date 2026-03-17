@@ -683,7 +683,7 @@ export function ActivitiesPage() {
           <button
             type="button"
             onClick={() => setShowHelpGuide(true)}
-            className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
+            className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
             title="Show Help Guide"
           >
             <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -703,7 +703,7 @@ export function ActivitiesPage() {
                 onClick={() => setFilterType(type.value)}
                 className={`inline-flex items-center px-4 py-2.5 rounded-xl font-bold text-sm transition-all tracking-wide shadow-sm ${
                   filterType === type.value
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl hover:scale-105`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
                     : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                 }`}
               >
@@ -715,7 +715,7 @@ export function ActivitiesPage() {
         </div>
         <button
           onClick={() => { setModalType('create'); setShowModal(true); }}
-          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
         >
           <PlusIcon className="h-5 w-5" />
           Create Activity
@@ -734,7 +734,7 @@ export function ActivitiesPage() {
               </p>
               <button
                 onClick={() => { setModalType('create'); setShowModal(true); }}
-                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide inline-flex`}
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide inline-flex`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Create Activity
@@ -813,7 +813,7 @@ export function ActivitiesPage() {
                             {isEmail && !activity.emailStatus && (
                               <button
                                 onClick={() => handleOpenModal('email', activity)}
-                                className={`inline-flex items-center px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide`}
+                                className={`inline-flex items-center px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-bold rounded-xl hover:shadow-lg transition-all shadow-md tracking-wide`}
                               >
                                 <PaperAirplaneIcon className="h-4 w-4 mr-1.5" />
                                 Send
@@ -868,7 +868,7 @@ export function ActivitiesPage() {
                               <button
                                 type="button"
                                 onClick={() => toggleEmailExpansion(activity.id)}
-                                className="inline-flex items-center gap-1 text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors"
+                                className="inline-flex items-center gap-1 text-sm font-bold text-indigo-400 hover:text-orange-700 transition-colors"
                               >
                                 {expandedEmails.has(activity.id) ? (
                                   <>
@@ -975,13 +975,13 @@ export function ActivitiesPage() {
             {modalType === 'email' && selectedActivity && (
               <>
                 {/* Compact Header */}
-                <div className="bg-gradient-to-r from-orange-500 to-rose-500 px-5 py-4 flex items-center justify-between border-b-2 border-black">
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-4 flex items-center justify-between border-b-2 border-black">
                   <div className="flex items-center gap-3">
-                    <EnvelopeIcon className="h-6 w-6 text-black" />
+                    <EnvelopeIcon className="h-6 w-6 text-white" />
                     <div>
-                      <h2 className="text-lg font-bold text-black">Send Email</h2>
+                      <h2 className="text-lg font-bold text-white">Send Email</h2>
                       {selectedActivity.contact && (
-                        <p className="text-xs text-black text-opacity-80">
+                        <p className="text-xs text-white text-opacity-80">
                           {selectedActivity.contact.firstName} {selectedActivity.contact.lastName}
                         </p>
                       )}
@@ -990,7 +990,7 @@ export function ActivitiesPage() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="text-black hover:bg-black hover:bg-opacity-10 rounded-lg p-1.5 transition-colors"
+                    className="text-white hover:bg-black hover:bg-opacity-10 rounded-lg p-1.5 transition-colors"
                     aria-label="Close email modal"
                   >
                     <XCircleIcon className="h-6 w-6" />
@@ -1007,7 +1007,7 @@ export function ActivitiesPage() {
                     <select
                       value={selectedCompanyId}
                       onChange={(e) => handleCompanyChange(e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                       aria-label="Select company"
                     >
                       <option value="">-- Select a company --</option>
@@ -1027,7 +1027,7 @@ export function ActivitiesPage() {
                     <select
                       value={selectedContactId}
                       onChange={(e) => handleContactChange(e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                       disabled={!selectedCompanyId && filteredContacts.length === 0}
                       aria-label="Select contact"
                     >
@@ -1047,7 +1047,7 @@ export function ActivitiesPage() {
                   {emailTemplates.length > 0 && (
                     <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
-                        <SparklesIcon className="h-4 w-4 text-orange-600" />
+                        <SparklesIcon className="h-4 w-4 text-indigo-400" />
                         <label className="text-xs font-bold text-gray-900">Quick Template</label>
                       </div>
                       <select
@@ -1083,7 +1083,7 @@ export function ActivitiesPage() {
                           type="email"
                           value={email}
                           onChange={(e) => updateField('to', index, e.target.value)}
-                          className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                          className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                           placeholder="recipient@example.com"
                         />
                         {emailForm.to.length > 1 && (
@@ -1101,7 +1101,7 @@ export function ActivitiesPage() {
                       <button
                         type="button"
                         onClick={() => addField('to')}
-                        className="text-sm font-bold text-orange-600 hover:text-orange-700"
+                        className="text-sm font-bold text-indigo-400 hover:text-orange-700"
                       >
                         + Add recipient
                       </button>
@@ -1117,7 +1117,7 @@ export function ActivitiesPage() {
                       type="text"
                       value={emailForm.subject}
                       onChange={(e) => setEmailForm(prev => ({ ...prev, subject: e.target.value }))}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                       placeholder="Enter email subject..."
                     />
                   </div>
@@ -1130,7 +1130,7 @@ export function ActivitiesPage() {
                     <textarea
                       value={emailForm.htmlContent}
                       onChange={(e) => setEmailForm(prev => ({ ...prev, htmlContent: e.target.value }))}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm resize-none"
+                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none"
                       rows={8}
                       placeholder="Type your email message here..."
                     />
@@ -1162,11 +1162,11 @@ export function ActivitiesPage() {
                       type="button"
                       onClick={handleSendEmail}
                       disabled={isSending}
-                      className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
+                      className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
                     >
                       {isSending ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border border-indigo-500/30 border-t-transparent"></div>
                           <span>Sending...</span>
                         </>
                       ) : (
@@ -1297,7 +1297,7 @@ export function ActivitiesPage() {
                     ))}
                     <button
                       onClick={() => addField('attendees')}
-                      className="text-sm text-orange-600 hover:text-orange-700 font-bold"
+                      className="text-sm text-indigo-400 hover:text-orange-700 font-bold"
                     >
                       + Add attendee
                     </button>
@@ -1325,7 +1325,7 @@ export function ActivitiesPage() {
                         onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'google' }))}
                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                           meetingForm.calendarPlatform === 'google'
-                            ? 'border-orange-500 bg-orange-50 shadow-md'
+                            ? 'border-indigo-500 bg-orange-50 shadow-md'
                             : 'border-gray-300 bg-white hover:border-orange-300'
                         }`}
                       >
@@ -1348,7 +1348,7 @@ export function ActivitiesPage() {
                         onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'zoom' }))}
                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                           meetingForm.calendarPlatform === 'zoom'
-                            ? 'border-orange-500 bg-orange-50 shadow-md'
+                            ? 'border-indigo-500 bg-orange-50 shadow-md'
                             : 'border-gray-300 bg-white hover:border-orange-300'
                         }`}
                       >
@@ -1369,7 +1369,7 @@ export function ActivitiesPage() {
                         onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'teams' }))}
                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                           meetingForm.calendarPlatform === 'teams'
-                            ? 'border-orange-500 bg-orange-50 shadow-md'
+                            ? 'border-indigo-500 bg-orange-50 shadow-md'
                             : 'border-gray-300 bg-white hover:border-orange-300'
                         }`}
                       >
@@ -1397,10 +1397,10 @@ export function ActivitiesPage() {
                       id="sendInvitation"
                       checked={sendInvitation}
                       onChange={(e) => setSendInvitation(e.target.checked)}
-                      className="w-5 h-5 text-orange-600 border-2 border-orange-400 rounded focus:ring-2 focus:ring-orange-500"
+                      className="w-5 h-5 text-indigo-400 border-2 border-orange-400 rounded focus:ring-2 focus:ring-indigo-500"
                     />
                     <label htmlFor="sendInvitation" className="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
-                      <EnvelopeIcon className="h-5 w-5 text-orange-600" />
+                      <EnvelopeIcon className="h-5 w-5 text-indigo-400" />
                       Send calendar invitations to all attendees
                     </label>
                   </div>
@@ -1419,11 +1419,11 @@ export function ActivitiesPage() {
                       type="button"
                       onClick={handleCreateMeeting}
                       disabled={isSending}
-                      className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
+                      className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 text-sm"
                     >
                       {isSending ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border border-indigo-500/30 border-t-transparent"></div>
                           <span>{sendInvitation ? 'Creating & Sending...' : 'Creating...'}</span>
                         </>
                       ) : (

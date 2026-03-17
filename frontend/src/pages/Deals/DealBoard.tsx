@@ -128,7 +128,7 @@ export function DealBoard() {
             <button
               type="button"
               onClick={() => setShowHelpGuide(true)}
-              className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
+              className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
               title="Show Help Guide"
             >
               <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -139,7 +139,7 @@ export function DealBoard() {
         <button
           type="button"
           onClick={handleAddDeal}
-          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
         >
           <PlusIcon className="h-5 w-5" />
           <span>Add Deal</span>
@@ -216,7 +216,7 @@ export function DealBoard() {
                         </div>
                       </div>
                       
-                      <div className="flex items-center text-orange-600 mb-2">
+                      <div className="flex items-center text-indigo-400 mb-2">
                         <CurrencyDollarIcon className="h-4 w-4 mr-1" />
                         <span className="font-bold text-sm">
                           {formatCurrency(deal.value)}

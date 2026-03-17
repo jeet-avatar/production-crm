@@ -435,7 +435,7 @@ export function ContactList() {
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black text-sm font-bold rounded-xl border-2 border-black transition-all hover:scale-105 shadow-md"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-bold rounded-xl border border-indigo-500/30 transition-all hover:scale-105 shadow-md"
                 title="View help and quick start guide"
               >
                 <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -449,8 +449,8 @@ export function ContactList() {
           {!hasSeenHelpGuide && (
             <div className="bg-gradient-to-r from-orange-50 via-rose-50 to-orange-50 border-4 border-orange-300 rounded-2xl p-6 mb-6 flex items-center justify-between shadow-lg animate-in slide-in-from-top duration-500">
               <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-r from-orange-500 to-rose-500 rounded-2xl p-4 border-2 border-black">
-                  <LightBulbIcon className="w-8 h-8 text-black" />
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 border border-indigo-500/30">
+                  <LightBulbIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-1">
@@ -469,7 +469,7 @@ export function ContactList() {
                     localStorage.setItem('contactsHelpSeen', 'true');
                     setHasSeenHelpGuide(true);
                   }}
-                  className="bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-8 py-3 rounded-xl border-2 border-black hover:scale-105 transition-transform shadow-lg whitespace-nowrap"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold px-8 py-3 rounded-xl border border-indigo-500/30 hover:scale-105 transition-transform shadow-lg whitespace-nowrap"
                 >
                   🚀 Show Me How
                 </button>
@@ -494,13 +494,13 @@ export function ContactList() {
               type="button"
               onClick={handleExportCSV}
               disabled={contacts.length === 0}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               title={selectedContacts.size > 0 ? `Export ${selectedContacts.size} selected contacts` : 'Export all contacts'}
             >
               <ArrowDownTrayIcon className="h-5 w-5" />
               <span>Export CSV</span>
               {selectedContacts.size > 0 && (
-                <span className="ml-1 px-2 py-0.5 bg-white text-black rounded-full text-xs font-bold">
+                <span className="ml-1 px-2 py-0.5 bg-white text-white rounded-full text-xs font-bold">
                   {selectedContacts.size}
                 </span>
               )}
@@ -511,7 +511,7 @@ export function ContactList() {
               type="button"
               onClick={findDuplicates}
               disabled={contacts.length < 2}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               title="Find and remove duplicate contacts"
             >
               <UserIcon className="h-5 w-5" />
@@ -522,7 +522,7 @@ export function ContactList() {
             <button
               type="button"
               onClick={() => setShowLeadDiscovery(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
             >
               <SparklesIcon className="h-5 w-5" />
               <span>Discover Leads</span>
@@ -532,7 +532,7 @@ export function ContactList() {
             <button
               type="button"
               onClick={() => setShowAICSVImport(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
             >
               <DocumentArrowUpIcon className="h-5 w-5" />
               <span>Import CSV</span>
@@ -542,7 +542,7 @@ export function ContactList() {
             <button
               type="button"
               onClick={handleAddContact}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
             >
               <PlusIcon className="h-5 w-5" />
               <span>Add Contact</span>
@@ -592,7 +592,7 @@ export function ContactList() {
           <div className="mx-6 my-4 bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
-                <QuestionMarkCircleIcon className="h-8 w-8 text-orange-600" />
+                <QuestionMarkCircleIcon className="h-8 w-8 text-indigo-400" />
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Having trouble loading data?</h3>
@@ -605,7 +605,7 @@ export function ContactList() {
                     alert('Support ticket created! We will contact you at your registered email address.');
                     setError('');
                   }}
-                  className="bg-gradient-to-r from-orange-500 to-rose-500 text-black font-semibold px-6 py-2 rounded-lg hover:shadow-lg transition-all"
+                  className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-2 rounded-lg hover:shadow-lg transition-all"
                 >
                   Contact Support
                 </button>
@@ -634,7 +634,7 @@ export function ContactList() {
                 <button
                   type="button"
                   onClick={handleExportCSV}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-semibold rounded-lg border-2 border-gray-300 hover:border-orange-500 transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-semibold rounded-lg border-2 border-gray-300 hover:border-indigo-500 transition-all"
                 >
                   <ArrowDownTrayIcon className="h-4 w-4" />
                   <span>Export Selected</span>
@@ -663,7 +663,7 @@ export function ContactList() {
                     type="checkbox"
                     checked={contacts.length > 0 && selectedContacts.size === contacts.length}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500 cursor-pointer"
                     title="Select all contacts"
                   />
                 </th>
@@ -697,7 +697,7 @@ export function ContactList() {
                             setSearchTerm('');
                             setStatusFilter('');
                           }}
-                          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 mx-auto`}
+                          className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 mx-auto`}
                         >
                           <XMarkIcon className="h-5 w-5" />
                           Clear Filters
@@ -713,7 +713,7 @@ export function ContactList() {
                           <button
                             type="button"
                             onClick={handleAddContact}
-                            className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+                            className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
                           >
                             <PlusIcon className="h-5 w-5" />
                             Add Contact
@@ -721,7 +721,7 @@ export function ContactList() {
                           <button
                             type="button"
                             onClick={() => setShowAICSVImport(true)}
-                            className="bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold px-6 py-3 rounded-xl border-2 border-black transition-all duration-200 flex items-center gap-2 shadow-lg hover:scale-105"
+                            className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl border border-indigo-500/30 transition-all duration-200 flex items-center gap-2 shadow-lg hover:scale-105"
                           >
                             <DocumentArrowUpIcon className="h-5 w-5" />
                             Import CSV
@@ -747,7 +747,7 @@ export function ContactList() {
                             checked={selectedContacts.has(displayContact.id)}
                             onChange={() => toggleContactSelection(displayContact.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                            className="w-4 h-4 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500 cursor-pointer"
                             aria-label={`Select ${displayContact.firstName} ${displayContact.lastName}`}
                           />
                         </td>
@@ -776,7 +776,7 @@ export function ContactList() {
                               {displayContact.firstName?.[0] || '?'}{displayContact.lastName?.[0] || '?'}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900 cursor-pointer hover:text-orange-600" onClick={() => navigate(`/contacts/${displayContact.id}`)}>
+                              <div className="font-medium text-gray-900 cursor-pointer hover:text-indigo-400" onClick={() => navigate(`/contacts/${displayContact.id}`)}>
                                 {displayContact.firstName || 'No'} {displayContact.lastName || 'Name'}
                                 {hasMultipleContacts && (
                                   <span className="ml-2 text-xs text-gray-500">
@@ -886,7 +886,7 @@ export function ContactList() {
                                 {contact.firstName?.[0] || '?'}{contact.lastName?.[0] || '?'}
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900 cursor-pointer hover:text-orange-600" onClick={() => navigate(`/contacts/${contact.id}`)}>
+                                <div className="font-medium text-gray-900 cursor-pointer hover:text-indigo-400" onClick={() => navigate(`/contacts/${contact.id}`)}>
                                   {contact.firstName || 'No'} {contact.lastName || 'Name'}
                                 </div>
                                 <div className="text-gray-500 text-sm flex items-center">
@@ -1012,7 +1012,7 @@ export function ContactList() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 Previous
               </button>
@@ -1022,7 +1022,7 @@ export function ContactList() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 Next
               </button>
@@ -1077,14 +1077,14 @@ export function ContactList() {
       {showDuplicates && duplicateGroups.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-500 to-rose-500 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-black">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">
                 Found {duplicateGroups.reduce((sum, group) => sum + group.length, 0)} Duplicates in {duplicateGroups.length} Group(s)
               </h2>
               <button
                 type="button"
                 onClick={() => setShowDuplicates(false)}
-                className="text-black hover:bg-black hover:bg-opacity-10 rounded-full p-2 transition-colors"
+                className="text-white hover:bg-black hover:bg-opacity-10 rounded-full p-2 transition-colors"
                 aria-label="Close duplicates modal"
               >
                 <XMarkIcon className="h-6 w-6" />
@@ -1107,7 +1107,7 @@ export function ContactList() {
                             type="checkbox"
                             checked={selectedContacts.has(contact.id)}
                             onChange={() => toggleContactSelection(contact.id)}
-                            className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                            className="w-4 h-4 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500 cursor-pointer"
                             aria-label={`Select ${contact.firstName} ${contact.lastName}`}
                           />
                           <div className="apple-avatar">
@@ -1180,8 +1180,8 @@ export function ContactList() {
         aria-label="Open help guide"
       >
         {/* Main button - smaller and subtle */}
-        <div className="relative bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg border-2 border-gray-300 hover:border-orange-500 hover:scale-105 transition-all duration-200">
-          <QuestionMarkCircleIcon className="w-5 h-5 text-gray-600 group-hover:text-orange-600" />
+        <div className="relative bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg border-2 border-gray-300 hover:border-indigo-500 hover:scale-105 transition-all duration-200">
+          <QuestionMarkCircleIcon className="w-5 h-5 text-gray-600 group-hover:text-indigo-400" />
         </div>
 
         {/* Tooltip */}

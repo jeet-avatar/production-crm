@@ -161,20 +161,20 @@ export function CampaignsPage() {
   return (
     <div className="p-8 max-w-7xl mx-auto min-h-screen overflow-y-auto">
       {/* Header with gradient background */}
-      <div className={`mb-8 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl p-8 shadow-xl`}>
+      <div className={`mb-8 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl p-8 shadow-xl`}>
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <MegaphoneIcon className="h-10 w-10 text-black" />
-              <h1 className="text-4xl font-bold text-black tracking-tight">Marketing Campaigns</h1>
+              <MegaphoneIcon className="h-10 w-10 text-white" />
+              <h1 className="text-4xl font-bold text-white tracking-tight">Marketing Campaigns</h1>
             </div>
-            <p className="text-lg text-black/90 font-medium">Create and manage email marketing campaigns</p>
+            <p className="text-lg text-white/90 font-medium">Create and manage email marketing campaigns</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setShowHelpGuide(true)}
-              className={`flex items-center gap-2 px-4 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border-2 border-black`}
+              className={`flex items-center gap-2 px-4 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-indigo-500/30`}
               title="Open Campaigns Help Guide"
             >
               <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -183,7 +183,7 @@ export function CampaignsPage() {
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border-2 border-black`}
+              className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-indigo-500/30`}
             >
               <PlusIcon className="h-5 w-5" />
               Create Campaign
@@ -194,46 +194,46 @@ export function CampaignsPage() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border-2 border-black`}>
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-indigo-500/30`}>
           <div className="flex items-center gap-2 mb-2">
-            <EnvelopeIcon className="w-5 h-5 text-black" />
-            <span className="text-xs font-bold uppercase tracking-wider text-black">Total Sent</span>
+            <EnvelopeIcon className="w-5 h-5 text-white" />
+            <span className="text-xs font-bold uppercase tracking-wider text-white">Total Sent</span>
           </div>
-          <span className="text-3xl font-bold text-black">{totalStats.sent.toLocaleString()}</span>
+          <span className="text-3xl font-bold text-white">{totalStats.sent.toLocaleString()}</span>
         </div>
 
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border-2 border-black`}>
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-indigo-500/30`}>
           <div className="flex items-center gap-2 mb-2">
-            <EyeIcon className="w-5 h-5 text-black" />
-            <span className="text-xs font-bold uppercase tracking-wider text-black">Opened</span>
+            <EyeIcon className="w-5 h-5 text-white" />
+            <span className="text-xs font-bold uppercase tracking-wider text-white">Opened</span>
           </div>
-          <span className="text-3xl font-bold text-black">
+          <span className="text-3xl font-bold text-white">
             {totalStats.opened.toLocaleString()}
-            <span className="text-base font-medium ml-2 text-black/80">
+            <span className="text-base font-medium ml-2 text-white/80">
               ({calculateRate(totalStats.opened, totalStats.sent)}%)
             </span>
           </span>
         </div>
 
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border-2 border-black`}>
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-indigo-500/30`}>
           <div className="flex items-center gap-2 mb-2">
-            <CursorArrowRaysIcon className="w-5 h-5 text-black" />
-            <span className="text-xs font-bold uppercase tracking-wider text-black">Clicked</span>
+            <CursorArrowRaysIcon className="w-5 h-5 text-white" />
+            <span className="text-xs font-bold uppercase tracking-wider text-white">Clicked</span>
           </div>
-          <span className="text-3xl font-bold text-black">
+          <span className="text-3xl font-bold text-white">
             {totalStats.clicked.toLocaleString()}
-            <span className="text-base font-medium ml-2 text-black/80">
+            <span className="text-base font-medium ml-2 text-white/80">
               ({calculateRate(totalStats.clicked, totalStats.sent)}%)
             </span>
           </span>
         </div>
 
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border-2 border-black`}>
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl px-5 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all border border-indigo-500/30`}>
           <div className="flex items-center gap-2 mb-2">
-            <ChartBarIcon className="w-5 h-5 text-black" />
-            <span className="text-xs font-bold uppercase tracking-wider text-black">Total Campaigns</span>
+            <ChartBarIcon className="w-5 h-5 text-white" />
+            <span className="text-xs font-bold uppercase tracking-wider text-white">Total Campaigns</span>
           </div>
-          <span className="text-3xl font-bold text-black">{totalCompanies}</span>
+          <span className="text-3xl font-bold text-white">{totalCompanies}</span>
         </div>
       </div>
 
@@ -246,7 +246,7 @@ export function CampaignsPage() {
             onClick={() => setFilterStatus(status)}
             className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ease-in-out capitalize tracking-wide ${
               filterStatus === status
-                ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-2 border-black shadow-lg hover:shadow-xl hover:scale-105`
+                ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border border-indigo-500/30 shadow-lg hover:shadow-xl hover:scale-105`
                 : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:scale-105 shadow-sm'
             }`}
           >
@@ -270,7 +270,7 @@ export function CampaignsPage() {
               <button
                 type="button"
                 onClick={() => setShowCreateModal(true)}
-                className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 mx-auto tracking-wide border-2 border-black`}
+                className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 mx-auto tracking-wide border border-indigo-500/30`}
               >
                 <PlusIcon className="h-5 w-5" />
                 Create Your First Campaign
@@ -490,9 +490,9 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
   const getStatusBadge = (status: string) => {
     const badges: Record<string, string> = {
       draft: 'bg-gray-50 text-gray-700 border-2 border-gray-300',
-      scheduled: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-2 border-transparent`,
-      active: `bg-gradient-to-r ${gradients.semantic.success?.gradient || gradients.brand.primary.gradient} text-black border-2 border-transparent`,
-      completed: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-2 border-transparent`,
+      scheduled: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-2 border-transparent`,
+      active: `bg-gradient-to-r ${gradients.semantic.success?.gradient || gradients.brand.primary.gradient} text-white border-2 border-transparent`,
+      completed: `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-2 border-transparent`,
       paused: 'bg-gray-50 text-gray-700 border-2 border-gray-300',
     };
     return `px-3 py-1 rounded-full text-xs font-bold shadow-sm ${badges[status] || 'bg-gray-50 text-gray-700 border-2 border-gray-300'}`;
@@ -582,7 +582,7 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
               <button
                 type="button"
                 onClick={() => setShowEditModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
               >
                 <PencilIcon className="h-5 w-5" />
                 <span>Edit Companies</span>
@@ -591,7 +591,7 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
 
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <div className={`animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500`}></div>
+                <div className={`animate-spin rounded-full h-12 w-12 border-b-4 border-indigo-500`}></div>
               </div>
             ) : error ? (
               <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4 text-center shadow-md">

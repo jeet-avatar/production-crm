@@ -136,7 +136,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
           <>
             {/* Header */}
             <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-6 shadow-2xl">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mb-6 shadow-2xl">
                 <SparklesIcon className="w-10 h-10 text-white" />
               </div>
               <h1 className="text-5xl font-bold text-gray-900 mb-4">
@@ -157,7 +157,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Example: Create a 30-second product demo video for our CRM software, highlighting time-saving automation features with an energetic professional voice..."
-                className="w-full h-40 px-6 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all resize-none text-gray-900 placeholder-gray-400 text-lg"
+                className="w-full h-40 px-6 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all resize-none text-gray-900 placeholder-gray-400 text-lg"
               />
 
               {/* Character Count */}
@@ -172,7 +172,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
                 <button
                   onClick={handleAIGenerate}
                   disabled={!prompt.trim()}
-                  className={`flex-1 px-8 py-4 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                  className={`flex-1 px-8 py-4 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   <span className="flex items-center justify-center gap-2">
                     <SparklesIcon className="w-6 h-6" />
@@ -192,7 +192,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
             {/* Example Prompts */}
             <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-gray-100">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <SparklesIcon className="w-5 h-5 text-orange-600" />
+                <SparklesIcon className="w-5 h-5 text-indigo-400" />
                 Example Prompts
               </h3>
               <div className="space-y-2">
@@ -225,7 +225,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
           </>
         ) : (
           <div className="bg-white rounded-3xl shadow-2xl p-12 text-center border-4 border-orange-200">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-500 to-rose-600 rounded-full mb-8 shadow-2xl animate-pulse">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full mb-8 shadow-2xl animate-pulse">
               <PlayIcon className="w-12 h-12 text-white" />
             </div>
 

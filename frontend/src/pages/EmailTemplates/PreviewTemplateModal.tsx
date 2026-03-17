@@ -103,10 +103,10 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
             >
               <Dialog.Panel className="w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-orange-500 to-rose-500 px-6 py-4">
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Dialog.Title className="text-2xl font-bold text-black">
+                      <Dialog.Title className="text-2xl font-bold text-white">
                         Template Preview
                       </Dialog.Title>
                       <p className="mt-1 text-sm text-gray-800 font-medium">
@@ -116,7 +116,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                     <button
                       type="button"
                       onClick={onClose}
-                      className="rounded-xl bg-white bg-opacity-20 p-2 text-black hover:bg-opacity-30 transition-all"
+                      className="rounded-xl bg-white bg-opacity-20 p-2 text-white hover:bg-opacity-30 transition-all"
                     >
                       <XMarkIcon className="h-6 w-6" />
                     </button>
@@ -130,7 +130,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                       onClick={() => setViewMode('rendered')}
                       className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
                         viewMode === 'rendered'
-                          ? 'border-orange-500 text-orange-600'
+                          ? 'border-indigo-500 text-indigo-400'
                           : 'border-transparent text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -141,7 +141,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                       onClick={() => setViewMode('html')}
                       className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
                         viewMode === 'html'
-                          ? 'border-orange-500 text-orange-600'
+                          ? 'border-indigo-500 text-indigo-400'
                           : 'border-transparent text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -152,7 +152,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                       onClick={() => setViewMode('text')}
                       className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
                         viewMode === 'text'
-                          ? 'border-orange-500 text-orange-600'
+                          ? 'border-indigo-500 text-indigo-400'
                           : 'border-transparent text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -221,7 +221,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                     <button
                       type="button"
                       onClick={onClose}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                     >
                       Close Preview
                     </button>

@@ -235,7 +235,7 @@ export function SystemTemplates() {
             </p>
             <button
               onClick={() => window.location.href = '/'}
-              className="bg-gradient-to-r from-orange-600 to-rose-600 text-black px-6 py-2 rounded-lg hover:opacity-90"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:opacity-90"
             >
               Return to Dashboard
             </button>
@@ -253,11 +253,11 @@ export function SystemTemplates() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
-                <EnvelopeIcon className="h-8 w-8 text-black" />
+                <EnvelopeIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-black">System Email Templates</h1>
-                <p className="text-black/80 mt-1">
+                <h1 className="text-3xl font-bold text-white">System Email Templates</h1>
+                <p className="text-white/80 mt-1">
                   Manage system-wide email templates for automated messages
                 </p>
               </div>
@@ -267,7 +267,7 @@ export function SystemTemplates() {
                 setEditingTemplate(null);
                 setShowCreateModal(true);
               }}
-              className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-50 shadow-lg transition-all duration-200 font-semibold"
+              className="flex items-center gap-2 bg-white text-white px-6 py-3 rounded-lg hover:bg-gray-50 shadow-lg transition-all duration-200 font-semibold"
             >
               <PlusIcon className="h-5 w-5" />
               Create Template
@@ -352,7 +352,7 @@ export function SystemTemplates() {
             {!searchQuery && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="bg-gradient-to-r from-orange-600 to-rose-600 text-black px-6 py-3 rounded-lg hover:opacity-90 font-semibold"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:opacity-90 font-semibold"
               >
                 Create Template
               </button>
@@ -499,7 +499,7 @@ export function SystemTemplates() {
               <button
                 onClick={handleSendTest}
                 disabled={!testEmail}
-                className="flex-1 bg-gradient-to-r from-orange-600 to-rose-600 text-black px-6 py-3 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
               >
                 Send Test
               </button>

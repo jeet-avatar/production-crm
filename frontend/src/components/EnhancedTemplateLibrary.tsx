@@ -128,7 +128,7 @@ export function EnhancedTemplateLibrary({
                 onClick={() => setViewMode(tab.id)}
                 className={`group relative p-4 rounded-xl border-2 transition-all text-left ${
                   viewMode === tab.id
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} border-transparent shadow-lg text-black`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} border-transparent shadow-lg text-white`
                     : 'bg-white border-gray-300 hover:border-gray-400 hover:shadow-md text-gray-700'
                 }`}
               >
@@ -146,7 +146,7 @@ export function EnhancedTemplateLibrary({
                     <h3 className="font-bold text-sm mb-1">{tab.label}</h3>
                     <p
                       className={`text-xs line-clamp-2 ${
-                        viewMode === tab.id ? 'text-black/80' : 'text-gray-500'
+                        viewMode === tab.id ? 'text-white/80' : 'text-gray-500'
                       }`}
                     >
                       {tab.description}

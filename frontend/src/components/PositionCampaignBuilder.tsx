@@ -168,7 +168,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-600 to-rose-600 text-black p-6 rounded-t-2xl flex-shrink-0">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-2xl flex-shrink-0">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2">Position-Based Campaign Builder</h2>
@@ -191,7 +191,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 onClick={() => { setFilterUnsent(!filterUnsent); loadPositions(); }}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   filterUnsent
-                    ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-md'
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -201,7 +201,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 onClick={() => { setFilterLeadership(!filterLeadership); loadPositions(); }}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   filterLeadership
-                    ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black shadow-md'
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -234,7 +234,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
               <button
                 onClick={generateAllSelected}
                 disabled={generating}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all"
               >
                 {generating ? (
                   <>
@@ -283,7 +283,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                           type="checkbox"
                           checked={selectedPositions.includes(position.id)}
                           onChange={() => togglePosition(position.id)}
-                          className="w-5 h-5 rounded border-gray-300 text-rose-600 focus:ring-orange-500"
+                          className="w-5 h-5 rounded border-gray-300 text-purple-400 focus:ring-indigo-500"
                           onClick={(e) => e.stopPropagation()}
                         />
                         <h3 className="text-xl font-bold text-gray-900">{position.title}</h3>
@@ -373,7 +373,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                           e.stopPropagation();
                           generateCampaignContent(position.id);
                         }}
-                        className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg text-sm font-semibold hover:from-orange-700 hover:to-rose-700 transition-all"
+                        className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all"
                       >
                         <SparklesIcon className="h-4 w-4" />
                         Generate
@@ -393,7 +393,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
           </div>
           <button
             onClick={onClose}
-            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
+            className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
           >
             Close
           </button>

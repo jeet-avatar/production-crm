@@ -88,7 +88,7 @@ export function TemplateCard({
                   e.stopPropagation();
                   onSelect(template);
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black rounded-lg font-semibold hover:from-orange-700 hover:to-rose-700 transition-all shadow-lg"
+                className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg"
               >
                 {isSelected ? 'Selected' : 'Select'}
               </button>
@@ -186,8 +186,8 @@ export function TemplateCard({
             onClick={() => onSelect(template)}
             className={`mt-3 w-full py-2 rounded-lg font-semibold transition-all ${
               isSelected
-                ? 'bg-gradient-to-r from-orange-600 to-rose-600 text-black'
-                : 'bg-gray-100 text-gray-700 hover:bg-gradient-to-r hover:from-orange-600 hover:to-rose-600 hover:text-white'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white'
             }`}
           >
             {isSelected ? '✓ Selected' : 'Select Template'}

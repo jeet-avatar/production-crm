@@ -120,7 +120,7 @@ export function TeamPage() {
           </div>
           <button
             onClick={() => setShowInviteModal(true)}
-            className={`inline-flex items-center px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold rounded-xl hover:shadow-xl hover:scale-105 transition-all shadow-lg tracking-wide`}
+            className={`inline-flex items-center px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold rounded-xl hover:shadow-xl hover:scale-105 transition-all shadow-lg tracking-wide`}
           >
             <UserPlusIcon className="w-5 h-5 mr-2" />
             Invite Team Member
@@ -192,12 +192,12 @@ export function TeamPage() {
                       </div>
                       <div className="text-xs text-gray-500">
                         {member.teamRole === 'OWNER' ? (
-                          <span className="font-semibold text-orange-600">OWNER</span>
+                          <span className="font-semibold text-indigo-400">OWNER</span>
                         ) : (
                           <select
                             value={member.teamRole}
                             onChange={(e) => handleRoleChange(member.id, e.target.value as 'MEMBER' | 'ADMIN', `${member.firstName} ${member.lastName}`)}
-                            className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           >
                             <option value="MEMBER">MEMBER</option>
                             <option value="ADMIN">ADMIN</option>
@@ -260,7 +260,7 @@ export function TeamPage() {
                     required
                     value={inviteData.email}
                     onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="member@company.com"
                   />
                 </div>
@@ -274,7 +274,7 @@ export function TeamPage() {
                     required
                     value={inviteData.firstName}
                     onChange={(e) => setInviteData({ ...inviteData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="John"
                   />
                 </div>
@@ -288,7 +288,7 @@ export function TeamPage() {
                     required
                     value={inviteData.lastName}
                     onChange={(e) => setInviteData({ ...inviteData, lastName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="Doe"
                   />
                 </div>
@@ -310,7 +310,7 @@ export function TeamPage() {
                 <button
                   type="submit"
                   disabled={inviting}
-                  className={`px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center font-bold tracking-wide shadow-md`}
+                  className={`px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center font-bold tracking-wide shadow-md`}
                 >
                   {inviting ? (
                     <>

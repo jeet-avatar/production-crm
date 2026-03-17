@@ -1190,15 +1190,15 @@ export function SuperAdminDashboard() {
         style={{ transitionDelay: `${delay}ms` }}
       >
         <div className="mb-2">
-          <h3 className="text-xs font-bold text-black/90 uppercase tracking-wide mb-2 line-clamp-1 leading-tight">
+          <h3 className="text-xs font-bold text-white/90 uppercase tracking-wide mb-2 line-clamp-1 leading-tight">
             {title}
           </h3>
-          <p className="text-3xl font-bold text-black truncate leading-none mb-1">
+          <p className="text-3xl font-bold text-white truncate leading-none mb-1">
             {typeof value === 'string' && value.length > 15 ? value.substring(0, 15) + '...' : value}
           </p>
         </div>
         {subtext && (
-          <p className="text-xs text-black/75 line-clamp-1 leading-tight font-medium">
+          <p className="text-xs text-white/75 line-clamp-1 leading-tight font-medium">
             {subtext}
           </p>
         )}
@@ -1213,7 +1213,7 @@ export function SuperAdminDashboard() {
         <div className="max-w-md w-full">
           <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
             <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center mx-auto mb-6`}>
-              <ShieldCheckIcon className="w-10 h-10 text-black" />
+              <ShieldCheckIcon className="w-10 h-10 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-3">
               Access Restricted
@@ -1226,7 +1226,7 @@ export function SuperAdminDashboard() {
             </p>
             <button
               onClick={() => window.location.href = '/'}
-              className={`w-full bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold py-3 px-6 rounded-xl hover:shadow-lg transition-all duration-200`}
+              className={`w-full bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold py-3 px-6 rounded-xl hover:shadow-lg transition-all duration-200`}
             >
               Return to Dashboard
             </button>
@@ -1243,7 +1243,7 @@ export function SuperAdminDashboard() {
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-3">
             <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-xl`}>
-              <ShieldCheckIcon className="w-8 h-8 text-black" />
+              <ShieldCheckIcon className="w-8 h-8 text-white" />
             </div>
             <div>
               <h1 className={`text-4xl font-bold bg-gradient-to-r ${gradients.brand.primary.gradient} bg-clip-text text-transparent`}>
@@ -1258,7 +1258,7 @@ export function SuperAdminDashboard() {
         <div className="mb-6 flex gap-4">
           <button
             onClick={() => window.location.href = '/super-admin/system-templates'}
-            className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold rounded-xl hover:shadow-lg transition-all duration-200`}
+            className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-200`}
           >
             <EnvelopeIcon className="w-5 h-5" />
             Manage System Email Templates
@@ -1286,7 +1286,7 @@ export function SuperAdminDashboard() {
                 onClick={() => setSelectedTab(tab.id as any)}
                 className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-200 ${
                   selectedTab === tab.id
-                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg`
+                    ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg`
                     : 'bg-white text-gray-700 border-2 border-gray-300'
                 }`}
               >
@@ -1318,7 +1318,7 @@ export function SuperAdminDashboard() {
                 {/* CRM Metrics */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <ChartBarIcon className="w-4 h-4 text-orange-600" />
+                    <ChartBarIcon className="w-4 h-4 text-indigo-400" />
                     CRM Metrics
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1366,7 +1366,7 @@ export function SuperAdminDashboard() {
                 {/* System Metrics */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <ServerIcon className="w-4 h-4 text-orange-600" />
+                    <ServerIcon className="w-4 h-4 text-indigo-400" />
                     System & Infrastructure
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1404,7 +1404,7 @@ export function SuperAdminDashboard() {
                 {/* Configuration & Monitoring */}
                 <div className="mb-8">
                   <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <PaintBrushIcon className="w-4 h-4 text-orange-600" />
+                    <PaintBrushIcon className="w-4 h-4 text-indigo-400" />
                     Configuration & Monitoring
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1516,7 +1516,7 @@ export function SuperAdminDashboard() {
                       placeholder="Search by name or email..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-12 w-full rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                      className="pl-12 w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
                     />
                   </div>
                 </div>
@@ -1525,7 +1525,7 @@ export function SuperAdminDashboard() {
                   <select
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
-                    className="w-full rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                    className="w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
                   >
                     <option value="">All Roles</option>
                     <option value="SUPER_ADMIN">Super Admin</option>
@@ -1538,7 +1538,7 @@ export function SuperAdminDashboard() {
                   <select
                     value={activeFilter}
                     onChange={(e) => setActiveFilter(e.target.value)}
-                    className="w-full rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all"
+                    className="w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
                   >
                     <option value="">All Status</option>
                     <option value="true">Active</option>
@@ -1587,7 +1587,7 @@ export function SuperAdminDashboard() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md`}>
-                                  <span className="text-black font-bold text-sm">
+                                  <span className="text-white font-bold text-sm">
                                     {user.firstName[0]}{user.lastName[0]}
                                   </span>
                                 </div>
@@ -1603,7 +1603,7 @@ export function SuperAdminDashboard() {
                               <select
                                 value={user.role}
                                 onChange={(e) => updateUserRole(user.id, e.target.value)}
-                                className="text-sm rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 font-medium px-3 py-2 transition-all hover:border-gray-300 shadow-sm"
+                                className="text-sm rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-medium px-3 py-2 transition-all hover:border-gray-300 shadow-sm"
                               >
                                 <option value="USER">User</option>
                                 <option value="ADMIN">Admin</option>
@@ -1671,7 +1671,7 @@ export function SuperAdminDashboard() {
                       <button
                         onClick={() => loadUsers(pagination.page + 1)}
                         disabled={pagination.page === pagination.totalPages}
-                        className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl font-bold tracking-wide text-black hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md`}
+                        className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl font-bold tracking-wide text-white hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md`}
                       >
                         Next
                         <ChevronRightIcon className="w-4 h-4" />
@@ -1700,7 +1700,7 @@ export function SuperAdminDashboard() {
             {/* Database Browser GUI */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-6">
-                <TableCellsIcon className="w-4 h-4 text-orange-600" />
+                <TableCellsIcon className="w-4 h-4 text-indigo-400" />
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">Database Browser</h2>
                   <p className="text-gray-600">View and edit database tables directly</p>
@@ -1724,7 +1724,7 @@ export function SuperAdminDashboard() {
                           setTableSchema([]);
                         }
                       }}
-                      className="flex-1 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all p-3"
+                      className="flex-1 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all p-3"
                     >
                       <option value="">-- Select a table --</option>
                       {dbTables.map((table) => (
@@ -1736,7 +1736,7 @@ export function SuperAdminDashboard() {
                     <button
                       onClick={loadDatabaseTables}
                       disabled={dbBrowserLoading}
-                      className={`px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
+                      className={`px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
                     >
                       {dbBrowserLoading ? 'Loading...' : 'Refresh Tables'}
                     </button>
@@ -1757,16 +1757,16 @@ export function SuperAdminDashboard() {
                     <div className={`flex items-center justify-between bg-gradient-to-r ${gradients.brand.primary.gradient} rounded-xl p-4`}>
                       <div className="flex items-center gap-6">
                         <div>
-                          <p className="text-sm text-black/90 font-semibold">Total Records</p>
-                          <p className="text-2xl font-bold text-black">{tablePagination.total}</p>
+                          <p className="text-sm text-white/90 font-semibold">Total Records</p>
+                          <p className="text-2xl font-bold text-white">{tablePagination.total}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-black/90 font-semibold">Columns</p>
-                          <p className="text-2xl font-bold text-black">{tableSchema.length}</p>
+                          <p className="text-sm text-white/90 font-semibold">Columns</p>
+                          <p className="text-2xl font-bold text-white">{tableSchema.length}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-black/90 font-semibold">Page</p>
-                          <p className="text-2xl font-bold text-black">
+                          <p className="text-sm text-white/90 font-semibold">Page</p>
+                          <p className="text-2xl font-bold text-white">
                             {tablePagination.page} / {tablePagination.totalPages}
                           </p>
                         </div>
@@ -1854,7 +1854,7 @@ export function SuperAdminDashboard() {
                                           }
                                         }}
                                         autoFocus
-                                        className="w-full px-2 py-1 border-2 border-orange-500 rounded focus:outline-none"
+                                        className="w-full px-2 py-1 border-2 border-indigo-500 rounded focus:outline-none"
                                       />
                                     ) : (
                                       <div
@@ -1968,7 +1968,7 @@ export function SuperAdminDashboard() {
             {/* SQL Query Interface */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-6">
-                <CommandLineIcon className="w-4 h-4 text-orange-600" />
+                <CommandLineIcon className="w-4 h-4 text-indigo-400" />
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900">SQL Query Console</h2>
                   <p className="text-gray-600">Execute direct database queries with caution</p>
@@ -1983,7 +1983,7 @@ export function SuperAdminDashboard() {
                     onChange={(e) => setSqlQuery(e.target.value)}
                     placeholder="SELECT * FROM users WHERE email = 'example@domain.com';"
                     rows={8}
-                    className="w-full rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 font-mono text-sm transition-all p-4"
+                    className="w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 font-mono text-sm transition-all p-4"
                   />
                 </div>
 
@@ -1991,7 +1991,7 @@ export function SuperAdminDashboard() {
                   <button
                     onClick={executeQuery}
                     disabled={queryLoading}
-                    className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
+                    className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all`}
                   >
                     <PlayIcon className="w-4 h-4" />
                     {queryLoading ? 'Executing...' : 'Execute Query'}
@@ -2036,12 +2036,12 @@ export function SuperAdminDashboard() {
             {/* Query Results */}
             {queryResult && (
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-orange-400 to-rose-500 px-6 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-black">
+                <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3 text-white">
                     <CheckCircleIcon className="w-6 h-6" />
                     <span className="font-semibold">Query Executed Successfully</span>
                   </div>
-                  <div className="text-black text-sm font-mono">
+                  <div className="text-white text-sm font-mono">
                     {queryResult.rowCount} rows • {queryResult.executionTime}ms
                   </div>
                 </div>
@@ -2094,7 +2094,7 @@ export function SuperAdminDashboard() {
             {/* Quick Query Templates */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <SparklesIcon className="w-4 h-4 text-orange-600" />
+                <SparklesIcon className="w-4 h-4 text-indigo-400" />
                 Quick Query Templates
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -2134,7 +2134,7 @@ export function SuperAdminDashboard() {
               <StatCard
                 title="Total API Routes"
                 value={apiStats.total}
-                gradient="from-orange-400 to-rose-500"
+                gradient="from-indigo-400 to-purple-500"
                 delay={0}
               />
               <StatCard
@@ -2155,13 +2155,13 @@ export function SuperAdminDashboard() {
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <CodeBracketIcon className="w-4 h-4 text-orange-600" />
+                  <CodeBracketIcon className="w-4 h-4 text-indigo-400" />
                   <h3 className="text-lg font-bold text-gray-900">API Endpoints Monitor</h3>
                 </div>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/20 transition-all font-medium text-sm"
+                  className="px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all font-medium text-sm"
                 >
                   <option value="all">All Categories</option>
                   {Object.keys(groupedRoutes).sort().map((category) => (
@@ -2188,15 +2188,15 @@ export function SuperAdminDashboard() {
                   .map((category, catIdx) => (
                     <div key={category} className="bg-white rounded-2xl shadow-lg overflow-hidden">
                       {/* Category Header */}
-                      <div className="bg-gradient-to-r from-orange-400 to-rose-500 px-8 py-5">
+                      <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-xl font-bold text-black flex items-center gap-3">
+                          <h3 className="text-xl font-bold text-white flex items-center gap-3">
                             <div className="w-10 h-10 bg-black/20 rounded-xl flex items-center justify-center">
                               <CodeBracketIcon className="w-6 h-6" />
                             </div>
                             {category}
                           </h3>
-                          <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-black">
+                          <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-white">
                             {groupedRoutes[category].length} endpoints
                           </span>
                         </div>
@@ -2259,7 +2259,7 @@ export function SuperAdminDashboard() {
                                     </div>
                                   </td>
                                   <td className="px-6 py-4">
-                                    <code className="text-xs font-mono text-orange-700 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-100 block truncate">
+                                    <code className="text-xs font-mono text-orange-700 bg-orange-50 px-3 py-1.5 rounded-lg border border-indigo-100 block truncate">
                                       {route.path}
                                     </code>
                                   </td>
@@ -2295,11 +2295,11 @@ export function SuperAdminDashboard() {
                                           testEndpoint(route);
                                         }}
                                         disabled={isTesting}
-                                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-400 to-rose-500 text-black rounded-xl text-xs font-bold tracking-wide hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all w-24"
+                                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-400 to-purple-500 text-white rounded-xl text-xs font-bold tracking-wide hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all w-24"
                                       >
                                         {isTesting ? (
                                           <>
-                                            <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                            <div className="w-3.5 h-3.5 border border-indigo-500/30 border-t-transparent rounded-full animate-spin"></div>
                                           </>
                                         ) : (
                                           <>
@@ -2359,15 +2359,15 @@ export function SuperAdminDashboard() {
 
             {/* SMTP / Email Credentials */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-400 to-rose-500 px-8 py-5">
+              <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-black flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
                     <div className="w-10 h-10 bg-black/20 rounded-xl flex items-center justify-center">
                       <MegaphoneIcon className="w-6 h-6" />
                     </div>
                     Email / SMTP Credentials
                   </h3>
-                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-black">
+                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-white">
                     Google Workspace
                   </span>
                 </div>
@@ -2422,15 +2422,15 @@ export function SuperAdminDashboard() {
 
             {/* Database Credentials */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-400 to-rose-500 px-8 py-5">
+              <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-black flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
                     <div className="w-10 h-10 bg-black/20 rounded-xl flex items-center justify-center">
                       <CircleStackIcon className="w-6 h-6" />
                     </div>
                     Database Credentials
                   </h3>
-                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-black">
+                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-white">
                     PostgreSQL
                   </span>
                 </div>
@@ -2494,15 +2494,15 @@ export function SuperAdminDashboard() {
 
             {/* AWS Credentials */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-400 to-rose-500 px-8 py-5">
+              <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-black flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
                     <div className="w-10 h-10 bg-black/20 rounded-xl flex items-center justify-center">
                       <ServerIcon className="w-6 h-6" />
                     </div>
                     AWS Credentials
                   </h3>
-                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-black">
+                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-white">
                     SES, S3, EC2
                   </span>
                 </div>
@@ -2565,13 +2565,13 @@ export function SuperAdminDashboard() {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} px-8 py-5`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-black flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
                     <div className="w-10 h-10 bg-black/20 rounded-xl flex items-center justify-center">
                       <KeyIcon className="w-6 h-6" />
                     </div>
                     SSH / Server Access
                   </h3>
-                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-black">
+                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-white">
                     EC2 Access
                   </span>
                 </div>
@@ -2614,13 +2614,13 @@ export function SuperAdminDashboard() {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} px-8 py-5`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-black flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-3">
                     <div className="w-10 h-10 bg-black/20 rounded-xl flex items-center justify-center">
                       <ShieldCheckIcon className="w-6 h-6" />
                     </div>
                     Authentication Secrets
                   </h3>
-                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-black">
+                  <span className="px-4 py-2 bg-black/20 rounded-full text-sm font-semibold text-white">
                     JWT & Session
                   </span>
                 </div>
@@ -2712,7 +2712,7 @@ export function SuperAdminDashboard() {
                   <select
                     value={activityActionFilter}
                     onChange={(e) => setActivityActionFilter(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   >
                     <option value="">All Actions</option>
                     <option value="USER_LOGIN">User Login</option>
@@ -2730,7 +2730,7 @@ export function SuperAdminDashboard() {
                   <select
                     value={activityDateFilter}
                     onChange={(e) => setActivityDateFilter(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   >
                     <option value="all">All Time</option>
                     <option value="24h">Last 24 Hours</option>
@@ -2744,8 +2744,8 @@ export function SuperAdminDashboard() {
             {/* Activity Logs Table */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               <div className={`px-8 py-5 bg-gradient-to-r ${gradients.brand.primary.gradient}`}>
-                <h3 className="text-xl font-bold text-black">Activity Logs</h3>
-                <p className="text-black/90 text-sm mt-1">
+                <h3 className="text-xl font-bold text-white">Activity Logs</h3>
+                <p className="text-white/90 text-sm mt-1">
                   {activityLogsPagination.total} total logs
                 </p>
               </div>
@@ -2892,7 +2892,7 @@ export function SuperAdminDashboard() {
                   <select
                     value={emailStatusFilter}
                     onChange={(e) => setEmailStatusFilter(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   >
                     <option value="">All Status</option>
                     <option value="SENT">Sent</option>
@@ -2908,7 +2908,7 @@ export function SuperAdminDashboard() {
                     value={emailRecipientFilter}
                     onChange={(e) => setEmailRecipientFilter(e.target.value)}
                     placeholder="Search by email..."
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   />
                 </div>
               </div>
@@ -2916,9 +2916,9 @@ export function SuperAdminDashboard() {
 
             {/* Email Logs Table */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="px-8 py-5 bg-gradient-to-r from-orange-400 to-rose-500">
-                <h3 className="text-xl font-bold text-black">Email Logs</h3>
-                <p className="text-black/90 text-sm mt-1">
+              <div className="px-8 py-5 bg-gradient-to-r from-indigo-400 to-purple-500">
+                <h3 className="text-xl font-bold text-white">Email Logs</h3>
+                <p className="text-white/90 text-sm mt-1">
                   {emailLogsPagination.total} total emails
                 </p>
               </div>
@@ -2968,7 +2968,7 @@ export function SuperAdminDashboard() {
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             <div className="flex items-center justify-center gap-2">
                               {email.openedAt && <CheckCircleIcon className="w-4 h-4 text-green-600" title="Opened" />}
-                              {email.clickedAt && <CheckCircleIcon className="w-4 h-4 text-orange-600" title="Clicked" />}
+                              {email.clickedAt && <CheckCircleIcon className="w-4 h-4 text-indigo-400" title="Clicked" />}
                               {!email.openedAt && !email.clickedAt && <span className="text-gray-400 text-xs">-</span>}
                             </div>
                           </td>
@@ -3062,7 +3062,7 @@ export function SuperAdminDashboard() {
               <select
                 value={jobStatusFilter}
                 onChange={(e) => setJobStatusFilter(e.target.value)}
-                className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
                 <option value="">All Status</option>
                 <option value="PENDING">Pending</option>
@@ -3074,9 +3074,9 @@ export function SuperAdminDashboard() {
 
             {/* Background Jobs Table */}
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <div className="px-8 py-5 bg-gradient-to-r from-orange-400 to-rose-500">
-                <h3 className="text-xl font-bold text-black">Background Jobs</h3>
-                <p className="text-black/90 text-sm mt-1">
+              <div className="px-8 py-5 bg-gradient-to-r from-indigo-400 to-purple-500">
+                <h3 className="text-xl font-bold text-white">Background Jobs</h3>
+                <p className="text-white/90 text-sm mt-1">
                   {jobsPagination.total} total jobs
                 </p>
               </div>
@@ -3199,37 +3199,37 @@ export function SuperAdminDashboard() {
               <>
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className={`bg-gradient-to-br ${gradients.brand.primary.gradient} rounded-2xl shadow-lg p-6 text-black`}>
+                  <div className={`bg-gradient-to-br ${gradients.brand.primary.gradient} rounded-2xl shadow-lg p-6 text-white`}>
                     <div className="flex items-center gap-3 mb-3">
                       <CogIcon className="w-4 h-4" />
                       <h3 className="font-semibold text-lg">Total Components</h3>
                     </div>
                     <p className="text-4xl font-bold">{techStack.summary.totalComponents}</p>
-                    <p className="text-black/90 text-sm mt-2">Active technologies</p>
+                    <p className="text-white/90 text-sm mt-2">Active technologies</p>
                   </div>
-                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-black">
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
                     <div className="flex items-center gap-3 mb-3">
                       <CheckCircleIcon className="w-4 h-4" />
                       <h3 className="font-semibold text-lg">Healthy</h3>
                     </div>
                     <p className="text-4xl font-bold">{techStack.summary.healthyComponents}</p>
-                    <p className="text-black/90 text-sm mt-2">All systems operational</p>
+                    <p className="text-white/90 text-sm mt-2">All systems operational</p>
                   </div>
-                  <div className={`bg-gradient-to-br ${gradients.brand.primary.gradient} rounded-2xl shadow-lg p-6 text-black`}>
+                  <div className={`bg-gradient-to-br ${gradients.brand.primary.gradient} rounded-2xl shadow-lg p-6 text-white`}>
                     <div className="flex items-center gap-3 mb-3">
                       <ServerIcon className="w-4 h-4" />
                       <h3 className="font-semibold text-lg">Categories</h3>
                     </div>
                     <p className="text-4xl font-bold">{techStack.summary.categories}</p>
-                    <p className="text-black/90 text-sm mt-2">Tech categories</p>
+                    <p className="text-white/90 text-sm mt-2">Tech categories</p>
                   </div>
-                  <div className={`bg-gradient-to-br ${gradients.brand.primary.gradient} rounded-2xl shadow-lg p-6 text-black`}>
+                  <div className={`bg-gradient-to-br ${gradients.brand.primary.gradient} rounded-2xl shadow-lg p-6 text-white`}>
                     <div className="flex items-center gap-3 mb-3">
                       <ClockIcon className="w-4 h-4" />
                       <h3 className="font-semibold text-lg">Last Updated</h3>
                     </div>
                     <p className="text-lg font-semibold">{new Date(techStack.summary.lastUpdated).toLocaleTimeString()}</p>
-                    <p className="text-black/90 text-sm mt-2">{new Date(techStack.summary.lastUpdated).toLocaleDateString()}</p>
+                    <p className="text-white/90 text-sm mt-2">{new Date(techStack.summary.lastUpdated).toLocaleDateString()}</p>
                   </div>
                 </div>
 
@@ -3237,12 +3237,12 @@ export function SuperAdminDashboard() {
                 {techStack.infrastructure && techStack.infrastructure.length > 0 && (
                   <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <ServerIcon className="w-4 h-4 text-orange-600" />
+                      <ServerIcon className="w-4 h-4 text-indigo-400" />
                       <h2 className="text-2xl font-bold text-gray-900">Infrastructure</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.infrastructure.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-orange-500 transition-all">
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
@@ -3325,12 +3325,12 @@ export function SuperAdminDashboard() {
                 {techStack.frontend && techStack.frontend.length > 0 && (
                   <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <SparklesIcon className="w-4 h-4 text-orange-600" />
+                      <SparklesIcon className="w-4 h-4 text-indigo-400" />
                       <h2 className="text-2xl font-bold text-gray-900">Frontend Technologies</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.frontend.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-orange-500 transition-all">
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
@@ -3369,12 +3369,12 @@ export function SuperAdminDashboard() {
                 {techStack.database && techStack.database.length > 0 && (
                   <div className="bg-white rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <CircleStackIcon className="w-4 h-4 text-orange-600" />
+                      <CircleStackIcon className="w-4 h-4 text-indigo-400" />
                       <h2 className="text-2xl font-bold text-gray-900">Database & Caching</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.database.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-orange-500 transition-all">
+                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
@@ -3550,7 +3550,7 @@ export function SuperAdminDashboard() {
                 <p className="text-gray-600 font-semibold mb-2">No tech stack data available</p>
                 <button
                   onClick={loadTechStack}
-                  className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide hover:shadow-lg transition-all`}
+                  className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide hover:shadow-lg transition-all`}
                 >
                   Load Tech Stack
                 </button>
@@ -3564,7 +3564,7 @@ export function SuperAdminDashboard() {
           <div>
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <div className="flex items-center gap-3 mb-6">
-                <PaintBrushIcon className="w-4 h-4 text-orange-600" />
+                <PaintBrushIcon className="w-4 h-4 text-indigo-400" />
                 <h2 className="text-2xl font-bold text-gray-900">UI Configuration</h2>
               </div>
               <p className="text-gray-600 mb-8">
@@ -3576,12 +3576,12 @@ export function SuperAdminDashboard() {
                 <div className="border border-gray-200 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <Bars3Icon className="w-4 h-4 text-orange-600" />
+                      <Bars3Icon className="w-4 h-4 text-indigo-400" />
                       <h3 className="text-xl font-bold text-gray-900">Navigation Manager</h3>
                     </div>
                     <button
                       onClick={() => alert('Navigation editor coming soon!\n\nFor now, use API:\nPOST /api/super-admin/navigation\n\nExample:\n{\n  "label": "My Custom Page",\n  "path": "/custom",\n  "icon": "StarIcon",\n  "order": 13,\n  "roles": ["SUPER_ADMIN"]\n}')}
-                      className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide hover:shadow-lg transition-all cursor-pointer`}
+                      className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide hover:shadow-lg transition-all cursor-pointer`}
                     >
                       <PlusIcon className="w-4 h-4" />
                       Add Navigation Item
@@ -3601,12 +3601,12 @@ export function SuperAdminDashboard() {
                 <div className="border border-gray-200 rounded-xl p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <PaintBrushIcon className="w-4 h-4 text-orange-600" />
+                      <PaintBrushIcon className="w-4 h-4 text-indigo-400" />
                       <h3 className="text-xl font-bold text-gray-900">Theme Manager</h3>
                     </div>
                     <button
                       onClick={() => alert('Theme creator coming soon!\n\nFor now, use API:\nPOST /api/super-admin/themes\n\nExample:\n{\n  "name": "Ocean Blue",\n  "primaryColor": "#0EA5E9",\n  "secondaryColor": "#06B6D4",\n  "accentColor": "#14B8A6",\n  "backgroundColor": "#FFFFFF",\n  "textColor": "#0F172A"\n}')}
-                      className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide hover:shadow-lg transition-all cursor-pointer`}
+                      className={`flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide hover:shadow-lg transition-all cursor-pointer`}
                     >
                       <PlusIcon className="w-4 h-4" />
                       Create Theme
@@ -3676,7 +3676,7 @@ export function SuperAdminDashboard() {
                             {!theme.isActive && (
                               <button
                                 onClick={() => activateTheme(theme.id)}
-                                className={`flex-1 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl text-sm font-bold tracking-wide hover:shadow-lg cursor-pointer transition-all`}
+                                className={`flex-1 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl text-sm font-bold tracking-wide hover:shadow-lg cursor-pointer transition-all`}
                               >
                                 Activate
                               </button>
@@ -3697,7 +3697,7 @@ export function SuperAdminDashboard() {
                 {/* Branding Manager */}
                 <div className="border border-gray-200 rounded-xl p-6">
                   <div className="flex items-center gap-3 mb-6">
-                    <BuildingOfficeIcon className="w-6 h-6 text-orange-600" />
+                    <BuildingOfficeIcon className="w-6 h-6 text-indigo-400" />
                     <h3 className="text-xl font-bold text-gray-900">Branding Configuration</h3>
                   </div>
                   <p className="text-gray-600 mb-4">
@@ -3800,7 +3800,7 @@ export function SuperAdminDashboard() {
                 {/* API Information */}
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-orange-200">
                   <div className="flex items-center gap-3 mb-4">
-                    <CodeBracketIcon className="w-6 h-6 text-orange-600" />
+                    <CodeBracketIcon className="w-6 h-6 text-indigo-400" />
                     <h3 className="text-xl font-bold text-gray-900">API Endpoints</h3>
                   </div>
                   <p className="text-gray-700 mb-4">
@@ -3811,19 +3811,19 @@ export function SuperAdminDashboard() {
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/navigation
                     </div>
                     <div className="bg-white rounded p-3 border border-orange-200">
-                      <span className="text-orange-600 font-bold">POST</span> /api/super-admin/navigation
+                      <span className="text-indigo-400 font-bold">POST</span> /api/super-admin/navigation
                     </div>
                     <div className="bg-white rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/themes
                     </div>
                     <div className="bg-white rounded p-3 border border-orange-200">
-                      <span className="text-orange-600 font-bold">POST</span> /api/super-admin/themes/:id/activate
+                      <span className="text-indigo-400 font-bold">POST</span> /api/super-admin/themes/:id/activate
                     </div>
                     <div className="bg-white rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/branding
                     </div>
                     <div className="bg-white rounded p-3 border border-orange-200">
-                      <span className="text-orange-600 font-bold">POST</span> /api/super-admin/branding
+                      <span className="text-indigo-400 font-bold">POST</span> /api/super-admin/branding
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 mt-4">

@@ -107,7 +107,7 @@ function StatCard({ title, value, change, trend, icon: Icon, gradient, iconColor
     >
       <div className="flex items-start justify-between mb-4">
         <div className={`w-12 h-12 rounded-xl ${iconColor} flex items-center justify-center shadow-md`}>
-          <Icon className="h-6 w-6 text-black" />
+          <Icon className="h-6 w-6 text-white" />
         </div>
         {change && (
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
@@ -162,7 +162,7 @@ function CircularProgress({ percentage, size = 80 }: { percentage: number; size?
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className={`text-lg font-bold ${isGood ? 'text-orange-600' : 'text-amber-600'}`}>
+        <span className={`text-lg font-bold ${isGood ? 'text-indigo-400' : 'text-amber-600'}`}>
           {percentage.toFixed(0)}%
         </span>
       </div>
@@ -274,7 +274,7 @@ export function DashboardPage() {
       <div className="mb-8 pb-6 border-b border-gray-200 bg-white/50 backdrop-blur-sm -mx-8 px-8 -mt-8 pt-8 shadow-sm">
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md`}>
-            <SparklesIcon className="h-6 w-6 text-black" />
+            <SparklesIcon className="h-6 w-6 text-white" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
         </div>
@@ -288,7 +288,7 @@ export function DashboardPage() {
           value={formatCurrency(stats.totalRevenue)}
           icon={CurrencyDollarIcon}
           gradient="from-orange-50 to-white"
-          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
+          iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={0}
         />
         <StatCard
@@ -296,7 +296,7 @@ export function DashboardPage() {
           value={stats.activeDeals}
           icon={ChartBarIcon}
           gradient="from-orange-50 to-white"
-          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
+          iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={100}
         />
         <StatCard
@@ -304,7 +304,7 @@ export function DashboardPage() {
           value={formatNumber(stats.totalContacts)}
           icon={UserGroupIcon}
           gradient="from-orange-50 to-white"
-          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
+          iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={200}
         />
         <StatCard
@@ -312,13 +312,13 @@ export function DashboardPage() {
           value={stats.totalCompanies}
           icon={BuildingOfficeIcon}
           gradient="from-orange-50 to-white"
-          iconColor="bg-gradient-to-br from-orange-500 to-rose-500"
+          iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={300}
         />
       </div>
 
       {/* Quick Actions Bar - Elegant and Less Tall */}
-      <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200`}>
+      <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl p-6 mb-8 shadow-lg hover:shadow-xl transition-all duration-200`}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <RocketLaunchIcon className="h-6 w-6" />
@@ -331,7 +331,7 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => navigate('/contacts')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
             >
               <UserGroupIcon className="h-5 w-5" />
               <span>Add Contact</span>
@@ -340,7 +340,7 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => navigate('/companies')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
             >
               <BuildingOfficeIcon className="h-5 w-5" />
               <span>Add Company</span>
@@ -349,7 +349,7 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => navigate('/deals')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
             >
               <BoltIcon className="h-5 w-5" />
               <span>Create Deal</span>
@@ -387,7 +387,7 @@ export function DashboardPage() {
                 </div>
                 <CircularProgress percentage={percentage} />
               </div>
-              <div className={`flex items-center gap-2 text-sm font-medium ${isOnTarget ? 'text-orange-600' : 'text-rose-600'}`}>
+              <div className={`flex items-center gap-2 text-sm font-medium ${isOnTarget ? 'text-indigo-400' : 'text-purple-400'}`}>
                 {isOnTarget ? (
                   <CheckCircleIcon className="h-5 w-5" />
                 ) : (
@@ -409,8 +409,8 @@ export function DashboardPage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
-                  <FireIcon className="h-5 w-5 text-black" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <FireIcon className="h-5 w-5 text-white" />
                 </div>
                 Sales Pipeline
               </h3>
@@ -419,7 +419,7 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => navigate('/deals')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
             >
               <span>View All</span>
             </button>
@@ -501,8 +501,8 @@ export function DashboardPage() {
         {/* Top Deals with Company Initials */}
         <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
-              <ChartBarIcon className="h-5 w-5 text-black" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <ChartBarIcon className="h-5 w-5 text-white" />
             </div>
             Top Deals
           </h3>
@@ -510,9 +510,9 @@ export function DashboardPage() {
             <div className="space-y-3">
               {stats.topDeals.map((deal, index) => {
                 const dealGradients = [
-                  'from-orange-500 to-rose-500',
+                  'from-indigo-500 to-purple-600',
                   'from-orange-400 to-rose-400',
-                  'from-orange-600 to-rose-600'
+                  'from-indigo-600 to-purple-600'
                 ];
                 const colors = [
                   `bg-gradient-to-br ${dealGradients[0]}`,
@@ -534,7 +534,7 @@ export function DashboardPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-orange-600 bg-white px-2 py-0.5 rounded-full shadow-sm">
+                          <span className="text-xs font-medium text-indigo-400 bg-white px-2 py-0.5 rounded-full shadow-sm">
                             #{index + 1}
                           </span>
                           <h4 className="text-sm font-medium text-gray-900">{deal.company}</h4>
@@ -582,7 +582,7 @@ export function DashboardPage() {
               <button
                 type="button"
                 onClick={() => navigate('/deals')}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md text-sm"
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md text-sm"
               >
                 <PlusIcon className="w-4 h-4" />
                 <span>Create Deal</span>
@@ -597,8 +597,8 @@ export function DashboardPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center">
-                <ClockIcon className="h-5 w-5 text-black" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <ClockIcon className="h-5 w-5 text-white" />
               </div>
               Recent Activity
             </h3>
@@ -607,7 +607,7 @@ export function DashboardPage() {
           <button
             type="button"
             onClick={() => navigate('/activities')}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
           >
             <span>View All</span>
           </button>
@@ -620,7 +620,7 @@ export function DashboardPage() {
               className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200 hover:shadow-sm group"
               onClick={() => navigate('/activities')}
             >
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-rose-500 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
                 <span className="text-2xl">{getActivityIcon(activity.type)}</span>
               </div>
               <div className="flex-1 min-w-0">
@@ -642,7 +642,7 @@ export function DashboardPage() {
       <button
         type="button"
         onClick={() => setShowAIChat(true)}
-        className={`fixed bottom-8 right-8 p-4 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-full shadow-2xl hover:scale-110 transition-all z-50 flex items-center justify-center group`}
+        className={`fixed bottom-8 right-8 p-4 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-full shadow-2xl hover:scale-110 transition-all z-50 flex items-center justify-center group`}
         title="AI Assistant"
       >
         <SparklesIcon className="h-7 w-7" />
