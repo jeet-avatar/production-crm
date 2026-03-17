@@ -224,32 +224,32 @@ export function CompanyList() {
             <button
               type="button"
               onClick={() => setShowLeadDiscovery(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
             >
-              <SparklesIcon className="h-5 w-5 text-black" />
+              <SparklesIcon className="h-5 w-5 text-white" />
               <span>Discover Leads</span>
             </button>
             <button
               type="button"
               onClick={() => setShowImportModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105"
             >
-              <ArrowUpTrayIcon className="h-5 w-5 text-black" />
+              <ArrowUpTrayIcon className="h-5 w-5 text-white" />
               <span>Import Companies</span>
             </button>
             <button
               type="button"
               onClick={handleBulkEnrich}
               disabled={enriching}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-xl border-2 border-black transition-all shadow-md hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-xl border border-indigo-500/30 transition-all shadow-md hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <SparklesIcon className="h-5 w-5 text-black" />
+              <SparklesIcon className="h-5 w-5 text-white" />
               <span>{enriching ? 'Enriching...' : 'AI Enrich Data'}</span>
             </button>
             <button
               type="button"
               onClick={handleAddCompany}
-              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
+              className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5`}
             >
               <PlusIcon className="h-5 w-5" />
               <span>Add Company</span>
@@ -283,7 +283,7 @@ export function CompanyList() {
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
                 title="Your preference is automatically saved"
               >
                 <option value="createdAt">Recently Added</option>
@@ -312,14 +312,14 @@ export function CompanyList() {
               onClick={() => setShowFilters(!showFilters)}
               className={`px-4 py-2 flex items-center gap-2 rounded-xl font-bold tracking-wide transition-all shadow-md ${
                 showFilters
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black`
+                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
                   : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
               }`}
             >
               <FunnelIcon className="w-4 h-4" />
               Filters
               {industryFilter && (
-                <span className="px-2 py-0.5 bg-white text-orange-600 rounded-full text-xs font-bold">
+                <span className="px-2 py-0.5 bg-white text-indigo-400 rounded-full text-xs font-bold">
                   1
                 </span>
               )}
@@ -372,7 +372,7 @@ export function CompanyList() {
                         onClick={() => setIndustryFilter(ind)}
                         className={`px-3 py-1.5 text-xs font-bold rounded-xl tracking-wide transition-all shadow-sm ${
                           industryFilter === ind
-                            ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black`
+                            ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -417,7 +417,7 @@ export function CompanyList() {
                     <p className="text-sm text-gray-400 mb-6">Get started by adding your first company</p>
                     <button
                       onClick={handleAddCompany}
-                      className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
+                      className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
                     >
                       <PlusIcon className="h-5 w-5" />
                       Add your first company
@@ -433,7 +433,7 @@ export function CompanyList() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} text-black font-bold flex items-center justify-center text-sm shadow-md`}>
+                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} text-white font-bold flex items-center justify-center text-sm shadow-md`}>
                             {company.name.substring(0, 2).toUpperCase()}
                           </div>
                           <div>
@@ -494,7 +494,7 @@ export function CompanyList() {
                               setSelectedCompany(company);
                               setShowCampaignModal(true);
                             }}
-                            className="px-3 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-black text-xs font-bold rounded-lg hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+                            className="px-3 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
                             title="Add to campaign"
                           >
                             <PaperAirplaneIcon className="h-3.5 w-3.5" />
@@ -506,7 +506,7 @@ export function CompanyList() {
                               e.stopPropagation();
                               handleEditCompany(company);
                             }}
-                            className="px-3 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black text-xs font-semibold rounded-lg border-2 border-black hover:scale-105 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                            className="px-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-semibold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                             title="Edit company"
                           >
                             <PencilIcon className="h-3.5 w-3.5" />
@@ -532,17 +532,17 @@ export function CompanyList() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   Previous
                 </button>
-                <div className={`px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold text-sm shadow-md`}>
+                <div className={`px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold text-sm shadow-md`}>
                   Page {currentPage} of {totalPages}
                 </div>
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-black font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                  className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
                 >
                   Next
                 </button>

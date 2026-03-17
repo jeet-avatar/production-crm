@@ -171,7 +171,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
           <button
             type="button"
             onClick={onClose}
-            className="text-black hover:bg-black/10 rounded-full p-2 transition-colors"
+            className="text-white hover:bg-black/10 rounded-full p-2 transition-colors"
             title="Close modal"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -349,7 +349,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black font-bold rounded-lg border-2 border-black hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
                 disabled={loading}
               >
                 <span>{loading ? 'Saving...' : (deal ? 'Update Deal' : 'Add Deal')}</span>

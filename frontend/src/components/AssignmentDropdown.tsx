@@ -103,7 +103,7 @@ export function AssignmentDropdown({
           value={currentAssignedToId || ''}
           onChange={(e) => handleAssign(e.target.value)}
           disabled={assigning || loading}
-          className="text-sm rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           onClick={(e) => e.stopPropagation()} // Prevent row click when clicking dropdown
         >
           <option value="">Unassigned</option>
@@ -156,7 +156,7 @@ export function AssignmentDropdown({
             </div>
           ) : teamMembers.length === 0 ? (
             <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-md">
-              No team members available. <a href="/team" className="text-orange-600 hover:text-orange-800">Invite team members</a> to enable assignment.
+              No team members available. <a href="/team" className="text-indigo-400 hover:text-orange-800">Invite team members</a> to enable assignment.
             </div>
           ) : (
             <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export function AssignmentDropdown({
                 value={currentAssignedToId || ''}
                 onChange={(e) => handleAssign(e.target.value)}
                 disabled={assigning}
-                className="flex-1 block rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="flex-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="">Unassigned</option>
                 {teamMembers.map((member) => (

@@ -307,21 +307,21 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Gradient */}
-        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-black`}>
+        <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-white`}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-black bg-opacity-10 rounded-xl flex items-center justify-center">
                 {(() => {
                   const StepIcon = stepConfig[currentStep]?.icon;
-                  return StepIcon ? <StepIcon className="w-6 h-6 text-black" /> : null;
+                  return StepIcon ? <StepIcon className="w-6 h-6 text-white" /> : null;
                 })()}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-black">Create AI-Powered Campaign</h2>
-                <p className="text-black text-sm font-semibold">{stepConfig[currentStep]?.title}</p>
+                <h2 className="text-2xl font-bold text-white">Create AI-Powered Campaign</h2>
+                <p className="text-white text-sm font-semibold">{stepConfig[currentStep]?.title}</p>
               </div>
             </div>
-            <button onClick={onClose} className="text-black hover:bg-black hover:bg-opacity-10 p-2 rounded-lg transition-all">
+            <button onClick={onClose} className="text-white hover:bg-black hover:bg-opacity-10 p-2 rounded-lg transition-all">
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
@@ -366,7 +366,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   <button
                     onClick={generateCampaignBasics}
                     disabled={aiGenerating}
-                    className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all whitespace-nowrap`}
+                    className={`inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all whitespace-nowrap`}
                   >
                     {aiGenerating ? (
                       <>
@@ -390,7 +390,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   value={campaignName}
                   onChange={(e) => setCampaignName(e.target.value)}
                   placeholder="e.g., Q1 Product Launch"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                 />
               </div>
 
@@ -401,7 +401,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   onChange={(e) => setCampaignGoal(e.target.value)}
                   placeholder="Describe what you want to achieve with this campaign..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all resize-none"
                 />
                 <p className="text-xs text-gray-500 mt-2">AI will use this to generate personalized content</p>
               </div>
@@ -420,7 +420,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                       onClick={() => setAiTone(tone.value as any)}
                       className={`px-4 py-3 rounded-xl font-semibold transition-all border-2 ${
                         aiTone === tone.value
-                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-transparent shadow-lg`
+                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
                           : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                       }`}
                     >
@@ -443,7 +443,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   <button
                     onClick={generateAISubject}
                     disabled={aiGenerating || !campaignGoal}
-                    className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
+                    className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                   >
                     {aiGenerating ? (
                       <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -458,7 +458,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="Enter subject line..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
                 />
               </div>
 
@@ -469,7 +469,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     type="checkbox"
                     checked={enableABTest}
                     onChange={(e) => setEnableABTest(e.target.checked)}
-                    className="mt-1 w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                    className="mt-1 w-5 h-5 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500"
                   />
                   <div>
                     <label className="text-sm font-semibold text-gray-900">Enable A/B Testing</label>
@@ -481,7 +481,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
               {enableABTest && (
                 <div className="bg-gray-50 rounded-xl p-5">
                   <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <SparklesIcon className="h-5 w-5 text-orange-600" />
+                    <SparklesIcon className="h-5 w-5 text-indigo-400" />
                     A/B Test Setup
                   </h3>
 
@@ -514,14 +514,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   )}
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="border-2 border-orange-500 rounded-lg p-4 bg-white">
-                      <span className="text-xs font-bold text-orange-600 uppercase tracking-wide">Variant A</span>
+                    <div className="border-2 border-indigo-500 rounded-lg p-4 bg-white">
+                      <span className="text-xs font-bold text-indigo-400 uppercase tracking-wide">Variant A</span>
                       <input
                         type="text"
                         value={subject}
                         onChange={(e) => setSubject(e.target.value)}
                         placeholder="Subject line A"
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all text-sm"
+                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
                       />
                     </div>
                     <div className="border-2 border-orange-600 rounded-lg p-4 bg-white">
@@ -531,7 +531,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                         value={subjectVariantB}
                         onChange={(e) => setSubjectVariantB(e.target.value)}
                         placeholder="Subject line B"
-                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all text-sm"
+                        className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-sm"
                       />
                     </div>
                   </div>
@@ -570,7 +570,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   value={previewText}
                   onChange={(e) => setPreviewText(e.target.value)}
                   placeholder="Text shown in inbox preview..."
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none transition-all"
                 />
               </div>
 
@@ -589,7 +589,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     <button
                       onClick={generateAIContent}
                       disabled={aiGenerating || !campaignGoal || !subject}
-                      className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-sm font-medium rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
+                      className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-sm font-medium rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                     >
                       {aiGenerating ? (
                         <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -637,7 +637,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   type="checkbox"
                   checked={enablePersonalization}
                   onChange={(e) => setEnablePersonalization(e.target.checked)}
-                  className="w-5 h-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                  className="w-5 h-5 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500"
                 />
                 <div>
                   <label className="text-sm font-semibold text-gray-900">Enable AI Personalization</label>
@@ -654,7 +654,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                 <UserGroupIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-gray-900 mb-2">Select Target Companies</h3>
                 <p className="text-gray-600 mb-6">Choose which companies to include in this campaign</p>
-                <p className="text-sm text-orange-600 font-medium">
+                <p className="text-sm text-indigo-400 font-medium">
                   You can add companies from the Companies page after creating the campaign
                 </p>
               </div>
@@ -671,7 +671,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     onClick={() => setSendTime('immediate')}
                     className={`w-full px-4 py-4 rounded-xl font-semibold transition-all border-2 flex items-center gap-3 ${
                       sendTime === 'immediate'
-                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-transparent shadow-lg`
+                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
                         : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                     }`}
                   >
@@ -688,7 +688,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     onClick={() => setSendTime('scheduled')}
                     className={`w-full px-4 py-4 rounded-xl font-semibold transition-all border-2 flex items-center gap-3 ${
                       sendTime === 'scheduled'
-                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black border-transparent shadow-lg`
+                        ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border-transparent shadow-lg`
                         : 'bg-white text-gray-700 border-gray-200 hover:border-orange-300'
                     }`}
                   >
@@ -710,7 +710,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     <button
                       onClick={optimizeSendTime}
                       disabled={aiGenerating}
-                      className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black text-xs font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white text-xs font-semibold rounded-lg hover:shadow-lg disabled:opacity-50 transition-all`}
                     >
                       {aiGenerating ? (
                         <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -724,7 +724,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                     type="datetime-local"
                     value={scheduledDate}
                     onChange={(e) => setScheduledDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
               )}
@@ -748,7 +748,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   {enableABTest && (
                     <div className="flex justify-between">
                       <span className="text-gray-600">A/B Testing:</span>
-                      <span className="font-semibold text-orange-600">Enabled</span>
+                      <span className="font-semibold text-indigo-400">Enabled</span>
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -795,7 +795,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                   (currentStep === 'basics' && (!campaignName || !campaignGoal)) ||
                   (currentStep === 'content' && (!subject || !emailContent))
                 }
-                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
+                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
               >
                 Next Step
               </button>
@@ -803,7 +803,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
               <button
                 onClick={handleCreateCampaign}
                 disabled={loading || !campaignName || !subject || !emailContent}
-                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
+                className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg disabled:opacity-50 font-semibold transition-all`}
               >
                 {loading ? (
                   <>

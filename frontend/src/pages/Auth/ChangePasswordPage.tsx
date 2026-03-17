@@ -217,7 +217,7 @@ export const ChangePasswordPage = () => {
                     </span>
                     <span className={`text-xs font-semibold ${
                       passwordStrength.score < 40 ? 'text-red-600' :
-                      passwordStrength.score < 60 ? 'text-orange-600' :
+                      passwordStrength.score < 60 ? 'text-indigo-400' :
                       passwordStrength.score < 80 ? 'text-yellow-600' :
                       'text-green-600'
                     }`}>

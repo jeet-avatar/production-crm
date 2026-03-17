@@ -525,7 +525,7 @@ export function EditTemplateModal({
               value={variable.value}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
               placeholder="URL or upload..."
-              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
             <label className={`cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
               <input
@@ -535,7 +535,7 @@ export function EditTemplateModal({
                 className="hidden"
                 disabled={isUploading}
               />
-              <div className="px-3 py-1.5 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded text-xs font-bold hover:shadow transition-all whitespace-nowrap flex items-center gap-1">
+              <div className="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded text-xs font-bold hover:shadow transition-all whitespace-nowrap flex items-center gap-1">
                 {isUploading ? (
                   <>
                     <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" />
@@ -578,7 +578,7 @@ export function EditTemplateModal({
               value={variable.value}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
               placeholder="#667eea"
-              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 font-mono"
+              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 font-mono"
             />
           </div>
         </div>
@@ -598,7 +598,7 @@ export function EditTemplateModal({
             onChange={(e: ChangeEvent<HTMLTextAreaElement>) => updateVariableValue(variable.name, e.target.value)}
             placeholder={variable.placeholder}
             rows={3}
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500 resize-y"
+            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 resize-y"
           />
         </div>
       );
@@ -616,7 +616,7 @@ export function EditTemplateModal({
           value={variable.value}
           onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
           placeholder={variable.placeholder}
-          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
         />
       </div>
     );
@@ -683,7 +683,7 @@ export function EditTemplateModal({
               <Dialog.Panel className="w-full max-w-[95vw] h-[90vh] transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all flex flex-col">
 
                 {/* HEADER */}
-                <div className="bg-gradient-to-r from-orange-500 to-rose-500 px-6 py-4">
+                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
                   <div className="flex justify-between items-center">
                     <div>
                       <h2 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -827,7 +827,7 @@ export function EditTemplateModal({
                               value={templateName}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => setTemplateName(e.target.value)}
                               placeholder="My Email Template"
-                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                           </div>
                           <div>
@@ -839,7 +839,7 @@ export function EditTemplateModal({
                               value={subject}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
                               placeholder="Your consultation is ready"
-                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                           </div>
                         </div>
@@ -912,7 +912,7 @@ export function EditTemplateModal({
                   >
                     <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                       <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                        <EyeIcon className="h-5 w-5 text-orange-500" />
+                        <EyeIcon className="h-5 w-5 text-indigo-400" />
                         Live Preview
                         {isFullScreen && (
                           <span className="ml-2 text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full font-bold">
@@ -929,11 +929,11 @@ export function EditTemplateModal({
                           title={isFullScreen ? 'Exit Full Screen' : 'Full Screen Preview'}
                         >
                           {isFullScreen ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-orange-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-indigo-400">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
                             </svg>
                           ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-orange-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-indigo-400">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                             </svg>
                           )}
@@ -946,7 +946,7 @@ export function EditTemplateModal({
                           onClick={() => setPreviewTab('html')}
                           className={`px-4 py-1.5 rounded-md font-semibold transition-all text-xs ${
                             previewTab === 'html'
-                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-md'
+                              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
                               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                           }`}
                         >
@@ -957,7 +957,7 @@ export function EditTemplateModal({
                           onClick={() => setPreviewTab('text')}
                           className={`px-4 py-1.5 rounded-md font-semibold transition-all text-xs ${
                             previewTab === 'text'
-                              ? 'bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-md'
+                              ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
                               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                           }`}
                         >
@@ -1050,7 +1050,7 @@ export function EditTemplateModal({
                     type="button"
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="px-8 py-3 bg-gradient-to-r from-orange-500 to-rose-500 text-white rounded-xl font-bold hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
+                    className="px-8 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
                   >
                     {isSaving ? (
                       <>

@@ -170,7 +170,7 @@ export default function CampaignAnalytics() {
               <Download className="w-4 h-4" />
               Export Report
             </button>
-            <button className="px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black rounded-lg hover:from-orange-700 hover:to-rose-700 transition-colors font-medium flex items-center gap-2">
+            <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-medium flex items-center gap-2">
               <Send className="w-4 h-4" />
               Send Follow-up
             </button>
@@ -184,7 +184,7 @@ export default function CampaignAnalytics() {
           icon={Mail}
           label="Total Sent"
           value={analytics.stats.totalSent}
-          color="bg-gradient-to-r from-orange-500 to-rose-500"
+          color="bg-gradient-to-r from-indigo-500 to-purple-600"
         />
         <StatCard
           icon={Eye}
@@ -198,7 +198,7 @@ export default function CampaignAnalytics() {
           label="Clicked"
           value={analytics.stats.totalClicked}
           subtext={`${analytics.stats.clickRate}% click rate`}
-          color="bg-gradient-to-r from-orange-500 to-rose-500"
+          color="bg-gradient-to-r from-indigo-500 to-purple-600"
         />
         <StatCard
           icon={TrendingUp}
@@ -222,7 +222,7 @@ export default function CampaignAnalytics() {
                   <div className="font-semibold text-gray-900">
                     {performer.contact.firstName} {performer.contact.lastName}
                   </div>
-                  <div className="text-lg font-bold text-orange-600">
+                  <div className="text-lg font-bold text-indigo-400">
                     {performer.engagementScore}
                   </div>
                 </div>
@@ -385,7 +385,7 @@ export default function CampaignAnalytics() {
                             log.engagementScore >= 70
                               ? 'bg-gradient-to-r from-green-500 to-green-600'
                               : log.engagementScore >= 40
-                              ? 'bg-gradient-to-r from-orange-500 to-rose-500'
+                              ? 'bg-gradient-to-r from-indigo-500 to-purple-600'
                               : 'bg-gradient-to-r from-gray-400 to-gray-500'
                           }`}
                           style={{ width: `${log.engagementScore}%` }}

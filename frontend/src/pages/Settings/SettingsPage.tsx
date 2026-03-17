@@ -485,7 +485,7 @@ export function SettingsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all duration-200 text-black ${gradientClass} ${
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all duration-200 text-white ${gradientClass} ${
                     activeTab === tab.id
                       ? `shadow-lg ${shadowClass}`
                       : 'opacity-60 hover:opacity-80 shadow-md'
@@ -1093,7 +1093,7 @@ export function SettingsPage() {
                       <p className="text-gray-600 mb-4">Please try refreshing the page</p>
                       <button
                         onClick={fetchPricingPlans}
-                        className="px-4 py-2 bg-gradient-to-r from-orange-600 to-rose-600 text-white rounded-lg hover:from-orange-700 hover:to-rose-700"
+                        className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700"
                       >
                         Retry
                       </button>
@@ -1104,7 +1104,7 @@ export function SettingsPage() {
                         // Get dynamic gradient for this plan
                         const planGradient = gradients.pages.pricing[plan.id as keyof typeof gradients.pages.pricing];
                         const headerGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient}` : 'bg-gradient-to-r from-gray-500 to-gray-700';
-                        const buttonGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}` : 'bg-gradient-to-r from-orange-600 to-rose-600 hover:from-orange-700 hover:to-rose-700';
+                        const buttonGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}` : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700';
 
                         return (
                         <div
@@ -1123,7 +1123,7 @@ export function SettingsPage() {
                           )}
 
                           {/* Gradient Header - Dynamic from database */}
-                          <div className={`px-6 py-8 text-black text-center flex-shrink-0 rounded-t-2xl ${headerGradientClass}`}>
+                          <div className={`px-6 py-8 text-white text-center flex-shrink-0 rounded-t-2xl ${headerGradientClass}`}>
                             <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
                             <p className="text-sm opacity-90 mb-4">{plan.description}</p>
                             <div className="flex items-baseline justify-center gap-1">

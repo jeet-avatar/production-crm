@@ -330,7 +330,7 @@ export function CreateVideoCampaignModal({
                   />
                   <p
                     className={`text-xs mt-1 font-medium ${
-                      index <= currentStepIndex ? 'text-orange-600' : 'text-gray-400'
+                      index <= currentStepIndex ? 'text-indigo-400' : 'text-gray-400'
                     }`}
                   >
                     {s.label}
@@ -361,7 +361,7 @@ export function CreateVideoCampaignModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Welcome Video - Q1 2025"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
 
@@ -376,7 +376,7 @@ export function CreateVideoCampaignModal({
                       onClick={() => setTone(t)}
                       className={`px-4 py-2.5 rounded-xl font-bold capitalize transition-all tracking-wide ${
                         tone === t
-                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl`
+                          ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl`
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -395,7 +395,7 @@ export function CreateVideoCampaignModal({
                   value={targetCompanyName}
                   onChange={(e) => setTargetCompanyName(e.target.value)}
                   placeholder="e.g., Acme Corp"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   The company you're creating this video for
@@ -411,7 +411,7 @@ export function CreateVideoCampaignModal({
                   value={userCompanyName}
                   onChange={(e) => setUserCompanyName(e.target.value)}
                   placeholder="e.g., BrandMonkz"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Your company name to include in the video
@@ -426,7 +426,7 @@ export function CreateVideoCampaignModal({
                   <button
                     onClick={handleGenerateScript}
                     disabled={generatingScript || !targetCompanyName}
-                    className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                    className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     <SparklesIcon className="w-4 h-4" />
                     {generatingScript ? 'Generating...' : 'AI Generate'}
@@ -437,7 +437,7 @@ export function CreateVideoCampaignModal({
                   onChange={(e) => setScript(e.target.value)}
                   placeholder="Enter the narration script for your video..."
                   rows={8}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Keep it between 100-150 words (30-60 seconds when spoken)
@@ -528,7 +528,7 @@ export function CreateVideoCampaignModal({
                   value={bgmUrl}
                   onChange={(e) => setBgmUrl(e.target.value)}
                   placeholder="https://example.com/music.mp3"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Leave empty to use default background music
@@ -633,14 +633,14 @@ export function CreateVideoCampaignModal({
               <button
                 onClick={handleCreateCampaign}
                 disabled={loading}
-                className={`px-8 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`px-8 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {loading ? 'Creating...' : '🎬 Create & Generate'}
               </button>
             ) : (
               <button
                 onClick={handleNext}
-                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
+                className={`px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide shadow-lg hover:shadow-xl hover:scale-105 transition-all`}
               >
                 Next →
               </button>

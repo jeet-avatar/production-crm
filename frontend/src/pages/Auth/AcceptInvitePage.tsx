@@ -97,7 +97,7 @@ export function AcceptInvitePage() {
           <ExclamationCircleIcon className="mx-auto h-12 w-12 text-red-500 mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Invalid Invitation</h2>
           <p className="text-gray-600 mb-6">This invitation link is invalid or incomplete.</p>
-          <a href="/login" className="text-orange-600 hover:text-rose-600 font-medium">
+          <a href="/login" className="text-indigo-400 hover:text-purple-400 font-medium">
             Go to Login
           </a>
         </div>
@@ -112,7 +112,7 @@ export function AcceptInvitePage() {
           <ExclamationCircleIcon className="mx-auto h-12 w-12 text-red-500 mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Invitation Error</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <a href="/login" className="text-orange-600 hover:text-rose-600 font-medium">
+          <a href="/login" className="text-indigo-400 hover:text-purple-400 font-medium">
             Go to Login
           </a>
         </div>
@@ -208,7 +208,7 @@ export function AcceptInvitePage() {
                 minLength={8}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="At least 8 characters"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -226,7 +226,7 @@ export function AcceptInvitePage() {
                 minLength={8}
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Confirm your password"
               />
             </div>
@@ -234,7 +234,7 @@ export function AcceptInvitePage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-black font-semibold py-3 px-4 rounded-lg hover:from-orange-600 hover:to-rose-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -251,7 +251,7 @@ export function AcceptInvitePage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-500">
               Already have an account?{' '}
-              <a href="/login" className="text-orange-600 hover:text-rose-600 font-medium">
+              <a href="/login" className="text-indigo-400 hover:text-purple-400 font-medium">
                 Sign in
               </a>
             </p>

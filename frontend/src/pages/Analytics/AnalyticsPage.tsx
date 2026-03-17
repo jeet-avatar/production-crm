@@ -117,7 +117,7 @@ export function AnalyticsPage() {
           <p className="text-red-700">{error}</p>
           <button
             onClick={fetchAnalytics}
-            className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-black rounded-xl hover:shadow-lg font-bold tracking-wide shadow-md`}
+            className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg font-bold tracking-wide shadow-md`}
           >
             Try Again
           </button>
@@ -148,7 +148,7 @@ export function AnalyticsPage() {
             <button
               type="button"
               onClick={() => setShowHelpGuide(true)}
-              className="p-2 rounded-lg bg-gradient-to-r from-orange-600 to-rose-600 text-black hover:from-orange-700 hover:to-rose-700 transition-all shadow-md hover:shadow-lg"
+              className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
               title="Show Help Guide"
             >
               <QuestionMarkCircleIcon className="h-5 w-5" />
@@ -164,7 +164,7 @@ export function AnalyticsPage() {
               onClick={() => setTimeRange(range)}
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all tracking-wide ${
                 timeRange === range
-                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-black shadow-lg hover:shadow-xl hover:scale-105`
+                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
                   : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 shadow-sm'
               }`}
             >
@@ -203,7 +203,7 @@ export function AnalyticsPage() {
             <div className={`w-12 h-12 bg-gradient-to-br ${gradients.brand.primary.gradient.replace('to-r', 'to-br')} rounded-xl flex items-center justify-center shadow-md`}>
               <ChartBarIcon className="h-6 w-6 text-white" />
             </div>
-            <div className="text-sm font-bold text-orange-600">
+            <div className="text-sm font-bold text-indigo-400">
               {analytics.deals.conversionRate}%
             </div>
           </div>

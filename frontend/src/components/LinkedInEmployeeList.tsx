@@ -154,7 +154,7 @@ export function LinkedInEmployeeList({
           type="button"
           onClick={fetchEmployees}
           disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-rose-500 text-black text-sm font-medium rounded-lg hover:from-orange-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? (
             <>
@@ -199,7 +199,7 @@ export function LinkedInEmployeeList({
                 type="checkbox"
                 checked={selectedEmployees.size === employees.length}
                 onChange={selectAllEmployees}
-                className="w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
+                className="w-4 h-4 text-indigo-400 rounded border-gray-300 focus:ring-indigo-500"
               />
               <span className="text-sm text-gray-700">
                 {selectedEmployees.size} of {employees.length} selected
@@ -230,7 +230,7 @@ export function LinkedInEmployeeList({
                   type="checkbox"
                   checked={selectedEmployees.has(employee.linkedinUrl)}
                   onChange={() => toggleEmployeeSelection(employee.linkedinUrl)}
-                  className="w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
+                  className="w-4 h-4 text-indigo-400 rounded border-gray-300 focus:ring-indigo-500"
                 />
 
                 {employee.profilePicture ? (
@@ -261,7 +261,7 @@ export function LinkedInEmployeeList({
                   href={employee.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-orange-600 hover:text-orange-700 text-sm font-medium flex-shrink-0"
+                  className="text-indigo-400 hover:text-orange-700 text-sm font-medium flex-shrink-0"
                 >
                   View Profile →
                 </a>
