@@ -10,16 +10,13 @@ export const theme = {
   colors: {
     // Primary brand color (used for main actions, links)
     primary: {
-      50: '#eff6ff',
-      100: '#dbeafe',
-      200: '#bfdbfe',
-      300: '#93c5fd',
-      400: '#60a5fa',
-      500: '#3b82f6', // Main primary color
-      600: '#2563eb',
-      700: '#1d4ed8',
-      800: '#1e40af',
-      900: '#1e3a8a',
+      50: 'rgba(99, 102, 241, 0.08)',
+      100: 'rgba(99, 102, 241, 0.15)',
+      500: '#818CF8', // Main primary color (indigo)
+      600: '#6366F1',
+      700: '#4F46E5',
+      800: '#4338CA',
+      900: '#312E81',
     },
 
     // Secondary colors for variety
@@ -55,22 +52,22 @@ export const theme = {
 
     // Neutral grays
     gray: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b',
-      600: '#475569',
-      700: '#334155',
-      800: '#1e293b',
-      900: '#0f172a',
+      50: '#161625',
+      100: '#12121F',
+      200: '#1E1E30',
+      300: '#2A2A42',
+      400: '#64748B',
+      500: '#94A3B8',
+      600: '#CBD5E1',
+      700: '#E2E8F0',
+      800: '#F1F5F9',
+      900: '#F8FAFC',
     },
   },
 
   // Gradient combinations (used in buttons, headers)
   gradients: {
-    primary: 'from-blue-600 to-purple-600',
+    primary: 'from-indigo-500 to-purple-600',
     success: 'from-green-600 to-emerald-600',
     danger: 'from-red-600 to-orange-600',
     warning: 'from-yellow-600 to-orange-600',
@@ -123,10 +120,12 @@ export const theme = {
 
   // Shadows
   shadows: {
-    sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-    lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-    xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+    sm: '0 2px 8px rgba(0, 0, 0, 0.3)',
+    md: '0 4px 16px rgba(0, 0, 0, 0.4)',
+    lg: '0 8px 32px rgba(0, 0, 0, 0.5)',
+    xl: '0 20px 40px rgba(0, 0, 0, 0.6)',
+    glow: '0 0 20px rgba(99, 102, 241, 0.12)',
+    glowHover: '0 0 30px rgba(99, 102, 241, 0.2)',
   },
 
   // Transitions
@@ -142,14 +141,14 @@ export const theme = {
  * Customize the badge colors for different contact statuses
  */
 export const statusColors = {
-  LEAD: 'bg-blue-100 text-blue-700 border border-blue-200',
-  PROSPECT: 'bg-purple-100 text-purple-700 border border-purple-200',
-  CUSTOMER: 'bg-green-100 text-green-700 border border-green-200',
-  COLD: 'bg-gray-100 text-gray-700 border border-gray-200',
-  WARM: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
-  HOT: 'bg-red-100 text-red-700 border border-red-200',
-  CLOSED_WON: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-  CLOSED_LOST: 'bg-slate-100 text-slate-700 border border-slate-200',
+  LEAD: 'bg-blue-100 text-blue-500 border border-blue-200',
+  PROSPECT: 'bg-purple-100 text-purple-500 border border-purple-200',
+  CUSTOMER: 'bg-green-100 text-green-500 border border-green-200',
+  COLD: 'bg-gray-100 text-gray-600 border border-gray-200',
+  WARM: 'bg-yellow-100 text-yellow-500 border border-yellow-200',
+  HOT: 'bg-red-100 text-red-500 border border-red-200',
+  CLOSED_WON: 'bg-emerald-50 text-emerald-500 border border-emerald-200',
+  CLOSED_LOST: 'bg-gray-100 text-gray-500 border border-gray-200',
 };
 
 /**
@@ -169,10 +168,10 @@ export const dealStageColors = {
  * Customize colors for priority levels
  */
 export const priorityColors = {
-  LOW: 'bg-gray-100 text-gray-700',
-  MEDIUM: 'bg-yellow-100 text-yellow-700',
-  HIGH: 'bg-orange-100 text-orange-700',
-  URGENT: 'bg-red-100 text-red-700',
+  LOW: 'bg-gray-100 text-gray-600',
+  MEDIUM: 'bg-yellow-100 text-yellow-500',
+  HIGH: 'bg-orange-100 text-orange-500',
+  URGENT: 'bg-red-100 text-red-500',
 };
 
 export default theme;
