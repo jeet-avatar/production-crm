@@ -161,7 +161,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-2xl border-4 border-gray-300 max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col"
+        className="bg-white rounded-xl shadow-2xl border border-gray-200 animate-modal-enter max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -223,7 +223,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-white rounded-2xl shadow-2xl border border-gray-200 animate-modal-enter max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

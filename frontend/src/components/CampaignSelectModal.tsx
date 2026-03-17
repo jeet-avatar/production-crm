@@ -168,7 +168,7 @@ export function CampaignSelectModal({ isOpen, onClose, companyId, companyName, o
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-2xl border-4 border-gray-300 max-w-md w-full mx-4"
+        className="bg-white rounded-xl shadow-2xl border border-gray-200 animate-modal-enter max-w-md w-full mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">

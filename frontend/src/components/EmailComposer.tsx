@@ -121,7 +121,7 @@ Looking forward to connecting,`;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 animate-modal-enter max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header with gradient */}
         <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
           <div className="flex items-center justify-between">

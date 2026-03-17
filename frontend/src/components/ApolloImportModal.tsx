@@ -90,7 +90,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-purple-300 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 animate-modal-enter w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
 
         {/* Header with gradient */}
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-6 border-b-4 border-purple-700">

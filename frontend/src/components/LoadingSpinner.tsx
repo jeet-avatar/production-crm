@@ -38,7 +38,8 @@ export function LoadingSpinner({
     <div className="flex flex-col items-center justify-center gap-4">
       <div className="relative">
         <div
-          className={`${sizeClasses[size]} ${borderClasses[size]} border-blue-200 border-t-blue-600 rounded-full animate-spin`}
+          className={`${sizeClasses[size]} ${borderClasses[size]} rounded-full animate-spin`}
+          style={{ borderColor: 'var(--color-gray-300)', borderTopColor: 'var(--accent-primary)' }}
         />
       </div>
       {message && (
@@ -51,7 +52,7 @@ export function LoadingSpinner({
 
   if (fullScreen) {
     return (
-      <div className={`fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50 ${className}`}>
+      <div className={`fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 ${className}`} style={{ background: 'rgba(8, 8, 16, 0.85)' }}>
         {spinner}
       </div>
     );
