@@ -175,6 +175,8 @@ model User {
   leads              Lead[]
   videoTemplates     VideoTemplate[]     @relation("VideoTemplates")
   videoCampaigns     VideoCampaign[]
+  quotes             Quote[]
+  contracts          Contract[]
 
   // Team relationships
   accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
@@ -372,6 +374,8 @@ model Deal {
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   activities Activity[]
   shares     DealShare[] // Team members this deal is shared with
+  quotes     Quote[]
+  contracts  Contract[]
 
   @@index([userId])
   @@index([contactId])
@@ -976,6 +980,61 @@ model Lead {
 }
 
 // ===================================
+// QUOTE & CONTRACT MODELS
+// ===================================
+
+model Quote {
+  id         String      @id @default(cuid())
+  dealId     String
+  userId     String
+  status     QuoteStatus @default(DRAFT)
+  title      String
+  lineItems  Json
+  subtotal   Decimal     @db.Decimal(12, 2)
+  tax        Decimal?    @db.Decimal(12, 2)
+  total      Decimal     @db.Decimal(12, 2)
+  notes      String?
+  validUntil DateTime?
+  sentAt     DateTime?
+  acceptedAt DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  deal      Deal       @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contracts Contract[]
+
+  @@index([dealId])
+  @@index([userId])
+  @@index([status])
+  @@map("quotes")
+}
+
+model Contract {
+  id        String         @id @default(cuid())
+  dealId    String
+  quoteId   String?
+  userId    String
+  status    ContractStatus @default(DRAFT)
+  title     String
+  content   String         @db.Text
+  variables Json?
+  signedAt  DateTime?
+  signedBy  String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  deal  Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  quote Quote?  @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([dealId])
+  @@index([userId])
+  @@index([status])
+  @@map("contracts")
+}
+
+// ===================================
 // TEAM COLLABORATION & SHARING MODELS
 // ===================================
 
@@ -1050,6 +1109,21 @@ model ActivityShare {
 // ===================================
 // VIDEO CAMPAIGN MODELS
 // ===================================
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT_FOR_SIGNATURE
+  SIGNED
+  CANCELLED
+}
 
 enum VideoCampaignStatus {
   DRAFT
