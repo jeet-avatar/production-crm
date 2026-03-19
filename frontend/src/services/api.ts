@@ -333,4 +333,52 @@ export const csvImportApi = {
   },
 };
 
+// Quotes API
+export const quotesApi = {
+  getByDeal: async (dealId: string) => {
+    const response = await apiClient.get('/quotes', { params: { dealId } });
+    return response.data;
+  },
+  create: async (data: { dealId: string; title: string; lineItems: any[]; subtotal: number; tax?: number; total: number; notes?: string; validUntil?: string }) => {
+    const response = await apiClient.post('/quotes', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<{ title: string; lineItems: any[]; subtotal: number; tax?: number; total: number; notes?: string; validUntil?: string }>) => {
+    const response = await apiClient.put(`/quotes/${id}`, data);
+    return response.data;
+  },
+  updateStatus: async (id: string, status: string) => {
+    const response = await apiClient.patch(`/quotes/${id}/status`, { status });
+    return response.data;
+  },
+  delete: async (id: string) => {
+    const response = await apiClient.delete(`/quotes/${id}`);
+    return response.data;
+  },
+};
+
+// Contracts API
+export const contractsApi = {
+  getByDeal: async (dealId: string) => {
+    const response = await apiClient.get('/contracts', { params: { dealId } });
+    return response.data;
+  },
+  create: async (data: { dealId: string; title: string; content: string; quoteId?: string; variables?: Record<string, string> }) => {
+    const response = await apiClient.post('/contracts', data);
+    return response.data;
+  },
+  update: async (id: string, data: Partial<{ title: string; content: string; variables?: Record<string, string> }>) => {
+    const response = await apiClient.put(`/contracts/${id}`, data);
+    return response.data;
+  },
+  updateStatus: async (id: string, status: string, signedBy?: string) => {
+    const response = await apiClient.patch(`/contracts/${id}/status`, { status, signedBy });
+    return response.data;
+  },
+  delete: async (id: string) => {
+    const response = await apiClient.delete(`/contracts/${id}`);
+    return response.data;
+  },
+};
+
 export default apiClient;
