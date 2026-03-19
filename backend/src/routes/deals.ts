@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, DealStage } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
 
 const router = Router();
@@ -350,6 +350,122 @@ router.delete('/:id', async (req, res, next) => {
     res.json({ message: 'Deal deleted successfully' });
   } catch (error) {
     next(error);
+  }
+});
+
+// POST /api/deals/bulk-import - Import multiple deals at once
+const STAGE_MAP: Record<string, string> = {
+  'prospecting': 'PROSPECTING',
+  'qualification': 'QUALIFICATION',
+  'qualified': 'QUALIFICATION',
+  'proposal': 'PROPOSAL',
+  'proposal/price quote': 'PROPOSAL',
+  'value proposition': 'PROPOSAL',
+  'negotiation': 'NEGOTIATION',
+  'negotiation/review': 'NEGOTIATION',
+  'decision maker bought-in': 'NEGOTIATION',
+  'contract sent': 'NEGOTIATION',
+  'closed won': 'CLOSED_WON',
+  'closedwon': 'CLOSED_WON',
+  'closed_won': 'CLOSED_WON',
+  'won': 'CLOSED_WON',
+  'closed lost': 'CLOSED_LOST',
+  'closedlost': 'CLOSED_LOST',
+  'closed_lost': 'CLOSED_LOST',
+  'lost': 'CLOSED_LOST',
+};
+
+router.post('/bulk-import', async (req, res, next) => {
+  try {
+    const { deals } = req.body as {
+      deals: Array<{
+        title?: string;
+        value?: string | number;
+        stage?: string;
+        probability?: number;
+        expectedCloseDate?: string;
+        contactEmail?: string;
+        companyName?: string;
+        description?: string;
+      }>;
+    };
+
+    if (!Array.isArray(deals)) {
+      return res.status(400).json({ error: 'deals must be an array' });
+    }
+
+    let imported = 0;
+    let failed = 0;
+    const errors: Array<{ row: number; title: string; reason: string }> = [];
+
+    for (let i = 0; i < deals.length; i++) {
+      const row = deals[i];
+      const rowNum = i + 1;
+
+      // Validate required fields
+      if (!row.title || String(row.title).trim() === '') {
+        failed++;
+        errors.push({ row: rowNum, title: '', reason: 'Missing required field: title' });
+        continue;
+      }
+
+      const parsedValue = parseFloat(String(row.value));
+      if (isNaN(parsedValue)) {
+        failed++;
+        errors.push({ row: rowNum, title: String(row.title), reason: 'Invalid or missing value (must be a number)' });
+        continue;
+      }
+
+      // Resolve contactId from contactEmail
+      let contactId: string | null = null;
+      if (row.contactEmail) {
+        const contact = await prisma.contact.findFirst({
+          where: { email: row.contactEmail },
+        });
+        if (contact) contactId = contact.id;
+      }
+
+      // Resolve companyId from companyName
+      let companyId: string | null = null;
+      if (row.companyName) {
+        const company = await prisma.company.findFirst({
+          where: { name: { contains: row.companyName, mode: 'insensitive' } },
+        });
+        if (company) companyId = company.id;
+      }
+
+      // Normalize stage
+      const stageKey = row.stage ? String(row.stage).toLowerCase().trim() : '';
+      const normalizedStage = (STAGE_MAP[stageKey] ?? 'PROSPECTING') as DealStage;
+
+      try {
+        await prisma.deal.create({
+          data: {
+            title: String(row.title).trim(),
+            value: parsedValue,
+            stage: normalizedStage,
+            probability: row.probability ?? 10,
+            expectedCloseDate: row.expectedCloseDate ? new Date(row.expectedCloseDate) : null,
+            contactId,
+            companyId,
+            description: row.description ?? null,
+            userId: req.user!.id,
+          },
+        });
+        imported++;
+      } catch (err: any) {
+        failed++;
+        errors.push({
+          row: rowNum,
+          title: String(row.title),
+          reason: err?.message ?? 'Database error while creating deal',
+        });
+      }
+    }
+
+    return res.json({ imported, failed, errors });
+  } catch (error) {
+    return next(error);
   }
 });
 
