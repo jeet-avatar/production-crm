@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { DocumentTextIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { quotesApi, contractsApi } from '../../../services/api';
+import { QuoteBuilder } from './QuoteBuilder';
+import { ContractEditor } from './ContractEditor';
 
 interface Quote {
   id: string;
@@ -20,9 +22,13 @@ interface Contract {
 
 interface DocumentsTabProps {
   dealId: string;
-  dealStage: string;
-  onNewQuote?: () => void;
-  onNewContract?: () => void;
+  deal: {
+    stage: string;
+    title: string;
+    value: number;
+    contact?: any;
+    company?: any;
+  };
 }
 
 const quoteStatusBadge: Record<string, string> = {
@@ -57,24 +63,25 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: DocumentsTabProps) {
+export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showQuoteBuilder, setShowQuoteBuilder] = useState(false);
+  const [showContractEditor, setShowContractEditor] = useState(false);
 
-  const loadDocuments = async () => {
+  const fetchDocuments = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       setError(null);
-      const [quotesRes, contractsRes] = await Promise.all([
+      const [q, c] = await Promise.all([
         quotesApi.getByDeal(dealId),
         contractsApi.getByDeal(dealId),
       ]);
-      setQuotes(quotesRes.quotes || []);
-      setContracts(contractsRes.contracts || []);
-    } catch (err) {
-      console.error('Error loading documents:', err);
+      setQuotes(q.quotes || []);
+      setContracts(c.contracts || []);
+    } catch {
       setError('Failed to load documents');
     } finally {
       setLoading(false);
@@ -82,14 +89,14 @@ export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: D
   };
 
   useEffect(() => {
-    loadDocuments();
+    fetchDocuments();
   }, [dealId]);
 
   const handleDeleteQuote = async (id: string) => {
     if (!confirm('Are you sure you want to delete this quote?')) return;
     try {
       await quotesApi.delete(id);
-      await loadDocuments();
+      await fetchDocuments();
     } catch (err) {
       console.error('Failed to delete quote:', err);
     }
@@ -99,9 +106,33 @@ export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: D
     if (!confirm('Are you sure you want to delete this contract?')) return;
     try {
       await contractsApi.delete(id);
-      await loadDocuments();
+      await fetchDocuments();
     } catch (err) {
       console.error('Failed to delete contract:', err);
+    }
+  };
+
+  const handleQuoteStatusChange = async (id: string, newStatus: string) => {
+    try {
+      await quotesApi.updateStatus(id, newStatus);
+      await fetchDocuments();
+    } catch (err) {
+      console.error('Failed to update quote status:', err);
+    }
+  };
+
+  const handleContractStatusChange = async (id: string, newStatus: string) => {
+    let signedBy: string | undefined;
+    if (newStatus === 'SIGNED') {
+      const name = window.prompt('Signed by:');
+      if (name === null) return; // User cancelled
+      signedBy = name || undefined;
+    }
+    try {
+      await contractsApi.updateStatus(id, newStatus, signedBy);
+      await fetchDocuments();
+    } catch (err) {
+      console.error('Failed to update contract status:', err);
     }
   };
 
@@ -115,19 +146,14 @@ export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: D
             <h3 className="text-lg font-semibold text-gray-900">Quotes</h3>
           </div>
           <div className="flex items-center gap-3">
-            {dealStage !== 'CLOSED_WON' && (
+            {deal.stage !== 'CLOSED_WON' && (
               <span className="text-xs text-gray-400">Available when deal is Closed Won</span>
             )}
-            {dealStage === 'CLOSED_WON' && (
+            {deal.stage === 'CLOSED_WON' && (
               <button
                 type="button"
-                onClick={onNewQuote}
-                disabled={!onNewQuote}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  onNewQuote
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    : 'bg-gray-100 text-gray-400 opacity-50 cursor-not-allowed'
-                }`}
+                onClick={() => setShowQuoteBuilder(true)}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-indigo-600 text-white hover:bg-indigo-700"
               >
                 <PlusIcon className="h-4 w-4" />
                 New Quote
@@ -168,14 +194,28 @@ export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: D
                     </td>
                     <td className="py-3 pr-4 text-gray-500">{formatDate(quote.createdAt)}</td>
                     <td className="py-3">
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteQuote(quote.id)}
-                        className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
-                        title="Delete quote"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={quote.status}
+                          onChange={(e) => handleQuoteStatusChange(quote.id, e.target.value)}
+                          className="text-xs border border-gray-200 rounded px-1.5 py-1 bg-white text-gray-700 hover:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-colors"
+                          title="Change status"
+                        >
+                          <option value="DRAFT">Draft</option>
+                          <option value="SENT">Sent</option>
+                          <option value="ACCEPTED">Accepted</option>
+                          <option value="REJECTED">Rejected</option>
+                          <option value="EXPIRED">Expired</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteQuote(quote.id)}
+                          className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                          title="Delete quote"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -194,13 +234,8 @@ export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: D
           </div>
           <button
             type="button"
-            onClick={onNewContract}
-            disabled={!onNewContract}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              onNewContract
-                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                : 'bg-gray-100 text-gray-400 opacity-50 cursor-not-allowed'
-            }`}
+            onClick={() => setShowContractEditor(true)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors bg-indigo-600 text-white hover:bg-indigo-700"
           >
             <PlusIcon className="h-4 w-4" />
             New Contract
@@ -237,14 +272,27 @@ export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: D
                     <td className="py-3 pr-4 text-gray-500">{contract.signedBy || '—'}</td>
                     <td className="py-3 pr-4 text-gray-500">{formatDate(contract.createdAt)}</td>
                     <td className="py-3">
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteContract(contract.id)}
-                        className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
-                        title="Delete contract"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={contract.status}
+                          onChange={(e) => handleContractStatusChange(contract.id, e.target.value)}
+                          className="text-xs border border-gray-200 rounded px-1.5 py-1 bg-white text-gray-700 hover:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-colors"
+                          title="Change status"
+                        >
+                          <option value="DRAFT">Draft</option>
+                          <option value="SENT_FOR_SIGNATURE">Sent for Signature</option>
+                          <option value="SIGNED">Signed</option>
+                          <option value="CANCELLED">Cancelled</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteContract(contract.id)}
+                          className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                          title="Delete contract"
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -253,6 +301,23 @@ export function DocumentsTab({ dealId, dealStage, onNewQuote, onNewContract }: D
           </div>
         )}
       </div>
+
+      {/* Modals — rendered conditionally at the bottom of the fragment */}
+      {showQuoteBuilder && (
+        <QuoteBuilder
+          dealId={dealId}
+          onClose={() => setShowQuoteBuilder(false)}
+          onSaved={fetchDocuments}
+        />
+      )}
+      {showContractEditor && (
+        <ContractEditor
+          dealId={dealId}
+          deal={deal}
+          onClose={() => setShowContractEditor(false)}
+          onSaved={fetchDocuments}
+        />
+      )}
     </div>
   );
 }
