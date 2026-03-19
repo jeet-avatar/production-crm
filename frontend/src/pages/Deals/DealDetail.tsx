@@ -276,7 +276,7 @@ export function DealDetail() {
       {activeTab === 'documents' && (
         <DocumentsTab
           dealId={id!}
-          dealStage={deal?.stage ?? ''}
+          deal={deal}
         />
       )}
     </div>
