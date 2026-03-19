@@ -21,3 +21,9 @@ Plans:
 ### Phase 3: CRM Migration Wizard
 **Goal:** Allow users to migrate their existing data from Salesforce, HubSpot, NetSuite, Pipedrive, or any CRM via a guided step-by-step wizard — choose source CRM, download field-mapping template, upload CSV, map columns, preview, and import contacts/companies/deals in one flow.
 **Requirements:** REQ-020, REQ-021, REQ-022
+**Plans:** 3 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Backend POST /api/deals/bulk-import with stage normalization + FK resolution
+- [ ] 03-02-PLAN.md — MigrationWizardModal steps 1-3: CRM source, entity type, template download + CSV upload
+- [ ] 03-03-PLAN.md — Wizard steps 4-5: column mapping UI + import results + SettingsPage Data Import tab
