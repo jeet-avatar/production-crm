@@ -16,6 +16,7 @@ import { ContactDetail } from './pages/Contacts/ContactDetail';
 import { CompanyList } from './pages/Companies/CompanyList';
 import { CompanyDetail } from './pages/Companies/CompanyDetail';
 import { DealBoard } from './pages/Deals/DealBoard';
+import { DealDetail } from './pages/Deals/DealDetail';
 import { ActivitiesPage } from './pages/Activities/ActivitiesPage';
 import { AnalyticsPage } from './pages/Analytics/AnalyticsPage';
 import { TagsPage } from './pages/Tags/TagsPage';
@@ -113,6 +114,7 @@ function App() {
               <Route path="companies" element={<CompanyList />} />
               <Route path="companies/:id" element={<CompanyDetail />} />
               <Route path="deals" element={<DealBoard />} />
+              <Route path="deals/:id" element={<DealDetail />} />
               <Route path="activities" element={<ActivitiesPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="tags" element={<TagsPage />} />

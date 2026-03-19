@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { PlusIcon, CurrencyDollarIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
+import { PlusIcon, CurrencyDollarIcon, QuestionMarkCircleIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { dealsApi } from '../../services/api';
 import { DealForm } from './DealForm';
 import { DealsHelpGuide } from '../../components/DealsHelpGuide';
@@ -36,6 +37,7 @@ const dealStages = [
 
 export function DealBoard() {
   const { gradients } = useTheme();
+  const navigate = useNavigate();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -211,8 +213,19 @@ export function DealBoard() {
                         <h4 className="font-bold text-gray-900 text-sm leading-tight">
                           {deal.title}
                         </h4>
-                        <div className="text-xs text-gray-500 ml-2">
-                          {deal.probability}%
+                        <div className="flex items-center gap-1 ml-2 shrink-0">
+                          <div className="text-xs text-gray-500">{deal.probability}%</div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/deals/${deal.id}`);
+                            }}
+                            className="p-1 rounded hover:bg-indigo-50 text-gray-400 hover:text-indigo-600 transition-colors"
+                            title="View deal details"
+                          >
+                            <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                          </button>
                         </div>
                       </div>
                       
