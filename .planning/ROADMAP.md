@@ -14,7 +14,7 @@
 **Plans:** 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — DB schema migration (Quote + Contract models) + backend CRUD routes
+- [x] 02-01-PLAN.md — DB schema migration (Quote + Contract models) + backend CRUD routes (Complete: c70ad18)
 - [ ] 02-02-PLAN.md — DealDetail page + Documents tab shell + App.tsx route + frontend API services
 - [ ] 02-03-PLAN.md — QuoteBuilder modal + ContractEditor modal + DocumentsTab fully wired
 
