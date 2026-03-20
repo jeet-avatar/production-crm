@@ -1,14 +1,14 @@
 # Project State
 
-Last activity: 2026-03-19 - Phase 03 Plan 01 complete: POST /api/deals/bulk-import endpoint with stage normalization and FK resolution
+Last activity: 2026-03-19 - Phase 03 Plan 02 complete: MigrationWizardModal full 5-step wizard (commit 300d81e)
 
 ## Current Phase
 Phase 03: CRM Migration Wizard
 
 ## Current Position
 - Phase: 03-crm-migration-wizard — IN PROGRESS
-- Plan: 01 (complete) — Backend bulk-import endpoint, commit e865340
-- Next: Plan 02 — MigrationWizardModal steps 1-3 (CRM source, entity type, CSV upload)
+- Plan: 02 (complete) — MigrationWizardModal full 5-step wizard, commit 300d81e
+- Next: Plan 03 — SettingsPage Data Import tab + wire MigrationWizardModal
 
 ## Decisions Made
 - Prisma migration applied via `db push` (non-interactive) instead of `migrate dev` (requires TTY); manual migration SQL file created for audit trail
@@ -35,7 +35,7 @@ None
 | Plan | Name | Status | Commit |
 |------|------|--------|--------|
 | 01 | Backend POST /api/deals/bulk-import | Complete | e865340 |
-| 02 | MigrationWizardModal steps 1-3 | Pending | — |
+| 02 | MigrationWizardModal full 5-step wizard | Complete | 300d81e |
 | 03 | Column mapping + SettingsPage Data Import tab | Pending | — |
 
 ## Phase 02 Progress
