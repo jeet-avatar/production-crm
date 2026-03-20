@@ -1,14 +1,14 @@
 # Project State
 
-Last activity: 2026-03-19 - Completed Phase 02 Plan 03: QuoteBuilder modal + ContractEditor modal + DocumentsTab fully wired (human-verify checkpoint approved)
+Last activity: 2026-03-19 - Phase 03 Plan 01 complete: POST /api/deals/bulk-import endpoint with stage normalization and FK resolution
 
 ## Current Phase
-Phase 02: Quote and Contract Lifecycle
+Phase 03: CRM Migration Wizard
 
 ## Current Position
-- Phase: 02-quote-contract-lifecycle — COMPLETE (all 3 plans done)
-- Plan: 03 (complete) — QuoteBuilder modal, ContractEditor modal, DocumentsTab fully wired, human-verify approved
-- Next: Phase 03 — CRM Migration Wizard (03-01-PLAN.md: backend POST /api/deals/bulk-import)
+- Phase: 03-crm-migration-wizard — IN PROGRESS
+- Plan: 01 (complete) — Backend bulk-import endpoint, commit e865340
+- Next: Plan 02 — MigrationWizardModal steps 1-3 (CRM source, entity type, CSV upload)
 
 ## Decisions Made
 - Prisma migration applied via `db push` (non-interactive) instead of `migrate dev` (requires TTY); manual migration SQL file created for audit trail
@@ -23,8 +23,20 @@ Phase 02: Quote and Contract Lifecycle
 - Plan 03: window.prompt used for SIGNED contract signer name — keeps UI simple for an edge-case interaction
 - Plan 03: Subtotal/total computed inline during render (not useState + useEffect) to avoid stale state
 
+## Decisions Made (Phase 03 additions)
+- DealStage enum cast used in bulk-import — STAGE_MAP string values map exactly to Prisma enum members
+- Missing FK lookups result in null (deal still imports) — avoids blocking import on unresolvable contacts/companies
+- router.use(authenticate) covers bulk-import route — no per-route middleware needed
+
 ## Blockers/Concerns
 None
+
+## Phase 03 Progress
+| Plan | Name | Status | Commit |
+|------|------|--------|--------|
+| 01 | Backend POST /api/deals/bulk-import | Complete | e865340 |
+| 02 | MigrationWizardModal steps 1-3 | Pending | — |
+| 03 | Column mapping + SettingsPage Data Import tab | Pending | — |
 
 ## Phase 02 Progress
 | Plan | Name | Status | Commit |
