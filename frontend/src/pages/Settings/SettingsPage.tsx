@@ -10,10 +10,12 @@ import {
   CheckIcon,
   XMarkIcon,
   SparklesIcon,
+  ArrowUpTrayIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
+import MigrationWizardModal from '../../components/MigrationWizardModal';
 
-type SettingsTab = 'profile' | 'account' | 'notifications' | 'security' | 'preferences' | 'billing';
+type SettingsTab = 'profile' | 'account' | 'notifications' | 'security' | 'preferences' | 'billing' | 'data-import';
 
 interface UserData {
   id: string;
@@ -83,6 +85,10 @@ export function SettingsPage() {
     compactView: false,
     timezone: 'America/New_York',
   });
+
+  // Data Import wizard state
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [lastImportResults, setLastImportResults] = useState<{ imported: number; failed: number } | null>(null);
 
   // Billing & Pricing Plans
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
@@ -451,6 +457,7 @@ export function SettingsPage() {
     { id: 'security' as SettingsTab, name: 'Security', icon: ShieldCheckIcon },
     { id: 'preferences' as SettingsTab, name: 'Preferences', icon: GlobeAltIcon },
     { id: 'billing' as SettingsTab, name: 'Billing', icon: CreditCardIcon },
+    { id: 'data-import' as SettingsTab, name: 'Data Import', icon: ArrowUpTrayIcon },
   ];
 
   return (
@@ -477,7 +484,8 @@ export function SettingsPage() {
             {tabs.map((tab) => {
               const Icon = tab.icon;
               // Get gradient classes from dynamic theme
-              const tabGradient = gradients.pages.settings[tab.id as keyof typeof gradients.pages.settings];
+              const tabGradient = gradients.pages.settings[tab.id as keyof typeof gradients.pages.settings]
+                ?? { gradient: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/25' };
               const gradientClass = `bg-gradient-to-r ${tabGradient.gradient}`;
               const shadowClass = tabGradient.shadow;
 
@@ -993,6 +1001,35 @@ export function SettingsPage() {
             </div>
           )}
 
+          {/* Data Import Tab */}
+          {activeTab === 'data-import' && (
+            <div className="card">
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-xl font-semibold text-gray-900">Data Import</h2>
+                <p className="text-sm text-gray-600 mt-1">Import your existing CRM data into BrandMonkz</p>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 mb-6" style={{ lineHeight: 1.6 }}>
+                  Import contacts, companies, and deals from Salesforce, HubSpot, NetSuite, Pipedrive, Zoho, or any CRM.
+                  Download a template CSV for your source, fill it in, and follow the step-by-step wizard to map your columns and import your data.
+                </p>
+                {lastImportResults && (
+                  <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600">
+                    Last import: <strong>{lastImportResults.imported}</strong> records imported,{' '}
+                    <strong>{lastImportResults.failed}</strong> failed.
+                  </div>
+                )}
+                <button
+                  onClick={() => setIsWizardOpen(true)}
+                  className="btn-primary flex items-center gap-2"
+                >
+                  <ArrowUpTrayIcon className="h-5 w-5" />
+                  Launch Migration Wizard
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Billing Tab */}
           {activeTab === 'billing' && (
             <div className="space-y-6">
@@ -1194,6 +1231,15 @@ export function SettingsPage() {
           )}
         </div>
       </div>
+
+      <MigrationWizardModal
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onImportComplete={(results) => {
+          setLastImportResults({ imported: results.imported, failed: results.failed });
+          setIsWizardOpen(false);
+        }}
+      />
     </div>
   );
 }
