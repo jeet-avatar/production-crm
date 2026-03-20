@@ -26,4 +26,4 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Backend POST /api/deals/bulk-import with stage normalization + FK resolution (Complete: e865340)
 - [x] 03-02-PLAN.md — MigrationWizardModal full 5-step wizard: CRM source, entity type, template download, CSV upload, column mapping, import results (Complete: 300d81e)
-- [ ] 03-03-PLAN.md — Wizard steps 4-5: column mapping UI + import results + SettingsPage Data Import tab
+- [x] 03-03-PLAN.md — SettingsPage Data Import tab + MigrationWizardModal wired (Complete: 85760bf)
