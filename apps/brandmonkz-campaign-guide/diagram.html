@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrandMonkz Campaign Tutorial</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1A1A2E;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px 60px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #FF6B35, #FF9A6C);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #B0B0C3;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* ── Step Cards ── */
+    .flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .step-card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: grid;
+      grid-template-columns: 60px 100px 1fr;
+      align-items: center;
+      gap: 20px;
+      cursor: default;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(255, 107, 53, 0.25);
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #FF6B35;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .step-emoji {
+      font-size: 64px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .step-content {}
+
+    .step-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .step-desc {
+      font-size: 16px;
+      color: #B0B0C3;
+      line-height: 1.5;
+    }
+
+    /* ── Arrows ── */
+    .arrow-connector {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 48px;
+      color: #FF6B35;
+      font-size: 32px;
+      animation: arrowPulse 1.5s ease-in-out infinite;
+    }
+
+    .arrow-connector svg {
+      width: 32px;
+      height: 32px;
+      fill: none;
+      stroke: #FF6B35;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @keyframes arrowPulse {
+      0%   { opacity: 0.4; }
+      50%  { opacity: 1;   }
+      100% { opacity: 0.4; }
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 56px;
+      color: #B0B0C3;
+      font-size: 14px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 24px;
+    }
+
+    .footer strong {
+      color: #FF6B35;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .step-card {
+        grid-template-columns: 50px 72px 1fr;
+        gap: 12px;
+        padding: 16px;
+      }
+      .step-number { width: 50px; height: 50px; font-size: 22px; }
+      .step-emoji  { font-size: 48px; }
+      .step-title  { font-size: 18px; }
+      .step-desc   { font-size: 14px; }
+    }
+
+    /* ── Print / PDF ── */
+    @media print {
+      body { background: #1A1A2E !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .step-card { break-inside: avoid; }
+      .arrow-connector { animation: none; opacity: 0.7; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">BrandMonkz</div>
+    <div class="subtitle">Campaign Tutorial — 8 Steps to Your First Email Campaign</div>
+  </div>
+
+  <!-- Flow -->
+  <div class="flow">
+
+    <!-- Step 1 -->
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <div class="step-emoji">&#128273;</div>
+      <div class="step-content">
+        <div class="step-title">Login &amp; Enter</div>
+        <div class="step-desc">Sign in at app.brandmonkz.com with your email</div>
+      </div>
+    </div>
+
+    <div class="arrow-connector">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <div class="step-emoji">&#128231;</div>
+      <div class="step-content">
+        <div class="step-title">Setup Email Server</div>
+        <div class="step-desc">Connect your Gmail or SMTP so emails actually land</div>
+      </div>
+    </div>
+
+    <div class="arrow-connector">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <div class="step-emoji">&#128227;</div>
+      <div class="step-content">
+        <div class="step-title">Go To Campaigns</div>
+        <div class="step-desc">Click "Campaigns" in the left menu</div>
+      </div>
+    </div>
+
+    <div class="arrow-connector">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card">
+      <div class="step-number">4</div>
+      <div class="step-emoji">&#9999;&#65039;</div>
+      <div class="step-content">
+        <div class="step-title">Create Campaign</div>
+        <div class="step-desc">Hit "New Campaign", give it a name and subject line</div>
+      </div>
+    </div>
+
+    <div class="arrow-connector">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step-card">
+      <div class="step-number">5</div>
+      <div class="step-emoji">&#129302;</div>
+      <div class="step-content">
+        <div class="step-title">Write With AI</div>
+        <div class="step-desc">Click "AI Write" — describe your goal in one sentence</div>
+      </div>
+    </div>
+
+    <div class="arrow-connector">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step-card">
+      <div class="step-number">6</div>
+      <div class="step-emoji">&#128101;</div>
+      <div class="step-content">
+        <div class="step-title">Add Your Contacts</div>
+        <div class="step-desc">Pick a contact group or paste a list of emails</div>
+      </div>
+    </div>
+
+    <div class="arrow-connector">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step-card">
+      <div class="step-number">7</div>
+      <div class="step-emoji">&#128640;</div>
+      <div class="step-content">
+        <div class="step-title">Review &amp; Launch</div>
+        <div class="step-desc">Check preview, hit Send — your campaign is live</div>
+      </div>
+    </div>
+
+    <div class="arrow-connector">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step-card">
+      <div class="step-number">8</div>
+      <div class="step-emoji">&#128202;</div>
+      <div class="step-content">
+        <div class="step-title">Track Your Results</div>
+        <div class="step-desc">Watch opens, clicks, and replies roll in</div>
+      </div>
+    </div>
+
+  </div><!-- /flow -->
+
+  <!-- Footer -->
+  <div class="footer">
+    <strong>BrandMonkz</strong> &mdash; Smart Email Marketing for Growing Businesses
+  </div>
+
+</div><!-- /container -->
+
+</body>
+</html>
