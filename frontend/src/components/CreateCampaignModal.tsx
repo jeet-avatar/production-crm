@@ -487,7 +487,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
 
                   {/* Show variants if generated */}
                   {subjectVariants.length > 0 && (
-                    <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                    <div className="mb-4 p-3 rounded-lg" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)' }}>
                       <p className="text-xs font-semibold text-orange-700 mb-2">AI Generated Variants</p>
                       <div className="space-y-1">
                         {subjectVariants.map((variant, index) => (
@@ -632,7 +632,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-4 bg-orange-50 rounded-xl">
+              <div className="flex items-center gap-3 p-4 rounded-xl" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-default)' }}>
                 <input
                   type="checkbox"
                   checked={enablePersonalization}
@@ -734,7 +734,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess }: Props) {
           {/* Step: Review */}
           {currentStep === 'review' && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
+              <div className="rounded-xl p-6 border-2" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-accent)' }}>
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Campaign Summary</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
