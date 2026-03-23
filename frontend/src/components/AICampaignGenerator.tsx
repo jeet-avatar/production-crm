@@ -130,7 +130,7 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-rose-50 flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: 'linear-gradient(135deg, var(--bg-base) 0%, var(--bg-deep) 100%)' }}>
       <div className="w-full max-w-4xl relative z-0">
         {!isGenerating ? (
           <>
@@ -200,7 +200,8 @@ export function AICampaignGenerator({ onVideoGenerated }: AICampaignGeneratorPro
                   <button
                     key={index}
                     onClick={() => setPrompt(example)}
-                    className="w-full text-left px-4 py-3 bg-gradient-to-r from-orange-50 to-rose-50 hover:from-orange-100 hover:to-rose-100 rounded-xl text-sm text-gray-700 transition-all border border-orange-200 hover:border-orange-300"
+                    className="w-full text-left px-4 py-3 rounded-xl text-sm transition-all border hover:border-opacity-60"
+                    style={{ background: 'var(--glass-bg)', borderColor: 'var(--border-default)', color: 'var(--text-secondary)' }}
                   >
                     {example}
                   </button>
