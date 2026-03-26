@@ -8,6 +8,9 @@ export interface JobLead {
   postedAt: string;
   stream: 'NetSuite' | 'Cybersecurity' | 'Staffing/HR' | 'Other';
   tags: string[];
+  companyDomain?: string;
+  companyEmail?: string;
+  emailCandidates?: string[];
 }
 
 export interface User {
