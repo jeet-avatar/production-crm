@@ -20,7 +20,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "👋 Hi! I'm your AI assistant. I can help you create campaigns, analyze contacts, generate emails, and more. What would you like to do today?",
+      content: "👋 Hi Rajesh! I'm your BrandMonkz AI Assistant. I know everything about the CRM — setup, contacts, campaigns, importing from NetSuite, and more. What would you like help with today?",
       timestamp: new Date(),
     },
   ]);
@@ -180,10 +180,10 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
   };
 
   const quickActions = [
-    { label: '📧 Create Campaign', prompt: 'Help me create a new email campaign' },
-    { label: '📊 Analyze Contacts', prompt: 'Analyze my contact database and suggest segments' },
-    { label: '✍️ Write Email', prompt: 'Help me write an email for outreach' },
-    { label: '⏰ Best Time', prompt: 'When is the best time to send my next campaign?' },
+    { label: '💻 New Computer Setup', prompt: 'How do I access BrandMonkz on a new computer?' },
+    { label: '📥 Import Contacts', prompt: 'How do I import more contacts from NetSuite or a CSV file?' },
+    { label: '📧 Create Campaign', prompt: 'Walk me through creating and sending an email campaign' },
+    { label: '🔍 Lead Discovery', prompt: 'How do I use lead discovery to find new prospects?' },
   ];
 
   const handleQuickAction = (prompt: string) => {
@@ -200,13 +200,14 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
         right: '16px',
         width: '384px',
         height: '600px',
-        backgroundColor: 'white',
+        background: 'rgba(22,22,37,0.95)',
+        backdropFilter: 'blur(20px)',
         borderRadius: '8px',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 99999,
-        border: '1px solid #e5e7eb'
+        border: '1px solid rgba(255,255,255,0.1)'
       }}
     >
       {/* Header */}
@@ -216,8 +217,8 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
             <span className="text-2xl">🤖</span>
           </div>
           <div>
-            <h3 className="font-bold text-lg">AI Assistant</h3>
-            <p className="text-xs text-orange-900">Powered by ChatGPT</p>
+            <h3 className="font-bold text-lg">BrandMonkz AI Assistant</h3>
+            <p className="text-xs text-indigo-100">Ask me anything about BrandMonkz</p>
           </div>
         </div>
         <button
@@ -231,7 +232,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ background: 'rgba(255,255,255,0.02)' }}>
         {messages.map((message, index) => (
           <div
             key={index}
@@ -241,8 +242,13 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
               className={`max-w-[80%] rounded-lg p-3 ${
                 message.role === 'user'
                   ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white'
-                  : 'bg-white text-gray-800 border border-gray-200'
+                  : ''
               }`}
+              style={message.role === 'assistant' ? {
+                background: 'rgba(255,255,255,0.06)',
+                color: '#CBD5E1',
+                border: '1px solid rgba(255,255,255,0.1)'
+              } : undefined}
             >
               <div
                 className="text-sm whitespace-pre-wrap leading-relaxed"
@@ -265,7 +271,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
 
               {/* Approval Card */}
               {message.requiresApproval && pendingApproval && (
-                <div className="mt-4 bg-gradient-to-r from-green-50 to-orange-50 border-2 border-green-300 rounded-lg p-4">
+                <div className="mt-4 rounded-lg p-4" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)' }}>
                   <div className="text-sm font-bold text-green-800 mb-3 flex items-center">
                     <span className="text-lg mr-2">📋</span>
                     Campaign Ready for Approval
@@ -333,11 +339,11 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 rounded-lg p-3">
+            <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                <div className="w-2 h-2 bg-orange-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#6366F1' }} />
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#6366F1', animationDelay: '0.1s' }} />
+                <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#6366F1', animationDelay: '0.2s' }} />
               </div>
             </div>
           </div>
@@ -348,14 +354,15 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
 
       {/* Quick Actions */}
       {messages.length <= 2 && (
-        <div className="p-3 bg-white border-t border-gray-200">
-          <div className="text-xs text-gray-500 mb-2">Quick Actions:</div>
+        <div className="p-3 border-t" style={{ background: 'rgba(22,22,37,0.98)', borderColor: 'rgba(255,255,255,0.08)' }}>
+          <div className="text-xs mb-2" style={{ color: '#94A3B8' }}>Quick Actions:</div>
           <div className="grid grid-cols-2 gap-2">
             {quickActions.map((action, index) => (
               <button
                 key={index}
                 onClick={() => handleQuickAction(action.prompt)}
-                className="text-xs bg-orange-50 hover:bg-orange-100 text-orange-700 py-2 px-3 rounded border border-orange-200 transition-colors"
+                className="text-xs py-2 px-3 rounded transition-colors"
+                style={{ background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)' }}
               >
                 {action.label}
               </button>
@@ -365,7 +372,7 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
       )}
 
       {/* Input */}
-      <div className="p-4 bg-white border-t border-gray-200 rounded-b-lg">
+      <div className="p-4 rounded-b-lg border-t" style={{ background: 'rgba(22,22,37,0.98)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -379,7 +386,8 @@ export const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose }) => {
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type your message..."
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+            className="flex-1 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#F1F5F9' }}
           />
           <button
             type="submit"
