@@ -15,7 +15,11 @@ import {
   SparklesIcon,
   VideoCameraIcon,
   ShieldCheckIcon,
-  CodeBracketIcon
+  CodeBracketIcon,
+  DocumentTextIcon,
+  ClipboardDocumentCheckIcon,
+  ArrowUpTrayIcon,
+  BriefcaseIcon,
 } from '@heroicons/react/24/outline';
 import { Logo } from './Logo';
 import type { User } from '../types';
@@ -31,6 +35,10 @@ const navigation = [
   { name: 'Contacts', href: '/contacts', icon: UserGroupIcon },
   { name: 'Companies', href: '/companies', icon: BuildingOfficeIcon },
   { name: 'Deals', href: '/deals', icon: ChartBarIcon },
+  { name: 'Quotes', href: '/quotes', icon: DocumentTextIcon },
+  { name: 'Contracts', href: '/contracts', icon: ClipboardDocumentCheckIcon },
+  { name: 'CRM Import', href: '/import', icon: ArrowUpTrayIcon },
+  { name: 'Job Leads', href: '/job-leads', icon: BriefcaseIcon },
   { name: 'Activities', href: '/activities', icon: ClipboardDocumentListIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarSquareIcon },
   { name: 'Tags', href: '/tags', icon: TagIcon },

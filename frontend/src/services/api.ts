@@ -335,6 +335,10 @@ export const csvImportApi = {
 
 // Quotes API
 export const quotesApi = {
+  getAll: async () => {
+    const response = await apiClient.get('/quotes');
+    return response.data;
+  },
   getByDeal: async (dealId: string) => {
     const response = await apiClient.get('/quotes', { params: { dealId } });
     return response.data;
@@ -359,6 +363,10 @@ export const quotesApi = {
 
 // Contracts API
 export const contractsApi = {
+  getAll: async () => {
+    const response = await apiClient.get('/contracts');
+    return response.data;
+  },
   getByDeal: async (dealId: string) => {
     const response = await apiClient.get('/contracts', { params: { dealId } });
     return response.data;
@@ -377,6 +385,19 @@ export const contractsApi = {
   },
   delete: async (id: string) => {
     const response = await apiClient.delete(`/contracts/${id}`);
+    return response.data;
+  },
+};
+
+// Job Leads Pipeline API
+export const jobLeadsApi = {
+  fetch: async (stream?: string): Promise<{ leads: any[]; total: number; streams: Record<string, number>; error?: string }> => {
+    const url = stream ? `/job-leads/fetch?stream=${encodeURIComponent(stream)}` : '/job-leads/fetch';
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+  import: async (leads: any[]): Promise<{ imported: number; companies: string[] }> => {
+    const response = await apiClient.post('/job-leads/import', { leads });
     return response.data;
   },
 };

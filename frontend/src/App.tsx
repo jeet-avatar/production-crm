@@ -17,6 +17,9 @@ import { CompanyList } from './pages/Companies/CompanyList';
 import { CompanyDetail } from './pages/Companies/CompanyDetail';
 import { DealBoard } from './pages/Deals/DealBoard';
 import { DealDetail } from './pages/Deals/DealDetail';
+import { QuotesPage } from './pages/Quotes/QuotesPage';
+import { ContractsPage } from './pages/Contracts/ContractsPage';
+import { ImportPage } from './pages/Import/ImportPage';
 import { ActivitiesPage } from './pages/Activities/ActivitiesPage';
 import { AnalyticsPage } from './pages/Analytics/AnalyticsPage';
 import { TagsPage } from './pages/Tags/TagsPage';
@@ -32,6 +35,7 @@ import PricingPage from './pages/Pricing/PricingPage';
 import { SubscriptionSuccess } from './pages/Subscription/SubscriptionSuccess';
 import { SuperAdminDashboard } from './pages/SuperAdmin/SuperAdminDashboard';
 import { SystemTemplates } from './pages/SuperAdmin/SystemTemplates';
+import JobLeadsPage from './pages/JobLeads/JobLeadsPage';
 import type { User } from './types';
 
 // Create a client
@@ -115,6 +119,9 @@ function App() {
               <Route path="companies/:id" element={<CompanyDetail />} />
               <Route path="deals" element={<DealBoard />} />
               <Route path="deals/:id" element={<DealDetail />} />
+              <Route path="quotes" element={<QuotesPage />} />
+              <Route path="contracts" element={<ContractsPage />} />
+              <Route path="import" element={<ImportPage />} />
               <Route path="activities" element={<ActivitiesPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="tags" element={<TagsPage />} />
@@ -127,6 +134,7 @@ function App() {
               <Route path="team" element={<TeamPage />} />
               <Route path="super-admin" element={<SuperAdminDashboard />} />
               <Route path="super-admin/system-templates" element={<SystemTemplates />} />
+              <Route path="job-leads" element={<JobLeadsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           )}
