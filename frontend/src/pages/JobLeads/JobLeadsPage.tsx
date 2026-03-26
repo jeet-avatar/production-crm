@@ -29,6 +29,10 @@ export default function JobLeadsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [importing, setImporting] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [guideHidden, setGuideHidden] = useState<boolean>(
+    () => localStorage.getItem('jl_guide_hidden') === 'true'
+  );
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -104,28 +108,89 @@ export default function JobLeadsPage() {
             Remote job postings from companies hiring — import as CRM leads
           </p>
         </div>
+        {/* Hero CTA button */}
         <button
           onClick={fetchLeads}
           disabled={loading}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '10px 18px',
-            background: 'var(--accent-indigo)',
+            gap: '10px',
+            padding: '14px 28px',
+            background: 'linear-gradient(135deg, var(--accent-indigo), #7c3aed)',
             color: '#fff',
             border: 'none',
-            borderRadius: '10px',
-            fontWeight: 600,
-            fontSize: '0.875rem',
+            borderRadius: '12px',
+            fontWeight: 700,
+            fontSize: '1rem',
             cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.7 : 1,
+            opacity: loading ? 0.75 : 1,
+            boxShadow: leads.length === 0 && !loading
+              ? '0 0 0 0 rgba(99,102,241,0.7)'
+              : 'none',
+            animation: leads.length === 0 && !loading ? 'pulse-ring 2s ease-out infinite' : 'none',
+            transition: 'opacity 0.2s',
           }}
         >
-          <ArrowPathIcon style={{ width: '16px', height: '16px', animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-          {loading ? 'Fetching…' : 'Fetch Leads'}
+          <ArrowPathIcon style={{
+            width: '20px',
+            height: '20px',
+            animation: loading ? 'spin 1s linear infinite' : 'none',
+          }} />
+          {loading ? 'Fetching fresh leads\u2026' : '\uD83D\uDE80 Get Fresh Leads'}
         </button>
       </div>
+
+      {/* How-to guide panel — dismissible */}
+      {!guideHidden && (
+        <div style={{
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '12px',
+          padding: '20px 24px',
+          marginBottom: '20px',
+          position: 'relative',
+        }}>
+          <button
+            onClick={() => {
+              setGuideHidden(true);
+              localStorage.setItem('jl_guide_hidden', 'true');
+            }}
+            style={{
+              position: 'absolute',
+              top: '14px',
+              right: '16px',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              fontSize: '1.25rem',
+              cursor: 'pointer',
+              lineHeight: 1,
+              padding: '0 4px',
+            }}
+            title="Dismiss guide"
+          >
+            &times;
+          </button>
+          <h3 style={{ color: 'var(--text-primary)', fontSize: '1rem', fontWeight: 700, margin: '0 0 16px' }}>
+            📖 How to use this page
+          </h3>
+          <ol style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {[
+              { emoji: '🔍', text: 'Click the big blue button to find companies looking to hire people from India' },
+              { emoji: '🏷️', text: 'Pick your stream at the top — NetSuite, Cybersecurity, or Staffing' },
+              { emoji: '✅', text: 'Tick the boxes next to companies you want to reach out to' },
+              { emoji: '📬', text: "Click 'Add to My CRM' — they go straight into your contacts list with an email address ready to use" },
+              { emoji: '📧', text: 'Go to Campaigns → create a new campaign → pick these contacts → send your email!' },
+            ].map((step, i) => (
+              <li key={i} style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5 }}>
+                <span style={{ marginRight: '8px' }}>{step.emoji}</span>
+                {step.text}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       {/* Stream Tabs */}
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -210,7 +275,7 @@ export default function JobLeadsPage() {
         {/* Table header */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '40px 48px 1fr 1fr 130px 110px 110px 140px',
+          gridTemplateColumns: '40px 48px 1fr 200px 1fr 130px 110px 110px 140px',
           padding: '12px 16px',
           borderBottom: '1px solid var(--border-subtle, var(--border-default))',
           background: 'var(--bg-card)',
@@ -225,6 +290,7 @@ export default function JobLeadsPage() {
           </div>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}></div>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Company</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</div>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Job Title</div>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Stream</div>
           <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location</div>
@@ -245,7 +311,7 @@ export default function JobLeadsPage() {
           <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
             <BuildingOfficeIcon style={{ width: '40px', height: '40px', margin: '0 auto 12px', opacity: 0.4 }} />
             <p style={{ margin: 0 }}>
-              No job leads found for this stream. Try 'All' or click Fetch Leads.
+              No job leads found for this stream. Try 'All' or click Get Fresh Leads.
             </p>
           </div>
         )}
@@ -259,7 +325,7 @@ export default function JobLeadsPage() {
               key={lead.id}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '40px 48px 1fr 1fr 130px 110px 110px 140px',
+                gridTemplateColumns: '40px 48px 1fr 200px 1fr 130px 110px 110px 140px',
                 padding: '12px 16px',
                 borderBottom: idx < leads.length - 1 ? '1px solid var(--border-subtle, var(--border-default))' : 'none',
                 alignItems: 'center',
@@ -308,6 +374,41 @@ export default function JobLeadsPage() {
                 >
                   {lead.companyName}
                 </a>
+              </div>
+
+              {/* Email pill */}
+              <div>
+                {lead.companyEmail ? (
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(lead.companyEmail!);
+                      setCopiedEmail(lead.companyEmail!);
+                      setTimeout(() => setCopiedEmail(null), 2000);
+                    }}
+                    title="Click to copy email"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '3px 10px',
+                      background: 'rgba(99,102,241,0.12)',
+                      color: 'var(--accent-indigo)',
+                      border: '1px solid rgba(99,102,241,0.25)',
+                      borderRadius: '6px',
+                      fontSize: '0.72rem',
+                      fontFamily: 'monospace',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '180px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {copiedEmail === lead.companyEmail ? '✓ Copied' : lead.companyEmail}
+                  </button>
+                ) : (
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', opacity: 0.5 }}>—</span>
+                )}
               </div>
 
               {/* Job Title */}
@@ -401,7 +502,7 @@ export default function JobLeadsPage() {
               opacity: importing ? 0.7 : 1,
             }}
           >
-            {importing ? 'Importing…' : 'Import All'}
+            {importing ? 'Importing\u2026' : `Add ${selectedIds.size} lead${selectedIds.size !== 1 ? 's' : ''} to CRM`}
           </button>
           <button
             onClick={() => setSelectedIds(new Set())}
@@ -423,6 +524,11 @@ export default function JobLeadsPage() {
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse-ring {
+          0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.6); }
+          70% { box-shadow: 0 0 0 12px rgba(99,102,241,0); }
+          100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
       `}</style>
     </div>
   );
