@@ -1,0 +1,429 @@
+import { useState, useEffect, useCallback } from 'react';
+import { BuildingOfficeIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { jobLeadsApi } from '../../services/api';
+import type { JobLead } from '../../types';
+
+const STREAMS = ['All', 'NetSuite', 'Cybersecurity', 'Staffing/HR', 'Other'] as const;
+
+const STREAM_BADGE_STYLES: Record<string, { bg: string; color: string }> = {
+  NetSuite: { bg: 'rgba(99,102,241,0.18)', color: 'var(--accent-indigo)' },
+  Cybersecurity: { bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
+  'Staffing/HR': { bg: 'rgba(16,185,129,0.15)', color: '#10b981' },
+  Other: { bg: 'rgba(107,114,128,0.15)', color: 'var(--text-secondary)' },
+};
+
+function formatDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  } catch {
+    return iso;
+  }
+}
+
+export default function JobLeadsPage() {
+  const [leads, setLeads] = useState<JobLead[]>([]);
+  const [streams, setStreams] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [activeStream, setActiveStream] = useState<string>('All');
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [importing, setImporting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  const fetchLeads = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setSelectedIds(new Set());
+    try {
+      const stream = activeStream === 'All' ? undefined : activeStream;
+      const data = await jobLeadsApi.fetch(stream);
+      setLeads(data.leads || []);
+      setStreams(data.streams || {});
+      if (data.error) {
+        setError(data.error);
+      }
+    } catch (err: any) {
+      setError(err?.response?.data?.error || err?.message || 'Failed to fetch leads');
+    } finally {
+      setLoading(false);
+    }
+  }, [activeStream]);
+
+  useEffect(() => {
+    fetchLeads();
+  }, [fetchLeads]);
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === leads.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(leads.map(l => l.id)));
+    }
+  };
+
+  const importLeads = async (leadsToImport: JobLead[]) => {
+    if (leadsToImport.length === 0) return;
+    setImporting(true);
+    setError(null);
+    try {
+      const result = await jobLeadsApi.import(leadsToImport);
+      setSuccessMsg(`Imported ${result.imported} lead${result.imported !== 1 ? 's' : ''} to CRM`);
+      setSelectedIds(new Set());
+      setTimeout(() => setSuccessMsg(null), 4000);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || err?.message || 'Import failed');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleImportSingle = (lead: JobLead) => importLeads([lead]);
+  const handleImportSelected = () => {
+    const toImport = leads.filter(l => selectedIds.has(l.id));
+    importLeads(toImport);
+  };
+
+  return (
+    <div style={{ background: 'var(--bg-base)', minHeight: '100vh', padding: '24px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div>
+          <h1 style={{ color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 700, margin: 0 }}>
+            Job Leads Pipeline
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '4px' }}>
+            Remote job postings from companies hiring — import as CRM leads
+          </p>
+        </div>
+        <button
+          onClick={fetchLeads}
+          disabled={loading}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            background: 'var(--accent-indigo)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '10px',
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1,
+          }}
+        >
+          <ArrowPathIcon style={{ width: '16px', height: '16px', animation: loading ? 'spin 1s linear infinite' : 'none' }} />
+          {loading ? 'Fetching…' : 'Fetch Leads'}
+        </button>
+      </div>
+
+      {/* Stream Tabs */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+        {STREAMS.map(stream => {
+          const count = stream === 'All' ? leads.length : (streams[stream] ?? 0);
+          const isActive = activeStream === stream;
+          return (
+            <button
+              key={stream}
+              onClick={() => setActiveStream(stream)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '24px',
+                border: isActive ? 'none' : '1px solid var(--border-default)',
+                background: isActive ? 'var(--accent-indigo)' : 'var(--bg-elevated)',
+                color: isActive ? '#fff' : 'var(--text-secondary)',
+                fontWeight: isActive ? 700 : 500,
+                fontSize: '0.875rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              {stream}
+              {count > 0 && (
+                <span style={{
+                  background: isActive ? 'rgba(255,255,255,0.25)' : 'var(--bg-base)',
+                  color: isActive ? '#fff' : 'var(--text-secondary)',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  borderRadius: '10px',
+                  padding: '1px 7px',
+                }}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Success message */}
+      {successMsg && (
+        <div style={{
+          background: 'rgba(16,185,129,0.12)',
+          color: 'var(--text-success, #10b981)',
+          border: '1px solid rgba(16,185,129,0.3)',
+          borderRadius: '10px',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          fontWeight: 500,
+          fontSize: '0.9rem',
+        }}>
+          {successMsg}
+        </div>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <div style={{
+          background: 'rgba(239,68,68,0.1)',
+          color: 'var(--text-danger, #ef4444)',
+          border: '1px solid rgba(239,68,68,0.25)',
+          borderRadius: '10px',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          fontWeight: 500,
+          fontSize: '0.9rem',
+        }}>
+          {error}
+        </div>
+      )}
+
+      {/* Lead Table */}
+      <div style={{
+        background: 'var(--bg-elevated)',
+        borderRadius: '12px',
+        border: '1px solid var(--border-default)',
+        overflow: 'hidden',
+      }}>
+        {/* Table header */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '40px 48px 1fr 1fr 130px 110px 110px 140px',
+          padding: '12px 16px',
+          borderBottom: '1px solid var(--border-subtle, var(--border-default))',
+          background: 'var(--bg-card)',
+        }}>
+          <div>
+            <input
+              type="checkbox"
+              checked={leads.length > 0 && selectedIds.size === leads.length}
+              onChange={toggleSelectAll}
+              style={{ cursor: 'pointer', accentColor: 'var(--accent-indigo)' }}
+            />
+          </div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}></div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Company</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Job Title</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Stream</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Location</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Posted</div>
+          <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</div>
+        </div>
+
+        {/* Loading state */}
+        {loading && (
+          <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <ArrowPathIcon style={{ width: '32px', height: '32px', margin: '0 auto 12px', animation: 'spin 1s linear infinite' }} />
+            <p style={{ margin: 0 }}>Fetching job leads…</p>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && leads.length === 0 && (
+          <div style={{ padding: '48px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <BuildingOfficeIcon style={{ width: '40px', height: '40px', margin: '0 auto 12px', opacity: 0.4 }} />
+            <p style={{ margin: 0 }}>
+              No job leads found for this stream. Try 'All' or click Fetch Leads.
+            </p>
+          </div>
+        )}
+
+        {/* Rows */}
+        {!loading && leads.map((lead, idx) => {
+          const badgeStyle = STREAM_BADGE_STYLES[lead.stream] || STREAM_BADGE_STYLES['Other'];
+          const isSelected = selectedIds.has(lead.id);
+          return (
+            <div
+              key={lead.id}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '40px 48px 1fr 1fr 130px 110px 110px 140px',
+                padding: '12px 16px',
+                borderBottom: idx < leads.length - 1 ? '1px solid var(--border-subtle, var(--border-default))' : 'none',
+                alignItems: 'center',
+                background: isSelected ? 'rgba(99,102,241,0.06)' : 'transparent',
+                transition: 'background 0.15s',
+              }}
+            >
+              {/* Checkbox */}
+              <div>
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => toggleSelect(lead.id)}
+                  style={{ cursor: 'pointer', accentColor: 'var(--accent-indigo)' }}
+                />
+              </div>
+
+              {/* Logo */}
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {lead.companyLogo ? (
+                  <img
+                    src={lead.companyLogo}
+                    alt={lead.companyName}
+                    style={{ width: '24px', height: '24px', borderRadius: '4px', objectFit: 'contain' }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                ) : (
+                  <BuildingOfficeIcon style={{ width: '20px', height: '20px', color: 'var(--text-secondary)', opacity: 0.5 }} />
+                )}
+              </div>
+
+              {/* Company */}
+              <div>
+                <a
+                  href={lead.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: 'var(--text-primary)',
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    textDecoration: 'none',
+                  }}
+                  onMouseEnter={e => (e.target as HTMLAnchorElement).style.textDecoration = 'underline'}
+                  onMouseLeave={e => (e.target as HTMLAnchorElement).style.textDecoration = 'none'}
+                >
+                  {lead.companyName}
+                </a>
+              </div>
+
+              {/* Job Title */}
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {lead.title}
+              </div>
+
+              {/* Stream Badge */}
+              <div>
+                <span style={{
+                  background: badgeStyle.bg,
+                  color: badgeStyle.color,
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  borderRadius: '6px',
+                  padding: '3px 10px',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {lead.stream}
+                </span>
+              </div>
+
+              {/* Location */}
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {lead.location}
+              </div>
+
+              {/* Posted date */}
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                {formatDate(lead.postedAt)}
+              </div>
+
+              {/* Actions */}
+              <div>
+                <button
+                  onClick={() => handleImportSingle(lead)}
+                  disabled={importing}
+                  style={{
+                    padding: '6px 12px',
+                    background: 'var(--accent-indigo)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '7px',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: importing ? 'not-allowed' : 'pointer',
+                    opacity: importing ? 0.6 : 1,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Add to CRM
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Bulk import sticky bar */}
+      {selectedIds.size > 0 && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-default)',
+          borderRadius: '12px',
+          padding: '14px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+          zIndex: 50,
+        }}>
+          <span style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.9rem' }}>
+            {selectedIds.size} lead{selectedIds.size !== 1 ? 's' : ''} selected
+          </span>
+          <button
+            onClick={handleImportSelected}
+            disabled={importing}
+            style={{
+              padding: '8px 20px',
+              background: 'var(--accent-indigo)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              cursor: importing ? 'not-allowed' : 'pointer',
+              opacity: importing ? 0.7 : 1,
+            }}
+          >
+            {importing ? 'Importing…' : 'Import All'}
+          </button>
+          <button
+            onClick={() => setSelectedIds(new Set())}
+            style={{
+              padding: '8px 14px',
+              background: 'transparent',
+              color: 'var(--text-secondary)',
+              border: '1px solid var(--border-default)',
+              borderRadius: '8px',
+              fontWeight: 500,
+              fontSize: '0.875rem',
+              cursor: 'pointer',
+            }}
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
+  );
+}

@@ -1,3 +1,15 @@
+export interface JobLead {
+  id: number;
+  title: string;
+  companyName: string;
+  companyLogo?: string;
+  url: string;
+  location: string;
+  postedAt: string;
+  stream: 'NetSuite' | 'Cybersecurity' | 'Staffing/HR' | 'Other';
+  tags: string[];
+}
+
 export interface User {
   id: string;
   email: string;
