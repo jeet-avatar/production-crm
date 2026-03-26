@@ -1,6 +1,6 @@
 # Project State
 
-Last activity: 2026-03-26 - Quick Task 02 COMPLETE: Job Leads Pipeline — Remotive job-board fetch + 4-stream classification + import to CRM (Company+Contact)
+Last activity: 2026-03-26 - Quick Task 03 COMPLETE: Job Leads email enhancements — domain emails (hr@), hero CTA with pulse animation, dismissible guide panel, email pill column
 
 ## Current Phase
 Phase 03: CRM Migration Wizard — COMPLETE
@@ -51,3 +51,4 @@ None
 |---|-------------|------|--------|--------|-----------|
 | 1 | Fix Indigo Noir dark theme: remap orange/rose CSS to indigo/purple, fix missing gray text classes, fix light badge backgrounds | 2026-03-17 | f3301d7 | Verified | [1-fix-indigo-noir-dark-theme-remap-orange-](.planning/quick/1-fix-indigo-noir-dark-theme-remap-orange-/) |
 | 2 | Build Job Leads Pipeline: Remotive API fetch + 4-stream classification + /job-leads page + Company+Contact import | 2026-03-26 | 9a23c86, d32ec65 | Deployed | [2-build-job-leads-pipeline-for-brandmonkz-](.planning/quick/2-build-job-leads-pipeline-for-brandmonkz-/) |
+| 3 | Enhance Job Leads: domain emails (hr@), hero CTA + pulse animation, dismissible guide panel, email pill column, email on Contact import | 2026-03-26 | 10a7f0a, 667df4f, fda181e | Deployed | [3-enhance-job-leads-page-real-company-emai](.planning/quick/3-enhance-job-leads-page-real-company-emai/) |
