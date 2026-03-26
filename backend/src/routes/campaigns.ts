@@ -259,13 +259,14 @@ router.get('/:id/companies', async (req, res, next) => {
 // POST /api/campaigns/ai/generate-basics - Generate campaign name and goal
 router.post('/ai/generate-basics', async (req, res, next) => {
   try {
-    const { tone } = req.body;
+    const { tone, description } = req.body;
 
     const prompt = `You are an expert email marketer. Generate a creative campaign name and compelling goal for an email marketing campaign.
 
 Tone: ${tone || 'professional'}
+Campaign Brief: ${description || 'a general marketing campaign'}
 
-Generate a campaign name and goal that would work for a B2B SaaS company. The campaign should be relevant and timely.
+Generate a campaign name and goal that is directly relevant to the campaign brief above.
 
 Return ONLY valid JSON with this structure:
 {"name": "Campaign Name Here", "goal": "Detailed campaign goal describing what you want to achieve with this campaign..."}`;
