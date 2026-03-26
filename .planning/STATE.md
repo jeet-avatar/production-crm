@@ -1,6 +1,6 @@
 # Project State
 
-Last activity: 2026-03-19 - Phase 03 COMPLETE: CRM Migration Wizard — backend bulk-import + 5-step wizard modal + SettingsPage Data Import tab
+Last activity: 2026-03-26 - Quick Task 02 COMPLETE: Job Leads Pipeline — Remotive job-board fetch + 4-stream classification + import to CRM (Company+Contact)
 
 ## Current Phase
 Phase 03: CRM Migration Wizard — COMPLETE
@@ -50,3 +50,4 @@ None
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 1 | Fix Indigo Noir dark theme: remap orange/rose CSS to indigo/purple, fix missing gray text classes, fix light badge backgrounds | 2026-03-17 | f3301d7 | Verified | [1-fix-indigo-noir-dark-theme-remap-orange-](.planning/quick/1-fix-indigo-noir-dark-theme-remap-orange-/) |
+| 2 | Build Job Leads Pipeline: Remotive API fetch + 4-stream classification + /job-leads page + Company+Contact import | 2026-03-26 | 9a23c86, d32ec65 | Deployed | [2-build-job-leads-pipeline-for-brandmonkz-](.planning/quick/2-build-job-leads-pipeline-for-brandmonkz-/) |
