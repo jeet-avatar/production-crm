@@ -13,6 +13,18 @@ const prisma = new PrismaClient();
 router.use(authenticate);
 
 // ============================================
+// DOMAIN EXTRACTION
+// ============================================
+function extractDomain(url: string): string | null {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.replace(/^www\./, '');
+  } catch {
+    return null;
+  }
+}
+
+// ============================================
 // STREAM CLASSIFICATION
 // ============================================
 function classifyStream(title: string, description: string): string {
@@ -43,17 +55,23 @@ router.get('/fetch', async (req, res) => {
       return res.json({ leads: [], total: 0, streams: {}, error: 'Unexpected response from job board' });
     }
 
-    const leads = response.data.jobs.map((job: any) => ({
-      id: job.id,
-      title: job.title,
-      companyName: job.company_name,
-      companyLogo: job.company_logo || null,
-      url: job.url,
-      location: job.candidate_required_location || 'Remote',
-      postedAt: job.publication_date,
-      stream: classifyStream(job.title || '', job.description || ''),
-      tags: job.tags || [],
-    }));
+    const leads = response.data.jobs.map((job: any) => {
+      const domain = extractDomain(job.url || '');
+      return {
+        id: job.id,
+        title: job.title,
+        companyName: job.company_name,
+        companyLogo: job.company_logo || null,
+        url: job.url,
+        location: job.candidate_required_location || 'Remote',
+        postedAt: job.publication_date,
+        stream: classifyStream(job.title || '', job.description || ''),
+        tags: job.tags || [],
+        companyDomain: domain || '',
+        companyEmail: domain ? `hr@${domain}` : '',
+        emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
+      };
+    });
 
     // Count by stream
     const streams: Record<string, number> = { NetSuite: 0, Cybersecurity: 0, 'Staffing/HR': 0, Other: 0 };
@@ -85,6 +103,7 @@ router.post('/import', async (req, res) => {
         stream: string;
         title: string;
         location: string;
+        companyEmail?: string;
       }>;
     };
     const userId = (req as any).user?.id;
@@ -127,6 +146,7 @@ router.post('/import', async (req, res) => {
           data: {
             firstName: 'Hiring',
             lastName: 'Manager',
+            email: lead.companyEmail || undefined,
             title: lead.title,
             source: 'job_board',
             notes: `Job posting: ${lead.url}\nStream: ${lead.stream}\nLocation: ${lead.location}`,
