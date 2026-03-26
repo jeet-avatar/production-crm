@@ -13,8 +13,10 @@ import {
   XMarkIcon,
   PencilIcon,
   QuestionMarkCircleIcon,
+  PaperAirplaneIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
-import CreateCampaignModal from '../../components/CreateCampaignModal';
+import CampaignWizard from '../../components/CampaignWizard';
 import { EditCampaignModal } from '../../components/EditCampaignModal';
 import { CampaignsHelpGuide } from '../../components/CampaignsHelpGuide';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -51,6 +53,8 @@ export function CampaignsPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editCampaign, setEditCampaign] = useState<Campaign | null>(null);
   const [showHelpGuide, setShowHelpGuide] = useState(false);
+  const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
+  const [sendResult, setSendResult] = useState<{ id: string; sent: number; total: number } | null>(null);
 
   useEffect(() => {
     loadCampaigns();
@@ -89,6 +93,32 @@ export function CampaignsPage() {
       console.error('Error loading campaigns:', error);
       setCampaigns([]);
       setIsLoading(false);
+    }
+  };
+
+  const handleSendNow = async (e: React.MouseEvent, campaignId: string) => {
+    e.stopPropagation();
+    if (!window.confirm('Send this campaign now to all contacts?')) return;
+    setSendingCampaignId(campaignId);
+    setSendResult(null);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(`${apiUrl}/api/campaigns/${campaignId}/send`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setSendResult({ id: campaignId, sent: data.sent, total: data.total });
+        loadCampaigns();
+      } else {
+        alert(data.error || 'Failed to send campaign');
+      }
+    } catch {
+      alert('Failed to send campaign');
+    } finally {
+      setSendingCampaignId(null);
     }
   };
 
@@ -297,9 +327,14 @@ export function CampaignsPage() {
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                       <h3 className="text-2xl font-bold text-gray-900">{campaign.name}</h3>
                       <span className={getStatusBadge(campaign.status)}>{campaign.status}</span>
+                      {sendResult?.id === campaign.id && (
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border-2 border-green-400">
+                          ✓ Sent to {sendResult.sent}/{sendResult.total} contacts
+                        </span>
+                      )}
                     </div>
                     {campaign.subject && (
                       <p className="text-base text-gray-600 mb-2 flex items-center gap-2">
@@ -322,6 +357,26 @@ export function CampaignsPage() {
                       <span>by {campaign.createdBy}</span>
                     </div>
                   </div>
+                  {/* Send Now button — shown for draft/scheduled campaigns */}
+                  {(campaign.status === 'draft' || campaign.status === 'scheduled') && (
+                    <button
+                      onClick={(e) => handleSendNow(e, campaign.id)}
+                      disabled={sendingCampaignId === campaign.id}
+                      className={`ml-4 flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-semibold text-sm shadow hover:shadow-lg disabled:opacity-60 transition-all whitespace-nowrap`}
+                    >
+                      {sendingCampaignId === campaign.id ? (
+                        <>
+                          <ArrowPathIcon className="h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <PaperAirplaneIcon className="h-4 w-4" />
+                          Send Now
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
 
                 {/* Campaign Stats */}
@@ -408,9 +463,9 @@ export function CampaignsPage() {
         />
       )}
 
-      {/* Create Campaign Modal */}
+      {/* Create Campaign Wizard */}
       {showCreateModal && (
-        <CreateCampaignModal
+        <CampaignWizard
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
@@ -536,13 +591,13 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
           <div className="mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Campaign Performance</h3>
             <div className="grid grid-cols-4 gap-4">
-              <button className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm transition-all tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`}>
+              <div className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg`}>
                 <div className="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Sent</div>
                 <div className="text-2xl font-bold">
                   {campaign.sentCount.toLocaleString()}
                 </div>
-              </button>
-              <button className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm transition-all tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`}>
+              </div>
+              <div className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg`}>
                 <div className="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Opened</div>
                 <div className="text-2xl font-bold">
                   {campaign.openedCount.toLocaleString()}
@@ -550,8 +605,8 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
                     ({calculateRate(campaign.openedCount, campaign.sentCount)}%)
                   </span>
                 </div>
-              </button>
-              <button className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm transition-all tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`}>
+              </div>
+              <div className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg`}>
                 <div className="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Clicked</div>
                 <div className="text-2xl font-bold">
                   {campaign.clickedCount.toLocaleString()}
@@ -559,8 +614,8 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
                     ({calculateRate(campaign.clickedCount, campaign.sentCount)}%)
                   </span>
                 </div>
-              </button>
-              <button className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm transition-all tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`}>
+              </div>
+              <div className={`inline-flex flex-col items-start p-4 rounded-xl font-bold text-sm tracking-wide bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg`}>
                 <div className="text-xs font-bold uppercase tracking-wider opacity-90 mb-2">Converted</div>
                 <div className="text-2xl font-bold">
                   {campaign.convertedCount.toLocaleString()}
@@ -568,7 +623,7 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
                     ({calculateRate(campaign.convertedCount, campaign.sentCount)}%)
                   </span>
                 </div>
-              </button>
+              </div>
             </div>
           </div>
 
