@@ -44,6 +44,7 @@ import verificationRoutes from './routes/verification';
 import teamRoutes from './routes/team';
 import sharingRoutes from './routes/sharing';
 import leadsRoutes from './routes/leads.routes';
+import jobLeadsRoutes from './routes/job-leads.routes';
 import quotesRoutes from './routes/quotes';
 import contractsRoutes from './routes/contracts';
 // DISABLED: These routes reference non-existent Prisma models
@@ -310,6 +311,7 @@ app.use('/api/verification', verificationRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/sharing', sharingRoutes);
 app.use('/api/leads', leadsRoutes);
+app.use('/api/job-leads', jobLeadsRoutes);
 // DISABLED: These routes reference non-existent Prisma models
 // app.use('/api/tasks', tasksRoutes);
 // app.use('/api/projects', projectsRoutes);
