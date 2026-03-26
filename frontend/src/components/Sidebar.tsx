@@ -15,7 +15,6 @@ import {
   SparklesIcon,
   VideoCameraIcon,
   ShieldCheckIcon,
-  CodeBracketIcon,
   DocumentTextIcon,
   ClipboardDocumentCheckIcon,
   ArrowUpTrayIcon,
@@ -49,32 +48,113 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
 ];
 
+const sidebarHoverStyle = `
+  .sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #CBD5E1 !important;
+  }
+  .sidebar-nav-item:hover svg {
+    color: #94A3B8 !important;
+  }
+`;
+
 export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
   return (
-    <div className="fixed left-0 top-0 h-screen w-64 bg-white border-r-2 border-gray-200 flex flex-col shadow-lg">
+    <div
+      style={{
+        position: 'fixed',
+        left: '12px',
+        top: '12px',
+        height: 'calc(100vh - 24px)',
+        width: '248px',
+        background: 'rgba(22, 22, 37, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
+        borderRadius: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.06)',
+        zIndex: 50,
+        overflow: 'hidden',
+      }}
+    >
+      <style>{sidebarHoverStyle}</style>
+
       {/* BrandMonkz Logo */}
-      <div className="flex items-center py-6 px-4 border-b-2 border-gray-200">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '20px 16px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+        }}
+      >
         <Logo />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-6 space-y-1.5 px-4 overflow-y-auto">
+      <nav
+        style={{
+          flex: 1,
+          padding: '16px 12px',
+          overflowY: 'auto',
+        }}
+      >
         {navigation.map((item) => (
           <NavLink
             key={item.name}
             to={item.href}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer group ${
-                isActive
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30 scale-105'
-                  : 'text-gray-700 hover:bg-gradient-to-r hover:from-orange-50 hover:to-rose-50 hover:text-indigo-400 hover:shadow-sm hover:scale-105 border border-transparent hover:border-gray-200'
-              }`
+            className="sidebar-nav-item"
+            style={({ isActive }) =>
+              isActive
+                ? {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    background: 'rgba(99, 102, 241, 0.18)',
+                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                    color: '#A5B4FC',
+                    boxShadow: '0 0 20px rgba(99, 102, 241, 0.15)',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                    textDecoration: 'none',
+                    transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+                    cursor: 'pointer',
+                    marginBottom: '2px',
+                  }
+                : {
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    background: 'transparent',
+                    border: '1px solid transparent',
+                    color: '#64748B',
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    textDecoration: 'none',
+                    transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+                    cursor: 'pointer',
+                    marginBottom: '2px',
+                  }
             }
           >
             {({ isActive }) => (
               <>
-                <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive ? '' : 'group-hover:scale-110'} transition-transform`} />
-                <span className="font-semibold text-sm">{item.name}</span>
+                <item.icon
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    flexShrink: 0,
+                    color: isActive ? '#818CF8' : '#64748B',
+                  }}
+                />
+                <span>{item.name}</span>
               </>
             )}
           </NavLink>
@@ -83,21 +163,61 @@ export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
         {/* Super Admin Link - Only for ethan@brandmonkz.com */}
         {user.email === 'ethan@brandmonkz.com' && (
           <>
-            <div className="my-4 border-t border-gray-200"></div>
+            <div
+              style={{
+                margin: '12px 0',
+                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+              }}
+            />
             <NavLink
               to="/super-admin"
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer group ${
-                  isActive
-                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg shadow-red-500/30 scale-105'
-                    : 'text-red-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:text-red-700 hover:shadow-sm hover:scale-105 border border-transparent hover:border-red-200'
-                }`
+              className="sidebar-nav-item"
+              style={({ isActive }) =>
+                isActive
+                  ? {
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '10px 14px',
+                      borderRadius: '12px',
+                      background: 'rgba(239, 68, 68, 0.18)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#FCA5A5',
+                      boxShadow: '0 0 20px rgba(239, 68, 68, 0.15)',
+                      fontWeight: 600,
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                      transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+                      cursor: 'pointer',
+                    }
+                  : {
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '10px 14px',
+                      borderRadius: '12px',
+                      background: 'transparent',
+                      border: '1px solid transparent',
+                      color: '#64748B',
+                      fontWeight: 500,
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                      transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+                      cursor: 'pointer',
+                    }
               }
             >
               {({ isActive }) => (
                 <>
-                  <ShieldCheckIcon className={`h-5 w-5 flex-shrink-0 ${isActive ? '' : 'group-hover:scale-110'} transition-transform`} />
-                  <span className="font-semibold text-sm">Super Admin</span>
+                  <ShieldCheckIcon
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      flexShrink: 0,
+                      color: isActive ? '#F87171' : '#64748B',
+                    }}
+                  />
+                  <span>Super Admin</span>
                 </>
               )}
             </NavLink>
@@ -105,54 +225,130 @@ export function Sidebar({ user, onLogout, onOpenChat }: SidebarProps) {
         )}
       </nav>
 
-      {/* AI ChatGPT Button - Available for all users */}
+      {/* AI Assistant Button */}
       {onOpenChat && (
-        <div className="px-4 py-3">
+        <div style={{ padding: '12px 16px' }}>
           <button
             onClick={onOpenChat}
-            className="w-full flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl shadow-lg hover:shadow-xl hover:scale-105 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 cursor-pointer"
+            style={{
+              background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '10px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              width: '100%',
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(99, 102, 241, 0.3)',
+              fontWeight: 600,
+              fontSize: '14px',
+              transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
             title="AI Assistant - Campaign & Contact Help"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: '18px', height: '18px', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
-            <span className="font-semibold text-sm">AI Assistant</span>
-            <SparklesIcon className="w-4 h-4 ml-auto animate-pulse" />
+            <span>AI Assistant</span>
+            <SparklesIcon style={{ width: '16px', height: '16px', marginLeft: 'auto' }} className="animate-pulse" />
           </button>
         </div>
       )}
 
       {/* User Profile Section */}
-      <div className="border-t-2 border-gray-200 bg-gradient-to-br from-gray-50 to-white">
-        <div className="p-4">
-          {/* User Info Card */}
-          <div className="bg-white border-2 border-gray-200 rounded-xl p-3 mb-3 shadow-sm">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
-                  <span className="text-white font-bold text-sm">
-                    {user.firstName[0]}{user.lastName[0]}
-                  </span>
-                </div>
-              </div>
-              <div className="ml-3 flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-900 truncate">
-                  {user.firstName} {user.lastName}
-                </p>
-                <p className="text-xs text-gray-600 truncate font-medium">{user.email}</p>
-              </div>
+      <div
+        style={{
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          background: 'rgba(255, 255, 255, 0.02)',
+          padding: '12px 16px',
+        }}
+      >
+        {/* User Info Card */}
+        <div
+          style={{
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderRadius: '12px',
+            padding: '12px',
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <div style={{ flexShrink: 0 }}>
+            <div
+              style={{
+                height: '40px',
+                width: '40px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+              }}
+            >
+              <span style={{ color: '#fff', fontWeight: 700, fontSize: '13px' }}>
+                {user.firstName[0]}{user.lastName[0]}
+              </span>
             </div>
           </div>
-
-          {/* Logout Button */}
-          <button
-            onClick={onLogout}
-            className="w-full flex items-center justify-center px-4 py-3 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 border-2 border-red-600 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
-          >
-            <ArrowRightOnRectangleIcon className="h-5 w-5 mr-2" />
-            Sign Out
-          </button>
+          <div style={{ marginLeft: '12px', flex: 1, minWidth: 0 }}>
+            <p
+              style={{
+                fontSize: '13px',
+                fontWeight: 700,
+                color: '#F1F5F9',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                margin: 0,
+              }}
+            >
+              {user.firstName} {user.lastName}
+            </p>
+            <p
+              style={{
+                fontSize: '11px',
+                color: '#64748B',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                margin: 0,
+                fontWeight: 500,
+              }}
+            >
+              {user.email}
+            </p>
+          </div>
         </div>
+
+        {/* Logout Button */}
+        <button
+          onClick={onLogout}
+          style={{
+            background: 'linear-gradient(135deg, #EF4444, #DC2626)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '10px 16px',
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            fontWeight: 600,
+            fontSize: '14px',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.25)',
+            transition: 'all 200ms cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        >
+          <ArrowRightOnRectangleIcon style={{ height: '18px', width: '18px' }} />
+          Sign Out
+        </button>
       </div>
     </div>
   );
