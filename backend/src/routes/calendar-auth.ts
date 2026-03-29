@@ -146,7 +146,7 @@ router.get('/google/callback', async (req: Request, res: Response) => {
       if (!user) {
         user = await prisma.user.findFirst({
           where: {
-            role: 'admin'
+            role: 'ADMIN'
           }
         });
       }
@@ -154,7 +154,7 @@ router.get('/google/callback', async (req: Request, res: Response) => {
       // Use the userId from state parameter
       user = await prisma.user.findUnique({
         where: {
-          id: parseInt(userId)
+          id: userId as string
         }
       });
     }
@@ -349,7 +349,7 @@ router.get('/status', async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({
       where: {
-        id: parseInt(userId as string)
+        id: userId as string
       },
       select: {
         googleCalendarConnected: true,

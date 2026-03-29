@@ -57,6 +57,7 @@ import videoCampaignsRoutes from './routes/videoCampaigns';
 import superAdminRoutes from './routes/super-admin';
 import uiConfigRoutes from './routes/ui-config';
 import aiCodeRoutes from './routes/ai-code';
+import staffingRoutes from './routes/staffing';
 // import godaddyRoutes from './routes/godaddy'; // Disabled - service not implemented
 
 const app = express();
@@ -322,6 +323,7 @@ app.use('/api/video-campaigns', videoCampaignsRoutes);
 app.use('/api/super-admin', superAdminRoutes);
 app.use('/api/ui-config', uiConfigRoutes); // Public UI configuration endpoint
 app.use('/api/ai-code', passport.authenticate('jwt', { session: false }), aiCodeRoutes); // AI Code Assistant - ethan@brandmonkz.com only
+app.use('/api/staffing', staffingRoutes);
 // app.use('/api/godaddy', godaddyRoutes); // Disabled - service not implemented
 
 // 404 handler

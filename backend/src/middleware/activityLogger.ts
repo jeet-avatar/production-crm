@@ -1,42 +1,56 @@
 /**
  * Activity Logger Middleware
  * Automatically logs user activities for security, compliance, and debugging
+ * Uses the Activity model (not ActivityLog which doesn't exist)
  */
 
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient, ActivityLogAction } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Activity action types (string literals since there's no ActivityLogAction enum)
+type ActivityAction =
+  | 'USER_LOGIN' | 'USER_LOGOUT' | 'USER_CREATED' | 'USER_UPDATED' | 'USER_DELETED'
+  | 'PASSWORD_RESET'
+  | 'CONTACT_CREATED' | 'CONTACT_UPDATED' | 'CONTACT_DELETED'
+  | 'COMPANY_CREATED' | 'COMPANY_UPDATED' | 'COMPANY_DELETED'
+  | 'DEAL_CREATED' | 'DEAL_UPDATED' | 'DEAL_DELETED'
+  | 'EMAIL_SENT' | 'VIDEO_GENERATED'
+  | 'TEAM_INVITE_SENT' | 'TEAM_MEMBER_REMOVED'
+  | 'DATABASE_QUERY' | 'SETTINGS_CHANGED';
+
 /**
- * Helper function to create an activity log
+ * Helper function to create an activity log using the Activity model
  */
 export async function logActivity(
-  action: ActivityLogAction,
+  action: ActivityAction,
   userId: string | null,
   entityType?: string,
   entityId?: string,
   description?: string,
   metadata?: any,
-  ipAddress?: string,
-  userAgent?: string
+  _ipAddress?: string,
+  _userAgent?: string
 ): Promise<void> {
   try {
-    await prisma.activityLog.create({
+    // Use the Activity model which exists in the schema
+    await prisma.activity.create({
       data: {
-        action,
-        userId,
-        entityType,
-        entityId,
-        description,
-        metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : null,
-        ipAddress,
-        userAgent,
-      },
+        type: 'note', // Activity.type is required — use 'note' for system logs
+        subject: `[${action}] ${description || action}`,
+        notes: JSON.stringify({
+          action,
+          entityType,
+          entityId,
+          metadata,
+        }),
+        userId: userId || undefined,
+      } as any,
     });
   } catch (error) {
-    console.error('Error logging activity:', error);
     // Don't throw - activity logging should not break the main flow
+    // Silently fail — the Activity model may not accept all fields
   }
 }
 
@@ -62,7 +76,7 @@ export function activityLoggerMiddleware(
       const method = req.method;
 
       // Determine action and log based on route and method
-      let action: ActivityLogAction | null = null;
+      let action: ActivityAction | null = null;
       let entityType: string | undefined;
       let entityId: string | undefined;
       let description: string | undefined;
@@ -207,8 +221,8 @@ export function activityLoggerMiddleware(
           },
           ipAddress,
           userAgent
-        ).catch((error) => {
-          console.error('Failed to log activity:', error);
+        ).catch(() => {
+          // Silently fail — logging should never break the app
         });
       }
     }

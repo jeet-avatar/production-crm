@@ -3,11 +3,20 @@ import { BuildingOfficeIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { jobLeadsApi } from '../../services/api';
 import type { JobLead } from '../../types';
 
-const STREAMS = ['All', 'NetSuite', 'Cybersecurity', 'Staffing/HR', 'Other'] as const;
+const STREAMS = ['All', 'AI/ML', 'Cloud/DevOps', 'Full-Stack', 'Cybersecurity', 'Data/Analytics', 'Mobile', 'NetSuite', 'Enterprise/ERP', 'Product/Design', 'QA/Testing', 'Web3', 'Staffing/HR', 'Other'] as const;
 
 const STREAM_BADGE_STYLES: Record<string, { bg: string; color: string }> = {
-  NetSuite: { bg: 'rgba(99,102,241,0.18)', color: 'var(--accent-indigo)' },
+  'AI/ML': { bg: 'rgba(168,85,247,0.18)', color: '#a855f7' },
+  'Cloud/DevOps': { bg: 'rgba(59,130,246,0.18)', color: '#3b82f6' },
+  'Full-Stack': { bg: 'rgba(99,102,241,0.18)', color: 'var(--accent-indigo)' },
   Cybersecurity: { bg: 'rgba(239,68,68,0.15)', color: '#ef4444' },
+  'Data/Analytics': { bg: 'rgba(34,211,238,0.15)', color: '#22d3ee' },
+  Mobile: { bg: 'rgba(251,146,60,0.15)', color: '#fb923c' },
+  NetSuite: { bg: 'rgba(99,102,241,0.18)', color: 'var(--accent-indigo)' },
+  'Enterprise/ERP': { bg: 'rgba(234,179,8,0.15)', color: '#eab308' },
+  'Product/Design': { bg: 'rgba(236,72,153,0.15)', color: '#ec4899' },
+  'QA/Testing': { bg: 'rgba(20,184,166,0.15)', color: '#14b8a6' },
+  Web3: { bg: 'rgba(139,92,246,0.15)', color: '#8b5cf6' },
   'Staffing/HR': { bg: 'rgba(16,185,129,0.15)', color: '#10b981' },
   Other: { bg: 'rgba(107,114,128,0.15)', color: 'var(--text-secondary)' },
 };
@@ -33,16 +42,18 @@ export default function JobLeadsPage() {
     () => localStorage.getItem('jl_guide_hidden') === 'true'
   );
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null);
+  const [isCached, setIsCached] = useState(false);
 
-  const fetchLeads = useCallback(async () => {
+  const fetchLeads = useCallback(async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
     setSelectedIds(new Set());
     try {
       const stream = activeStream === 'All' ? undefined : activeStream;
-      const data = await jobLeadsApi.fetch(stream);
+      const data = await jobLeadsApi.fetch(stream, forceRefresh);
       setLeads(data.leads || []);
       setStreams(data.streams || {});
+      setIsCached(data.cached || false);
       if (data.error) {
         setError(data.error);
       }
@@ -110,7 +121,7 @@ export default function JobLeadsPage() {
         </div>
         {/* Hero CTA button */}
         <button
-          onClick={fetchLeads}
+          onClick={() => fetchLeads(true)}
           disabled={loading}
           style={{
             display: 'flex',

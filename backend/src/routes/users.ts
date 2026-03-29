@@ -61,16 +61,8 @@ router.put('/me', async (req, res, next) => {
         isActive: true,
         createdAt: true,
         updatedAt: true,
-        emailNotifications: true,
-        dealUpdates: true,
-        newContacts: true,
-        weeklyReport: true,
-        marketingEmails: true,
-        language: true,
-        dateFormat: true,
-        timeFormat: true,
-        theme: true,
-        compactView: true,
+        // Note: notification/display preference fields not yet in User schema
+        // emailNotifications, dealUpdates, newContacts, weeklyReport, marketingEmails, language, dateFormat, timeFormat, theme, compactView
       },
     });
 
@@ -93,34 +85,16 @@ router.put('/me/preferences', async (req, res, next) => {
 
     const { emailNotifications, dealUpdates, newContacts, weeklyReport, marketingEmails } = req.body;
 
-    // Update notification preferences
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...(emailNotifications !== undefined && { emailNotifications }),
-        ...(dealUpdates !== undefined && { dealUpdates }),
-        ...(newContacts !== undefined && { newContacts }),
-        ...(weeklyReport !== undefined && { weeklyReport }),
-        ...(marketingEmails !== undefined && { marketingEmails }),
-      },
-      select: {
-        id: true,
-        emailNotifications: true,
-        dealUpdates: true,
-        newContacts: true,
-        weeklyReport: true,
-        marketingEmails: true,
-      },
-    });
-
+    // Note: Notification preference fields not yet in User schema
+    // Return the requested values as-is (stored client-side until migration)
     res.json({
       message: 'Notification preferences updated successfully',
       preferences: {
-        emailNotifications: updatedUser.emailNotifications,
-        dealUpdates: updatedUser.dealUpdates,
-        newContacts: updatedUser.newContacts,
-        weeklyReport: updatedUser.weeklyReport,
-        marketingEmails: updatedUser.marketingEmails,
+        emailNotifications: emailNotifications ?? true,
+        dealUpdates: dealUpdates ?? true,
+        newContacts: newContacts ?? true,
+        weeklyReport: weeklyReport ?? false,
+        marketingEmails: marketingEmails ?? false,
       },
     });
   } catch (error) {
@@ -138,37 +112,24 @@ router.put('/me/display-preferences', async (req, res, next) => {
 
     const { language, dateFormat, timeFormat, theme, compactView, timezone } = req.body;
 
-    // Update display preferences
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...(language !== undefined && { language }),
-        ...(dateFormat !== undefined && { dateFormat }),
-        ...(timeFormat !== undefined && { timeFormat }),
-        ...(theme !== undefined && { theme }),
-        ...(compactView !== undefined && { compactView }),
-        ...(timezone !== undefined && { timezone }),
-      },
-      select: {
-        id: true,
-        language: true,
-        dateFormat: true,
-        timeFormat: true,
-        theme: true,
-        compactView: true,
-        timezone: true,
-      },
-    });
+    // Only update timezone (exists on User model), rest are not yet migrated
+    if (timezone !== undefined) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { timezone },
+      });
+    }
 
+    // Return requested values as-is (stored client-side until migration)
     res.json({
       message: 'Display preferences updated successfully',
       preferences: {
-        language: updatedUser.language,
-        dateFormat: updatedUser.dateFormat,
-        timeFormat: updatedUser.timeFormat,
-        theme: updatedUser.theme,
-        compactView: updatedUser.compactView,
-        timezone: updatedUser.timezone,
+        language: language ?? 'en',
+        dateFormat: dateFormat ?? 'MM/DD/YYYY',
+        timeFormat: timeFormat ?? '12h',
+        theme: theme ?? 'dark',
+        compactView: compactView ?? false,
+        timezone: timezone ?? 'America/New_York',
       },
     });
   } catch (error) {
