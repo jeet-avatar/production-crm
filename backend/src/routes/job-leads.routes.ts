@@ -210,40 +210,148 @@ async function fetchArbeitnowJobs(): Promise<any[]> {
   }
 }
 
-// Source 4: RapidAPI LinkedIn Jobs (if RAPIDAPI_KEY configured)
-async function fetchLinkedInJobs(): Promise<any[]> {
-  const apiKey = process.env.RAPIDAPI_KEY;
-  if (!apiKey) return [];
+// Source 4: LinkedIn Jobs via ScraperAPI (scraperapi.com)
+// Scrapes LinkedIn job search pages using ScraperAPI proxy to avoid blocks
+const SCRAPER_API_KEY = process.env.SCRAPER_API_KEY || '39de9109a89a40ae9e9f942d6a8a487f';
+const SCRAPER_API_BASE = 'https://api.scraperapi.com';
 
-  try {
-    const response = await axios.get('https://linkedin-jobs-search.p.rapidapi.com/jobs', {
-      params: { keywords: 'software engineer', locationId: '92000000', datePosted: 'pastWeek', rows: 50 },
-      headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'linkedin-jobs-search.p.rapidapi.com' },
-      timeout: 15000,
-    });
-    const jobs = Array.isArray(response.data) ? response.data : [];
-    return jobs.map((job: any) => {
-      const domain = companyToDomain(job.company || '');
-      return {
-        id: `linkedin-${job.id || Math.random().toString(36).slice(2)}`,
-        title: job.title,
-        companyName: job.company,
-        companyLogo: job.companyLogo || null,
-        url: job.jobUrl || job.url,
-        location: job.location || 'Remote',
-        postedAt: job.postedAt || new Date().toISOString(),
-        stream: classifyStream(job.title || '', job.description || ''),
-        tags: ['LinkedIn'],
-        source: 'LinkedIn',
-        companyDomain: domain,
-        companyEmail: domain ? `hr@${domain}` : '',
-        emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
-      };
-    });
-  } catch (err: any) {
-    console.error('LinkedIn jobs fetch error:', err.message);
-    return [];
+// LinkedIn job search keywords to scrape (staffing-focused)
+const LINKEDIN_SEARCH_QUERIES = [
+  'software engineer remote',
+  'AI machine learning engineer',
+  'cloud architect AWS Azure',
+  'cybersecurity analyst',
+  'data engineer',
+  'devops engineer kubernetes',
+  'full stack developer react',
+  'SAP consultant',
+  'salesforce developer',
+];
+
+async function fetchLinkedInJobs(): Promise<any[]> {
+  if (!SCRAPER_API_KEY) return [];
+
+  const allJobs: any[] = [];
+
+  // Scrape LinkedIn job search for top 3 queries (to stay within rate limits)
+  const queriesToFetch = LINKEDIN_SEARCH_QUERIES.slice(0, 3);
+
+  const results = await Promise.allSettled(
+    queriesToFetch.map(async (query) => {
+      try {
+        const linkedinUrl = `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(query)}&f_TPR=r86400&position=1&pageNum=0`;
+
+        const response = await axios.get(SCRAPER_API_BASE, {
+          params: {
+            api_key: SCRAPER_API_KEY,
+            url: linkedinUrl,
+            render: 'false',
+          },
+          timeout: 30000,
+          headers: HEADERS,
+        });
+
+        const html = response.data;
+        if (typeof html !== 'string') return [];
+
+        // Parse LinkedIn job cards from HTML
+        const jobs: any[] = [];
+        // LinkedIn job cards have data in <div class="base-card"> or <li> elements
+        // Extract using regex patterns (lightweight, no cheerio dependency needed here)
+        const cardPattern = /<div[^>]*class="[^"]*base-card[^"]*"[^>]*>[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g;
+        const titlePattern = /<span[^>]*class="[^"]*sr-only[^"]*"[^>]*>([\s\S]*?)<\/span>/;
+        const companyPattern = /<h4[^>]*class="[^"]*base-search-card__subtitle[^"]*"[^>]*>\s*<a[^>]*>([\s\S]*?)<\/a>/;
+        const locationPattern = /<span[^>]*class="[^"]*job-search-card__location[^"]*"[^>]*>([\s\S]*?)<\/span>/;
+        const linkPattern = /<a[^>]*class="[^"]*base-card__full-link[^"]*"[^>]*href="([^"]*)"[^>]*>/;
+        const timePattern = /<time[^>]*datetime="([^"]*)"[^>]*>/;
+
+        // Alternative: extract from JSON-LD if present
+        const jsonLdMatch = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g);
+        if (jsonLdMatch) {
+          for (const match of jsonLdMatch) {
+            try {
+              const jsonStr = match.replace(/<script[^>]*>/, '').replace(/<\/script>/, '').trim();
+              const data = JSON.parse(jsonStr);
+              if (data['@type'] === 'ItemList' && data.itemListElement) {
+                for (const item of data.itemListElement) {
+                  const job = item.item || item;
+                  if (job.title && job.hiringOrganization) {
+                    const companyName = job.hiringOrganization?.name || '';
+                    const domain = companyToDomain(companyName);
+                    jobs.push({
+                      id: `linkedin-${job.identifier?.value || Math.random().toString(36).slice(2)}`,
+                      title: job.title,
+                      companyName,
+                      companyLogo: job.hiringOrganization?.logo || null,
+                      url: job.url || '',
+                      location: job.jobLocation?.address?.addressLocality || job.jobLocationType || 'Remote',
+                      postedAt: job.datePosted || new Date().toISOString(),
+                      stream: classifyStream(job.title || '', job.description || query),
+                      tags: ['LinkedIn'],
+                      source: 'LinkedIn',
+                      companyDomain: domain,
+                      companyEmail: domain ? `hr@${domain}` : '',
+                      emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
+                    });
+                  }
+                }
+              }
+            } catch {
+              // JSON parse failed, continue
+            }
+          }
+        }
+
+        // Fallback: parse HTML cards if JSON-LD didn't yield results
+        if (jobs.length === 0) {
+          const cards = html.match(cardPattern) || [];
+          for (const card of cards.slice(0, 25)) {
+            const titleMatch = card.match(titlePattern);
+            const companyMatch = card.match(companyPattern);
+            const locationMatch = card.match(locationPattern);
+            const linkMatch = card.match(linkPattern);
+            const timeMatch = card.match(timePattern);
+
+            if (titleMatch) {
+              const title = titleMatch[1].trim();
+              const companyName = companyMatch ? companyMatch[1].trim() : '';
+              const domain = companyToDomain(companyName);
+              jobs.push({
+                id: `linkedin-${Math.random().toString(36).slice(2)}`,
+                title,
+                companyName,
+                companyLogo: null,
+                url: linkMatch ? linkMatch[1].split('?')[0] : '',
+                location: locationMatch ? locationMatch[1].trim() : 'Remote',
+                postedAt: timeMatch ? timeMatch[1] : new Date().toISOString(),
+                stream: classifyStream(title, query),
+                tags: ['LinkedIn'],
+                source: 'LinkedIn',
+                companyDomain: domain,
+                companyEmail: domain ? `hr@${domain}` : '',
+                emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
+              });
+            }
+          }
+        }
+
+        console.log(`LinkedIn scrape [${query}]: ${jobs.length} jobs`);
+        return jobs;
+      } catch (err: any) {
+        console.error(`LinkedIn scrape error [${query}]:`, err.message);
+        return [];
+      }
+    })
+  );
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      allJobs.push(...result.value);
+    }
   }
+
+  console.log(`LinkedIn total: ${allJobs.length} jobs from ${queriesToFetch.length} queries`);
+  return allJobs;
 }
 
 // ============================================
