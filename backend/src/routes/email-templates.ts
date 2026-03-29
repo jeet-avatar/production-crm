@@ -30,15 +30,13 @@ router.get('/', async (req, res) => {
     const { type } = req.query;
 
     const templates = await prisma.emailTemplate.findMany({
-      where: type ? { templateType: type as string } : undefined,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         name: true,
         subject: true,
-        templateType: true,
-        fromEmail: true,
-        fromName: true,
+        htmlContent: true,
+        textContent: true,
         isActive: true,
         variables: true,
         createdAt: true,
@@ -106,9 +104,6 @@ router.post('/', async (req, res) => {
       htmlContent,
       textContent,
       variables,
-      templateType,
-      fromEmail,
-      fromName,
     } = req.body;
 
     if (!name || !subject || !htmlContent) {
@@ -122,9 +117,6 @@ router.post('/', async (req, res) => {
         htmlContent,
         textContent: textContent || '',
         variables: variables || [],
-        templateType: templateType || 'custom',
-        fromEmail: fromEmail || 'support@brandmonkz.com',
-        fromName: fromName || 'BrandMonkz',
         userId: req.user!.id,
       },
     });
@@ -237,7 +229,7 @@ router.post('/:id/send', async (req, res) => {
     for (const recipient of to) {
       try {
         await transporter.sendMail({
-          from: `${template.fromName} <${template.fromEmail}>`,
+          from: `BrandMonkz <${process.env.SMTP_USER || 'support@brandmonkz.com'}>`,
           to: recipient,
           subject,
           html: htmlContent,
@@ -251,7 +243,7 @@ router.post('/:id/send', async (req, res) => {
           await prisma.emailLog.create({
             data: {
               toEmail: recipient,
-              fromEmail: template.fromEmail,
+              fromEmail: process.env.SMTP_USER || 'support@brandmonkz.com',
               status: 'SENT',
               sentAt: new Date(),
               metadata: {
@@ -320,7 +312,7 @@ router.post('/:id/test', async (req, res) => {
     }
 
     await transporter.sendMail({
-      from: `${template.fromName} <${template.fromEmail}>`,
+      from: `BrandMonkz <${process.env.SMTP_USER || 'support@brandmonkz.com'}>`,
       to: testEmail,
       subject,
       html: htmlContent,

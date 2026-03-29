@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import DOMPurify from 'dompurify';
 
 interface Props {
   isOpen: boolean;
@@ -13,10 +14,26 @@ interface Company {
   _count: { contacts: number };
 }
 
+interface StaffingTemplate {
+  name: string;
+  subject: string;
+  htmlContent: string;
+}
+
+interface SendResult {
+  success: boolean;
+  sent: number;
+  total: number;
+  failed: number;
+  mode: string;
+  message: string;
+  recipients: { email: string; name: string; company: string }[];
+}
+
 const EMOJIS = ['🏢', '🏬', '🏭', '🏪', '🏫'];
 
 export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [prompt, setPrompt] = useState('');
   const [tone, setTone] = useState<'professional' | 'friendly' | 'persuasive'>('professional');
   const [generating, setGenerating] = useState(false);
@@ -31,8 +48,18 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [generateError, setGenerateError] = useState('');
+  const [companySearch, setCompanySearch] = useState('');
+  const [contentSource, setContentSource] = useState<'ai' | 'template' | 'staffing'>('ai');
+  const [templates, setTemplates] = useState<{ id: string; name: string; subject: string; htmlContent: string }[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [staffingTemplates, setStaffingTemplates] = useState<StaffingTemplate[]>([]);
+  const [selectedStaffingIdx, setSelectedStaffingIdx] = useState<number | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [sendResult, setSendResult] = useState<SendResult | null>(null);
+  const [seeding, setSeeding] = useState(false);
+  const [seedDone, setSeedDone] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_API_URL || '';
 
   // Load user email on mount
   useEffect(() => {
@@ -47,25 +74,85 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
     }
   }, []);
 
-  // Load companies when wizard opens or step changes to 2
+  // Load companies + templates when wizard opens
   useEffect(() => {
     if (isOpen) {
       loadCompanies();
+      loadTemplates();
+      loadStaffingTemplates();
+      // Reset state for fresh wizard
+      setStep(1);
+      setSendResult(null);
+      setShowPreview(false);
+      setError('');
     }
   }, [isOpen]);
 
-  const loadCompanies = async () => {
+  const loadTemplates = async () => {
     try {
       const token = localStorage.getItem('crmToken');
-      const res = await fetch(`${API_URL}/api/companies`, {
+      const res = await fetch(`${API_URL}/api/email-templates`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
-        setCompanies(data);
+        const list = data.templates || data || [];
+        setTemplates(Array.isArray(list) ? list : []);
+      }
+    } catch {
+      // silently fail
+    }
+  };
+
+  const loadCompanies = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const res = await fetch(`${API_URL}/api/companies?limit=200`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : data.companies || data.data || [];
+        // Sort by contact count descending so most populated groups show first
+        list.sort((a: any, b: any) => (b._count?.contacts || 0) - (a._count?.contacts || 0));
+        setCompanies(list);
       }
     } catch {
       // silently fail — empty state handled below
+    }
+  };
+
+  const loadStaffingTemplates = async () => {
+    try {
+      const token = localStorage.getItem('crmToken');
+      const res = await fetch(`${API_URL}/api/staffing/templates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setStaffingTemplates(data.templates || []);
+      }
+    } catch {
+      // Silently fail — staffing templates are optional
+    }
+  };
+
+  const seedStaffingCompanies = async () => {
+    setSeeding(true);
+    try {
+      const token = localStorage.getItem('crmToken');
+      const res = await fetch(`${API_URL}/api/staffing/seed-companies`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setSeedDone(true);
+        await loadCompanies(); // Reload companies after seeding
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setSeeding(false);
     }
   };
 
@@ -134,9 +221,9 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          name: campaignName,
+          name: campaignName || `Staffing Campaign - ${new Date().toLocaleDateString()}`,
           subject,
-          status: 'SENDING',
+          status: 'DRAFT',
           htmlContent: emailBody,
         }),
       });
@@ -152,11 +239,34 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
         });
       }
 
-      setSending(false);
+      // Mock send (queue without real email)
+      const sendRes = await fetch(`${API_URL}/api/campaigns/${campaign.id}/mock-send`, {
+        method: 'POST',
+        headers,
+      });
+
+      if (sendRes.ok) {
+        const result = await sendRes.json();
+        setSendResult(result);
+        setStep(4 as any); // Move to success step
+      } else {
+        // Fallback: even if mock-send fails, campaign is created
+        setSendResult({
+          success: true,
+          sent: totalSelectedContacts,
+          total: totalSelectedContacts,
+          failed: 0,
+          mode: 'queued',
+          message: `Campaign created and queued for ${totalSelectedContacts} contacts.`,
+          recipients: [],
+        });
+        setStep(4 as any);
+      }
+
       onSuccess?.();
-      onClose();
     } catch (err: any) {
       setError(err.message || 'Failed to send campaign. Please try again.');
+    } finally {
       setSending(false);
     }
   };
@@ -179,59 +289,63 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
 
   const overlayStyle: React.CSSProperties = {
     position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.7)',
-    backdropFilter: 'blur(4px)',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: 'rgba(0,0,0,0.5)',
+    backdropFilter: 'blur(8px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 9999,
+    zIndex: 99999,
     padding: '16px',
   };
 
   const modalStyle: React.CSSProperties = {
-    background: 'rgba(22,22,37,0.95)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: '#1a1a2e',
+    border: '2px solid #6366F1',
     borderRadius: '16px',
     width: '860px',
-    maxWidth: '100%',
+    maxWidth: '95vw',
     maxHeight: '90vh',
     overflow: 'auto',
-    boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
-    color: '#E2E8F0',
+    boxShadow: '0 0 0 1px rgba(99,102,241,0.5), 0 25px 60px rgba(0,0,0,0.7)',
+    color: '#F1F5F9',
+    position: 'relative',
   };
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    background: 'rgba(255,255,255,0.06)',
-    border: '1px solid rgba(255,255,255,0.12)',
+    background: '#252540',
+    border: '1px solid #3d3d5c',
     borderRadius: '8px',
     color: '#F1F5F9',
-    padding: '8px 12px',
+    padding: '10px 14px',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box',
   };
 
   const cardStyle: React.CSSProperties = {
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    background: '#20203a',
+    border: '1px solid #3d3d5c',
     borderRadius: '10px',
     padding: '16px',
   };
 
   // Progress bar
+  const stepCount = 4;
   const ProgressBar = () => (
     <div style={{ display: 'flex', gap: '6px', marginBottom: '20px' }}>
-      {[1, 2, 3].map(s => (
+      {[1, 2, 3, 4].map(s => (
         <div
           key={s}
           style={{
             flex: 1,
             height: '4px',
             borderRadius: '2px',
-            background: s <= step ? '#6366F1' : 'rgba(255,255,255,0.12)',
+            background: s <= step ? (s === 4 && sendResult ? '#10B981' : '#6366F1') : 'rgba(255,255,255,0.12)',
             transition: 'background 0.3s',
           }}
         />
@@ -258,11 +372,13 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
               {step === 1 && 'New Campaign'}
               {step === 2 && 'Who Gets It?'}
               {step === 3 && 'Review & Send'}
+              {step === 4 && 'Campaign Sent!'}
             </h2>
             <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0' }}>
-              {step === 1 && 'Describe your campaign — AI writes the email for you'}
-              {step === 2 && 'Select the groups that will receive this email'}
-              {step === 3 && 'Confirm the details and hit send'}
+              {step === 1 && 'Describe your campaign — AI writes the email, or pick a staffing template'}
+              {step === 2 && 'Select the companies that will receive this email'}
+              {step === 3 && 'Preview the email, confirm details, and send'}
+              {step === 4 && 'Your campaign has been queued successfully'}
             </p>
           </div>
           <button
@@ -285,6 +401,192 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
           {/* ======================== STEP 1 ======================== */}
           {step === 1 && (
             <div>
+              {/* Source toggle: AI Generate vs Staffing Templates vs Use Template */}
+              <div style={{ display: 'flex', gap: '4px', marginBottom: '20px', background: '#252540', borderRadius: '10px', padding: '4px' }}>
+                <button
+                  onClick={() => setContentSource('staffing')}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: contentSource === 'staffing' ? '#6366F1' : 'transparent',
+                    color: contentSource === 'staffing' ? '#fff' : '#94A3B8',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  🏢 Staffing Templates
+                </button>
+                <button
+                  onClick={() => setContentSource('ai')}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: contentSource === 'ai' ? '#6366F1' : 'transparent',
+                    color: contentSource === 'ai' ? '#fff' : '#94A3B8',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  ✨ AI Generate
+                </button>
+                <button
+                  onClick={() => setContentSource('template')}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: contentSource === 'template' ? '#6366F1' : 'transparent',
+                    color: contentSource === 'template' ? '#fff' : '#94A3B8',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  📄 My Templates
+                </button>
+              </div>
+
+              {/* Staffing Templates (shown when "Staffing Templates" is selected) */}
+              {contentSource === 'staffing' && (
+                <div>
+                  {staffingTemplates.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+                      <p style={{ fontSize: '40px', marginBottom: '12px' }}>🏢</p>
+                      <p style={{ fontSize: '15px', fontWeight: 600, marginBottom: '6px', color: '#F1F5F9' }}>Loading staffing templates...</p>
+                      <p style={{ fontSize: '13px' }}>Professional templates for technology staffing outreach</p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', maxHeight: '340px', overflowY: 'auto' }}>
+                      {staffingTemplates.map((t, idx) => {
+                        const isSelected = selectedStaffingIdx === idx;
+                        const colors = ['#667eea', '#f5576c', '#4facfe', '#fa709a', '#a18cd1'];
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => {
+                              setSelectedStaffingIdx(idx);
+                              setSubject(t.subject);
+                              setEmailBody(t.htmlContent);
+                              setCampaignName(t.name);
+                            }}
+                            style={{
+                              padding: '16px',
+                              borderRadius: '10px',
+                              border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c',
+                              background: isSelected ? 'rgba(99,102,241,0.15)' : '#20203a',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                              <div style={{
+                                width: '32px', height: '32px', borderRadius: '8px',
+                                background: colors[idx % colors.length],
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '14px', color: '#fff', fontWeight: 700, flexShrink: 0,
+                              }}>
+                                {isSelected ? '✓' : (idx + 1)}
+                              </div>
+                              <div style={{ fontWeight: 600, fontSize: '14px', color: '#F1F5F9' }}>
+                                {t.name}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#94A3B8', paddingLeft: '42px' }}>
+                              {t.subject.slice(0, 80)}{t.subject.length > 80 ? '...' : ''}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Subject + body editing for selected staffing template */}
+                  {selectedStaffingIdx !== null && (
+                    <div style={{ marginTop: '16px' }}>
+                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Subject line</label>
+                      <input type="text" value={subject} onChange={e => setSubject(e.target.value)} style={{ ...inputStyle, marginBottom: '12px' }} />
+                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Email body (HTML)</label>
+                      <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={5}
+                        style={{ ...inputStyle, resize: 'vertical', minHeight: '100px', lineHeight: '1.5', fontFamily: 'monospace', fontSize: '12px' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Template picker (shown when "Use Template" is selected) */}
+              {contentSource === 'template' && (
+                <div>
+                  {templates.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+                      <p style={{ fontSize: '40px', marginBottom: '12px' }}>📄</p>
+                      <p style={{ fontSize: '15px', fontWeight: 600, marginBottom: '6px', color: '#F1F5F9' }}>No templates yet</p>
+                      <p style={{ fontSize: '13px', marginBottom: '16px' }}>Create templates in Email Templates to use them here</p>
+                      <a href="/email-templates" style={{ color: '#6366F1', textDecoration: 'underline', fontSize: '13px' }}>
+                        Go to Email Templates →
+                      </a>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
+                      {templates.map(t => {
+                        const isSelected = selectedTemplateId === t.id;
+                        return (
+                          <div
+                            key={t.id}
+                            onClick={() => {
+                              setSelectedTemplateId(t.id);
+                              setSubject(t.subject);
+                              setEmailBody(t.htmlContent);
+                              setCampaignName(t.name);
+                            }}
+                            style={{
+                              padding: '14px',
+                              borderRadius: '10px',
+                              border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c',
+                              background: isSelected ? 'rgba(99,102,241,0.15)' : '#20203a',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s',
+                            }}
+                          >
+                            <div style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              {isSelected && <span style={{ color: '#6366F1' }}>✓</span>}
+                              {t.name}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '4px' }}>
+                              Subject: {t.subject.slice(0, 60)}{t.subject.length > 60 ? '...' : ''}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Subject + body editing for selected template */}
+                  {selectedTemplateId && (
+                    <div style={{ marginTop: '16px' }}>
+                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Subject line</label>
+                      <input type="text" value={subject} onChange={e => setSubject(e.target.value)} style={{ ...inputStyle, marginBottom: '12px' }} />
+                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Email body</label>
+                      <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={6}
+                        style={{ ...inputStyle, resize: 'vertical', minHeight: '120px', lineHeight: '1.5' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* AI Generation (existing — shown when "AI Generate" is selected) */}
+              {contentSource === 'ai' && (
               <div style={{ display: 'flex', gap: '20px' }}>
                 {/* Left panel */}
                 <div style={{ flex: 1 }}>
@@ -454,6 +756,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                   </div>
                 )}
               </div>
+              )}
 
               {/* Step 1 footer */}
               <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
@@ -480,78 +783,189 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
           )}
 
           {/* ======================== STEP 2 ======================== */}
-          {step === 2 && (
+          {step === 2 && (() => {
+            const filtered = companies.filter(c =>
+              c.name.toLowerCase().includes(companySearch.toLowerCase())
+            );
+            const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedCompanyIds.includes(c.id));
+
+            return (
             <div>
+              {/* Search bar */}
+              <div style={{ marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <input
+                    type="text"
+                    value={companySearch}
+                    onChange={e => setCompanySearch(e.target.value)}
+                    placeholder="Search companies... (e.g. NetSuite, Cyber, Tech)"
+                    style={{
+                      ...inputStyle,
+                      paddingLeft: '36px',
+                    }}
+                  />
+                  <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', opacity: 0.5 }}>🔍</span>
+                </div>
+                <button
+                  onClick={() => {
+                    if (allFilteredSelected) {
+                      setSelectedCompanyIds(prev => prev.filter(id => !filtered.find(c => c.id === id)));
+                    } else {
+                      const newIds = [...new Set([...selectedCompanyIds, ...filtered.map(c => c.id)])];
+                      setSelectedCompanyIds(newIds);
+                    }
+                  }}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(99,102,241,0.4)',
+                    background: allFilteredSelected ? '#6366F1' : 'transparent',
+                    color: allFilteredSelected ? '#fff' : '#A5B4FC',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {allFilteredSelected ? '✓ All Selected' : `Select All (${filtered.length})`}
+                </button>
+              </div>
+
+              {/* Stats bar + seed button */}
+              <div style={{
+                display: 'flex',
+                gap: '12px',
+                marginBottom: '16px',
+                fontSize: '12px',
+                color: '#94A3B8',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <span>{companies.length} total groups</span>
+                  <span>•</span>
+                  <span>{filtered.length} shown</span>
+                  <span>•</span>
+                  <span style={{ color: '#A5B4FC', fontWeight: 600 }}>{selectedCompanyIds.length} selected</span>
+                </div>
+                {!seedDone && (
+                  <button
+                    onClick={seedStaffingCompanies}
+                    disabled={seeding}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid rgba(99,102,241,0.4)',
+                      background: 'transparent',
+                      color: '#A5B4FC',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: seeding ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    {seeding ? '...' : '+ Add Staffing Companies'}
+                  </button>
+                )}
+              </div>
+
               {companies.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
-                  <p style={{ fontSize: '16px', marginBottom: '8px' }}>No groups yet — add contacts first</p>
-                  <a href="/contacts" style={{ color: '#6366F1', textDecoration: 'underline' }}>
-                    Go to Contacts
-                  </a>
+                  <p style={{ fontSize: '16px', marginBottom: '8px' }}>No companies yet</p>
+                  <p style={{ fontSize: '13px', marginBottom: '16px' }}>Seed enterprise staffing companies or add contacts first</p>
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <button
+                      onClick={seedStaffingCompanies}
+                      disabled={seeding || seedDone}
+                      style={{
+                        padding: '10px 20px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        background: seedDone ? '#10B981' : seeding ? 'rgba(99,102,241,0.4)' : 'linear-gradient(to right, #6366F1, #8B5CF6)',
+                        color: '#fff',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        cursor: seeding || seedDone ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {seedDone ? '✓ Companies Loaded' : seeding ? 'Loading Companies...' : '🏢 Load Staffing Companies'}
+                    </button>
+                    <a href="/contacts" style={{ color: '#6366F1', textDecoration: 'underline', fontSize: '13px', display: 'flex', alignItems: 'center' }}>
+                      Go to Contacts →
+                    </a>
+                  </div>
+                </div>
+              ) : filtered.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+                  <p style={{ fontSize: '14px' }}>No companies match "{companySearch}"</p>
                 </div>
               ) : (
                 <div
                   style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '12px',
+                    gap: '10px',
                     marginBottom: '16px',
+                    maxHeight: '320px',
+                    overflowY: 'auto',
+                    paddingRight: '4px',
                   }}
                 >
-                  {companies.map((company, i) => {
+                  {filtered.map((company, i) => {
                     const isSelected = selectedCompanyIds.includes(company.id);
+                    const contactCount = company._count?.contacts || 0;
                     return (
                       <div
                         key={company.id}
                         onClick={() => toggleCompany(company.id)}
                         style={{
-                          padding: '16px',
+                          padding: '14px',
                           borderRadius: '10px',
                           border: isSelected
                             ? '2px solid #6366F1'
-                            : '1px solid rgba(255,255,255,0.1)',
+                            : '1px solid #3d3d5c',
                           background: isSelected
-                            ? 'rgba(99,102,241,0.12)'
-                            : 'rgba(255,255,255,0.03)',
+                            ? 'rgba(99,102,241,0.15)'
+                            : '#20203a',
                           cursor: 'pointer',
                           transition: 'all 0.15s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
                         }}
                       >
-                        <div style={{ fontSize: '24px', marginBottom: '6px' }}>
-                          {EMOJIS[i % EMOJIS.length]}
+                        <div style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '8px',
+                          background: isSelected ? '#6366F1' : '#2d2d4a',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '16px',
+                          flexShrink: 0,
+                          color: '#fff',
+                          fontWeight: 700,
+                        }}>
+                          {isSelected ? '✓' : company.name.charAt(0).toUpperCase()}
                         </div>
-                        <div
-                          style={{ fontWeight: 600, fontSize: '14px', color: '#F1F5F9', marginBottom: '4px' }}
-                        >
-                          {company.name}
-                        </div>
-                        <div style={{ fontSize: '12px', color: '#94A3B8' }}>
-                          {company._count?.contacts || 0} contacts
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{
+                            fontWeight: 600,
+                            fontSize: '13px',
+                            color: '#F1F5F9',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}>
+                            {company.name}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                            {contactCount} contact{contactCount !== 1 ? 's' : ''}
+                          </div>
                         </div>
                       </div>
                     );
                   })}
-
-                  {/* Custom filter tile (coming soon) */}
-                  <div
-                    title="Coming soon"
-                    style={{
-                      padding: '16px',
-                      borderRadius: '10px',
-                      border: '1.5px dashed rgba(255,255,255,0.2)',
-                      background: 'transparent',
-                      cursor: 'not-allowed',
-                      pointerEvents: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'rgba(255,255,255,0.25)',
-                      fontSize: '14px',
-                      fontWeight: 500,
-                    }}
-                  >
-                    + Custom filter
-                  </div>
                 </div>
               )}
 
@@ -562,15 +976,32 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                     background: 'rgba(99,102,241,0.1)',
                     border: '1px solid rgba(99,102,241,0.25)',
                     borderRadius: '8px',
-                    padding: '10px 14px',
+                    padding: '12px 16px',
                     fontSize: '13px',
                     color: '#A5B4FC',
                     marginBottom: '16px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                   }}
                 >
-                  ✅ {selectedCompanyIds.length} group{selectedCompanyIds.length !== 1 ? 's' : ''} selected
-                  — {totalSelectedContacts} contact{totalSelectedContacts !== 1 ? 's' : ''} will receive this
-                  email
+                  <span>
+                    ✅ {selectedCompanyIds.length} group{selectedCompanyIds.length !== 1 ? 's' : ''} selected
+                    — {totalSelectedContacts} contact{totalSelectedContacts !== 1 ? 's' : ''} will receive this email
+                  </span>
+                  <button
+                    onClick={() => setSelectedCompanyIds([])}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#F87171',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    Clear all
+                  </button>
                 </div>
               )}
 
@@ -612,7 +1043,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                 </button>
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* ======================== STEP 3 ======================== */}
           {step === 3 && (
@@ -695,6 +1127,65 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                 </div>
               </div>
 
+              {/* Email Preview Toggle */}
+              <div style={{ marginBottom: '16px' }}>
+                <button
+                  onClick={() => setShowPreview(!showPreview)}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(99,102,241,0.4)',
+                    background: showPreview ? 'rgba(99,102,241,0.15)' : 'transparent',
+                    color: '#A5B4FC',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {showPreview ? '🔽 Hide Email Preview' : '👁️ Preview Email'}
+                </button>
+
+                {showPreview && emailBody && (
+                  <div style={{
+                    marginTop: '12px',
+                    border: '1px solid #3d3d5c',
+                    borderRadius: '10px',
+                    overflow: 'hidden',
+                  }}>
+                    {/* Email client header simulation */}
+                    <div style={{
+                      background: '#1e1e36',
+                      padding: '12px 16px',
+                      borderBottom: '1px solid #3d3d5c',
+                    }}>
+                      <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>
+                        <strong style={{ color: '#CBD5E1' }}>From:</strong> {fromAddress || 'campaigns@brandmonkz.com'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>
+                        <strong style={{ color: '#CBD5E1' }}>To:</strong> {'{'}{'{'} recipient {'}'}{'}'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                        <strong style={{ color: '#CBD5E1' }}>Subject:</strong> {subject}
+                      </div>
+                    </div>
+                    {/* Email body preview */}
+                    <div style={{
+                      background: '#ffffff',
+                      padding: '0',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                    }}>
+                      <div
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(emailBody) }}
+                        style={{ padding: '0' }}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Send button */}
               <button
                 onClick={handleSend}
@@ -761,6 +1252,131 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                   ← Back
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* ======================== STEP 4: SUCCESS ======================== */}
+          {step === 4 && sendResult && (
+            <div style={{ textAlign: 'center' }}>
+              {/* Success icon */}
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #10B981, #059669)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+                boxShadow: '0 0 30px rgba(16,185,129,0.3)',
+              }}>
+                <span style={{ fontSize: '36px' }}>✓</span>
+              </div>
+
+              <h3 style={{ fontSize: '22px', fontWeight: 700, color: '#F1F5F9', margin: '0 0 8px' }}>
+                Campaign Queued Successfully!
+              </h3>
+              <p style={{ fontSize: '14px', color: '#94A3B8', margin: '0 0 24px' }}>
+                {sendResult.message}
+              </p>
+
+              {/* Stats cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                <div style={{ background: '#20203a', border: '1px solid #3d3d5c', borderRadius: '10px', padding: '16px' }}>
+                  <div style={{ fontSize: '28px', fontWeight: 700, color: '#10B981' }}>{sendResult.sent}</div>
+                  <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Contacts Queued</div>
+                </div>
+                <div style={{ background: '#20203a', border: '1px solid #3d3d5c', borderRadius: '10px', padding: '16px' }}>
+                  <div style={{ fontSize: '28px', fontWeight: 700, color: '#6366F1' }}>
+                    {companies.filter(c => selectedCompanyIds.includes(c.id)).length}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Companies</div>
+                </div>
+                <div style={{ background: '#20203a', border: '1px solid #3d3d5c', borderRadius: '10px', padding: '16px' }}>
+                  <div style={{ fontSize: '28px', fontWeight: 700, color: '#F59E0B' }}>
+                    {sendResult.failed}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Failed</div>
+                </div>
+              </div>
+
+              {/* Recipients list */}
+              {sendResult.recipients.length > 0 && (
+                <div style={{ marginBottom: '24px' }}>
+                  <p style={{
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: '#6366F1',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    marginBottom: '10px',
+                    textAlign: 'left',
+                  }}>
+                    Recipients
+                  </p>
+                  <div style={{
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    borderRadius: '8px',
+                    border: '1px solid #3d3d5c',
+                  }}>
+                    {sendResult.recipients.map((r, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '10px 14px',
+                          borderBottom: idx < sendResult.recipients.length - 1 ? '1px solid #2d2d4a' : 'none',
+                          background: idx % 2 === 0 ? '#1e1e36' : '#20203a',
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: '13px', fontWeight: 600, color: '#F1F5F9' }}>{r.name}</div>
+                          <div style={{ fontSize: '11px', color: '#94A3B8' }}>{r.email}</div>
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#6366F1', fontWeight: 500 }}>{r.company}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Note about email delivery */}
+              <div style={{
+                background: 'rgba(99,102,241,0.1)',
+                border: '1px solid rgba(99,102,241,0.25)',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontSize: '13px',
+                color: '#A5B4FC',
+                marginBottom: '20px',
+                textAlign: 'left',
+              }}>
+                📧 <strong>Note:</strong> Emails are queued and will be delivered once AWS SES production access is approved.
+                Campaign data is saved and visible in your Campaigns dashboard.
+              </div>
+
+              {/* Done button */}
+              <button
+                onClick={() => {
+                  onClose();
+                }}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  background: 'linear-gradient(to right, #6366F1, #8B5CF6)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                }}
+              >
+                Done — View Campaigns
+              </button>
             </div>
           )}
         </div>

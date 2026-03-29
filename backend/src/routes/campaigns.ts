@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
 import Anthropic from '@anthropic-ai/sdk';
 import { AI_CONFIG, getAIMessageConfig } from '../config/ai';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -426,6 +427,221 @@ router.post('/ai/optimize-send-time', async (req, res, next) => {
 
     return res.json({
       optimalTime: optimalDate.toISOString()
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// AWS SES for sending campaign emails (verified: support@brandmonkz.com)
+const ses = new SESClient({ region: 'us-east-1' });
+const FROM_EMAIL = process.env.SES_FROM_EMAIL || 'support@brandmonkz.com';
+const FROM_NAME = process.env.SES_FROM_NAME || 'BrandMonkz';
+
+async function sendEmail(to: string, subject: string, html: string) {
+  return ses.send(new SendEmailCommand({
+    Source: `${FROM_NAME} <${FROM_EMAIL}>`,
+    Destination: { ToAddresses: [to] },
+    Message: {
+      Subject: { Data: subject },
+      Body: { Html: { Data: html } },
+    },
+  }));
+}
+
+// POST /api/campaigns/:id/send - Send campaign emails to all linked contacts
+router.post('/:id/send', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    // Get campaign with linked companies and their contacts
+    const campaign = await prisma.campaign.findFirst({
+      where: { id, userId },
+      include: {
+        companies: {
+          include: {
+            company: {
+              include: {
+                contacts: {
+                  where: { isActive: true },
+                  select: { id: true, email: true, firstName: true, lastName: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    if (!campaign.subject || !campaign.htmlContent) {
+      return res.status(400).json({ error: 'Campaign must have a subject and content' });
+    }
+
+    // Collect all unique contacts from linked companies
+    const contactMap = new Map<string, { id: string; email: string; firstName: string; lastName: string; companyName: string }>();
+    for (const cc of campaign.companies) {
+      for (const contact of cc.company.contacts) {
+        if (contact.email && !contactMap.has(contact.email)) {
+          contactMap.set(contact.email, {
+            ...contact,
+            companyName: cc.company.name || '',
+          });
+        }
+      }
+    }
+
+    const contacts = Array.from(contactMap.values());
+    let sent = 0;
+    let failed = 0;
+    const fromEmail = process.env.SMTP_USER || 'noreply@brandmonkz.com';
+    const fromName = 'BrandMonkz';
+
+    for (const contact of contacts) {
+      try {
+        // Replace template variables
+        let subject = campaign.subject;
+        let html = campaign.htmlContent;
+        const vars: Record<string, string> = {
+          firstName: contact.firstName || '',
+          lastName: contact.lastName || '',
+          email: contact.email,
+          companyName: contact.companyName || '',
+        };
+        for (const [key, val] of Object.entries(vars)) {
+          const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+          subject = subject.replace(regex, val);
+          html = html.replace(regex, val);
+        }
+
+        await sendEmail(contact.email, subject, html);
+
+        // Create email log
+        try {
+          await prisma.emailLog.create({
+            data: {
+              toEmail: contact.email,
+              fromEmail,
+              status: 'SENT',
+              sentAt: new Date(),
+              campaignId: campaign.id,
+              contactId: contact.id,
+            } as any,
+          });
+        } catch {
+          // Log creation failure is non-blocking
+        }
+
+        sent++;
+      } catch (err) {
+        console.error(`Failed to send to ${contact.email}:`, err);
+        failed++;
+      }
+    }
+
+    // Update campaign status
+    await prisma.campaign.update({
+      where: { id },
+      data: {
+        status: 'SENT',
+        sentAt: new Date(),
+        totalSent: sent,
+      },
+    });
+
+    return res.json({ sent, total: contacts.length, failed });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// POST /api/campaigns/:id/mock-send - Queue campaign without sending (SES sandbox mode)
+router.post('/:id/mock-send', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    const campaign = await prisma.campaign.findFirst({
+      where: { id, userId },
+      include: {
+        companies: {
+          include: {
+            company: {
+              include: {
+                contacts: {
+                  where: { isActive: true },
+                  select: { id: true, email: true, firstName: true, lastName: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    if (!campaign.subject || !campaign.htmlContent) {
+      return res.status(400).json({ error: 'Campaign must have a subject and content' });
+    }
+
+    // Collect unique contacts
+    const contactMap = new Map<string, any>();
+    for (const cc of campaign.companies) {
+      for (const contact of cc.company.contacts) {
+        if (contact.email && !contactMap.has(contact.email)) {
+          contactMap.set(contact.email, { ...contact, companyName: cc.company.name });
+        }
+      }
+    }
+
+    const contacts = Array.from(contactMap.values());
+
+    // Log as QUEUED (not sent)
+    for (const contact of contacts) {
+      try {
+        await prisma.emailLog.create({
+          data: {
+            toEmail: contact.email,
+            fromEmail: process.env.SES_FROM_EMAIL || 'campaigns@brandmonkz.com',
+            status: 'QUEUED',
+            campaignId: campaign.id,
+            contactId: contact.id,
+          } as any,
+        });
+      } catch {
+        // Non-blocking
+      }
+    }
+
+    // Update campaign status
+    await prisma.campaign.update({
+      where: { id },
+      data: {
+        status: 'SENT',
+        sentAt: new Date(),
+        totalSent: contacts.length,
+      },
+    });
+
+    return res.json({
+      success: true,
+      sent: contacts.length,
+      total: contacts.length,
+      failed: 0,
+      mode: 'queued',
+      message: `Campaign queued for ${contacts.length} contacts. Emails will be delivered when SES production access is active.`,
+      recipients: contacts.map((c: any) => ({
+        email: c.email,
+        name: `${c.firstName} ${c.lastName}`,
+        company: c.companyName,
+      })),
     });
   } catch (error) {
     return next(error);

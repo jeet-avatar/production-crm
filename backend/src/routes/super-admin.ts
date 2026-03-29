@@ -29,8 +29,8 @@ router.get('/dashboard/stats', async (req, res) => {
     `;
     const totalTables = parseInt(tables[0]?.count || '0');
 
-    // Get activity logs count (last 30 days)
-    const activityLogs = await prisma.activityLog.count({
+    // Get activity count (last 30 days) — using Activity model
+    const activityLogs = await prisma.activity.count({
       where: {
         createdAt: {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
@@ -72,14 +72,14 @@ router.get('/dashboard/stats', async (req, res) => {
           },
         },
       }),
-      prisma.themeConfig.count(),
+      Promise.resolve(0), // ThemeConfig model doesn't exist — hardcode 0
       // API routes count is static based on available routes
       Promise.resolve(150), // Approximate number of API routes
       prisma.emailLog.count({ where: { status: 'FAILED' } }),
     ]);
 
-    // Get active theme count
-    const activeThemeCount = await prisma.themeConfig.count({ where: { isActive: true } });
+    // Theme config doesn't exist as a model
+    const activeThemeCount = 0;
 
     // Calculate database size
     const dbSizeQuery = await prisma.$queryRaw<any[]>`
@@ -145,7 +145,7 @@ router.get('/dashboard/stats', async (req, res) => {
       // Activity Logs
       recentActivityLogs: activityLogs,
       recentActivityLogsSubtext: `Last 30 days`,
-      totalActivityActions: await prisma.activityLog.count(),
+      totalActivityActions: await prisma.activity.count(),
       totalActivityActionsSubtext: `All time records`,
 
       // Email Monitor
@@ -940,9 +940,9 @@ router.get('/activity-logs', async (req, res) => {
 
     const where: any = {};
 
-    // Filter by action type
+    // Filter by type (Activity model uses 'type', not 'action')
     if (action) {
-      where.action = action;
+      where.type = action;
     }
 
     // Filter by user
@@ -950,15 +950,8 @@ router.get('/activity-logs', async (req, res) => {
       where.userId = userId;
     }
 
-    // Filter by entity type
-    if (entityType) {
-      where.entityType = entityType;
-    }
-
-    // Filter by IP address
-    if (ipAddress) {
-      where.ipAddress = ipAddress;
-    }
+    // entityType and ipAddress don't exist on Activity model — skip
+    // They were from the old ActivityLog model
 
     // Filter by date range
     if (startDate || endDate) {
@@ -972,7 +965,7 @@ router.get('/activity-logs', async (req, res) => {
     }
 
     const [logs, total] = await Promise.all([
-      prisma.activityLog.findMany({
+      prisma.activity.findMany({
         where,
         include: {
           user: {
@@ -989,7 +982,7 @@ router.get('/activity-logs', async (req, res) => {
         skip,
         take: limitNum,
       }),
-      prisma.activityLog.count({ where }),
+      prisma.activity.count({ where }),
     ]);
 
     res.json({
@@ -1028,33 +1021,33 @@ router.get('/activity-logs/stats', async (req, res) => {
       recentLogs,
     ] = await Promise.all([
       // Total activity logs
-      prisma.activityLog.count(),
+      prisma.activity.count(),
 
       // Logs in last 24 hours
-      prisma.activityLog.count({
+      prisma.activity.count({
         where: { createdAt: { gte: last24Hours } },
       }),
 
       // Logs in last 7 days
-      prisma.activityLog.count({
+      prisma.activity.count({
         where: { createdAt: { gte: last7Days } },
       }),
 
       // Logs in last 30 days
-      prisma.activityLog.count({
+      prisma.activity.count({
         where: { createdAt: { gte: last30Days } },
       }),
 
-      // Top 10 actions
-      prisma.activityLog.groupBy({
-        by: ['action'],
-        _count: { action: true },
-        orderBy: { _count: { action: 'desc' } },
+      // Top 10 activity types
+      prisma.activity.groupBy({
+        by: ['type'],
+        _count: { type: true },
+        orderBy: { _count: { type: 'desc' } },
         take: 10,
       }),
 
       // Top 10 most active users
-      prisma.activityLog.groupBy({
+      prisma.activity.groupBy({
         by: ['userId'],
         _count: { userId: true },
         orderBy: { _count: { userId: 'desc' } },
@@ -1063,7 +1056,7 @@ router.get('/activity-logs/stats', async (req, res) => {
       }),
 
       // Most recent 10 logs
-      prisma.activityLog.findMany({
+      prisma.activity.findMany({
         take: 10,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -1107,8 +1100,8 @@ router.get('/activity-logs/stats', async (req, res) => {
       logsLast7Days,
       logsLast30Days,
       topActions: topActions.map((item) => ({
-        action: item.action,
-        count: item._count.action,
+        action: item.type,
+        count: item._count.type,
       })),
       topUsers: topUsersWithDetails,
       recentLogs,
@@ -1447,553 +1440,67 @@ router.post('/jobs/:id/cancel', async (req, res) => {
 
 // ===================================
 // UI CONFIGURATION ENDPOINTS
+// Note: UIConfig and NavigationItem models don't exist in Prisma schema.
+// These return stub responses until the models are added via migration.
 // ===================================
 
-/**
- * GET /api/super-admin/ui-config
- * Get all UI configurations
- */
-router.get('/ui-config', async (req, res) => {
-  try {
-    const configs = await prisma.uIConfig.findMany({
-      where: { isActive: true },
-      orderBy: { updatedAt: 'desc' },
-    });
-
-    res.json(configs);
-  } catch (error: any) {
-    console.error('Error fetching UI configs:', error);
-    res.status(500).json({ error: 'Failed to fetch UI configurations' });
-  }
+router.get('/ui-config', async (_req, res) => {
+  res.json([]);
 });
 
-/**
- * GET /api/super-admin/ui-config/:key
- * Get specific UI configuration by key
- */
-router.get('/ui-config/:key', async (req, res) => {
-  try {
-    const { key } = req.params;
-
-    const config = await prisma.uIConfig.findUnique({
-      where: { key },
-    });
-
-    if (!config) {
-      return res.status(404).json({ error: 'Configuration not found' });
-    }
-
-    res.json(config);
-  } catch (error: any) {
-    console.error('Error fetching UI config:', error);
-    res.status(500).json({ error: 'Failed to fetch UI configuration' });
-  }
+router.get('/ui-config/:key', async (_req, res) => {
+  res.status(404).json({ error: 'UI config model not yet migrated' });
 });
 
-/**
- * POST /api/super-admin/ui-config
- * Create or update UI configuration
- */
-router.post('/ui-config', async (req, res) => {
-  try {
-    const { key, value, description } = req.body;
-    const userId = (req as any).user?.userId;
-
-    if (!key || !value) {
-      return res.status(400).json({ error: 'Key and value are required' });
-    }
-
-    const config = await prisma.uIConfig.upsert({
-      where: { key },
-      create: {
-        key,
-        value,
-        description,
-        createdBy: userId,
-      },
-      update: {
-        value,
-        description,
-        version: { increment: 1 },
-      },
-    });
-
-    res.json(config);
-  } catch (error: any) {
-    console.error('Error saving UI config:', error);
-    res.status(500).json({ error: 'Failed to save UI configuration' });
-  }
+router.post('/ui-config', async (_req, res) => {
+  res.status(501).json({ error: 'UI config model not yet migrated' });
 });
 
-/**
- * DELETE /api/super-admin/ui-config/:key
- * Delete UI configuration
- */
-router.delete('/ui-config/:key', async (req, res) => {
-  try {
-    const { key } = req.params;
-
-    await prisma.uIConfig.delete({
-      where: { key },
-    });
-
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting UI config:', error);
-    res.status(500).json({ error: 'Failed to delete UI configuration' });
-  }
+router.delete('/ui-config/:key', async (_req, res) => {
+  res.status(501).json({ error: 'UI config model not yet migrated' });
 });
 
 // ===================================
-// NAVIGATION ITEMS ENDPOINTS
+// NAVIGATION ITEMS ENDPOINTS (stub — model not yet migrated)
 // ===================================
 
-/**
- * GET /api/super-admin/navigation
- * Get all navigation items
- */
-router.get('/navigation', async (req, res) => {
-  try {
-    const items = await prisma.navigationItem.findMany({
-      where: { isActive: true },
-      orderBy: { order: 'asc' },
-      include: {
-        children: {
-          where: { isActive: true },
-          orderBy: { order: 'asc' },
-        },
-      },
-    });
-
-    res.json(items);
-  } catch (error: any) {
-    console.error('Error fetching navigation items:', error);
-    res.status(500).json({ error: 'Failed to fetch navigation items' });
-  }
+router.get('/navigation', async (_req, res) => {
+  res.json([]);
 });
 
-/**
- * POST /api/super-admin/navigation
- * Create navigation item
- */
-router.post('/navigation', async (req, res) => {
-  try {
-    const { label, path, icon, order, roles, parentId, badge, badgeColor, metadata } = req.body;
-
-    if (!label || !path) {
-      return res.status(400).json({ error: 'Label and path are required' });
-    }
-
-    const item = await prisma.navigationItem.create({
-      data: {
-        label,
-        path,
-        icon,
-        order: order || 0,
-        roles: roles || [],
-        parentId,
-        badge,
-        badgeColor,
-        metadata,
-      },
-    });
-
-    res.json(item);
-  } catch (error: any) {
-    console.error('Error creating navigation item:', error);
-    res.status(500).json({ error: 'Failed to create navigation item' });
-  }
+router.post('/navigation', async (_req, res) => {
+  res.status(501).json({ error: 'Navigation model not yet migrated' });
 });
 
-/**
- * PUT /api/super-admin/navigation/:id
- * Update navigation item
- */
-router.put('/navigation/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { label, path, icon, order, isVisible, roles, badge, badgeColor, metadata } = req.body;
-
-    const item = await prisma.navigationItem.update({
-      where: { id },
-      data: {
-        label,
-        path,
-        icon,
-        order,
-        isVisible,
-        roles,
-        badge,
-        badgeColor,
-        metadata,
-      },
-    });
-
-    res.json(item);
-  } catch (error: any) {
-    console.error('Error updating navigation item:', error);
-    res.status(500).json({ error: 'Failed to update navigation item' });
-  }
+router.put('/navigation/:id', async (_req, res) => {
+  res.status(501).json({ error: 'Navigation model not yet migrated' });
 });
 
-/**
- * DELETE /api/super-admin/navigation/:id
- * Delete navigation item
- */
-router.delete('/navigation/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    await prisma.navigationItem.delete({
-      where: { id },
-    });
-
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting navigation item:', error);
-    res.status(500).json({ error: 'Failed to delete navigation item' });
-  }
+router.delete('/navigation/:id', async (_req, res) => {
+  res.status(501).json({ error: 'Navigation model not yet migrated' });
 });
 
-/**
- * POST /api/super-admin/navigation/reorder
- * Reorder navigation items
- */
-router.post('/navigation/reorder', async (req, res) => {
-  try {
-    const { items } = req.body; // Array of {id, order}
-
-    if (!Array.isArray(items)) {
-      return res.status(400).json({ error: 'Items array is required' });
-    }
-
-    await Promise.all(
-      items.map(({ id, order }) =>
-        prisma.navigationItem.update({
-          where: { id },
-          data: { order },
-        })
-      )
-    );
-
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error reordering navigation:', error);
-    res.status(500).json({ error: 'Failed to reorder navigation items' });
-  }
+router.post('/navigation/reorder', async (_req, res) => {
+  res.status(501).json({ error: 'Navigation model not yet migrated' });
 });
 
 // ===================================
-// THEME CONFIGURATION ENDPOINTS
+// THEME CONFIGURATION ENDPOINTS (stub — ThemeConfig/BrandingConfig models not yet migrated)
 // ===================================
 
-/**
- * GET /api/super-admin/themes
- * Get all theme configurations
- */
-router.get('/themes', async (req, res) => {
-  try {
-    const themes = await prisma.themeConfig.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+router.get('/themes', async (_req, res) => { res.json([]); });
+router.get('/themes/active', async (_req, res) => { res.json(null); });
+router.post('/themes', async (_req, res) => { res.status(501).json({ error: 'ThemeConfig model not yet migrated' }); });
+router.put('/themes/:id', async (_req, res) => { res.status(501).json({ error: 'ThemeConfig model not yet migrated' }); });
+router.post('/themes/:id/activate', async (_req, res) => { res.status(501).json({ error: 'ThemeConfig model not yet migrated' }); });
+router.delete('/themes/:id', async (_req, res) => { res.status(501).json({ error: 'ThemeConfig model not yet migrated' }); });
+router.get('/branding', async (_req, res) => { res.json(null); });
+router.post('/branding', async (_req, res) => { res.status(501).json({ error: 'BrandingConfig model not yet migrated' }); });
+router.put('/branding', async (_req, res) => { res.status(501).json({ error: 'BrandingConfig model not yet migrated' }); });
 
-    res.json(themes);
-  } catch (error: any) {
-    console.error('Error fetching themes:', error);
-    res.status(500).json({ error: 'Failed to fetch themes' });
-  }
-});
+// Old theme/branding routes removed (referenced non-existent ThemeConfig/BrandingConfig models)
+// Stubs registered above.
 
-/**
- * GET /api/super-admin/themes/active
- * Get active theme
- */
-router.get('/themes/active', async (req, res) => {
-  try {
-    const theme = await prisma.themeConfig.findFirst({
-      where: { isActive: true },
-    });
-
-    res.json(theme || null);
-  } catch (error: any) {
-    console.error('Error fetching active theme:', error);
-    res.status(500).json({ error: 'Failed to fetch active theme' });
-  }
-});
-
-/**
- * POST /api/super-admin/themes
- * Create theme configuration
- */
-router.post('/themes', async (req, res) => {
-  try {
-    const {
-      name,
-      primaryColor,
-      secondaryColor,
-      accentColor,
-      backgroundColor,
-      textColor,
-      sidebarColor,
-      headerColor,
-      buttonStyles,
-      fontFamily,
-      fontSize,
-      borderRadius,
-      customCSS,
-      isDefault,
-    } = req.body;
-
-    if (!name || !primaryColor || !secondaryColor || !accentColor || !backgroundColor || !textColor) {
-      return res.status(400).json({ error: 'Required theme fields are missing' });
-    }
-
-    const theme = await prisma.themeConfig.create({
-      data: {
-        name,
-        primaryColor,
-        secondaryColor,
-        accentColor,
-        backgroundColor,
-        textColor,
-        sidebarColor,
-        headerColor,
-        buttonStyles,
-        fontFamily,
-        fontSize,
-        borderRadius,
-        customCSS,
-        isDefault,
-      },
-    });
-
-    res.json(theme);
-  } catch (error: any) {
-    console.error('Error creating theme:', error);
-    res.status(500).json({ error: 'Failed to create theme' });
-  }
-});
-
-/**
- * PUT /api/super-admin/themes/:id
- * Update theme configuration
- */
-router.put('/themes/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      name,
-      primaryColor,
-      secondaryColor,
-      accentColor,
-      backgroundColor,
-      textColor,
-      sidebarColor,
-      headerColor,
-      buttonStyles,
-      fontFamily,
-      fontSize,
-      borderRadius,
-      customCSS,
-    } = req.body;
-
-    const theme = await prisma.themeConfig.update({
-      where: { id },
-      data: {
-        name,
-        primaryColor,
-        secondaryColor,
-        accentColor,
-        backgroundColor,
-        textColor,
-        sidebarColor,
-        headerColor,
-        buttonStyles,
-        fontFamily,
-        fontSize,
-        borderRadius,
-        customCSS,
-      },
-    });
-
-    res.json(theme);
-  } catch (error: any) {
-    console.error('Error updating theme:', error);
-    res.status(500).json({ error: 'Failed to update theme' });
-  }
-});
-
-/**
- * POST /api/super-admin/themes/:id/activate
- * Activate a theme (deactivates all others)
- */
-router.post('/themes/:id/activate', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    // Deactivate all themes
-    await prisma.themeConfig.updateMany({
-      where: { isActive: true },
-      data: { isActive: false },
-    });
-
-    // Activate the selected theme
-    const theme = await prisma.themeConfig.update({
-      where: { id },
-      data: { isActive: true },
-    });
-
-    res.json(theme);
-  } catch (error: any) {
-    console.error('Error activating theme:', error);
-    res.status(500).json({ error: 'Failed to activate theme' });
-  }
-});
-
-/**
- * DELETE /api/super-admin/themes/:id
- * Delete theme configuration
- */
-router.delete('/themes/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const theme = await prisma.themeConfig.findUnique({
-      where: { id },
-    });
-
-    if (theme?.isActive) {
-      return res.status(400).json({ error: 'Cannot delete active theme' });
-    }
-
-    await prisma.themeConfig.delete({
-      where: { id },
-    });
-
-    res.json({ success: true });
-  } catch (error: any) {
-    console.error('Error deleting theme:', error);
-    res.status(500).json({ error: 'Failed to delete theme' });
-  }
-});
-
-// ===================================
-// BRANDING CONFIGURATION ENDPOINTS
-// ===================================
-
-/**
- * GET /api/super-admin/branding
- * Get branding configuration
- */
-router.get('/branding', async (req, res) => {
-  try {
-    const branding = await prisma.brandingConfig.findFirst({
-      where: { isActive: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    res.json(branding || null);
-  } catch (error: any) {
-    console.error('Error fetching branding:', error);
-    res.status(500).json({ error: 'Failed to fetch branding configuration' });
-  }
-});
-
-/**
- * POST /api/super-admin/branding
- * Create or update branding configuration
- */
-router.post('/branding', async (req, res) => {
-  try {
-    const {
-      companyName,
-      logoUrl,
-      faviconUrl,
-      loginBgImage,
-      dashboardBanner,
-      footerText,
-      supportEmail,
-      supportPhone,
-      socialLinks,
-      metadata,
-    } = req.body;
-
-    if (!companyName) {
-      return res.status(400).json({ error: 'Company name is required' });
-    }
-
-    // Deactivate existing branding
-    await prisma.brandingConfig.updateMany({
-      where: { isActive: true },
-      data: { isActive: false },
-    });
-
-    // Create new branding
-    const branding = await prisma.brandingConfig.create({
-      data: {
-        companyName,
-        logoUrl,
-        faviconUrl,
-        loginBgImage,
-        dashboardBanner,
-        footerText,
-        supportEmail,
-        supportPhone,
-        socialLinks,
-        metadata,
-        isActive: true,
-      },
-    });
-
-    res.json(branding);
-  } catch (error: any) {
-    console.error('Error saving branding:', error);
-    res.status(500).json({ error: 'Failed to save branding configuration' });
-  }
-});
-
-/**
- * PUT /api/super-admin/branding/:id
- * Update branding configuration
- */
-router.put('/branding/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      companyName,
-      logoUrl,
-      faviconUrl,
-      loginBgImage,
-      dashboardBanner,
-      footerText,
-      supportEmail,
-      supportPhone,
-      socialLinks,
-      metadata,
-    } = req.body;
-
-    const branding = await prisma.brandingConfig.update({
-      where: { id },
-      data: {
-        companyName,
-        logoUrl,
-        faviconUrl,
-        loginBgImage,
-        dashboardBanner,
-        footerText,
-        supportEmail,
-        supportPhone,
-        socialLinks,
-        metadata,
-      },
-    });
-
-    res.json(branding);
-  } catch (error: any) {
-    console.error('Error updating branding:', error);
-    res.status(500).json({ error: 'Failed to update branding configuration' });
-  }
-});
 
 /**
  * GET /api/super-admin/tech-stack

@@ -391,8 +391,12 @@ export const contractsApi = {
 
 // Job Leads Pipeline API
 export const jobLeadsApi = {
-  fetch: async (stream?: string): Promise<{ leads: any[]; total: number; streams: Record<string, number>; error?: string }> => {
-    const url = stream ? `/job-leads/fetch?stream=${encodeURIComponent(stream)}` : '/job-leads/fetch';
+  fetch: async (stream?: string, forceRefresh?: boolean): Promise<{ leads: any[]; total: number; streams: Record<string, number>; error?: string; cached?: boolean }> => {
+    const params = new URLSearchParams();
+    if (stream) params.set('stream', stream);
+    if (forceRefresh) params.set('refresh', 'true');
+    const qs = params.toString();
+    const url = `/job-leads/fetch${qs ? `?${qs}` : ''}`;
     const response = await apiClient.get(url);
     return response.data;
   },
