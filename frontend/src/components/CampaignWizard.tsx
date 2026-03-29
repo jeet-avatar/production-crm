@@ -442,7 +442,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
             </h2>
             <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0' }}>
               {step === 1 && 'Describe your campaign — AI writes the email, or pick a staffing template'}
-              {step === 2 && 'Select the companies that will receive this email'}
+              {step === 2 && 'Select companies and pick the contacts to email'}
               {step === 3 && 'Preview the email, confirm details, and send'}
               {step === 4 && 'Your campaign has been queued successfully'}
             </p>
@@ -1060,7 +1060,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '8px',
+                    gap: '6px',
                     marginBottom: '16px',
                     maxHeight: '400px',
                     overflowY: 'auto',
@@ -1078,37 +1078,73 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                       <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : '#20203a', overflow: 'hidden', transition: 'all 0.15s' }}>
                         {/* Company header row */}
                         <div
-                          style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
-                          onClick={() => toggleCompany(company.id)}
+                          style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
                         >
-                          <div style={{
-                            width: '34px', height: '34px', borderRadius: '8px',
-                            background: isSelected ? '#6366F1' : '#2d2d4a',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '14px', flexShrink: 0, color: '#fff', fontWeight: 700,
-                          }}>
-                            {isSelected ? '✓' : company.name.charAt(0).toUpperCase()}
+                          {/* Checkbox */}
+                          <div
+                            onClick={() => toggleCompany(company.id)}
+                            style={{
+                              width: '22px', height: '22px', borderRadius: '6px', flexShrink: 0,
+                              border: isSelected ? '2px solid #6366F1' : '2px solid #3d3d5c',
+                              background: isSelected ? '#6366F1' : 'transparent',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '12px', color: '#fff', fontWeight: 700, cursor: 'pointer',
+                            }}
+                          >
+                            {isSelected && '✓'}
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+
+                          {/* Company icon */}
+                          <div style={{
+                            width: '36px', height: '36px', borderRadius: '8px',
+                            background: 'linear-gradient(135deg, #252540, #2d2d4a)',
+                            border: '1px solid #3d3d5c',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '15px', flexShrink: 0, color: '#A5B4FC', fontWeight: 700,
+                          }}>
+                            {company.name.charAt(0).toUpperCase()}
+                          </div>
+
+                          {/* Company name + contact count */}
+                          <div
+                            onClick={() => toggleCompany(company.id)}
+                            style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
+                          >
+                            <div style={{ fontWeight: 600, fontSize: '14px', color: '#F1F5F9', marginBottom: '2px' }}>
                               {company.name}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#94A3B8' }}>
-                              {selectedInCompany > 0 ? `${selectedInCompany}/${contactCount} contacts selected` : `${contactCount} contact${contactCount !== 1 ? 's' : ''}`}
+                            <div style={{ fontSize: '12px', color: selectedInCompany > 0 ? '#A5B4FC' : '#64748B' }}>
+                              {selectedInCompany > 0
+                                ? `${selectedInCompany} of ${contactCount} contacts selected`
+                                : `${contactCount} contact${contactCount !== 1 ? 's' : ''}`
+                              }
                             </div>
                           </div>
-                          {/* Expand button */}
+
+                          {/* Contact count badge */}
+                          <div style={{
+                            background: contactCount > 2 ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
+                            color: contactCount > 2 ? '#A5B4FC' : '#64748B',
+                            padding: '4px 10px', borderRadius: '12px',
+                            fontSize: '12px', fontWeight: 700, flexShrink: 0,
+                          }}>
+                            {contactCount}
+                          </div>
+
+                          {/* Expand/collapse arrow */}
                           {contactCount > 0 && (
                             <button
                               onClick={(e) => { e.stopPropagation(); setExpandedCompanyId(isExpanded ? null : company.id); }}
                               style={{
-                                background: 'none', border: 'none', cursor: 'pointer',
-                                color: '#94A3B8', fontSize: '12px', padding: '4px 8px',
-                                borderRadius: '6px', transition: 'all 0.15s',
+                                background: isExpanded ? 'rgba(99,102,241,0.15)' : 'transparent',
+                                border: '1px solid ' + (isExpanded ? 'rgba(99,102,241,0.3)' : '#3d3d5c'),
+                                cursor: 'pointer',
+                                color: isExpanded ? '#A5B4FC' : '#64748B',
+                                fontSize: '11px', padding: '6px 10px',
+                                borderRadius: '6px', transition: 'all 0.15s', fontWeight: 600, flexShrink: 0,
                               }}
-                              title={isExpanded ? 'Collapse contacts' : 'View contacts'}
                             >
-                              {isExpanded ? '▲ Hide' : `▼ ${contactCount} contacts`}
+                              {isExpanded ? '▲ Hide' : '▼ View'}
                             </button>
                           )}
                         </div>
@@ -1194,8 +1230,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                   }}
                 >
                   <span>
-                    ✅ {selectedCompanyIds.length} group{selectedCompanyIds.length !== 1 ? 's' : ''} selected
-                    — {totalSelectedContacts} contact{totalSelectedContacts !== 1 ? 's' : ''} will receive this email
+                    {selectedCompanyIds.length} {selectedCompanyIds.length === 1 ? 'company' : 'companies'} selected
+                    — {totalSelectedContacts} {totalSelectedContacts === 1 ? 'person' : 'people'} will receive this email
                   </span>
                   <button
                     onClick={() => setSelectedCompanyIds([])}
