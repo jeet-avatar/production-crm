@@ -157,8 +157,8 @@ export function PexelsVideoBrowser({
             <FilmIcon className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Pexels Stock Video Library</h2>
-            <p className="text-gray-600 text-sm">
+            <h2 className="text-2xl font-bold text-[#F1F5F9]">Pexels Stock Video Library</h2>
+            <p className="text-[#94A3B8] text-sm">
               Browse thousands of free HD stock videos for your campaigns
             </p>
           </div>
@@ -194,7 +194,7 @@ export function PexelsVideoBrowser({
               className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
                 selectedCategory === category.id
                   ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg scale-105'
-                  : 'bg-white text-gray-700 border-2 border-purple-200 hover:border-purple-400'
+                  : 'bg-[#161625] text-[#CBD5E1] border-2 border-purple-200 hover:border-purple-400'
               }`}
             >
               <span>{category.icon}</span>
@@ -207,10 +207,10 @@ export function PexelsVideoBrowser({
       {/* Results Count */}
       {totalResults > 0 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[#94A3B8]">
             Found <span className="font-bold text-purple-600">{totalResults.toLocaleString()}</span> videos
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-[#94A3B8]">
             Page {page} • Showing {videos.length} videos
           </p>
         </div>
@@ -218,8 +218,8 @@ export function PexelsVideoBrowser({
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
-          <p className="text-red-800 font-medium">{error}</p>
+        <div className="bg-red-500/10 border-2 border-red-200 rounded-xl p-4">
+          <p className="text-red-400 font-medium">{error}</p>
           <p className="text-red-600 text-sm mt-1">
             Make sure your Pexels API key is configured correctly.
           </p>
@@ -233,7 +233,7 @@ export function PexelsVideoBrowser({
             <div key={i} className="animate-pulse">
               <div className="aspect-video bg-gradient-to-br from-purple-200 to-blue-200 rounded-xl mb-3"></div>
               <div className="h-4 bg-purple-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-purple-100 rounded w-1/2"></div>
+              <div className="h-3 bg-purple-500/15 rounded w-1/2"></div>
             </div>
           ))}
         </div>
@@ -245,15 +245,15 @@ export function PexelsVideoBrowser({
           {videos.map((video) => (
             <div
               key={video.id}
-              className={`group relative bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border-2 ${
+              className={`group relative bg-[#161625] rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer border-2 ${
                 selectedVideoId === video.id
                   ? 'border-purple-600 ring-4 ring-purple-200'
-                  : 'border-gray-200 hover:border-purple-400'
+                  : 'border-[#2a2a44] hover:border-purple-400'
               }`}
               onClick={() => setPreviewVideo(video)}
             >
               {/* Thumbnail */}
-              <div className="relative aspect-video bg-gray-100">
+              <div className="relative aspect-video bg-[#1c1c30]">
                 <img
                   src={video.image}
                   alt={`Video by ${video.user.name}`}
@@ -281,17 +281,17 @@ export function PexelsVideoBrowser({
                 {/* Selected Indicator */}
                 {selectedVideoId === video.id && (
                   <div className="absolute top-2 right-2">
-                    <CheckCircleIcon className="w-6 h-6 text-green-500 bg-white rounded-full" />
+                    <CheckCircleIcon className="w-6 h-6 text-green-500 bg-[#161625] rounded-full" />
                   </div>
                 )}
               </div>
 
               {/* Info */}
               <div className="p-3">
-                <p className="text-sm text-gray-600 truncate">
+                <p className="text-sm text-[#94A3B8] truncate">
                   By <span className="font-medium text-purple-600">{video.user.name}</span>
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#94A3B8] mt-1">
                   {video.width} × {video.height}
                 </p>
               </div>
@@ -303,9 +303,9 @@ export function PexelsVideoBrowser({
       {/* Empty State */}
       {!loading && !error && videos.length === 0 && (
         <div className="text-center py-12">
-          <FilmIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600 font-medium">No videos found</p>
-          <p className="text-gray-500 text-sm mt-1">Try searching for different keywords</p>
+          <FilmIcon className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+          <p className="text-[#94A3B8] font-medium">No videos found</p>
+          <p className="text-[#94A3B8] text-sm mt-1">Try searching for different keywords</p>
         </div>
       )}
 
@@ -315,16 +315,16 @@ export function PexelsVideoBrowser({
           <button
             onClick={() => searchVideos(searchQuery, page - 1)}
             disabled={page === 1}
-            className="px-6 py-2 bg-white text-gray-700 border-2 border-purple-200 rounded-xl font-bold hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="px-6 py-2 bg-[#161625] text-[#CBD5E1] border-2 border-purple-200 rounded-xl font-bold hover:bg-purple-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             ← Previous
           </button>
-          <span className="px-6 py-2 bg-purple-100 text-purple-800 rounded-xl font-bold">
+          <span className="px-6 py-2 bg-purple-500/15 text-purple-800 rounded-xl font-bold">
             Page {page}
           </span>
           <button
             onClick={() => searchVideos(searchQuery, page + 1)}
-            className="px-6 py-2 bg-white text-gray-700 border-2 border-purple-200 rounded-xl font-bold hover:bg-purple-50 transition-all"
+            className="px-6 py-2 bg-[#161625] text-[#CBD5E1] border-2 border-purple-200 rounded-xl font-bold hover:bg-purple-500/10 transition-all"
           >
             Next →
           </button>
@@ -338,20 +338,20 @@ export function PexelsVideoBrowser({
           onClick={() => setPreviewVideo(null)}
         >
           <div
-            className="bg-white rounded-2xl max-w-4xl w-full p-6"
+            className="bg-[#161625] rounded-2xl max-w-4xl w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">Video Preview</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <h3 className="text-2xl font-bold text-[#F1F5F9]">Video Preview</h3>
+                <p className="text-sm text-[#94A3B8] mt-1">
                   By {previewVideo.user.name} • {formatDuration(previewVideo.duration)} • {getQualityBadge(previewVideo)}
                 </p>
               </div>
               <button
                 onClick={() => setPreviewVideo(null)}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-2"
+                className="text-[#64748B] hover:text-[#94A3B8] transition-colors p-2"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -372,12 +372,12 @@ export function PexelsVideoBrowser({
 
             {/* Quality Options */}
             <div className="mb-4">
-              <p className="text-sm font-semibold text-gray-700 mb-2">Available Qualities:</p>
+              <p className="text-sm font-semibold text-[#CBD5E1] mb-2">Available Qualities:</p>
               <div className="flex gap-2 flex-wrap">
                 {previewVideo.video_files.map((file) => (
                   <span
                     key={file.id}
-                    className="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-lg"
+                    className="px-3 py-1 bg-purple-500/15 text-purple-800 text-xs font-bold rounded-lg"
                   >
                     {file.quality.toUpperCase()} • {file.width}×{file.height}
                   </span>
@@ -396,21 +396,21 @@ export function PexelsVideoBrowser({
               </button>
               <button
                 onClick={() => setPreviewVideo(null)}
-                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-all"
+                className="px-6 py-3 bg-[#1c1c30] text-[#CBD5E1] rounded-xl font-bold hover:bg-[#252540] transition-all"
               >
                 Close
               </button>
             </div>
 
             {/* Attribution */}
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500">
+            <div className="mt-4 pt-4 border-t border-[#2a2a44]">
+              <p className="text-xs text-[#94A3B8]">
                 Video by{' '}
                 <a
                   href={previewVideo.user.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-purple-600 hover:text-purple-700 font-medium"
+                  className="text-purple-600 hover:text-purple-400 font-medium"
                 >
                   {previewVideo.user.name}
                 </a>
@@ -419,7 +419,7 @@ export function PexelsVideoBrowser({
                   href={previewVideo.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-purple-600 hover:text-purple-700 font-medium"
+                  className="text-purple-600 hover:text-purple-400 font-medium"
                 >
                   Pexels
                 </a>

@@ -53,14 +53,14 @@ export function GenerateVideoFromPrompt({ onVideoGenerated }: GenerateVideoFromP
           <SparklesIcon className="w-6 h-6" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">AI Video Generator</h2>
-          <p className="text-gray-600 text-sm">Create 30-second tech videos from a simple prompt</p>
+          <h2 className="text-2xl font-bold text-[#F1F5F9]">AI Video Generator</h2>
+          <p className="text-[#94A3B8] text-sm">Create 30-second tech videos from a simple prompt</p>
         </div>
       </div>
 
       <form onSubmit={handleGenerate} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
             Describe your video
           </label>
           <textarea
@@ -71,20 +71,20 @@ export function GenerateVideoFromPrompt({ onVideoGenerated }: GenerateVideoFromP
             rows={4}
             disabled={loading}
           />
-          <p className="mt-2 text-xs text-gray-500">
+          <p className="mt-2 text-xs text-[#94A3B8]">
             💡 Tip: Focus on tech topics like cloud, AI, software, data, automation, etc.
           </p>
         </div>
 
         {error && (
-          <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl">
-            <p className="text-red-800 text-sm font-medium">{error}</p>
+          <div className="p-4 bg-red-500/10 border-2 border-red-200 rounded-xl">
+            <p className="text-red-400 text-sm font-medium">{error}</p>
           </div>
         )}
 
         {success && (
-          <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl">
-            <p className="text-green-800 text-sm font-medium">{success}</p>
+          <div className="p-4 bg-green-500/10 border-2 border-green-200 rounded-xl">
+            <p className="text-green-400 text-sm font-medium">{success}</p>
           </div>
         )}
 
@@ -109,26 +109,26 @@ export function GenerateVideoFromPrompt({ onVideoGenerated }: GenerateVideoFromP
 
       {loading && (
         <div className="mt-6 space-y-3">
-          <div className="flex items-center gap-3 text-sm text-gray-600">
+          <div className="flex items-center gap-3 text-sm text-[#94A3B8]">
             <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
             <span>Analyzing your prompt with AI...</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
+          <div className="flex items-center gap-3 text-sm text-[#94A3B8]">
             <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse animation-delay-200"></div>
             <span>Finding perfect stock footage...</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600">
+          <div className="flex items-center gap-3 text-sm text-[#94A3B8]">
             <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse animation-delay-400"></div>
             <span>Creating video template...</span>
           </div>
         </div>
       )}
 
-      <div className="mt-6 p-4 bg-white rounded-xl border-2 border-purple-100">
-        <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+      <div className="mt-6 p-4 bg-[#161625] rounded-xl border-2 border-purple-100">
+        <h3 className="font-bold text-[#F1F5F9] mb-2 flex items-center gap-2">
           <span className="text-purple-600">✨</span> How it works
         </h3>
-        <ul className="space-y-2 text-sm text-gray-600">
+        <ul className="space-y-2 text-sm text-[#94A3B8]">
           <li className="flex items-start gap-2">
             <span className="text-purple-600 font-bold">1.</span>
             <span>AI extracts keywords from your prompt</span>

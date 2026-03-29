@@ -455,16 +455,10 @@ export function EditTemplateModal({
     try {
       setIsSaving(true);
 
-      let finalHTML = htmlContent;
-      variables.forEach(variable => {
-        const regex = new RegExp(`\\{\\{${variable.name}\\}\\}`, 'g');
-        finalHTML = finalHTML.replace(regex, variable.value || '');
-      });
-
       await onSave({
         name: templateName,
         subject,
-        htmlContent: finalHTML,
+        htmlContent: htmlContent,
         textContent: previewText,
       });
 
@@ -493,13 +487,13 @@ export function EditTemplateModal({
 
       return (
         <div key={variable.name} className="mb-3">
-          <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+          <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
             <span className="text-sm">{variable.icon}</span>
             {variable.label}
           </label>
 
           {variable.value && (
-            <div className="mb-2 p-2 bg-green-50 border border-green-200 rounded flex items-center gap-2">
+            <div className="mb-2 p-2 bg-green-500/10 border border-green-200 rounded flex items-center gap-2">
               <CheckCircleIcon className="h-4 w-4 text-green-600 flex-shrink-0" />
               {variable.type === 'image' && (
                 <img
@@ -508,11 +502,11 @@ export function EditTemplateModal({
                   className="h-8 w-8 object-cover rounded flex-shrink-0"
                 />
               )}
-              <span className="text-xs text-green-700 flex-1 truncate">Uploaded</span>
+              <span className="text-xs text-green-400 flex-1 truncate">Uploaded</span>
               <button
                 type="button"
                 onClick={() => updateVariableValue(variable.name, '')}
-                className="text-xs text-red-600 hover:text-red-700 flex-shrink-0"
+                className="text-xs text-red-600 hover:text-red-400 flex-shrink-0"
               >
                 ✕
               </button>
@@ -525,7 +519,7 @@ export function EditTemplateModal({
               value={variable.value}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
               placeholder="URL or upload..."
-              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+              className="flex-1 px-2 py-1.5 text-sm border border-[var(--border-default)] rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             />
             <label className={`cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
               <input
@@ -562,7 +556,7 @@ export function EditTemplateModal({
     if (variable.type === 'color') {
       return (
         <div key={variable.name} className="mb-3">
-          <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+          <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
             <span className="text-sm">{variable.icon}</span>
             {variable.label}
           </label>
@@ -571,14 +565,14 @@ export function EditTemplateModal({
               type="color"
               value={variable.value || '#667eea'}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
-              className="h-8 w-12 border border-gray-300 rounded cursor-pointer"
+              className="h-8 w-12 border border-[var(--border-default)] rounded cursor-pointer"
             />
             <input
               type="text"
               value={variable.value}
               onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
               placeholder="#667eea"
-              className="flex-1 px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 font-mono"
+              className="flex-1 px-2 py-1.5 text-sm border border-[var(--border-default)] rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 font-mono"
             />
           </div>
         </div>
@@ -589,7 +583,7 @@ export function EditTemplateModal({
     if (variable.type === 'textarea') {
       return (
         <div key={variable.name} className="mb-3">
-          <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+          <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
             <span className="text-sm">{variable.icon}</span>
             {variable.label}
           </label>
@@ -598,7 +592,7 @@ export function EditTemplateModal({
             onChange={(e: ChangeEvent<HTMLTextAreaElement>) => updateVariableValue(variable.name, e.target.value)}
             placeholder={variable.placeholder}
             rows={3}
-            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 resize-y"
+            className="w-full px-2 py-1.5 text-sm border border-[var(--border-default)] rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 resize-y"
           />
         </div>
       );
@@ -607,7 +601,7 @@ export function EditTemplateModal({
     // Text/Email/URL input field - COMPACT VERSION
     return (
       <div key={variable.name} className="mb-3">
-        <label className="block text-xs font-semibold text-gray-700 mb-1 flex items-center gap-1">
+        <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1 flex items-center gap-1">
           <span className="text-sm">{variable.icon}</span>
           {variable.label}
         </label>
@@ -616,7 +610,7 @@ export function EditTemplateModal({
           value={variable.value}
           onChange={(e: ChangeEvent<HTMLInputElement>) => updateVariableValue(variable.name, e.target.value)}
           placeholder={variable.placeholder}
-          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-full px-2 py-1.5 text-sm border border-[var(--border-default)] rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
         />
       </div>
     );
@@ -680,7 +674,7 @@ export function EditTemplateModal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-[95vw] h-[90vh] transform overflow-hidden rounded-2xl bg-white shadow-2xl transition-all flex flex-col">
+              <Dialog.Panel className="w-full max-w-[95vw] h-[90vh] transform overflow-hidden rounded-2xl bg-[var(--bg-elevated)] shadow-2xl transition-all flex flex-col">
 
                 {/* HEADER */}
                 <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
@@ -696,7 +690,7 @@ export function EditTemplateModal({
                     </div>
                     <div className="flex items-center gap-4">
                       {(autoSaving || lastSaved) && (
-                        <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg">
+                        <div className="flex items-center gap-2 bg-[#161625]/20 px-4 py-2 rounded-lg">
                           {autoSaving ? (
                             <>
                               <ArrowPathIcon className="h-4 w-4 text-white animate-spin" />
@@ -715,7 +709,7 @@ export function EditTemplateModal({
                       <button
                         type="button"
                         onClick={onClose}
-                        className="text-white hover:bg-white/20 p-2 rounded-lg transition-all"
+                        className="text-white hover:bg-[#161625]/20 p-2 rounded-lg transition-all"
                       >
                         <XMarkIcon className="h-6 w-6" />
                       </button>
@@ -725,18 +719,18 @@ export function EditTemplateModal({
 
                 {/* DRAFT RECOVERY BANNER */}
                 {showDraftBanner && (
-                  <div className="bg-blue-50 border-b-2 border-blue-200 px-6 py-3 flex justify-between items-center">
+                  <div className="bg-[var(--glass-bg)] border-b-2 border-[var(--border-default)] px-6 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-3">
-                      <ClockIcon className="h-5 w-5 text-blue-600" />
+                      <ClockIcon className="h-5 w-5 text-indigo-400" />
                       <div>
-                        <p className="text-sm font-semibold text-blue-900">Draft Recovered!</p>
-                        <p className="text-xs text-blue-700">Your previous work has been restored</p>
+                        <p className="text-sm font-semibold text-[var(--text-primary)]">Draft Recovered!</p>
+                        <p className="text-xs text-[var(--text-muted)]">Your previous work has been restored</p>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowDraftBanner(false)}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm font-medium"
                     >
                       Dismiss
                     </button>
@@ -745,22 +739,22 @@ export function EditTemplateModal({
 
                 {/* HTML EDITOR MODAL */}
                 {showHtmlEditor && (
-                  <div className="absolute inset-0 bg-white z-10 flex flex-col">
+                  <div className="absolute inset-0 bg-[var(--bg-elevated)] z-10 flex flex-col">
                     <div className="bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-4 flex justify-between items-center">
                       <h3 className="text-xl font-bold text-white">Edit HTML Template</h3>
                       <button
                         type="button"
                         onClick={() => setShowHtmlEditor(false)}
-                        className="text-white hover:bg-white/20 p-2 rounded-lg"
+                        className="text-white hover:bg-[#161625]/20 p-2 rounded-lg"
                       >
                         <XMarkIcon className="h-6 w-6" />
                       </button>
                     </div>
                     <div className="flex-1 p-6 overflow-auto">
                       <div className="flex justify-between items-start mb-4">
-                        <p className="text-sm text-gray-600">
-                          Add new variables using <code className="bg-gray-100 px-2 py-1 rounded text-sm">{"{{variableName}}"}</code> syntax.
-                          Examples: <code className="bg-gray-100 px-2 py-1 rounded text-sm">{"{{instagramUrl}}"}</code>, <code className="bg-gray-100 px-2 py-1 rounded text-sm">{"{{clientLogo}}"}</code>
+                        <p className="text-sm text-[var(--text-muted)]">
+                          Add new variables using <code className="bg-[var(--color-gray-100)] px-2 py-1 rounded text-sm">{"{{variableName}}"}</code> syntax.
+                          Examples: <code className="bg-[var(--color-gray-100)] px-2 py-1 rounded text-sm">{"{{instagramUrl}}"}</code>, <code className="bg-[var(--color-gray-100)] px-2 py-1 rounded text-sm">{"{{clientLogo}}"}</code>
                         </p>
                         <button
                           type="button"
@@ -773,15 +767,15 @@ export function EditTemplateModal({
                       <textarea
                         value={htmlContent}
                         onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setHtmlContent(e.target.value)}
-                        className="w-full h-[calc(100%-80px)] p-4 border-2 border-gray-300 rounded-lg font-mono text-sm"
+                        className="w-full h-[calc(100%-80px)] p-4 border-2 border-[var(--border-default)] rounded-lg font-mono text-sm"
                         placeholder="Enter your HTML template here..."
                       />
                     </div>
-                    <div className="bg-gray-100 px-6 py-4 border-t-2 border-gray-200 flex justify-end gap-3">
+                    <div className="bg-[var(--bg-elevated)] px-6 py-4 border-t-2 border-[var(--border-subtle)] flex justify-end gap-3">
                       <button
                         type="button"
                         onClick={() => setShowHtmlEditor(false)}
-                        className="px-6 py-2 border-2 border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-200"
+                        className="px-6 py-2 border-2 border-[var(--border-default)] rounded-lg font-medium text-[var(--text-secondary)] hover:bg-[var(--glass-hover)]"
                       >
                         Cancel
                       </button>
@@ -802,7 +796,7 @@ export function EditTemplateModal({
                   {/* LEFT: Form Editor */}
                   {!isFullScreen && (
                   <div
-                    className="overflow-y-auto p-4 bg-gray-50 transition-all duration-200"
+                    className="overflow-y-auto p-4 bg-[var(--bg-base)] transition-all duration-200"
                     style={{
                       width: `${100 - previewWidth}%`,
                       maxHeight: 'calc(90vh - 180px)'
@@ -811,15 +805,15 @@ export function EditTemplateModal({
                     <div className="space-y-3 pb-4">
 
                       {/* Template Name & Subject - COMPACT */}
-                      <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                      <div className="bg-[var(--bg-elevated)] p-3 rounded-lg shadow-sm border border-[var(--border-default)]">
+                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--border-subtle)]">
                           <span className="text-lg">📋</span>
-                          <h3 className="text-sm font-bold text-gray-900">Template Settings</h3>
-                          <span className="ml-auto text-[10px] px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-bold">v3.0 Compact</span>
+                          <h3 className="text-sm font-bold text-[var(--text-primary)]">Template Settings</h3>
+                          <span className="ml-auto text-[10px] px-2 py-0.5 bg-green-500/15 text-green-400 rounded-full font-bold">v3.0 Compact</span>
                         </div>
                         <div className="space-y-3">
                           <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1">
+                            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
                               Template Name
                             </label>
                             <input
@@ -827,11 +821,11 @@ export function EditTemplateModal({
                               value={templateName}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => setTemplateName(e.target.value)}
                               placeholder="My Email Template"
-                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                              className="w-full px-2 py-1.5 text-sm border border-[var(--border-default)] rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold text-gray-700 mb-1">
+                            <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
                               Subject Line
                             </label>
                             <input
@@ -839,7 +833,7 @@ export function EditTemplateModal({
                               value={subject}
                               onChange={(e: ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
                               placeholder="Your consultation is ready"
-                              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                              className="w-full px-2 py-1.5 text-sm border border-[var(--border-default)] rounded focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             />
                           </div>
                         </div>
@@ -860,11 +854,11 @@ export function EditTemplateModal({
                         const { title, icon } = categoryLabels[category];
 
                         return (
-                          <div key={category} className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
-                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                          <div key={category} className="bg-[var(--bg-elevated)] p-3 rounded-lg shadow-sm border border-[var(--border-default)]">
+                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-[var(--border-subtle)]">
                               <span className="text-lg">{icon}</span>
-                              <h3 className="text-sm font-bold text-gray-900">{title}</h3>
-                              <span className="ml-auto text-xs text-gray-500">{vars.length}</span>
+                              <h3 className="text-sm font-bold text-[var(--text-primary)]">{title}</h3>
+                              <span className="ml-auto text-xs text-[var(--text-muted)]">{vars.length}</span>
                             </div>
                             <div className="space-y-0">
                               {vars.map(renderVariableField)}
@@ -874,13 +868,13 @@ export function EditTemplateModal({
                       })}
 
                       {variables.length === 0 && (
-                        <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-8 text-center">
+                        <div className="bg-yellow-500/10 border-2 border-yellow-200 rounded-xl p-8 text-center">
                           <SparklesIcon className="h-12 w-12 text-yellow-600 mx-auto mb-3" />
                           <h3 className="text-lg font-bold text-yellow-900 mb-2">No Variables Found</h3>
-                          <p className="text-sm text-yellow-700">
+                          <p className="text-sm text-yellow-400">
                             This template doesn&apos;t have any editable variables.
                             <br />
-                            Use <code className="bg-yellow-100 px-2 py-1 rounded">{"{{variableName}}"}</code> in your HTML to create editable fields.
+                            Use <code className="bg-yellow-500/15 px-2 py-1 rounded">{"{{variableName}}"}</code> in your HTML to create editable fields.
                           </p>
                         </div>
                       )}
@@ -892,30 +886,30 @@ export function EditTemplateModal({
                   {/* RESIZE HANDLE */}
                   {!isFullScreen && (
                   <div
-                    className={`w-1 bg-gray-300 hover:bg-orange-500 cursor-col-resize relative group transition-colors ${
+                    className={`w-1 bg-[var(--border-default)] hover:bg-orange-500 cursor-col-resize relative group transition-colors ${
                       isResizing ? 'bg-orange-500' : ''
                     }`}
                     onMouseDown={handleMouseDown}
                   >
                     <div className="absolute inset-y-0 -left-1 -right-1 flex items-center justify-center">
-                      <div className="w-1 h-16 bg-gray-400 rounded-full group-hover:bg-orange-500 group-hover:h-24 transition-all" />
+                      <div className="w-1 h-16 bg-[var(--border-default)] rounded-full group-hover:bg-orange-500 group-hover:h-24 transition-all" />
                     </div>
                   </div>
                   )}
 
                   {/* RIGHT: Preview */}
                   <div
-                    className="bg-white flex flex-col transition-all duration-200"
+                    className="bg-[var(--bg-elevated)] flex flex-col transition-all duration-200"
                     style={{
                       width: isFullScreen ? '100%' : `${previewWidth}%`
                     }}
                   >
-                    <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-                      <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                    <div className="flex justify-between items-center px-6 py-4 bg-[var(--bg-elevated)] border-b border-[var(--border-default)]">
+                      <h3 className="text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
                         <EyeIcon className="h-5 w-5 text-indigo-400" />
                         Live Preview
                         {isFullScreen && (
-                          <span className="ml-2 text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded-full font-bold">
+                          <span className="ml-2 text-xs px-2 py-1 bg-orange-500/15 text-orange-400 rounded-full font-bold">
                             Full Screen
                           </span>
                         )}
@@ -925,29 +919,29 @@ export function EditTemplateModal({
                         <button
                           type="button"
                           onClick={toggleFullScreen}
-                          className="p-2 hover:bg-white/50 rounded-lg transition-all group"
+                          className="p-2 hover:bg-[var(--glass-hover)] rounded-lg transition-all group"
                           title={isFullScreen ? 'Exit Full Screen' : 'Full Screen Preview'}
                         >
                           {isFullScreen ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-indigo-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-indigo-400">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
                             </svg>
                           ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-gray-700 group-hover:text-indigo-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-[var(--text-secondary)] group-hover:text-indigo-400">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
                             </svg>
                           )}
                         </button>
 
                         {/* HTML/Text Tabs */}
-                        <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+                        <div className="flex bg-[var(--bg-elevated)] rounded-lg p-1 shadow-sm border border-[var(--border-default)]">
                         <button
                           type="button"
                           onClick={() => setPreviewTab('html')}
                           className={`px-4 py-1.5 rounded-md font-semibold transition-all text-xs ${
                             previewTab === 'html'
                               ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
-                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-hover)]'
                           }`}
                         >
                           🌐 HTML
@@ -958,7 +952,7 @@ export function EditTemplateModal({
                           className={`px-4 py-1.5 rounded-md font-semibold transition-all text-xs ${
                             previewTab === 'text'
                               ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
-                              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                              : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-hover)]'
                           }`}
                         >
                           📄 Text
@@ -967,20 +961,20 @@ export function EditTemplateModal({
                       </div>
                     </div>
 
-                    <div className="flex-1 overflow-auto bg-gradient-to-br from-gray-100 to-gray-200">
+                    <div className="flex-1 overflow-auto bg-[var(--bg-base)]">
                       {previewTab === 'html' ? (
                         <div className="w-full h-full min-h-[calc(90vh-250px)] flex items-start justify-center p-8">
                           {/* Email Client Frame */}
-                          <div className="w-[650px] max-w-[95%] bg-white rounded-xl shadow-2xl border border-gray-300 overflow-hidden">
+                          <div className="w-[650px] max-w-[95%] bg-[var(--bg-elevated)] rounded-xl shadow-2xl border border-[var(--border-default)] overflow-hidden">
                             {/* Email Client Header */}
-                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-300 px-6 py-3 flex items-center gap-3">
+                            <div className="bg-[var(--bg-elevated)] border-b border-[var(--border-default)] px-6 py-3 flex items-center gap-3">
                               <div className="flex gap-2">
                                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
                                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                                 <div className="w-3 h-3 rounded-full bg-green-400"></div>
                               </div>
                               <div className="flex-1 text-center">
-                                <span className="text-sm font-semibold text-gray-700">Email Preview</span>
+                                <span className="text-sm font-semibold text-[var(--text-secondary)]">Email Preview</span>
                               </div>
                             </div>
 
@@ -988,7 +982,7 @@ export function EditTemplateModal({
                             <div className="flex-1 overflow-auto">
                               <iframe
                                 srcDoc={previewHTML}
-                                className="w-full h-full border-0 bg-white"
+                                className="w-full h-full border-0 bg-[#161625]"
                                 title="Email Preview"
                                 sandbox=""
                                 style={{ minHeight: '800px', height: 'auto' }}
@@ -999,23 +993,23 @@ export function EditTemplateModal({
                       ) : (
                         <div className="w-full h-full min-h-[calc(90vh-250px)] flex items-start justify-center p-8">
                           {/* Email Client Frame for Text */}
-                          <div className="w-[650px] max-w-[95%] bg-white rounded-xl shadow-2xl border border-gray-300 overflow-hidden">
+                          <div className="w-[650px] max-w-[95%] bg-[var(--bg-elevated)] rounded-xl shadow-2xl border border-[var(--border-default)] overflow-hidden">
                             {/* Email Client Header */}
-                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-300 px-6 py-3 flex items-center gap-3">
+                            <div className="bg-[var(--bg-elevated)] border-b border-[var(--border-default)] px-6 py-3 flex items-center gap-3">
                               <div className="flex gap-2">
                                 <div className="w-3 h-3 rounded-full bg-red-400"></div>
                                 <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                                 <div className="w-3 h-3 rounded-full bg-green-400"></div>
                               </div>
                               <div className="flex-1 text-center">
-                                <span className="text-sm font-semibold text-gray-700">Email Preview (Plain Text)</span>
+                                <span className="text-sm font-semibold text-[var(--text-secondary)]">Email Preview (Plain Text)</span>
                               </div>
                             </div>
 
                             {/* Text Content */}
-                            <div className="bg-gray-50 p-6">
-                              <div className="bg-white p-6 rounded-lg shadow-md">
-                                <pre className="whitespace-pre-wrap font-mono text-sm text-gray-700 leading-relaxed">
+                            <div className="bg-[var(--bg-base)] p-6">
+                              <div className="bg-[var(--bg-elevated)] p-6 rounded-lg shadow-md">
+                                <pre className="whitespace-pre-wrap font-mono text-sm text-[var(--text-secondary)] leading-relaxed">
                                   {previewText}
                                 </pre>
                               </div>
@@ -1029,18 +1023,18 @@ export function EditTemplateModal({
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-gray-100 px-6 py-4 flex justify-between items-center border-t-2 border-gray-200">
+                <div className="bg-[var(--bg-elevated)] px-6 py-4 flex justify-between items-center border-t-2 border-[var(--border-subtle)]">
                   <div className="flex items-center gap-4">
                     <button
                       type="button"
                       onClick={onClose}
                       disabled={isSaving}
-                      className="px-6 py-3 border-2 border-gray-300 rounded-xl font-bold text-gray-700 hover:bg-gray-200 transition-all disabled:opacity-50"
+                      className="px-6 py-3 border-2 border-[var(--border-default)] rounded-xl font-bold text-[var(--text-secondary)] hover:bg-[var(--glass-hover)] transition-all disabled:opacity-50"
                     >
                       Cancel
                     </button>
                     {lastSaved && (
-                      <span className="text-sm text-gray-600 flex items-center gap-2">
+                      <span className="text-sm text-[var(--text-muted)] flex items-center gap-2">
                         <ClockIcon className="h-4 w-4" />
                         Draft auto-saved
                       </span>

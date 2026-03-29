@@ -8,15 +8,18 @@ const prisma = new PrismaClient();
 // Enable authentication for all contract routes
 router.use(authenticate);
 
-// GET /api/contracts - List contracts filtered by ?dealId=
+// GET /api/contracts - List contracts, optionally filtered by ?dealId=
 router.get('/', async (req, res, next) => {
   try {
     const { dealId } = req.query as { dealId?: string };
 
+    const where: any = { userId: req.user!.id };
+    if (dealId) where.dealId = dealId;
+
     const contracts = await prisma.contract.findMany({
-      where: {
-        dealId: dealId as string,
-        userId: req.user!.id,
+      where,
+      include: {
+        deal: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: 'desc' },
     });

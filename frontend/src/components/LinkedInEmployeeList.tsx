@@ -122,12 +122,12 @@ export function LinkedInEmployeeList({
 
   if (!linkedinUrl) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+      <div className="bg-yellow-500/10 border border-yellow-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
           <ExclamationCircleIcon className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-medium text-yellow-800">LinkedIn URL Required</h4>
-            <p className="text-sm text-yellow-700 mt-1">
+            <h4 className="font-medium text-yellow-400">LinkedIn URL Required</h4>
+            <p className="text-sm text-yellow-400 mt-1">
               Add a LinkedIn company URL to fetch employee data from LinkedIn.
             </p>
           </div>
@@ -141,10 +141,10 @@ export function LinkedInEmployeeList({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <UserGroupIcon className="w-5 h-5 text-gray-500" />
-          <h3 className="text-lg font-semibold text-gray-900">LinkedIn Employees</h3>
+          <UserGroupIcon className="w-5 h-5 text-[#94A3B8]" />
+          <h3 className="text-lg font-semibold text-[#F1F5F9]">LinkedIn Employees</h3>
           {hasLoaded && (
-            <span className="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded">
+            <span className="bg-orange-500/15 text-orange-400 text-xs font-medium px-2.5 py-0.5 rounded">
               {employees.length} found
             </span>
           )}
@@ -172,19 +172,19 @@ export function LinkedInEmployeeList({
 
       {/* Status Messages */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-red-500/10 border border-red-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <ExclamationCircleIcon className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-700">{error}</p>
+            <p className="text-sm text-red-400">{error}</p>
           </div>
         </div>
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-green-500/10 border border-green-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
             <CheckCircleIcon className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-green-700">{success}</p>
+            <p className="text-sm text-green-400">{success}</p>
           </div>
         </div>
       )}
@@ -193,15 +193,15 @@ export function LinkedInEmployeeList({
       {hasLoaded && employees.length > 0 && (
         <>
           {/* Bulk Actions */}
-          <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 border border-gray-200">
+          <div className="flex items-center justify-between bg-[#12121f] rounded-lg p-3 border border-[#2a2a44]">
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
                 checked={selectedEmployees.size === employees.length}
                 onChange={selectAllEmployees}
-                className="w-4 h-4 text-indigo-400 rounded border-gray-300 focus:ring-indigo-500"
+                className="w-4 h-4 text-indigo-400 rounded border-[#33335a] focus:ring-indigo-500"
               />
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-[#CBD5E1]">
                 {selectedEmployees.size} of {employees.length} selected
               </span>
             </div>
@@ -224,13 +224,13 @@ export function LinkedInEmployeeList({
             {employees.map((employee) => (
               <div
                 key={employee.linkedinUrl}
-                className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-lg hover:border-orange-300 transition-colors"
+                className="flex items-center gap-4 p-4 bg-[#161625] border border-[#2a2a44] rounded-lg hover:border-orange-300 transition-colors"
               >
                 <input
                   type="checkbox"
                   checked={selectedEmployees.has(employee.linkedinUrl)}
                   onChange={() => toggleEmployeeSelection(employee.linkedinUrl)}
-                  className="w-4 h-4 text-indigo-400 rounded border-gray-300 focus:ring-indigo-500"
+                  className="w-4 h-4 text-indigo-400 rounded border-[#33335a] focus:ring-indigo-500"
                 />
 
                 {employee.profilePicture ? (
@@ -240,20 +240,20 @@ export function LinkedInEmployeeList({
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                    <UserGroupIcon className="w-6 h-6 text-gray-500" />
+                  <div className="w-12 h-12 rounded-full bg-[#252540] flex items-center justify-center">
+                    <UserGroupIcon className="w-6 h-6 text-[#94A3B8]" />
                   </div>
                 )}
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-gray-900 truncate">
+                  <h4 className="font-medium text-[#F1F5F9] truncate">
                     {employee.fullName || `${employee.firstName || ''} ${employee.lastName || ''}`.trim() || 'Unknown Name'}
                   </h4>
                   {employee.title && (
-                    <p className="text-sm text-gray-600 truncate">{employee.title}</p>
+                    <p className="text-sm text-[#94A3B8] truncate">{employee.title}</p>
                   )}
                   {employee.location && (
-                    <p className="text-xs text-gray-500 truncate">{employee.location}</p>
+                    <p className="text-xs text-[#94A3B8] truncate">{employee.location}</p>
                   )}
                 </div>
 
@@ -261,7 +261,7 @@ export function LinkedInEmployeeList({
                   href={employee.linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-400 hover:text-orange-700 text-sm font-medium flex-shrink-0"
+                  className="text-indigo-400 hover:text-orange-400 text-sm font-medium flex-shrink-0"
                 >
                   View Profile →
                 </a>
@@ -273,10 +273,10 @@ export function LinkedInEmployeeList({
 
       {/* Empty State */}
       {hasLoaded && employees.length === 0 && !error && (
-        <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-          <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <h4 className="text-lg font-medium text-gray-900 mb-1">No Employees Found</h4>
-          <p className="text-sm text-gray-600">
+        <div className="text-center py-12 bg-[#12121f] rounded-lg border border-[#2a2a44]">
+          <UserGroupIcon className="w-12 h-12 text-[#64748B] mx-auto mb-3" />
+          <h4 className="text-lg font-medium text-[#F1F5F9] mb-1">No Employees Found</h4>
+          <p className="text-sm text-[#94A3B8]">
             Unable to find public employee listings for this company.
           </p>
         </div>

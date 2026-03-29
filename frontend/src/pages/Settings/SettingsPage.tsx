@@ -461,7 +461,7 @@ export function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-[#12121f] p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -470,10 +470,10 @@ export function SettingsPage() {
               <UserCircleIcon className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-gray-900">
+              <h1 className="text-4xl font-bold text-[#F1F5F9]">
                 Settings
               </h1>
-              <p className="text-gray-600 mt-1">Manage your account settings and preferences</p>
+              <p className="text-[#94A3B8] mt-1">Manage your account settings and preferences</p>
             </div>
           </div>
         </div>
@@ -512,25 +512,25 @@ export function SettingsPage() {
           {/* Profile Settings */}
           {activeTab === 'profile' && (
             <div className="card">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Profile Information</h2>
-                <p className="text-sm text-gray-600 mt-1">Update your personal information</p>
+              <div className="p-6 border-b border-[#1c1c30]">
+                <h2 className="text-xl font-semibold text-[#F1F5F9]">Profile Information</h2>
+                <p className="text-sm text-[#94A3B8] mt-1">Update your personal information</p>
               </div>
               <div className="p-6">
                 <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }}>
                   <div className="flex items-center gap-6">
-                    <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-                      <UserCircleIcon className="h-12 w-12 text-gray-400" />
+                    <div className="w-20 h-20 bg-[#252540] rounded-full flex items-center justify-center">
+                      <UserCircleIcon className="h-12 w-12 text-[#64748B]" />
                     </div>
                     <div>
                       <button type="button" className="btn-secondary btn-sm">Change Photo</button>
-                      <p className="text-xs text-gray-500 mt-2">JPG, PNG or GIF. Max size 2MB</p>
+                      <p className="text-xs text-[#94A3B8] mt-2">JPG, PNG or GIF. Max size 2MB</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                      <label className="block text-sm font-medium text-[#CBD5E1] mb-2">First Name</label>
                       <input
                         type="text"
                         value={profileData.firstName}
@@ -539,7 +539,7 @@ export function SettingsPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                      <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Last Name</label>
                       <input
                         type="text"
                         value={profileData.lastName}
@@ -550,18 +550,18 @@ export function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Email</label>
                     <input
                       type="email"
                       value={profileData.email}
                       disabled
-                      className="input bg-gray-50 cursor-not-allowed"
+                      className="input bg-[#12121f] cursor-not-allowed"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Email cannot be changed</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Phone</label>
                     <input
                       type="tel"
                       value={profileData.phone}
@@ -572,18 +572,18 @@ export function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Role</label>
                     <input
                       type="text"
                       value={profileData.role}
                       disabled
-                      className="input bg-gray-50 cursor-not-allowed"
+                      className="input bg-[#12121f] cursor-not-allowed"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Role is managed by administrators</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Role is managed by administrators</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Timezone</label>
                     <select
                       value={profileData.timezone}
                       onChange={(e) => setProfileData({ ...profileData, timezone: e.target.value })}
@@ -596,7 +596,7 @@ export function SettingsPage() {
                     </select>
                   </div>
 
-                  <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <div className="flex justify-end pt-6 border-t border-[#1c1c30]">
                     <button type="submit" className="btn-primary" disabled={isSaving}>
                       {isSaving ? 'Saving...' : 'Save Changes'}
                     </button>
@@ -609,27 +609,27 @@ export function SettingsPage() {
           {/* Account Settings */}
           {activeTab === 'account' && (
             <div className="card">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Account Settings</h2>
-                <p className="text-sm text-gray-600 mt-1">Manage your account configuration</p>
+              <div className="p-6 border-b border-[#1c1c30]">
+                <h2 className="text-xl font-semibold text-[#F1F5F9]">Account Settings</h2>
+                <p className="text-sm text-[#94A3B8] mt-1">Manage your account configuration</p>
               </div>
               <div className="p-6 space-y-6">
                 <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleSaveAccount(); }}>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Email Configuration</h3>
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Email Configuration</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Primary Email</label>
+                        <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Primary Email</label>
                         <input
                           type="email"
                           value={profileData.email || ''}
-                          className="input bg-gray-50 cursor-not-allowed"
+                          className="input bg-[#12121f] cursor-not-allowed"
                           disabled
                         />
-                        <p className="text-xs text-gray-500 mt-1">This is your login email and cannot be changed</p>
+                        <p className="text-xs text-[#94A3B8] mt-1">This is your login email and cannot be changed</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Forwarding Email</label>
+                        <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Forwarding Email</label>
                         <input
                           type="email"
                           value={accountData.forwardingEmail}
@@ -637,56 +637,56 @@ export function SettingsPage() {
                           placeholder="forward@example.com"
                           className="input"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Forward notifications to this email</p>
+                        <p className="text-xs text-[#94A3B8] mt-1">Forward notifications to this email</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Account Information</h3>
+                  <div className="border-t border-[#1c1c30] pt-6">
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Account Information</h3>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-[#12121f] rounded-lg">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">User ID</div>
-                          <div className="text-xs text-gray-600 font-mono">{profileData.email ? profileData.email.split('@')[0] : 'N/A'}</div>
+                          <div className="text-sm font-medium text-[#F1F5F9]">User ID</div>
+                          <div className="text-xs text-[#94A3B8] font-mono">{profileData.email ? profileData.email.split('@')[0] : 'N/A'}</div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-[#12121f] rounded-lg">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">Account Role</div>
-                          <div className="text-xs text-gray-600 capitalize">{profileData.role || 'Member'}</div>
+                          <div className="text-sm font-medium text-[#F1F5F9]">Account Role</div>
+                          <div className="text-xs text-[#94A3B8] capitalize">{profileData.role || 'Member'}</div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Account Status</h3>
-                    <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                  <div className="border-t border-[#1c1c30] pt-6">
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Account Status</h3>
+                    <div className="flex items-center justify-between p-4 bg-green-500/10 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                         <div>
-                          <div className="text-sm font-medium text-gray-900">Account Active</div>
-                          <div className="text-xs text-gray-600">Your account is in good standing</div>
+                          <div className="text-sm font-medium text-[#F1F5F9]">Account Active</div>
+                          <div className="text-xs text-[#94A3B8]">Your account is in good standing</div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <div className="flex justify-end pt-6 border-t border-[#1c1c30]">
                     <button type="submit" className="btn-primary" disabled={isSaving}>
                       {isSaving ? 'Saving...' : 'Save Account Settings'}
                     </button>
                   </div>
                 </form>
 
-                <div className="border-t border-gray-100 pt-6">
+                <div className="border-t border-[#1c1c30] pt-6">
                   <h3 className="text-sm font-medium text-red-600 mb-4">Danger Zone</h3>
                   <div className="border border-red-200 rounded-lg p-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">Delete Account</div>
-                        <div className="text-xs text-gray-600">Permanently delete your account and all data</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">Delete Account</div>
+                        <div className="text-xs text-[#94A3B8]">Permanently delete your account and all data</div>
                       </div>
                       <button
                         onClick={handleDeleteAccount}
@@ -704,17 +704,17 @@ export function SettingsPage() {
           {/* Notifications */}
           {activeTab === 'notifications' && (
             <div className="card">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Notification Preferences</h2>
-                <p className="text-sm text-gray-600 mt-1">Choose what notifications you want to receive</p>
+              <div className="p-6 border-b border-[#1c1c30]">
+                <h2 className="text-xl font-semibold text-[#F1F5F9]">Notification Preferences</h2>
+                <p className="text-sm text-[#94A3B8] mt-1">Choose what notifications you want to receive</p>
               </div>
               <div className="p-6">
                 <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleSaveNotifications(); }}>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">Email Notifications</div>
-                        <div className="text-xs text-gray-600">Receive notifications via email</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">Email Notifications</div>
+                        <div className="text-xs text-[#94A3B8]">Receive notifications via email</div>
                       </div>
                       <input
                         type="checkbox"
@@ -726,8 +726,8 @@ export function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">Deal Updates</div>
-                        <div className="text-xs text-gray-600">Get notified when deals change status</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">Deal Updates</div>
+                        <div className="text-xs text-[#94A3B8]">Get notified when deals change status</div>
                       </div>
                       <input
                         type="checkbox"
@@ -739,8 +739,8 @@ export function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">New Contacts</div>
-                        <div className="text-xs text-gray-600">Alert when new contacts are added</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">New Contacts</div>
+                        <div className="text-xs text-[#94A3B8]">Alert when new contacts are added</div>
                       </div>
                       <input
                         type="checkbox"
@@ -752,8 +752,8 @@ export function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">Weekly Report</div>
-                        <div className="text-xs text-gray-600">Receive weekly activity summary</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">Weekly Report</div>
+                        <div className="text-xs text-[#94A3B8]">Receive weekly activity summary</div>
                       </div>
                       <input
                         type="checkbox"
@@ -765,8 +765,8 @@ export function SettingsPage() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">Marketing Emails</div>
-                        <div className="text-xs text-gray-600">Promotional and marketing content</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">Marketing Emails</div>
+                        <div className="text-xs text-[#94A3B8]">Promotional and marketing content</div>
                       </div>
                       <input
                         type="checkbox"
@@ -777,7 +777,7 @@ export function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <div className="flex justify-end pt-6 border-t border-[#1c1c30]">
                     <button type="submit" className="btn-primary" disabled={isSaving}>
                       {isSaving ? 'Saving...' : 'Save Preferences'}
                     </button>
@@ -791,48 +791,48 @@ export function SettingsPage() {
           {activeTab === 'security' && (
             <div className="space-y-6">
               <div className="card">
-                <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-xl font-semibold text-gray-900">Security Settings</h2>
-                  <p className="text-sm text-gray-600 mt-1">Manage your password and security options</p>
+                <div className="p-6 border-b border-[#1c1c30]">
+                  <h2 className="text-xl font-semibold text-[#F1F5F9]">Security Settings</h2>
+                  <p className="text-sm text-[#94A3B8] mt-1">Manage your password and security options</p>
                 </div>
                 <div className="p-6 space-y-6">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Change Password</h3>
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Change Password</h3>
                     <form className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                        <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Current Password</label>
                         <input type="password" className="input" placeholder="Enter current password" />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                        <label className="block text-sm font-medium text-[#CBD5E1] mb-2">New Password</label>
                         <input type="password" className="input" placeholder="Enter new password" />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                        <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Confirm New Password</label>
                         <input type="password" className="input" placeholder="Confirm new password" />
                       </div>
                       <button type="submit" className="btn-primary">Update Password</button>
                     </form>
                   </div>
 
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Two-Factor Authentication</h3>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="border-t border-[#1c1c30] pt-6">
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Two-Factor Authentication</h3>
+                    <div className="flex items-center justify-between p-4 bg-[#12121f] rounded-lg">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">2FA Status</div>
-                        <div className="text-xs text-gray-600">Add an extra layer of security</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">2FA Status</div>
+                        <div className="text-xs text-[#94A3B8]">Add an extra layer of security</div>
                       </div>
                       <button className="btn-secondary btn-sm">Enable 2FA</button>
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Active Sessions</h3>
+                  <div className="border-t border-[#1c1c30] pt-6">
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Active Sessions</h3>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-[#12121f] rounded-lg">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">Current Session</div>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-sm font-medium text-[#F1F5F9]">Current Session</div>
+                          <div className="text-xs text-[#94A3B8]">
                             {sessionInfo.os} • {sessionInfo.browser} • {sessionInfo.location}
                           </div>
                         </div>
@@ -848,15 +848,15 @@ export function SettingsPage() {
           {/* Preferences Tab */}
           {activeTab === 'preferences' && (
             <div className="card">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Display Preferences</h2>
-                <p className="text-sm text-gray-600 mt-1">Customize how you interact with the application</p>
+              <div className="p-6 border-b border-[#1c1c30]">
+                <h2 className="text-xl font-semibold text-[#F1F5F9]">Display Preferences</h2>
+                <p className="text-sm text-[#94A3B8] mt-1">Customize how you interact with the application</p>
               </div>
               <div className="p-6">
                 <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); handleSaveDisplayPreferences(); }}>
                   {/* Language & Region */}
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Language & Region</h3>
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Language & Region</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="label">Language</label>
@@ -872,7 +872,7 @@ export function SettingsPage() {
                           <option value="pt">Português</option>
                           <option value="zh">中文</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">Select your preferred language for the interface</p>
+                        <p className="text-xs text-[#94A3B8] mt-1">Select your preferred language for the interface</p>
                       </div>
 
                       <div>
@@ -895,7 +895,7 @@ export function SettingsPage() {
                           <option value="Australia/Sydney">Sydney (AEDT)</option>
                           <option value="UTC">UTC</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">All times will be displayed in this timezone</p>
+                        <p className="text-xs text-[#94A3B8] mt-1">All times will be displayed in this timezone</p>
                       </div>
 
                       <div>
@@ -911,7 +911,7 @@ export function SettingsPage() {
                           <option value="MMM DD, YYYY">MMM DD, YYYY (Dec 31, 2025)</option>
                           <option value="DD MMM YYYY">DD MMM YYYY (31 Dec 2025)</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">Choose how dates are displayed throughout the app</p>
+                        <p className="text-xs text-[#94A3B8] mt-1">Choose how dates are displayed throughout the app</p>
                       </div>
 
                       <div>
@@ -924,14 +924,14 @@ export function SettingsPage() {
                           <option value="12h">12-hour (2:30 PM)</option>
                           <option value="24h">24-hour (14:30)</option>
                         </select>
-                        <p className="text-xs text-gray-500 mt-1">Select your preferred time format</p>
+                        <p className="text-xs text-[#94A3B8] mt-1">Select your preferred time format</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Appearance */}
-                  <div className="border-t border-gray-100 pt-6">
-                    <h3 className="text-sm font-medium text-gray-900 mb-4">Appearance</h3>
+                  <div className="border-t border-[#1c1c30] pt-6">
+                    <h3 className="text-sm font-medium text-[#F1F5F9] mb-4">Appearance</h3>
                     <div className="space-y-4">
                       <div>
                         <label className="label">Theme</label>
@@ -942,11 +942,11 @@ export function SettingsPage() {
                             className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
                               displayPreferences.theme === 'light'
                                 ? 'border-primary-500 bg-primary-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                                : 'border-[#2a2a44] hover:border-[#33335a]'
                             }`}
                           >
-                            <div className="w-12 h-12 bg-white border-2 border-gray-300 rounded mb-2"></div>
-                            <span className="text-sm font-medium text-gray-900">Light</span>
+                            <div className="w-12 h-12 bg-[#161625] border-2 border-[#33335a] rounded mb-2"></div>
+                            <span className="text-sm font-medium text-[#F1F5F9]">Light</span>
                           </button>
                           <button
                             type="button"
@@ -954,11 +954,11 @@ export function SettingsPage() {
                             className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
                               displayPreferences.theme === 'dark'
                                 ? 'border-primary-500 bg-primary-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                                : 'border-[#2a2a44] hover:border-[#33335a]'
                             }`}
                           >
                             <div className="w-12 h-12 bg-gray-800 border-2 border-gray-600 rounded mb-2"></div>
-                            <span className="text-sm font-medium text-gray-900">Dark</span>
+                            <span className="text-sm font-medium text-[#F1F5F9]">Dark</span>
                           </button>
                           <button
                             type="button"
@@ -966,20 +966,20 @@ export function SettingsPage() {
                             className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
                               displayPreferences.theme === 'system'
                                 ? 'border-primary-500 bg-primary-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                                : 'border-[#2a2a44] hover:border-[#33335a]'
                             }`}
                           >
                             <div className="w-12 h-12 bg-gradient-to-br from-white to-gray-800 border-2 border-gray-400 rounded mb-2"></div>
-                            <span className="text-sm font-medium text-gray-900">System</span>
+                            <span className="text-sm font-medium text-[#F1F5F9]">System</span>
                           </button>
                         </div>
-                        <p className="text-xs text-gray-500 mt-2">Choose your color theme preference (Note: Dark mode coming soon)</p>
+                        <p className="text-xs text-[#94A3B8] mt-2">Choose your color theme preference (Note: Dark mode coming soon)</p>
                       </div>
 
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-[#12121f] rounded-lg">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">Compact View</div>
-                          <div className="text-xs text-gray-600">Reduce spacing and show more content</div>
+                          <div className="text-sm font-medium text-[#F1F5F9]">Compact View</div>
+                          <div className="text-xs text-[#94A3B8]">Reduce spacing and show more content</div>
                         </div>
                         <input
                           type="checkbox"
@@ -991,7 +991,7 @@ export function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <div className="flex justify-end pt-6 border-t border-[#1c1c30]">
                     <button type="submit" className="btn-primary" disabled={isSaving}>
                       {isSaving ? 'Saving...' : 'Save Preferences'}
                     </button>
@@ -1004,17 +1004,17 @@ export function SettingsPage() {
           {/* Data Import Tab */}
           {activeTab === 'data-import' && (
             <div className="card">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">Data Import</h2>
-                <p className="text-sm text-gray-600 mt-1">Import your existing CRM data into BrandMonkz</p>
+              <div className="p-6 border-b border-[#1c1c30]">
+                <h2 className="text-xl font-semibold text-[#F1F5F9]">Data Import</h2>
+                <p className="text-sm text-[#94A3B8] mt-1">Import your existing CRM data into BrandMonkz</p>
               </div>
               <div className="p-6">
-                <p className="text-gray-600 mb-6" style={{ lineHeight: 1.6 }}>
+                <p className="text-[#94A3B8] mb-6" style={{ lineHeight: 1.6 }}>
                   Import contacts, companies, and deals from Salesforce, HubSpot, NetSuite, Pipedrive, Zoho, or any CRM.
                   Download a template CSV for your source, fill it in, and follow the step-by-step wizard to map your columns and import your data.
                 </p>
                 {lastImportResults && (
-                  <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600">
+                  <div className="mb-6 p-4 bg-[#12121f] border border-[#2a2a44] rounded-lg text-sm text-[#94A3B8]">
                     Last import: <strong>{lastImportResults.imported}</strong> records imported,{' '}
                     <strong>{lastImportResults.failed}</strong> failed.
                   </div>
@@ -1035,33 +1035,33 @@ export function SettingsPage() {
             <div className="space-y-6">
               {/* Current Plan Section */}
               <div className="card">
-                <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-xl font-semibold text-gray-900">Current Plan</h2>
-                  <p className="text-sm text-gray-600 mt-1">Manage your subscription and billing</p>
+                <div className="p-6 border-b border-[#1c1c30]">
+                  <h2 className="text-xl font-semibold text-[#F1F5F9]">Current Plan</h2>
+                  <p className="text-sm text-[#94A3B8] mt-1">Manage your subscription and billing</p>
                 </div>
                 <div className="p-6">
                   {!currentPlan ? (
                     <div className="text-center py-8">
-                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary-600"></div>
-                      <p className="text-gray-600 mt-4">Loading subscription...</p>
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#2a2a44] border-t-primary-600"></div>
+                      <p className="text-[#94A3B8] mt-4">Loading subscription...</p>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between p-6 bg-gradient-to-r from-orange-50 to-rose-50 rounded-lg border border-primary-100">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 bg-white rounded-lg shadow-sm">
+                        <div className="p-3 bg-[#161625] rounded-lg shadow-sm">
                           <CreditCardIcon className="h-8 w-8 text-primary-600" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-900">{currentPlan.name} Plan</h3>
+                          <h3 className="text-lg font-semibold text-[#F1F5F9]">{currentPlan.name} Plan</h3>
                           {currentPlan.amount && currentPlan.interval ? (
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-[#94A3B8]">
                               ${(currentPlan.amount / 100).toFixed(2)}/{currentPlan.interval === 'month' ? 'month' : 'year'}
                             </p>
                           ) : (
-                            <p className="text-sm text-gray-600">Free - No payment required</p>
+                            <p className="text-sm text-[#94A3B8]">Free - No payment required</p>
                           )}
                           {currentPlan.nextBillingDate && (
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-[#94A3B8] mt-1">
                               Next billing: {new Date(currentPlan.nextBillingDate).toLocaleDateString()}
                             </p>
                           )}
@@ -1070,10 +1070,10 @@ export function SettingsPage() {
                       <div className="text-right">
                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                           currentPlan.status === 'active'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-green-500/15 text-green-400'
                             : currentPlan.status === 'past_due'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-yellow-500/15 text-yellow-400'
+                            : 'bg-[#1c1c30] text-[#E2E8F0]'
                         }`}>
                           {currentPlan.status === 'active' ? '✓ Active' : currentPlan.status?.replace('_', ' ') || 'Active'}
                         </span>
@@ -1085,20 +1085,20 @@ export function SettingsPage() {
 
               {/* Pricing Plans Section */}
               <div className="card">
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-6 border-b border-[#1c1c30]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">Available Plans</h2>
-                      <p className="text-sm text-gray-600 mt-1">Upgrade or change your plan anytime</p>
+                      <h2 className="text-xl font-semibold text-[#F1F5F9]">Available Plans</h2>
+                      <p className="text-sm text-[#94A3B8] mt-1">Upgrade or change your plan anytime</p>
                     </div>
                     {/* Billing Cycle Toggle */}
-                    <div className="flex items-center gap-3 bg-gray-100 rounded-lg p-1">
+                    <div className="flex items-center gap-3 bg-[#1c1c30] rounded-lg p-1">
                       <button
                         onClick={() => setBillingCycle('monthly')}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                           billingCycle === 'monthly'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
+                            ? 'bg-[#161625] text-[#F1F5F9] shadow-sm'
+                            : 'text-[#94A3B8] hover:text-[#F1F5F9]'
                         }`}
                       >
                         Monthly
@@ -1107,8 +1107,8 @@ export function SettingsPage() {
                         onClick={() => setBillingCycle('annual')}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                           billingCycle === 'annual'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-600 hover:text-gray-900'
+                            ? 'bg-[#161625] text-[#F1F5F9] shadow-sm'
+                            : 'text-[#94A3B8] hover:text-[#F1F5F9]'
                         }`}
                       >
                         Annual
@@ -1121,13 +1121,13 @@ export function SettingsPage() {
                 <div className="p-6">
                   {isLoadingPlans ? (
                     <div className="text-center py-12">
-                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary-600"></div>
-                      <p className="text-gray-600 mt-4">Loading pricing plans...</p>
+                      <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#2a2a44] border-t-primary-600"></div>
+                      <p className="text-[#94A3B8] mt-4">Loading pricing plans...</p>
                     </div>
                   ) : pricingPlans.length === 0 ? (
                     <div className="text-center py-12">
                       <p className="text-red-600 font-semibold mb-2">Failed to load pricing plans</p>
-                      <p className="text-gray-600 mb-4">Please try refreshing the page</p>
+                      <p className="text-[#94A3B8] mb-4">Please try refreshing the page</p>
                       <button
                         onClick={fetchPricingPlans}
                         className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700"
@@ -1140,7 +1140,7 @@ export function SettingsPage() {
                       {pricingPlans.map((plan) => {
                         // Get dynamic gradient for this plan
                         const planGradient = gradients.pages.pricing[plan.id as keyof typeof gradients.pages.pricing];
-                        const headerGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient}` : 'bg-gradient-to-r from-gray-500 to-gray-700';
+                        const headerGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient}` : 'bg-gradient-to-r from-[#12121f]0 to-gray-700';
                         const buttonGradientClass = planGradient ? `bg-gradient-to-r ${planGradient.gradient} ${planGradient.hover}` : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700';
 
                         return (
@@ -1177,16 +1177,16 @@ export function SettingsPage() {
                           </div>
 
                           {/* White Card Body */}
-                          <div className="bg-white p-6 flex-1 flex flex-col">
+                          <div className="bg-[#161625] p-6 flex-1 flex flex-col">
                             <ul className="space-y-2 mb-6 flex-1 max-h-96 overflow-y-auto pr-2">
                             {plan.features.map((feature: any, idx: number) => (
                               <li key={idx} className="flex items-start gap-2 text-sm">
                                 {feature.included ? (
                                   <CheckIcon className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
                                 ) : (
-                                  <XMarkIcon className="h-4 w-4 text-gray-300 flex-shrink-0 mt-0.5" />
+                                  <XMarkIcon className="h-4 w-4 text-[#64748B] flex-shrink-0 mt-0.5" />
                                 )}
-                                <span className={feature.included ? 'text-gray-700' : 'text-gray-400 line-through'}>
+                                <span className={feature.included ? 'text-[#CBD5E1]' : 'text-[#64748B] line-through'}>
                                   {feature.text}
                                 </span>
                               </li>
@@ -1211,17 +1211,17 @@ export function SettingsPage() {
 
               {/* Payment Method Section */}
               <div className="card">
-                <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-xl font-semibold text-gray-900">Payment Method</h2>
-                  <p className="text-sm text-gray-600 mt-1">Manage your payment information</p>
+                <div className="p-6 border-b border-[#1c1c30]">
+                  <h2 className="text-xl font-semibold text-[#F1F5F9]">Payment Method</h2>
+                  <p className="text-sm text-[#94A3B8] mt-1">Manage your payment information</p>
                 </div>
                 <div className="p-6">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-[#12121f] rounded-lg">
                     <div className="flex items-center gap-3">
-                      <CreditCardIcon className="h-6 w-6 text-gray-400" />
+                      <CreditCardIcon className="h-6 w-6 text-[#64748B]" />
                       <div>
-                        <div className="text-sm font-medium text-gray-900">No payment method on file</div>
-                        <div className="text-xs text-gray-600">Add a payment method when you upgrade</div>
+                        <div className="text-sm font-medium text-[#F1F5F9]">No payment method on file</div>
+                        <div className="text-xs text-[#94A3B8]">Add a payment method when you upgrade</div>
                       </div>
                     </div>
                   </div>

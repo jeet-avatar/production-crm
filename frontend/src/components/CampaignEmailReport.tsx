@@ -73,13 +73,13 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
 
   const getStatusBadge = (status: string) => {
     const badges: Record<string, { bg: string; text: string; icon: any }> = {
-      SENT: { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircleIcon },
-      DELIVERED: { bg: 'bg-orange-100', text: 'text-orange-700', icon: CheckCircleIcon },
-      OPENED: { bg: 'bg-rose-100', text: 'text-rose-700', icon: EyeIcon },
-      CLICKED: { bg: 'bg-orange-100', text: 'text-orange-700', icon: CursorArrowRaysIcon },
-      BOUNCED: { bg: 'bg-red-100', text: 'text-red-700', icon: ExclamationCircleIcon },
-      PENDING: { bg: 'bg-gray-100', text: 'text-gray-700', icon: ClockIcon },
-      FAILED: { bg: 'bg-red-100', text: 'text-red-700', icon: ExclamationCircleIcon },
+      SENT: { bg: 'bg-green-500/15', text: 'text-green-400', icon: CheckCircleIcon },
+      DELIVERED: { bg: 'bg-orange-500/15', text: 'text-orange-400', icon: CheckCircleIcon },
+      OPENED: { bg: 'bg-rose-500/15', text: 'text-rose-400', icon: EyeIcon },
+      CLICKED: { bg: 'bg-orange-500/15', text: 'text-orange-400', icon: CursorArrowRaysIcon },
+      BOUNCED: { bg: 'bg-red-500/15', text: 'text-red-400', icon: ExclamationCircleIcon },
+      PENDING: { bg: 'bg-[#1c1c30]', text: 'text-[#CBD5E1]', icon: ClockIcon },
+      FAILED: { bg: 'bg-red-500/15', text: 'text-red-400', icon: ExclamationCircleIcon },
     };
     const config = badges[status] || badges.PENDING;
     const Icon = config.icon;
@@ -122,7 +122,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-7xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-[#161625] rounded-2xl shadow-2xl border-4 border-[#33335a] max-w-7xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -134,7 +134,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all"
+              className="p-2 hover:bg-[#161625] hover:bg-opacity-20 rounded-lg transition-all"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -142,46 +142,46 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
         </div>
 
         {/* Stats Overview */}
-        <div className="border-b-2 border-gray-100 p-6 bg-gray-50 flex-shrink-0">
+        <div className="border-b-2 border-[#1c1c30] p-6 bg-[#12121f] flex-shrink-0">
           <div className="grid grid-cols-6 gap-4">
-            <div className="bg-white rounded-xl p-4 border-2 border-gray-200">
-              <div className="text-xs text-gray-600 font-medium uppercase mb-1">Total</div>
-              <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
+            <div className="bg-[#161625] rounded-xl p-4 border-2 border-[#2a2a44]">
+              <div className="text-xs text-[#94A3B8] font-medium uppercase mb-1">Total</div>
+              <div className="text-3xl font-bold text-[#F1F5F9]">{stats.total}</div>
             </div>
-            <div className="bg-green-50 rounded-xl p-4 border-2 border-green-200">
-              <div className="text-xs text-green-700 font-medium uppercase mb-1">Sent</div>
+            <div className="bg-green-500/10 rounded-xl p-4 border-2 border-green-200">
+              <div className="text-xs text-green-400 font-medium uppercase mb-1">Sent</div>
               <div className="text-3xl font-bold text-green-600">{stats.sent}</div>
             </div>
-            <div className="bg-rose-50 rounded-xl p-4 border-2 border-rose-200">
-              <div className="text-xs text-rose-700 font-medium uppercase mb-1">Opened</div>
+            <div className="bg-rose-500/10 rounded-xl p-4 border-2 border-rose-200">
+              <div className="text-xs text-rose-400 font-medium uppercase mb-1">Opened</div>
               <div className="text-3xl font-bold text-purple-400">{stats.opened}</div>
             </div>
-            <div className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200">
-              <div className="text-xs text-orange-700 font-medium uppercase mb-1">Clicked</div>
+            <div className="bg-orange-500/10 rounded-xl p-4 border-2 border-orange-200">
+              <div className="text-xs text-orange-400 font-medium uppercase mb-1">Clicked</div>
               <div className="text-3xl font-bold text-indigo-400">{stats.clicked}</div>
             </div>
-            <div className="bg-red-50 rounded-xl p-4 border-2 border-red-200">
-              <div className="text-xs text-red-700 font-medium uppercase mb-1">Bounced</div>
+            <div className="bg-red-500/10 rounded-xl p-4 border-2 border-red-200">
+              <div className="text-xs text-red-400 font-medium uppercase mb-1">Bounced</div>
               <div className="text-3xl font-bold text-red-600">{stats.bounced}</div>
             </div>
-            <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-300">
-              <div className="text-xs text-gray-600 font-medium uppercase mb-1">Failed</div>
-              <div className="text-3xl font-bold text-gray-700">{stats.failed}</div>
+            <div className="bg-[#12121f] rounded-xl p-4 border-2 border-[#33335a]">
+              <div className="text-xs text-[#94A3B8] font-medium uppercase mb-1">Failed</div>
+              <div className="text-3xl font-bold text-[#CBD5E1]">{stats.failed}</div>
             </div>
           </div>
 
           {/* Server Usage Stats */}
           {Object.keys(serverStats).length > 0 && (
-            <div className="mt-4 bg-white rounded-xl p-4 border-2 border-orange-200">
+            <div className="mt-4 bg-[#161625] rounded-xl p-4 border-2 border-orange-200">
               <div className="flex items-center gap-2 mb-3">
                 <ServerIcon className="h-5 w-5 text-indigo-400" />
-                <h3 className="text-sm font-bold text-gray-900">Email Servers Used</h3>
+                <h3 className="text-sm font-bold text-[#F1F5F9]">Email Servers Used</h3>
               </div>
               <div className="flex flex-wrap gap-3">
                 {Object.entries(serverStats).map(([server, count]) => (
-                  <div key={server} className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-lg">
-                    <span className="text-sm font-semibold text-gray-900">{server}</span>
-                    <span className="text-xs text-indigo-400 font-bold bg-orange-100 px-2 py-0.5 rounded-full">{count} emails</span>
+                  <div key={server} className="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 border border-orange-200 rounded-lg">
+                    <span className="text-sm font-semibold text-[#F1F5F9]">{server}</span>
+                    <span className="text-xs text-indigo-400 font-bold bg-orange-500/15 px-2 py-0.5 rounded-full">{count} emails</span>
                   </div>
                 ))}
               </div>
@@ -190,7 +190,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
         </div>
 
         {/* Filters & Search */}
-        <div className="border-b-2 border-gray-100 p-6 bg-white flex-shrink-0">
+        <div className="border-b-2 border-[#1c1c30] p-6 bg-[#161625] flex-shrink-0">
           <div className="flex items-center justify-between gap-4">
             <div className="flex gap-2 flex-wrap">
               {['all', 'SENT', 'DELIVERED', 'OPENED', 'CLICKED', 'BOUNCED', 'FAILED'].map((status) => (
@@ -200,7 +200,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                     filterStatus === status
                       ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      : 'bg-[#1c1c30] text-[#CBD5E1] hover:bg-[#252540]'
                   }`}
                 >
                   {status === 'all' ? 'All' : status}
@@ -213,7 +213,7 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by email, name, or company..."
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                className="w-full px-4 py-2 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
               />
             </div>
             <button
@@ -234,90 +234,90 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
             </div>
           ) : filteredLogs.length === 0 ? (
             <div className="text-center py-12">
-              <EnvelopeIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No email logs found</h3>
-              <p className="text-gray-600">No emails match your current filters</p>
+              <EnvelopeIcon className="h-16 w-16 text-[#64748B] mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-[#F1F5F9] mb-2">No email logs found</h3>
+              <p className="text-[#94A3B8]">No emails match your current filters</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-50 border-b-2 border-gray-200">
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Recipient</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Company</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">From Email</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Server</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Sent At</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Spam Score</th>
+                  <tr className="bg-[#12121f] border-b-2 border-[#2a2a44]">
+                    <th className="px-4 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">Recipient</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">Company</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">From Email</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">Server</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">Sent At</th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">Spam Score</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-[#2a2a44]">
                   {filteredLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={log.id} className="hover:bg-[#12121f] transition-colors">
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 bg-orange-500/15 rounded-lg flex items-center justify-center">
                             <span className="text-indigo-400 font-bold text-sm">
                               {log.contact.firstName[0]}{log.contact.lastName[0]}
                             </span>
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">
+                            <div className="font-semibold text-[#F1F5F9]">
                               {log.contact.firstName} {log.contact.lastName}
                             </div>
-                            <div className="text-sm text-gray-600">{log.toEmail || log.contact.email}</div>
+                            <div className="text-sm text-[#94A3B8]">{log.toEmail || log.contact.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         {log.company ? (
                           <div className="flex items-center gap-2">
-                            <BuildingOfficeIcon className="h-5 w-5 text-gray-400" />
-                            <span className="text-sm font-medium text-gray-900">{log.company.name}</span>
+                            <BuildingOfficeIcon className="h-5 w-5 text-[#64748B]" />
+                            <span className="text-sm font-medium text-[#F1F5F9]">{log.company.name}</span>
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">-</span>
+                          <span className="text-sm text-[#64748B]">-</span>
                         )}
                       </td>
                       <td className="px-4 py-4">
-                        <div className="flex items-center gap-1 text-sm text-gray-700">
+                        <div className="flex items-center gap-1 text-sm text-[#CBD5E1]">
                           <EnvelopeIcon className="h-4 w-4 text-indigo-400" />
                           <span>{log.fromEmail || '-'}</span>
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         {log.serverUsed ? (
-                          <div className="inline-flex items-center gap-1 px-2 py-1 bg-orange-50 border border-orange-200 rounded-md text-xs font-medium text-orange-700">
+                          <div className="inline-flex items-center gap-1 px-2 py-1 bg-orange-500/10 border border-orange-200 rounded-md text-xs font-medium text-orange-400">
                             <ServerIcon className="h-3 w-3" />
                             {log.serverUsed}
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">-</span>
+                          <span className="text-sm text-[#64748B]">-</span>
                         )}
                       </td>
                       <td className="px-4 py-4">{getStatusBadge(log.status)}</td>
                       <td className="px-4 py-4">
                         {log.sentAt ? (
-                          <div className="text-sm text-gray-700">
+                          <div className="text-sm text-[#CBD5E1]">
                             {new Date(log.sentAt).toLocaleString()}
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">Not sent</span>
+                          <span className="text-sm text-[#64748B]">Not sent</span>
                         )}
                       </td>
                       <td className="px-4 py-4">
                         {log.spamScore !== null ? (
                           <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${
-                            log.spamScore < 3 ? 'bg-green-100 text-green-700' :
-                            log.spamScore < 5 ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
+                            log.spamScore < 3 ? 'bg-green-500/15 text-green-400' :
+                            log.spamScore < 5 ? 'bg-yellow-500/15 text-yellow-400' :
+                            'bg-red-500/15 text-red-400'
                           }`}>
                             <ShieldCheckIcon className="h-3 w-3" />
                             {log.spamScore.toFixed(1)}
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400">-</span>
+                          <span className="text-sm text-[#64748B]">-</span>
                         )}
                       </td>
                     </tr>
@@ -329,8 +329,8 @@ export function CampaignEmailReport({ campaignId, campaignName, isOpen, onClose 
         </div>
 
         {/* Footer */}
-        <div className="border-t-2 border-gray-200 p-6 bg-gray-50 flex justify-between items-center flex-shrink-0">
-          <div className="text-sm text-gray-600">
+        <div className="border-t-2 border-[#2a2a44] p-6 bg-[#12121f] flex justify-between items-center flex-shrink-0">
+          <div className="text-sm text-[#94A3B8]">
             Showing {filteredLogs.length} of {emailLogs.length} email logs
           </div>
           <button

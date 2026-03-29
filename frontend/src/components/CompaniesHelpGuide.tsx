@@ -22,7 +22,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+      <div className="bg-[#161625] border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
 
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-3xl">
@@ -41,8 +41,8 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
             <button
               onClick={() => setActiveTab('quickstart')}
               className={activeTab === 'quickstart'
-                ? "bg-white text-white font-bold px-6 py-3 rounded-xl shadow-lg"
-                : "bg-white/40 text-white/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+                ? "bg-[#161625] text-white font-bold px-6 py-3 rounded-xl shadow-lg"
+                : "bg-[#161625]/40 text-white/70 hover:bg-[#161625]/60 px-6 py-3 rounded-xl transition-all"
               }
             >
               Quick Start
@@ -50,8 +50,8 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
             <button
               onClick={() => setActiveTab('features')}
               className={activeTab === 'features'
-                ? "bg-white text-white font-bold px-6 py-3 rounded-xl shadow-lg"
-                : "bg-white/40 text-white/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+                ? "bg-[#161625] text-white font-bold px-6 py-3 rounded-xl shadow-lg"
+                : "bg-[#161625]/40 text-white/70 hover:bg-[#161625]/60 px-6 py-3 rounded-xl transition-all"
               }
             >
               Features
@@ -59,8 +59,8 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
             <button
               onClick={() => setActiveTab('tips')}
               className={activeTab === 'tips'
-                ? "bg-white text-white font-bold px-6 py-3 rounded-xl shadow-lg"
-                : "bg-white/40 text-white/70 hover:bg-white/60 px-6 py-3 rounded-xl transition-all"
+                ? "bg-[#161625] text-white font-bold px-6 py-3 rounded-xl shadow-lg"
+                : "bg-[#161625]/40 text-white/70 hover:bg-[#161625]/60 px-6 py-3 rounded-xl transition-all"
               }
             >
               Pro Tips
@@ -295,7 +295,7 @@ export function CompaniesHelpGuide({ onClose }: HelpGuideProps) {
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 border-t-2 border-black p-6">
+        <div className="bg-[#12121f] border-t-2 border-black p-6">
           <button
             onClick={onClose}
             className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"

@@ -1,25 +1,31 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken, requireSuperAdmin } from '../middleware/auth';
-import nodemailer from 'nodemailer';
+import { authenticateToken } from '../middleware/auth';
+import Anthropic from '@anthropic-ai/sdk';
+import { AI_CONFIG } from '../config/ai';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 const router = Router();
 const prisma = new PrismaClient();
 
-// Middleware
 router.use(authenticateToken);
-router.use(requireSuperAdmin);
 
-// Create email transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const ses = new SESClient({ region: 'us-east-1' });
+const FROM_EMAIL = process.env.SES_FROM_EMAIL || 'support@brandmonkz.com';
+const FROM_NAME = process.env.SES_FROM_NAME || 'BrandMonkz';
+
+async function sendEmail(to: string, subject: string, html: string) {
+  return ses.send(new SendEmailCommand({
+    Source: `${FROM_NAME} <${FROM_EMAIL}>`,
+    Destination: { ToAddresses: [to] },
+    Message: {
+      Subject: { Data: subject },
+      Body: { Html: { Data: html } },
+    },
+  }));
+}
+
+// Using AWS SES instead of SMTP (support@brandmonkz.com verified)
 
 /**
  * GET /api/email-templates
@@ -30,27 +36,19 @@ router.get('/', async (req, res) => {
     const { type } = req.query;
 
     const templates = await prisma.emailTemplate.findMany({
-      where: type ? { templateType: type as string } : undefined,
+      where: {
+        userId: req.user!.id,
+      },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         name: true,
         subject: true,
-        templateType: true,
-        fromEmail: true,
-        fromName: true,
+        htmlContent: true,
         isActive: true,
         variables: true,
         createdAt: true,
         updatedAt: true,
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
       },
     });
 
@@ -95,6 +93,64 @@ router.get('/:id', async (req, res) => {
 });
 
 /**
+ * POST /api/email-templates/generate-ai
+ * Generate email template content using AI
+ */
+router.post('/generate-ai', async (req, res) => {
+  try {
+    const { description, tone, purpose, includeVariables } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ error: 'Description is required' });
+    }
+
+    const anthropic = new Anthropic({ apiKey: AI_CONFIG.apiKey });
+
+    const variableList = (includeVariables || ['firstName', 'lastName', 'companyName', 'email'])
+      .map((v: string) => `{{${v}}}`).join(', ');
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: `Generate a professional email template based on this description: "${description}"
+
+Tone: ${tone || 'professional'}
+${purpose ? `Purpose: ${purpose}` : ''}
+
+Available personalization variables: ${variableList}
+
+Return a JSON object with exactly these fields:
+{
+  "name": "Template name (short, descriptive)",
+  "subject": "Email subject line (use variables where appropriate)",
+  "htmlContent": "Complete HTML email with inline CSS, mobile-responsive, professional design. Use variables like {{firstName}} where appropriate.",
+  "textContent": "Plain text version of the email"
+}
+
+Return ONLY the JSON object, no markdown or explanation.`
+      }],
+    });
+
+    const text = message.content[0].type === 'text' ? message.content[0].text : '';
+
+    // Parse JSON from response (handle markdown code blocks)
+    let cleaned = text.trim();
+    if (cleaned.startsWith('```')) {
+      cleaned = cleaned.replace(/```json?\n?/g, '').replace(/```$/g, '').trim();
+    }
+
+    const template = JSON.parse(cleaned);
+
+    return res.json({ template });
+  } catch (error: any) {
+    console.error('AI template generation error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to generate template' });
+  }
+});
+
+/**
  * POST /api/email-templates
  * Create new email template
  */
@@ -122,9 +178,6 @@ router.post('/', async (req, res) => {
         htmlContent,
         textContent: textContent || '',
         variables: variables || [],
-        templateType: templateType || 'custom',
-        fromEmail: fromEmail || 'support@brandmonkz.com',
-        fromName: fromName || 'BrandMonkz',
         userId: req.user!.id,
       },
     });
@@ -149,9 +202,6 @@ router.put('/:id', async (req, res) => {
       htmlContent,
       textContent,
       variables,
-      templateType,
-      fromEmail,
-      fromName,
       isActive,
     } = req.body;
 
@@ -163,9 +213,6 @@ router.put('/:id', async (req, res) => {
         ...(htmlContent && { htmlContent }),
         ...(textContent !== undefined && { textContent }),
         ...(variables && { variables }),
-        ...(templateType && { templateType }),
-        ...(fromEmail && { fromEmail }),
-        ...(fromName && { fromName }),
         ...(isActive !== undefined && { isActive }),
       },
     });
@@ -236,13 +283,7 @@ router.post('/:id/send', async (req, res) => {
     const results = [];
     for (const recipient of to) {
       try {
-        await transporter.sendMail({
-          from: `${template.fromName} <${template.fromEmail}>`,
-          to: recipient,
-          subject,
-          html: htmlContent,
-          text: textContent,
-        });
+        await sendEmail(recipient, subject, htmlContent);
 
         results.push({ email: recipient, status: 'sent' });
 
@@ -251,7 +292,7 @@ router.post('/:id/send', async (req, res) => {
           await prisma.emailLog.create({
             data: {
               toEmail: recipient,
-              fromEmail: template.fromEmail,
+              fromEmail: (process.env.SMTP_USER || 'support@brandmonkz.com'),
               status: 'SENT',
               sentAt: new Date(),
               metadata: {
@@ -319,18 +360,12 @@ router.post('/:id/test', async (req, res) => {
       });
     }
 
-    await transporter.sendMail({
-      from: `${template.fromName} <${template.fromEmail}>`,
-      to: testEmail,
-      subject,
-      html: htmlContent,
-      text: textContent,
-    });
+    await sendEmail(testEmail, subject, htmlContent);
 
     res.json({ message: 'Test email sent successfully' });
   } catch (error: any) {
     console.error('Error sending test email:', error);
-    res.status(500).json({ error: 'Failed to send test email' });
+    res.status(500).json({ error: 'Failed to send test email', detail: error?.message || String(error) });
   }
 });
 

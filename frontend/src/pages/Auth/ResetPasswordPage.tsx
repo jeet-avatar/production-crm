@@ -126,13 +126,13 @@ export function ResetPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-center text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-center text-2xl font-bold text-[#F1F5F9] mb-4">
               Password Reset Successful!
             </h2>
-            <p className="text-center text-gray-600 mb-6">
+            <p className="text-center text-[#94A3B8] mb-6">
               Your password has been successfully reset. You can now log in with your new password.
             </p>
-            <p className="text-center text-sm text-gray-500">
+            <p className="text-center text-sm text-[#94A3B8]">
               Redirecting to login page in 3 seconds...
             </p>
           </div>
@@ -147,10 +147,10 @@ export function ResetPasswordPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-[#F1F5F9] mb-2">
               Reset Password
             </h2>
-            <p className="text-gray-600">
+            <p className="text-[#94A3B8]">
               Enter your new password below
             </p>
           </div>
@@ -166,7 +166,7 @@ export function ResetPasswordPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* New Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                 New Password
               </label>
               <div className="relative">
@@ -184,7 +184,7 @@ export function ResetPasswordPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 text-sm"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#64748B] hover:text-[#94A3B8] text-sm"
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
@@ -194,7 +194,7 @@ export function ResetPasswordPage() {
               {password.length > 0 && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-gray-700">Password Strength</span>
+                    <span className="text-xs font-medium text-[#CBD5E1]">Password Strength</span>
                     <span className={`text-xs font-medium ${
                       passwordStrength.score <= 2 ? 'text-red-600' :
                       passwordStrength.score <= 3 ? 'text-yellow-600' :
@@ -210,7 +210,7 @@ export function ResetPasswordPage() {
                     ></div>
                   </div>
                   {passwordStrength.feedback.length > 0 && (
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-[#94A3B8]">
                       Missing: {passwordStrength.feedback.join(', ')}
                     </p>
                   )}
@@ -220,7 +220,7 @@ export function ResetPasswordPage() {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -238,7 +238,7 @@ export function ResetPasswordPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 text-sm"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#64748B] hover:text-[#94A3B8] text-sm"
                 >
                   {showConfirmPassword ? 'Hide' : 'Show'}
                 </button>
@@ -267,7 +267,7 @@ export function ResetPasswordPage() {
           <div className="mt-6 text-center">
             <Link
               to="/login"
-              className="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+              className="text-sm text-[#94A3B8] hover:text-[#F1F5F9] font-medium transition-colors duration-200"
             >
               ← Back to Login
             </Link>

@@ -164,7 +164,7 @@ export function VideoPreviewPlayer({
               {/* Play/Pause */}
               <button
                 onClick={togglePlayPause}
-                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                className="p-2 bg-[#161625]/10 hover:bg-[#161625]/20 rounded-full transition-colors"
               >
                 {isPlaying ? (
                   <PauseIcon className="w-5 h-5 text-white" />
@@ -177,7 +177,7 @@ export function VideoPreviewPlayer({
               <div className="flex items-center gap-2">
                 <button
                   onClick={toggleMute}
-                  className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                  className="p-2 bg-[#161625]/10 hover:bg-[#161625]/20 rounded-full transition-colors"
                 >
                   {isMuted || volume === 0 ? (
                     <SpeakerXMarkIcon className="w-5 h-5 text-white" />
@@ -200,7 +200,7 @@ export function VideoPreviewPlayer({
             {/* Fullscreen */}
             <button
               onClick={toggleFullscreen}
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+              className="p-2 bg-[#161625]/10 hover:bg-[#161625]/20 rounded-full transition-colors"
             >
               <ArrowsPointingOutIcon className="w-5 h-5 text-white" />
             </button>
@@ -214,7 +214,7 @@ export function VideoPreviewPlayer({
           className="absolute inset-0 flex items-center justify-center bg-black/30 cursor-pointer"
           onClick={togglePlayPause}
         >
-          <div className="p-6 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-colors">
+          <div className="p-6 bg-[#161625]/20 backdrop-blur-sm rounded-full hover:bg-[#161625]/30 transition-colors">
             <PlayIcon className="w-16 h-16 text-white" />
           </div>
         </div>

@@ -101,18 +101,18 @@ export function BulkAssignModal({
         />
 
         {/* Modal */}
-        <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="relative bg-[#161625] rounded-lg shadow-xl max-w-md w-full p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <UserGroupIcon className="h-6 w-6 text-indigo-400" />
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-lg font-medium text-[#F1F5F9]">
                 Bulk Assign {resourcesLabel}
               </h3>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-[#64748B] hover:text-[#94A3B8]"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -121,36 +121,36 @@ export function BulkAssignModal({
           {/* Content */}
           <div className="space-y-4">
             {/* Summary */}
-            <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
-              <p className="text-sm text-orange-800">
+            <div className="bg-orange-500/10 border border-orange-200 rounded-md p-3">
+              <p className="text-sm text-orange-400">
                 You're about to assign <strong>{selectedIds.length}</strong> {selectedIds.length === 1 ? resourceLabel.toLowerCase() : resourcesLabel.toLowerCase()} to a team member.
               </p>
             </div>
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <div className="bg-red-500/10 border border-red-200 rounded-md p-3">
                 <p className="text-sm text-red-600">{error}</p>
               </div>
             )}
 
             {/* Team Member Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 Assign to Team Member
               </label>
 
               {loading ? (
-                <div className="flex items-center gap-2 text-sm text-gray-500 py-3">
+                <div className="flex items-center gap-2 text-sm text-[#94A3B8] py-3">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
                   Loading team members...
                 </div>
               ) : teamMembers.length === 0 ? (
-                <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-md border border-gray-200">
+                <div className="text-sm text-[#94A3B8] bg-[#12121f] p-3 rounded-md border border-[#2a2a44]">
                   <p className="mb-2">No team members available.</p>
                   <a
                     href="/team"
-                    className="text-indigo-400 hover:text-orange-800 font-medium"
+                    className="text-indigo-400 hover:text-orange-400 font-medium"
                   >
                     Invite team members →
                   </a>
@@ -160,7 +160,7 @@ export function BulkAssignModal({
                   value={selectedMemberId}
                   onChange={(e) => setSelectedMemberId(e.target.value)}
                   disabled={assigning}
-                  className="w-full block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full block rounded-md border-[#33335a] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-[#1c1c30] disabled:cursor-not-allowed"
                 >
                   <option value="">Select team member...</option>
                   {teamMembers.map((member) => (
@@ -174,15 +174,15 @@ export function BulkAssignModal({
 
             {/* Preview */}
             {selectedMember && (
-              <div className="bg-green-50 border border-green-200 rounded-md p-3">
-                <p className="text-sm text-green-800">
+              <div className="bg-green-500/10 border border-green-200 rounded-md p-3">
+                <p className="text-sm text-green-400">
                   <strong>{selectedMember.firstName} {selectedMember.lastName}</strong> will be assigned {selectedIds.length} {selectedIds.length === 1 ? resourceLabel.toLowerCase() : resourcesLabel.toLowerCase()}.
                 </p>
               </div>
             )}
 
             {/* Info */}
-            <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-md border border-gray-200">
+            <div className="text-xs text-[#94A3B8] bg-[#12121f] p-3 rounded-md border border-[#2a2a44]">
               <p className="font-medium mb-1">What happens next:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Selected {resourcesLabel.toLowerCase()} will be assigned to the chosen team member</li>
@@ -197,7 +197,7 @@ export function BulkAssignModal({
             <button
               onClick={onClose}
               disabled={assigning}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 border border-[#33335a] rounded-md shadow-sm text-sm font-medium text-[#CBD5E1] bg-[#161625] hover:bg-[#12121f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

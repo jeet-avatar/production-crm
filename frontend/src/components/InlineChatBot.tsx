@@ -168,7 +168,7 @@ export default function InlineChatBot({
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#161625]/20 rounded-lg flex items-center justify-center">
             <SparklesIcon className="w-6 h-6 animate-pulse" />
           </div>
           <div>
@@ -180,7 +180,7 @@ export default function InlineChatBot({
         </div>
         <button
           type="button"
-          className="hover:bg-white/20 p-2 rounded-lg transition-colors"
+          className="hover:bg-[#161625]/20 p-2 rounded-lg transition-colors"
           aria-label={isExpanded ? "Collapse chat" : "Expand chat"}
         >
           {isExpanded ? (
@@ -193,24 +193,24 @@ export default function InlineChatBot({
 
       {/* Expandable Content */}
       {isExpanded && (
-        <div className="bg-white">
+        <div className="bg-[#161625]">
           {/* Messages */}
           <div className="p-4 space-y-3 max-h-96 overflow-y-auto">
             {messages.length === 0 && (
               <div className="text-center py-6">
                 <SparklesIcon className="w-12 h-12 text-orange-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-600 font-semibold mb-1">
+                <p className="text-sm text-[#94A3B8] font-semibold mb-1">
                   {actionMode ? 'AI Ready to Assist' : 'AI Observing & Learning'}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[#94A3B8]">
                   {actionMode
                     ? 'I can analyze the UI and suggest improvements. All changes require your approval!'
                     : 'Ask me anything about this section. I\'m here to provide insights and help you understand the data better!'}
                 </p>
                 <div className={`mt-4 border rounded-lg p-3 ${
                   actionMode
-                    ? 'bg-green-50 border-green-200'
-                    : 'bg-yellow-50 border-yellow-200'
+                    ? 'bg-green-500/10 border-green-200'
+                    : 'bg-yellow-500/10 border-yellow-200'
                 }`}>
                   <p className="text-xs font-semibold mb-1">
                     {actionMode ? '⚡ Action Mode Enabled' : '🔒 Read-Only Mode'}
@@ -235,13 +235,13 @@ export default function InlineChatBot({
                     className={`max-w-[85%] rounded-xl px-4 py-2 ${
                       message.role === 'user'
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                        : 'bg-gray-100 text-gray-900 border border-indigo-100'
+                        : 'bg-[#1c1c30] text-[#F1F5F9] border border-indigo-100'
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     <p
                       className={`text-xs mt-1 ${
-                        message.role === 'user' ? 'text-orange-900' : 'text-gray-500'
+                        message.role === 'user' ? 'text-orange-900' : 'text-[#94A3B8]'
                       }`}
                     >
                       {message.timestamp.toLocaleTimeString()}
@@ -254,19 +254,19 @@ export default function InlineChatBot({
                   <div className="ml-4 bg-gradient-to-br from-orange-50 to-rose-50 border-2 border-orange-300 rounded-xl p-4 shadow-md">
                     <div className="flex items-center gap-2 mb-3">
                       <CodeBracketIcon className="w-5 h-5 text-indigo-400" />
-                      <h4 className="font-bold text-sm text-gray-900">Suggested Change</h4>
-                      <span className="ml-auto px-2 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                      <h4 className="font-bold text-sm text-[#F1F5F9]">Suggested Change</h4>
+                      <span className="ml-auto px-2 py-1 bg-orange-500/15 text-orange-400 text-xs font-semibold rounded-full">
                         Requires Approval
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-700 mb-3">{message.suggestion.description}</p>
+                    <p className="text-sm text-[#CBD5E1] mb-3">{message.suggestion.description}</p>
 
-                    <div className="bg-white rounded-lg p-3 mb-3 border border-gray-200">
-                      <p className="text-xs text-gray-600 mb-1">
+                    <div className="bg-[#161625] rounded-lg p-3 mb-3 border border-[#2a2a44]">
+                      <p className="text-xs text-[#94A3B8] mb-1">
                         <strong>File:</strong> {message.suggestion.filePath}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-[#94A3B8]">
                         <strong>Reasoning:</strong> {message.suggestion.reasoning}
                       </p>
                     </div>
@@ -306,7 +306,7 @@ export default function InlineChatBot({
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-xl px-4 py-2 border border-indigo-100">
+                <div className="bg-[#1c1c30] rounded-xl px-4 py-2 border border-indigo-100">
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-indigo-400 font-medium">
                       {actionMode ? 'Analyzing UI & generating suggestions...' : 'Analyzing...'}
@@ -325,7 +325,7 @@ export default function InlineChatBot({
           </div>
 
           {/* Input */}
-          <div className="border-t border-orange-200 p-3 bg-gray-50">
+          <div className="border-t border-orange-200 p-3 bg-[#12121f]">
             <div className="flex items-end gap-2">
               <textarea
                 value={inputMessage}
@@ -337,7 +337,7 @@ export default function InlineChatBot({
                     : 'Ask about this section...'
                 }
                 rows={2}
-                className="flex-1 resize-none rounded-lg border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all p-2 text-sm"
+                className="flex-1 resize-none rounded-lg border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all p-2 text-sm"
                 disabled={isLoading}
               />
               <button
@@ -357,8 +357,8 @@ export default function InlineChatBot({
 
       {/* Collapsed Preview */}
       {!isExpanded && (
-        <div className="bg-white p-3 text-center">
-          <p className="text-xs text-gray-600">
+        <div className="bg-[#161625] p-3 text-center">
+          <p className="text-xs text-[#94A3B8]">
             {actionMode
               ? '⚡ Click to get AI-powered UI improvements'
               : 'Click to chat with AI about this section'}

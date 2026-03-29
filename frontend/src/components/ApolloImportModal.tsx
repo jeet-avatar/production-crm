@@ -90,7 +90,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-rose-300 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-[#161625] rounded-2xl shadow-2xl border-4 border-rose-300 w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
 
         {/* Header with gradient */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6 border-b-4 border-orange-700">
@@ -101,7 +101,7 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
             </div>
             <button
               onClick={handleClose}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-full bg-[#161625]/20 hover:bg-[#161625]/30 flex items-center justify-center transition-colors"
             >
               <XMarkIcon className="w-6 h-6 text-white" />
             </button>
@@ -109,22 +109,22 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
         </div>
 
         {/* Step indicators */}
-        <div className="bg-rose-50 px-8 py-4 border-b-2 border-rose-200">
+        <div className="bg-rose-500/10 px-8 py-4 border-b-2 border-rose-200">
           <div className="flex items-center justify-between">
             <StepIndicator number={1} label="Search Filters" active={currentStep === 1} />
-            <div className="flex-1 h-0.5 bg-gray-200 mx-4"></div>
+            <div className="flex-1 h-0.5 bg-[#252540] mx-4"></div>
             <StepIndicator number={2} label="Importing" active={currentStep === 2} />
-            <div className="flex-1 h-0.5 bg-gray-200 mx-4"></div>
+            <div className="flex-1 h-0.5 bg-[#252540] mx-4"></div>
             <StepIndicator number={3} label="Complete" active={currentStep === 3} />
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto bg-white p-8">
+        <div className="flex-1 overflow-y-auto bg-[#161625] p-8">
           {currentStep === 1 && (
             <div className="space-y-6">
-              <div className="bg-orange-50 border-l-4 border-indigo-500 p-4 rounded-r-lg">
-                <p className="text-sm text-orange-800">
+              <div className="bg-orange-500/10 border-l-4 border-indigo-500 p-4 rounded-r-lg">
+                <p className="text-sm text-orange-400">
                   <strong>Search Apollo.io database</strong> for contacts matching your criteria.
                   Enter comma-separated values for multiple options (e.g., "CEO, CTO, VP Engineering").
                 </p>
@@ -132,67 +132,67 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                     Job Titles
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#33335a] rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="CEO, CTO, VP Sales"
                     value={personTitles}
                     onChange={(e) => setPersonTitles(e.target.value)}
                   />
-                  <p className="mt-1 text-xs text-gray-500">Comma-separated job titles</p>
+                  <p className="mt-1 text-xs text-[#94A3B8]">Comma-separated job titles</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                     Locations
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#33335a] rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="San Francisco, New York, Austin"
                     value={personLocations}
                     onChange={(e) => setPersonLocations(e.target.value)}
                   />
-                  <p className="mt-1 text-xs text-gray-500">Comma-separated cities or states</p>
+                  <p className="mt-1 text-xs text-[#94A3B8]">Comma-separated cities or states</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                     Company Domains
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#33335a] rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="stripe.com, shopify.com"
                     value={organizationDomains}
                     onChange={(e) => setOrganizationDomains(e.target.value)}
                   />
-                  <p className="mt-1 text-xs text-gray-500">Specific company domains</p>
+                  <p className="mt-1 text-xs text-[#94A3B8]">Specific company domains</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                     Industries
                   </label>
                   <input
                     type="text"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#33335a] rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     placeholder="Technology, Finance, Healthcare"
                     value={organizationIndustries}
                     onChange={(e) => setOrganizationIndustries(e.target.value)}
                   />
-                  <p className="mt-1 text-xs text-gray-500">Target industries</p>
+                  <p className="mt-1 text-xs text-[#94A3B8]">Target industries</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                     Results Per Page
                   </label>
                   <select
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#33335a] rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 transition-all"
                     value={perPage}
                     onChange={(e) => setPerPage(Number(e.target.value))}
                   >
@@ -209,45 +209,45 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
           {currentStep === 2 && (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-rose-500 border-t-transparent mb-6"></div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Importing from Apollo.io...</h3>
-              <p className="text-gray-600">Searching and importing contacts based on your criteria</p>
+              <h3 className="text-xl font-semibold text-[#E2E8F0] mb-2">Importing from Apollo.io...</h3>
+              <p className="text-[#94A3B8]">Searching and importing contacts based on your criteria</p>
             </div>
           )}
 
           {currentStep === 3 && importResults && (
             <div className="space-y-6">
               <div className="flex items-center justify-center mb-6">
-                <div className="bg-green-100 rounded-full p-4">
+                <div className="bg-green-500/15 rounded-full p-4">
                   <CheckCircleIcon className="w-16 h-16 text-green-600" />
                 </div>
               </div>
 
               <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Import Complete!</h3>
-                <p className="text-gray-600">Successfully imported contacts from Apollo.io</p>
+                <h3 className="text-2xl font-bold text-[#F1F5F9] mb-2">Import Complete!</h3>
+                <p className="text-[#94A3B8]">Successfully imported contacts from Apollo.io</p>
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-rose-50 rounded-lg p-4 text-center border-2 border-rose-200">
+                <div className="bg-rose-500/10 rounded-lg p-4 text-center border-2 border-rose-200">
                   <div className="text-3xl font-bold text-purple-400">{importResults.imported}</div>
-                  <div className="text-sm text-gray-600 mt-1">Imported</div>
+                  <div className="text-sm text-[#94A3B8] mt-1">Imported</div>
                 </div>
-                <div className="bg-orange-50 rounded-lg p-4 text-center border-2 border-orange-200">
+                <div className="bg-orange-500/10 rounded-lg p-4 text-center border-2 border-orange-200">
                   <div className="text-3xl font-bold text-indigo-400">{importResults.total}</div>
-                  <div className="text-sm text-gray-600 mt-1">Total Found</div>
+                  <div className="text-sm text-[#94A3B8] mt-1">Total Found</div>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-4 text-center border-2 border-gray-200">
-                  <div className="text-3xl font-bold text-gray-600">
+                <div className="bg-[#12121f] rounded-lg p-4 text-center border-2 border-[#2a2a44]">
+                  <div className="text-3xl font-bold text-[#94A3B8]">
                     {importResults.total - importResults.imported}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">Skipped</div>
+                  <div className="text-sm text-[#94A3B8] mt-1">Skipped</div>
                 </div>
               </div>
 
               {importResults.errors && importResults.errors.length > 0 && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
-                  <h4 className="font-semibold text-yellow-800 mb-2">Warnings:</h4>
-                  <ul className="list-disc list-inside text-sm text-yellow-700 space-y-1">
+                <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 rounded-r-lg">
+                  <h4 className="font-semibold text-yellow-400 mb-2">Warnings:</h4>
+                  <ul className="list-disc list-inside text-sm text-yellow-400 space-y-1">
                     {importResults.errors.slice(0, 5).map((error: string, index: number) => (
                       <li key={index}>{error}</li>
                     ))}
@@ -262,10 +262,10 @@ export function ApolloImportModal({ isOpen, onClose, onImportComplete }: ApolloI
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-8 py-6 border-t-4 border-gray-200 flex justify-between items-center">
+        <div className="bg-[#12121f] px-8 py-6 border-t-4 border-[#2a2a44] flex justify-between items-center">
           <button
             onClick={handleClose}
-            className="px-6 py-3 border-2 border-gray-400 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            className="px-6 py-3 border-2 border-gray-400 rounded-lg font-medium text-[#CBD5E1] hover:bg-[#1c1c30] transition-colors"
           >
             {currentStep === 3 ? "Close" : "Cancel"}
           </button>
@@ -303,14 +303,14 @@ function StepIndicator({ number, label, active }: { number: number; label: strin
         className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
           active
             ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white scale-110 shadow-lg"
-            : "bg-gray-200 text-gray-500"
+            : "bg-[#252540] text-[#94A3B8]"
         }`}
       >
         {number}
       </div>
       <span
         className={`mt-2 text-sm font-medium ${
-          active ? "text-purple-400" : "text-gray-500"
+          active ? "text-purple-400" : "text-[#94A3B8]"
         }`}
       >
         {label}

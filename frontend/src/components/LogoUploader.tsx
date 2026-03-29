@@ -163,13 +163,13 @@ export function LogoUploader({
     <div className="space-y-2">
       {/* Label with Help Icon */}
       <div className="flex items-center justify-between">
-        <label className="block text-sm font-semibold text-gray-700">
+        <label className="block text-sm font-semibold text-[#CBD5E1]">
           {label}
         </label>
         <button
           type="button"
           onClick={() => setShowHelp(!showHelp)}
-          className="p-1 text-gray-400 hover:text-indigo-400 transition-colors"
+          className="p-1 text-[#64748B] hover:text-indigo-400 transition-colors"
           title="Show help"
         >
           <QuestionMarkCircleIcon className="w-5 h-5" />
@@ -178,10 +178,10 @@ export function LogoUploader({
 
       {/* Help Panel */}
       {showHelp && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-sm space-y-2">
+        <div className="bg-orange-500/10 border border-orange-200 rounded-lg p-4 text-sm space-y-2">
           <div className="flex items-start gap-2">
             <QuestionMarkCircleIcon className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
-            <div className="prose prose-sm max-w-none text-gray-700">
+            <div className="prose prose-sm max-w-none text-[#CBD5E1]">
               {(helpText || defaultHelpText).split('\n').map((line, i) => {
                 if (line.startsWith('**') && line.endsWith('**')) {
                   return <p key={i} className="font-semibold text-orange-900 mb-1 mt-2">{line.replace(/\*\*/g, '')}</p>;
@@ -190,7 +190,7 @@ export function LogoUploader({
                   return <p key={i} className="ml-4 mb-1">{line}</p>;
                 }
                 if (line.trim().startsWith('-')) {
-                  return <p key={i} className="ml-4 mb-1 text-gray-600">{line}</p>;
+                  return <p key={i} className="ml-4 mb-1 text-[#94A3B8]">{line}</p>;
                 }
                 return line.trim() ? <p key={i} className="mb-1">{line}</p> : null;
               })}
@@ -203,7 +203,7 @@ export function LogoUploader({
       {url ? (
         <div className="relative">
           {/* Logo Preview */}
-          <div className="border-2 border-gray-200 rounded-lg p-4 bg-gray-50 flex items-center justify-center min-h-[120px]">
+          <div className="border-2 border-[#2a2a44] rounded-lg p-4 bg-[#12121f] flex items-center justify-center min-h-[120px]">
             <img
               src={url}
               alt={label}
@@ -226,7 +226,7 @@ export function LogoUploader({
           <button
             type="button"
             onClick={() => setUrl('')}
-            className="mt-2 text-sm text-indigo-400 hover:text-orange-700 font-medium"
+            className="mt-2 text-sm text-indigo-400 hover:text-orange-400 font-medium"
           >
             Change logo
           </button>
@@ -253,23 +253,23 @@ export function LogoUploader({
             onDragLeave={handleDragLeave}
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer ${
               isDragging
-                ? 'border-indigo-500 bg-orange-50'
-                : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50'
+                ? 'border-indigo-500 bg-orange-500/10'
+                : 'border-[#33335a] hover:border-orange-400 hover:bg-[#12121f]'
             }`}
             onClick={() => fileInputRef.current?.click()}
           >
             {isUploading ? (
               <div className="flex flex-col items-center gap-2">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
-                <p className="text-sm text-gray-600">Uploading...</p>
+                <p className="text-sm text-[#94A3B8]">Uploading...</p>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
-                <ArrowUpTrayIcon className="w-10 h-10 text-gray-400" />
-                <p className="text-sm text-gray-600">
+                <ArrowUpTrayIcon className="w-10 h-10 text-[#64748B]" />
+                <p className="text-sm text-[#94A3B8]">
                   <span className="font-semibold text-indigo-400">Click to upload</span> or drag and drop
                 </p>
-                <p className="text-xs text-gray-500">PNG, JPG, or SVG (max 5MB)</p>
+                <p className="text-xs text-[#94A3B8]">PNG, JPG, or SVG (max 5MB)</p>
               </div>
             )}
           </div>
@@ -286,10 +286,10 @@ export function LogoUploader({
           {/* OR Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div className="w-full border-t border-[#33335a]"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white text-gray-500 uppercase">Or</span>
+              <span className="px-2 bg-[#161625] text-[#94A3B8] uppercase">Or</span>
             </div>
           </div>
 
@@ -300,7 +300,7 @@ export function LogoUploader({
               value={url}
               onChange={(e) => handleUrlChange(e.target.value)}
               placeholder={placeholder}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+              className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
           </div>
         </div>
@@ -316,7 +316,7 @@ export function LogoUploader({
 
       {/* Help Text */}
       {!showHelp && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-[#94A3B8]">
           For best results, use a transparent PNG with your logo centered. Click the ? icon for help.
         </p>
       )}

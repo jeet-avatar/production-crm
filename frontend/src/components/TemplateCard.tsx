@@ -23,14 +23,14 @@ export function TemplateCard({
   const [isHovered, setIsHovered] = useState(false);
 
   const categoryColors: Record<string, string> = {
-    Business: 'bg-orange-100 text-orange-800',
-    Tech: 'bg-rose-100 text-rose-800',
+    Business: 'bg-orange-500/15 text-orange-400',
+    Tech: 'bg-rose-500/15 text-rose-800',
     Creative: 'bg-pink-100 text-pink-800',
-    Minimal: 'bg-gray-100 text-gray-800',
-    Abstract: 'bg-orange-100 text-orange-800',
+    Minimal: 'bg-[#1c1c30] text-[#E2E8F0]',
+    Abstract: 'bg-orange-500/15 text-orange-400',
   };
 
-  const categoryColor = categoryColors[template.category] || 'bg-gray-100 text-gray-800';
+  const categoryColor = categoryColors[template.category] || 'bg-[#1c1c30] text-[#E2E8F0]';
 
   const formatDuration = (seconds?: number) => {
     if (!seconds) return 'N/A';
@@ -49,7 +49,7 @@ export function TemplateCard({
         isSelected
           ? 'ring-4 ring-orange-500 shadow-2xl scale-105'
           : 'hover:shadow-xl hover:scale-105 shadow-md'
-      } bg-white`}
+      } bg-[#161625]`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -63,7 +63,7 @@ export function TemplateCard({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <PlayIcon className="w-16 h-16 text-gray-400" />
+            <PlayIcon className="w-16 h-16 text-[#64748B]" />
           </div>
         )}
 
@@ -76,10 +76,10 @@ export function TemplateCard({
                   e.stopPropagation();
                   onPreview(template);
                 }}
-                className="p-3 bg-white/90 rounded-full hover:bg-white transition-colors"
+                className="p-3 bg-[#161625]/90 rounded-full hover:bg-[#161625] transition-colors"
                 title="Preview"
               >
-                <EyeIcon className="w-6 h-6 text-gray-800" />
+                <EyeIcon className="w-6 h-6 text-[#E2E8F0]" />
               </button>
             )}
             {onSelect && (
@@ -125,7 +125,7 @@ export function TemplateCard({
       <div className="p-4">
         {/* Title and Favorite */}
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-bold text-gray-900 line-clamp-1 flex-1">
+          <h3 className="font-bold text-[#F1F5F9] line-clamp-1 flex-1">
             {template.name}
           </h3>
           {onToggleFavorite && (
@@ -140,7 +140,7 @@ export function TemplateCard({
               {template.isFavorite ? (
                 <StarIconSolid className="w-5 h-5 text-yellow-500" />
               ) : (
-                <StarIcon className="w-5 h-5 text-gray-400 hover:text-yellow-500" />
+                <StarIcon className="w-5 h-5 text-[#64748B] hover:text-yellow-500" />
               )}
             </button>
           )}
@@ -148,13 +148,13 @@ export function TemplateCard({
 
         {/* Description */}
         {template.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+          <p className="text-sm text-[#94A3B8] line-clamp-2 mb-3">
             {template.description}
           </p>
         )}
 
         {/* Metadata */}
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-xs text-[#94A3B8]">
           <div className="flex items-center gap-3">
             {template.usageCount > 0 && (
               <span className="flex items-center gap-1">
@@ -171,7 +171,7 @@ export function TemplateCard({
               {template.tags.slice(0, 2).map((tag, index) => (
                 <span
                   key={index}
-                  className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs"
+                  className="px-2 py-0.5 bg-[#1c1c30] text-[#94A3B8] rounded text-xs"
                 >
                   {tag}
                 </span>
@@ -187,7 +187,7 @@ export function TemplateCard({
             className={`mt-3 w-full py-2 rounded-lg font-semibold transition-all ${
               isSelected
                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white'
+                : 'bg-[#1c1c30] text-[#CBD5E1] hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white'
             }`}
           >
             {isSelected ? '✓ Selected' : 'Select Template'}

@@ -323,12 +323,12 @@ export function ContactDetail() {
                 {contact.firstName} {contact.lastName}
               </h1>
               <div className="flex items-center space-x-4 mt-1">
-                <div className="flex items-center text-sm font-medium text-gray-700">
+                <div className="flex items-center text-sm font-medium text-[#CBD5E1]">
                   <EnvelopeIcon className="h-4 w-4 mr-1" />
                   {contact.email}
                 </div>
                 {contact.phone && (
-                  <div className="flex items-center text-sm font-medium text-gray-700">
+                  <div className="flex items-center text-sm font-medium text-[#CBD5E1]">
                     <PhoneIcon className="h-4 w-4 mr-1" />
                     {contact.phone}
                   </div>
@@ -355,7 +355,7 @@ export function ContactDetail() {
           </button>
           <button
             onClick={handleDelete}
-            className="apple-button-secondary flex items-center gap-2 text-red-600 hover:bg-red-50"
+            className="apple-button-secondary flex items-center gap-2 text-red-600 hover:bg-red-500/10"
           >
             <TrashIcon className="h-4 w-4" />
             <span>Delete</span>
@@ -365,7 +365,7 @@ export function ContactDetail() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
+        <div className="bg-red-500/10 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
           {error}
         </div>
       )}
@@ -388,12 +388,12 @@ export function ContactDetail() {
                 className={`relative overflow-hidden rounded-xl p-4 transition-all duration-200 transform ${
                   isActive
                     ? `bg-gradient-to-br ${tab.gradient} text-white shadow-lg scale-105`
-                    : 'bg-white hover:bg-gray-50 text-gray-700 shadow-sm hover:shadow-md hover:-translate-y-1'
+                    : 'bg-[#161625] hover:bg-[#12121f] text-[#CBD5E1] shadow-sm hover:shadow-md hover:-translate-y-1'
                 }`}
               >
                 <div className="flex items-center justify-center space-x-3">
-                  <div className={`${isActive ? 'bg-white bg-opacity-20' : 'bg-gray-100'} rounded-lg p-2`}>
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+                  <div className={`${isActive ? 'bg-[#161625] bg-opacity-20' : 'bg-[#1c1c30]'} rounded-lg p-2`}>
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-[#94A3B8]'}`} />
                   </div>
                   <span className="font-semibold text-sm">{tab.name}</span>
                 </div>
@@ -413,41 +413,41 @@ export function ContactDetail() {
                 <h3 className="apple-heading-3 mb-4">Contact Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">First Name</label>
-                    <p className="mt-1 text-sm text-gray-900">{contact.firstName}</p>
+                    <label className="block text-sm font-medium text-[#CBD5E1]">First Name</label>
+                    <p className="mt-1 text-sm text-[#F1F5F9]">{contact.firstName}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
-                    <p className="mt-1 text-sm text-gray-900">{contact.lastName}</p>
+                    <label className="block text-sm font-medium text-[#CBD5E1]">Last Name</label>
+                    <p className="mt-1 text-sm text-[#F1F5F9]">{contact.lastName}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <p className="mt-1 text-sm text-gray-900">{contact.email}</p>
+                    <label className="block text-sm font-medium text-[#CBD5E1]">Email</label>
+                    <p className="mt-1 text-sm text-[#F1F5F9]">{contact.email}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Phone</label>
-                    <p className="mt-1 text-sm text-gray-900">{contact.phone || 'Not provided'}</p>
+                    <label className="block text-sm font-medium text-[#CBD5E1]">Phone</label>
+                    <p className="mt-1 text-sm text-[#F1F5F9]">{contact.phone || 'Not provided'}</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1]">Status</label>
                     <span className={`inline-flex mt-1 ${statusColors[contact.status]}`}>
                       {contact.status}
                     </span>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Created</label>
-                    <p className="mt-1 text-sm text-gray-900">{formatDate(contact.createdAt)}</p>
+                    <label className="block text-sm font-medium text-[#CBD5E1]">Created</label>
+                    <p className="mt-1 text-sm text-[#F1F5F9]">{formatDate(contact.createdAt)}</p>
                   </div>
                 </div>
                 
                 {contact.tags.length > 0 && (
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Tags</label>
                     <div className="flex flex-wrap gap-2">
                       {contact.tags.map((tag) => (
                         <span
                           key={tag.id}
-                          className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700"
+                          className="px-2 py-1 text-xs rounded-full bg-[#1c1c30] text-[#CBD5E1]"
                         >
                           {tag.name}
                         </span>
@@ -467,10 +467,10 @@ export function ContactDetail() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {Object.entries(contact.customFields).map(([key, value]) => (
                       <div key={key} className="bg-gradient-to-br from-orange-50 to-rose-50 p-4 rounded-lg border border-orange-200">
-                        <label className="block text-sm font-semibold text-gray-800 mb-1">
+                        <label className="block text-sm font-semibold text-[#E2E8F0] mb-1">
                           {key}
                         </label>
-                        <p className="text-sm text-gray-900 font-medium">
+                        <p className="text-sm text-[#F1F5F9] font-medium">
                           {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
                         </p>
                       </div>
@@ -483,14 +483,14 @@ export function ContactDetail() {
                 <div className="apple-card">
                   <h3 className="apple-heading-3 mb-4">Company Information</h3>
                   <div className="flex items-center space-x-3">
-                    <BuildingOfficeIcon className="h-8 w-8 text-gray-400" />
+                    <BuildingOfficeIcon className="h-8 w-8 text-[#64748B]" />
                     <div>
-                      <p className="font-medium text-gray-900">{contact.company.name}</p>
+                      <p className="font-medium text-[#F1F5F9]">{contact.company.name}</p>
                       {contact.company.domain && (
-                        <p className="text-sm text-gray-600">{contact.company.domain}</p>
+                        <p className="text-sm text-[#94A3B8]">{contact.company.domain}</p>
                       )}
                       {contact.company.industry && (
-                        <p className="text-sm text-gray-600">{contact.company.industry}</p>
+                        <p className="text-sm text-[#94A3B8]">{contact.company.industry}</p>
                       )}
                     </div>
                   </div>
@@ -516,14 +516,14 @@ export function ContactDetail() {
                   {activities.map((activity) => {
                     const Icon = activityIcons[activity.type];
                     return (
-                      <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <Icon className="h-5 w-5 text-gray-400 mt-0.5" />
+                      <div key={activity.id} className="flex items-start space-x-3 p-3 bg-[#12121f] rounded-lg">
+                        <Icon className="h-5 w-5 text-[#64748B] mt-0.5" />
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">{activity.subject}</p>
+                          <p className="font-medium text-[#F1F5F9]">{activity.subject}</p>
                           {activity.description && (
-                            <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
+                            <p className="text-sm text-[#94A3B8] mt-1">{activity.description}</p>
                           )}
-                          <p className="text-xs text-gray-500 mt-2">
+                          <p className="text-xs text-[#94A3B8] mt-2">
                             {formatDateTime(activity.createdAt)} • {activity.user.firstName} {activity.user.lastName}
                           </p>
                         </div>
@@ -533,8 +533,8 @@ export function ContactDetail() {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <ClockIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No activities recorded yet.</p>
+                  <ClockIcon className="h-12 w-12 text-[#64748B] mx-auto mb-4" />
+                  <p className="text-[#94A3B8]">No activities recorded yet.</p>
                 </div>
               )}
             </div>
@@ -543,7 +543,7 @@ export function ContactDetail() {
           {(activeTab === 'deals' || activeTab === 'notes') && (
             <div className="apple-card">
               <div className="text-center py-8">
-                <p className="text-gray-500">{activeTab === 'deals' ? 'Deals' : 'Notes'} feature coming soon.</p>
+                <p className="text-[#94A3B8]">{activeTab === 'deals' ? 'Deals' : 'Notes'} feature coming soon.</p>
               </div>
             </div>
           )}
@@ -589,40 +589,40 @@ export function ContactDetail() {
                     ></div>
 
                     {/* Dropdown menu */}
-                    <div className="absolute z-20 mt-2 w-full bg-white rounded-lg shadow-xl border-2 border-gray-300 py-2 animate-fadeIn">
+                    <div className="absolute z-20 mt-2 w-full bg-[#161625] rounded-lg shadow-xl border-2 border-[#33335a] py-2 animate-fadeIn">
                       <button
                         type="button"
                         onClick={() => {
                           console.log('Phone Call clicked');
                           handleMakeCall('phone');
                         }}
-                        className="w-full px-4 py-3 text-left text-sm hover:bg-blue-50 flex items-center gap-3 transition-colors"
+                        className="w-full px-4 py-3 text-left text-sm hover:bg-blue-500/10 flex items-center gap-3 transition-colors"
                       >
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-blue-500/15 rounded-full flex items-center justify-center">
                           <PhoneIcon className="h-4 w-4 text-blue-600" />
                         </div>
                         <div className="flex-1">
-                          <div className="font-semibold text-gray-900">Phone Call (FREE)</div>
-                          <div className="text-xs text-gray-600">Via Google Voice: {contact.phone || 'No number'}</div>
+                          <div className="font-semibold text-[#F1F5F9]">Phone Call (FREE)</div>
+                          <div className="text-xs text-[#94A3B8]">Via Google Voice: {contact.phone || 'No number'}</div>
                         </div>
                       </button>
-                      <div className="border-t border-gray-200 my-1"></div>
+                      <div className="border-t border-[#2a2a44] my-1"></div>
                       <button
                         type="button"
                         onClick={() => {
                           console.log('Google Meet clicked');
                           handleMakeCall('meet');
                         }}
-                        className="w-full px-4 py-3 text-left text-sm hover:bg-green-50 flex items-center gap-3 transition-colors"
+                        className="w-full px-4 py-3 text-left text-sm hover:bg-green-500/10 flex items-center gap-3 transition-colors"
                       >
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-green-500/15 rounded-full flex items-center justify-center">
                           <svg className="h-4 w-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M15,8.5V7a1,1,0,0,0-1-1H4A1,1,0,0,0,3,7V17a1,1,0,0,0,1,1H14a1,1,0,0,0,1-1V15.5l5,3.5V5Z"/>
                           </svg>
                         </div>
                         <div className="flex-1">
-                          <div className="font-semibold text-gray-900">Google Meet (FREE)</div>
-                          <div className="text-xs text-gray-600">Start instant video call</div>
+                          <div className="font-semibold text-[#F1F5F9]">Google Meet (FREE)</div>
+                          <div className="text-xs text-[#94A3B8]">Start instant video call</div>
                         </div>
                       </button>
                     </div>
@@ -648,12 +648,12 @@ export function ContactDetail() {
             <h3 className="apple-heading-3 mb-4">Contact Details</h3>
             <div className="space-y-3 text-sm">
               <div>
-                <span className="font-medium text-gray-700">Created:</span>
-                <p className="text-gray-600">{formatDate(contact.createdAt)}</p>
+                <span className="font-medium text-[#CBD5E1]">Created:</span>
+                <p className="text-[#94A3B8]">{formatDate(contact.createdAt)}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Last Updated:</span>
-                <p className="text-gray-600">{formatDate(contact.updatedAt)}</p>
+                <span className="font-medium text-[#CBD5E1]">Last Updated:</span>
+                <p className="text-[#94A3B8]">{formatDate(contact.updatedAt)}</p>
               </div>
             </div>
           </div>
@@ -672,14 +672,14 @@ export function ContactDetail() {
       {/* SMS Modal */}
       {showSMSModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6">
+          <div className="bg-[#161625] rounded-2xl shadow-2xl max-w-lg w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">
+              <h3 className="text-xl font-semibold text-[#F1F5F9]">
                 Send SMS via Google Voice
               </h3>
               <button
                 onClick={() => setShowSMSModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-[#64748B] hover:text-[#94A3B8]"
               >
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -688,7 +688,7 @@ export function ContactDetail() {
             </div>
 
             <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-[#94A3B8] mb-2">
                 📱 To: <span className="font-medium">{contact.firstName} {contact.lastName}</span> ({contact.phone})
               </p>
               <p className="text-xs text-green-600 mb-4">
@@ -697,7 +697,7 @@ export function ContactDetail() {
             </div>
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 Message
               </label>
               <textarea
@@ -705,15 +705,15 @@ export function ContactDetail() {
                 onChange={(e) => setSmsMessage(e.target.value)}
                 placeholder="Type your message here..."
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 maxLength={1600}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[#94A3B8] mt-1">
                 {smsMessage.length}/1600 characters
               </p>
             </div>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <div className="bg-blue-500/10 border border-blue-200 rounded-lg p-3 mb-4">
               <p className="text-xs text-blue-800">
                 💡 <strong>How it works:</strong> Click "Send" to open Google Messages with your message pre-filled.
                 Then just hit send from your Google Voice number!
@@ -723,7 +723,7 @@ export function ContactDetail() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSMSModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+                className="flex-1 px-4 py-2 border border-[#33335a] rounded-lg text-[#CBD5E1] hover:bg-[#12121f] font-medium"
               >
                 Cancel
               </button>

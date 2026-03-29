@@ -224,13 +224,13 @@ export function SystemTemplates() {
 
   if (error === 'Access denied - Super admin only') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+      <div className="min-h-screen bg-[#12121f] flex items-center justify-center p-8">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+          <div className="bg-[#161625] rounded-2xl shadow-xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-[#F1F5F9] mb-3">
               Access Restricted
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-[#94A3B8] mb-6">
               This page is restricted to super administrators only.
             </p>
             <button
@@ -246,13 +246,13 @@ export function SystemTemplates() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#12121f]">
       {/* Header */}
       <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} shadow-lg`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
+              <div className="w-16 h-16 bg-[#161625]/20 rounded-xl flex items-center justify-center">
                 <EnvelopeIcon className="h-8 w-8 text-white" />
               </div>
               <div>
@@ -267,7 +267,7 @@ export function SystemTemplates() {
                 setEditingTemplate(null);
                 setShowCreateModal(true);
               }}
-              className="flex items-center gap-2 bg-white text-white px-6 py-3 rounded-lg hover:bg-gray-50 shadow-lg transition-all duration-200 font-semibold"
+              className="flex items-center gap-2 bg-[#161625] text-white px-6 py-3 rounded-lg hover:bg-[#12121f] shadow-lg transition-all duration-200 font-semibold"
             >
               <PlusIcon className="h-5 w-5" />
               Create Template
@@ -279,23 +279,23 @@ export function SystemTemplates() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-[#161625] rounded-xl shadow-sm p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+              <MagnifyingGlassIcon className="h-5 w-5 text-[#64748B] absolute left-3 top-1/2 transform -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search templates..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
 
             {/* Filter by Type */}
             <div className="flex items-center gap-2">
-              <FunnelIcon className="h-5 w-5 text-gray-400" />
+              <FunnelIcon className="h-5 w-5 text-[#64748B]" />
               <select
                 value={filterType}
                 onChange={(e) => {
@@ -303,7 +303,7 @@ export function SystemTemplates() {
                   // Refetch when filter changes
                   setTimeout(fetchTemplates, 0);
                 }}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="border border-[#33335a] rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
                 <option value="all">All Types</option>
                 {templateTypes.map(type => (
@@ -319,18 +319,18 @@ export function SystemTemplates() {
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-primary-600"></div>
-            <p className="text-gray-600 mt-4">Loading templates...</p>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#2a2a44] border-t-primary-600"></div>
+            <p className="text-[#94A3B8] mt-4">Loading templates...</p>
           </div>
         )}
 
         {/* Error State */}
         {error && error !== 'Access denied - Super admin only' && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <div className="bg-red-500/10 border border-red-200 rounded-xl p-6 text-center">
             <p className="text-red-600 font-semibold">{error}</p>
             <button
               onClick={fetchTemplates}
-              className="mt-4 text-red-600 hover:text-red-700 font-medium"
+              className="mt-4 text-red-600 hover:text-red-400 font-medium"
             >
               Try Again
             </button>
@@ -339,12 +339,12 @@ export function SystemTemplates() {
 
         {/* Templates List */}
         {!isLoading && !error && filteredTemplates.length === 0 && (
-          <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-            <EnvelopeIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          <div className="bg-[#161625] rounded-xl shadow-sm p-12 text-center">
+            <EnvelopeIcon className="h-16 w-16 text-[#64748B] mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-[#F1F5F9] mb-2">
               No templates found
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-[#94A3B8] mb-6">
               {searchQuery
                 ? 'Try adjusting your search query'
                 : 'Create your first system template to get started'}
@@ -366,24 +366,24 @@ export function SystemTemplates() {
             {filteredTemplates.map((template) => (
               <div
                 key={template.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                className="bg-[#161625] rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
               >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-gray-900">
+                        <h3 className="text-xl font-bold text-[#F1F5F9]">
                           {template.name}
                         </h3>
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/15 text-blue-800">
                           {template.type}
                         </span>
                         <button
                           onClick={() => handleToggleActive(template)}
                           className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                             template.isActive
-                              ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                              ? 'bg-green-500/15 text-green-400 hover:bg-green-200'
+                              : 'bg-[#1c1c30] text-[#94A3B8] hover:bg-[#252540]'
                           }`}
                         >
                           {template.isActive ? (
@@ -399,10 +399,10 @@ export function SystemTemplates() {
                           )}
                         </button>
                       </div>
-                      <p className="text-gray-600 font-medium mb-2">
+                      <p className="text-[#94A3B8] font-medium mb-2">
                         Subject: {template.subject}
                       </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-4 text-sm text-[#94A3B8]">
                         <span>From: {template.fromName || 'BrandMonkz'} &lt;{template.fromEmail}&gt;</span>
                         {template.variables && template.variables.length > 0 && (
                           <span>Variables: {template.variables.join(', ')}</span>
@@ -415,14 +415,14 @@ export function SystemTemplates() {
                           setTestingTemplate(template);
                           setTestEmail('');
                         }}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-blue-600 hover:bg-blue-500/10 rounded-lg transition-colors"
                         title="Send Test Email"
                       >
                         <PaperAirplaneIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDuplicateTemplate(template.id)}
-                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 text-[#94A3B8] hover:bg-[#1c1c30] rounded-lg transition-colors"
                         title="Duplicate"
                       >
                         <DocumentDuplicateIcon className="h-5 w-5" />
@@ -432,14 +432,14 @@ export function SystemTemplates() {
                           setEditingTemplate(template);
                           setShowCreateModal(true);
                         }}
-                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="p-2 text-green-600 hover:bg-green-500/10 rounded-lg transition-colors"
                         title="Edit"
                       >
                         <PencilIcon className="h-5 w-5" />
                       </button>
                       <button
                         onClick={() => handleDeleteTemplate(template.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-red-600 hover:bg-red-500/10 rounded-lg transition-colors"
                         title="Delete"
                       >
                         <TrashIcon className="h-5 w-5" />
@@ -448,8 +448,8 @@ export function SystemTemplates() {
                   </div>
 
                   {/* Content Preview */}
-                  <div className="bg-gray-50 rounded-lg p-4 mt-4">
-                    <p className="text-sm text-gray-700 line-clamp-3">
+                  <div className="bg-[#12121f] rounded-lg p-4 mt-4">
+                    <p className="text-sm text-[#CBD5E1] line-clamp-3">
                       {template.htmlContent.replace(/<[^>]*>/g, '').substring(0, 200)}...
                     </p>
                   </div>
@@ -481,11 +481,11 @@ export function SystemTemplates() {
       {/* Test Email Modal */}
       {testingTemplate && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-[#161625] rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-[#F1F5F9] mb-4">
               Send Test Email
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-[#94A3B8] mb-4">
               Template: <span className="font-semibold">{testingTemplate.name}</span>
             </p>
             <input
@@ -493,7 +493,7 @@ export function SystemTemplates() {
               placeholder="Enter test email address"
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[#33335a] rounded-lg mb-4 focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
             <div className="flex gap-3">
               <button
@@ -508,7 +508,7 @@ export function SystemTemplates() {
                   setTestingTemplate(null);
                   setTestEmail('');
                 }}
-                className="flex-1 bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 font-semibold"
+                className="flex-1 bg-[#1c1c30] text-[#CBD5E1] px-6 py-3 rounded-lg hover:bg-[#252540] font-semibold"
               >
                 Cancel
               </button>

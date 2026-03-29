@@ -340,16 +340,16 @@ const PricingPage = () => {
           {/* Trust Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border border-indigo-100 rounded-full shadow-sm mb-6">
             <Sparkles className="w-4 h-4 text-indigo-400" />
-            <span className="text-sm font-medium text-gray-700">{config.trustBadgeText}</span>
+            <span className="text-sm font-medium text-[#CBD5E1]">{config.trustBadgeText}</span>
           </div>
 
-          <h1 className="text-5xl font-extrabold text-gray-900 sm:text-6xl md:text-7xl tracking-tight">
+          <h1 className="text-5xl font-extrabold text-[#F1F5F9] sm:text-6xl md:text-7xl tracking-tight">
             <span className="block">Simple, transparent</span>
             <span className="block bg-gradient-to-r from-orange-600 via-rose-600 to-rose-700 bg-clip-text text-transparent">
               {config.headline.split(' ').slice(-3).join(' ')}
             </span>
           </h1>
-          <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-6 text-xl text-[#94A3B8] max-w-3xl mx-auto leading-relaxed">
             {config.subheadline}
             <span className="block mt-2 font-semibold text-indigo-400">No credit card required.</span>
           </p>
@@ -375,7 +375,7 @@ const PricingPage = () => {
                 </>
               )}
             </button>
-            <p className="mt-4 text-sm text-gray-500">Get instant access to all features • Cancel anytime</p>
+            <p className="mt-4 text-sm text-[#94A3B8]">Get instant access to all features • Cancel anytime</p>
           </div>
         </div>
 
@@ -388,7 +388,7 @@ const PricingPage = () => {
               className={`relative px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
                 billingCycle === 'monthly'
                   ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : 'text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-gray-50'
               }`}
             >
               Monthly
@@ -399,11 +399,11 @@ const PricingPage = () => {
               className={`relative px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300 ${
                 billingCycle === 'annual'
                   ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : 'text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-gray-50'
               }`}
             >
               <span>Annual</span>
-              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">
+              <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-green-500/15 text-green-400">
                 Save {config.annualSavings}
               </span>
             </button>
@@ -443,23 +443,23 @@ const PricingPage = () => {
                   <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl shadow-md transition-all duration-300 ${
                     plan.popular
                       ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white'
-                      : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700'
+                      : 'bg-gradient-to-br from-gray-100 to-gray-200 text-[#CBD5E1]'
                   }`}>
                     <IconComponent className="w-7 h-7" />
                   </div>
 
-                  <h3 className="mt-5 text-2xl font-bold text-gray-900">{plan.name}</h3>
-                  <p className="mt-2 text-sm text-gray-600">{plan.description}</p>
+                  <h3 className="mt-5 text-2xl font-bold text-[#F1F5F9]">{plan.name}</h3>
+                  <p className="mt-2 text-sm text-[#94A3B8]">{plan.description}</p>
 
                   <div className="mt-6">
                     <div className="flex items-baseline justify-center">
-                      <span className="text-5xl font-extrabold tracking-tight text-gray-900">
+                      <span className="text-5xl font-extrabold tracking-tight text-[#F1F5F9]">
                         ${monthly}
                       </span>
-                      <span className="ml-1 text-xl font-semibold text-gray-500">/mo</span>
+                      <span className="ml-1 text-xl font-semibold text-[#94A3B8]">/mo</span>
                     </div>
                     {billingCycle === 'annual' && (
-                      <p className="mt-2 text-sm font-semibold text-gray-600">
+                      <p className="mt-2 text-sm font-semibold text-[#94A3B8]">
                         ${price} billed annually
                       </p>
                     )}
@@ -472,7 +472,7 @@ const PricingPage = () => {
                     className={`mt-8 w-full flex justify-center items-center gap-2 px-6 py-3.5 text-base font-semibold rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
                       plan.buttonVariant === 'primary'
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-xl hover:scale-105 active:scale-95'
-                        : 'bg-white text-gray-900 border-2 border-gray-300 hover:border-indigo-500 hover:bg-gray-50 hover:scale-105 active:scale-95'
+                        : 'bg-white text-[#F1F5F9] border-2 border-gray-300 hover:border-indigo-500 hover:bg-gray-50 hover:scale-105 active:scale-95'
                     }`}
                   >
                     {selectedPlan === plan.id ? (
@@ -494,8 +494,8 @@ const PricingPage = () => {
                     <li key={index} className="flex items-start">
                       <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 ${
                         feature.included
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-gray-100 text-gray-400'
+                          ? 'bg-green-500/15 text-green-600'
+                          : 'bg-gray-100 text-[#64748B]'
                       }`}>
                         {feature.included ? (
                           <Check className="h-3.5 w-3.5" />
@@ -504,7 +504,7 @@ const PricingPage = () => {
                         )}
                       </div>
                       <span className={`ml-3 text-sm ${
-                        feature.included ? 'text-gray-700 font-medium' : 'text-gray-400 line-through'
+                        feature.included ? 'text-[#CBD5E1] font-medium' : 'text-[#64748B] line-through'
                       }`}>
                         {feature.text}
                       </span>
@@ -520,14 +520,14 @@ const PricingPage = () => {
         {faqs.length > 0 && (
           <div className="mt-24">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900">{config.faqSectionTitle}</h2>
-              <p className="mt-3 text-base text-gray-600">{config.faqSectionSubtitle}</p>
+              <h2 className="text-3xl font-bold text-[#F1F5F9]">{config.faqSectionTitle}</h2>
+              <p className="mt-3 text-base text-[#94A3B8]">{config.faqSectionSubtitle}</p>
             </div>
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               {faqs.map((faq, index) => (
                 <div key={index} className="group p-6 bg-white rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all duration-300">
-                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-indigo-400 transition-colors">{faq.question}</h3>
-                  <p className="mt-2 text-sm text-gray-600 leading-relaxed">
+                  <h3 className="text-lg font-bold text-[#F1F5F9] group-hover:text-indigo-400 transition-colors">{faq.question}</h3>
+                  <p className="mt-2 text-sm text-[#94A3B8] leading-relaxed">
                     {replaceTemplateVars(faq.answer)}
                   </p>
                 </div>

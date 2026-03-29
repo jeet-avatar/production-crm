@@ -84,10 +84,10 @@ export function CreateEmailTemplateModal({
         />
 
         {/* Modal */}
-        <div className="relative bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="relative bg-[#161625] rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div
-            className="sticky top-0 z-10 px-6 py-4 border-b border-gray-200 flex items-center justify-between"
+            className="sticky top-0 z-10 px-6 py-4 border-b border-[#2a2a44] flex items-center justify-between"
             style={{ background: gradients.primary }}
           >
             <div className="flex items-center gap-3">
@@ -98,7 +98,7 @@ export function CreateEmailTemplateModal({
             </div>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+              className="p-1 hover:bg-[#161625]/20 rounded-lg transition-colors"
             >
               <XMarkIcon className="w-6 h-6 text-white" />
             </button>
@@ -107,21 +107,21 @@ export function CreateEmailTemplateModal({
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              <div className="bg-red-500/10 border border-red-200 text-red-400 px-4 py-3 rounded-lg">
                 {error}
               </div>
             )}
 
             {/* Template Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 Template Name
               </label>
               <input
                 type="text"
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="My Video Email Template"
                 required
               />
@@ -129,36 +129,36 @@ export function CreateEmailTemplateModal({
 
             {/* Email Subject */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 Email Subject Line
               </label>
               <input
                 type="text"
                 value={emailSubject}
                 onChange={(e) => setEmailSubject(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Your Personalized Video from {{companyName}}"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-[#94A3B8]">
                 Use variables: {'{{firstName}}'}, {'{{companyName}}'}, {'{{fromName}}'}
               </p>
             </div>
 
             {/* Email Body */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 Email Body Text
               </label>
               <textarea
                 value={emailBody}
                 onChange={(e) => setEmailBody(e.target.value)}
                 rows={6}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 placeholder="Write your email message here..."
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-[#94A3B8]">
                 This text will appear above the video in the email
               </p>
             </div>
@@ -168,10 +168,10 @@ export function CreateEmailTemplateModal({
               <div className="flex items-start gap-3">
                 <SparklesIcon className="w-5 h-5 text-blue-600 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-[#F1F5F9]">
                     Video will be embedded here
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">
+                  <p className="text-xs text-[#94A3B8] mt-1">
                     Your video will appear as an embedded player in the email with playback controls
                   </p>
                 </div>
@@ -181,26 +181,26 @@ export function CreateEmailTemplateModal({
             {/* CTA Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                   Call-to-Action Button Text
                 </label>
                 <input
                   type="text"
                   value={ctaText}
                   onChange={(e) => setCtaText(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Learn More"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                   Button Link URL
                 </label>
                 <input
                   type="url"
                   value={ctaLink}
                   onChange={(e) => setCtaLink(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="https://yourwebsite.com"
                 />
               </div>
@@ -209,27 +209,27 @@ export function CreateEmailTemplateModal({
             {/* Sender Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                   From Name
                 </label>
                 <input
                   type="text"
                   value={fromName}
                   onChange={(e) => setFromName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Your Name"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                   From Email
                 </label>
                 <input
                   type="email"
                   value={fromEmail}
                   onChange={(e) => setFromEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="you@company.com"
                   required
                 />
@@ -237,11 +237,11 @@ export function CreateEmailTemplateModal({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t border-gray-200">
+            <div className="flex gap-3 pt-4 border-t border-[#2a2a44]">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+                className="flex-1 px-6 py-3 border border-[#33335a] text-[#CBD5E1] rounded-lg hover:bg-[#12121f] font-medium transition-colors"
                 disabled={loading}
               >
                 Cancel

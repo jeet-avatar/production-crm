@@ -134,7 +134,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-[40px] shadow-2xl border-4 border-black w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <div className="bg-[#161625] rounded-[40px] shadow-2xl border-4 border-black w-full max-w-4xl max-h-[90vh] flex flex-col">
 
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-[40px]">
@@ -146,7 +146,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
             <button
               type="button"
               onClick={handleClose}
-              className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+              className="text-white hover:bg-[#161625]/20 rounded-lg p-2 transition-colors"
               aria-label="Close modal"
             >
               <XMarkIcon className="w-6 h-6" />
@@ -156,7 +156,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
         </div>
 
         {/* Step Indicators */}
-        <div className="bg-orange-50 px-8 py-4 border-b-2 border-orange-200">
+        <div className="bg-orange-500/10 px-8 py-4 border-b-2 border-orange-200">
           <div className="flex items-center justify-center gap-4">
             <StepIndicator number={1} label="Upload" active={currentStep >= 1} />
             <ProgressBar completed={currentStep >= 2} />
@@ -171,14 +171,14 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto bg-white p-8">
+        <div className="flex-1 overflow-y-auto bg-[#161625] p-8">
 
           {/* Step 1: File Selection */}
           {currentStep === 1 && (
             <div className="space-y-6">
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Upload CSV Files</h3>
-                <p className="text-gray-600">Select one or more CSV files containing contact data</p>
+                <h3 className="text-2xl font-bold text-[#E2E8F0] mb-2">Upload CSV Files</h3>
+                <p className="text-[#94A3B8]">Select one or more CSV files containing contact data</p>
               </div>
 
               {error && (
@@ -190,12 +190,12 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-4 border-dashed border-orange-300 rounded-[32px] p-12 text-center cursor-pointer hover:border-indigo-500 hover:bg-orange-50 transition-all"
+                className="border-4 border-dashed border-orange-300 rounded-[32px] p-12 text-center cursor-pointer hover:border-indigo-500 hover:bg-orange-500/10 transition-all"
               >
                 <DocumentArrowUpIcon className="w-16 h-16 text-indigo-400 mx-auto mb-4" />
-                <p className="text-lg font-semibold text-gray-700 mb-2">Click to browse files</p>
-                <p className="text-sm text-gray-500">or drag and drop CSV files here</p>
-                <p className="text-xs text-gray-400 mt-2">Maximum 10 files, 10MB each</p>
+                <p className="text-lg font-semibold text-[#CBD5E1] mb-2">Click to browse files</p>
+                <p className="text-sm text-[#94A3B8]">or drag and drop CSV files here</p>
+                <p className="text-xs text-[#64748B] mt-2">Maximum 10 files, 10MB each</p>
               </div>
 
               <input
@@ -210,20 +210,20 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
               {selectedFiles.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="font-semibold text-gray-800">Selected Files ({selectedFiles.length})</h4>
+                  <h4 className="font-semibold text-[#E2E8F0]">Selected Files ({selectedFiles.length})</h4>
                   {selectedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
+                    <div key={index} className="flex items-center justify-between bg-orange-500/10 border-2 border-orange-200 rounded-lg p-4">
                       <div className="flex items-center gap-3">
                         <DocumentArrowUpIcon className="w-6 h-6 text-indigo-400" />
                         <div>
-                          <p className="font-medium text-gray-800">{file.name}</p>
-                          <p className="text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</p>
+                          <p className="font-medium text-[#E2E8F0]">{file.name}</p>
+                          <p className="text-sm text-[#94A3B8]">{(file.size / 1024).toFixed(2)} KB</p>
                         </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleRemoveFile(index)}
-                        className="text-red-600 hover:bg-red-100 rounded-lg p-2 transition-colors"
+                        className="text-red-600 hover:bg-red-500/15 rounded-lg p-2 transition-colors"
                         aria-label={`Remove ${file.name}`}
                       >
                         <XMarkIcon className="w-5 h-5" />
@@ -233,9 +233,9 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 </div>
               )}
 
-              <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
-                <h4 className="font-semibold text-orange-800 mb-2">✨ AI Field Mapping</h4>
-                <p className="text-sm text-orange-700">AI automatically detects and maps CSV columns:</p>
+              <div className="bg-orange-500/10 border-2 border-orange-200 rounded-lg p-4">
+                <h4 className="font-semibold text-orange-400 mb-2">✨ AI Field Mapping</h4>
+                <p className="text-sm text-orange-400">AI automatically detects and maps CSV columns:</p>
                 <ul className="text-sm text-indigo-400 mt-2 space-y-1 ml-4">
                   <li>• Email, E-mail, Mail → email</li>
                   <li>• First Name, FirstName, fname → firstName</li>
@@ -251,8 +251,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
             <div className="space-y-6">
               <div className="text-center">
                 <EyeIcon className="w-16 h-16 text-indigo-400 mx-auto mb-4" />
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Preview Data</h3>
-                <p className="text-gray-600">Found {previewData.totalRows} rows in CSV file</p>
+                <h3 className="text-2xl font-bold text-[#E2E8F0] mb-2">Preview Data</h3>
+                <p className="text-[#94A3B8]">Found {previewData.totalRows} rows in CSV file</p>
               </div>
 
               {error && (
@@ -262,12 +262,12 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 />
               )}
 
-              <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4 overflow-x-auto">
+              <div className="bg-[#12121f] border-2 border-[#2a2a44] rounded-lg p-4 overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b-2 border-gray-300">
+                    <tr className="border-b-2 border-[#33335a]">
                       {previewData.headers.map((header: string, idx: number) => (
-                        <th key={idx} className="px-4 py-2 text-left font-semibold text-gray-700 bg-gray-100">
+                        <th key={idx} className="px-4 py-2 text-left font-semibold text-[#CBD5E1] bg-[#1c1c30]">
                           {header}
                         </th>
                       ))}
@@ -275,9 +275,9 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                   </thead>
                   <tbody>
                     {previewData.rows.map((row: any, idx: number) => (
-                      <tr key={idx} className="border-b border-gray-200">
+                      <tr key={idx} className="border-b border-[#2a2a44]">
                         {previewData.headers.map((header: string, colIdx: number) => (
-                          <td key={colIdx} className="px-4 py-2 text-gray-600">
+                          <td key={colIdx} className="px-4 py-2 text-[#94A3B8]">
                             {row[header] || '-'}
                           </td>
                         ))}
@@ -287,8 +287,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 </table>
               </div>
 
-              <div className="bg-rose-50 border-2 border-rose-200 rounded-lg p-4">
-                <p className="text-sm text-rose-700">
+              <div className="bg-rose-500/10 border-2 border-rose-200 rounded-lg p-4">
+                <p className="text-sm text-rose-400">
                   Showing first 5 rows. Total rows to import: <strong>{previewData.totalRows}</strong>
                 </p>
               </div>
@@ -300,14 +300,14 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
             <div className="flex flex-col items-center justify-center py-12 space-y-6">
               <SparklesIcon className="w-20 h-20 text-purple-400" />
               <div className="text-center max-w-2xl">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">AI Data Enrichment</h3>
-                <p className="text-gray-600 mb-6">
+                <h3 className="text-2xl font-bold text-[#E2E8F0] mb-4">AI Data Enrichment</h3>
+                <p className="text-[#94A3B8] mb-6">
                   Enhance your contact data with AI-powered enrichment. This will add missing information like
                   company details, job titles, and social profiles.
                 </p>
                 <div className="bg-gradient-to-br from-orange-50 to-rose-50 border-2 border-rose-200 rounded-xl p-6">
                   <h4 className="font-semibold text-rose-800 mb-3">Enrichment includes:</h4>
-                  <ul className="text-sm text-rose-700 space-y-2 text-left">
+                  <ul className="text-sm text-rose-400 space-y-2 text-left">
                     <li>• Company information & industry data</li>
                     <li>• Verified email addresses</li>
                     <li>• Social media profiles (LinkedIn, Twitter)</li>
@@ -316,7 +316,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 </div>
               </div>
               <div className="w-24 h-24 border-8 border-rose-200 border-t-rose-600 rounded-full animate-spin" />
-              <p className="text-gray-600 font-medium">Enriching contact data...</p>
+              <p className="text-[#94A3B8] font-medium">Enriching contact data...</p>
             </div>
           )}
 
@@ -327,8 +327,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                 <div className="w-20 h-20 border-8 border-orange-200 border-t-orange-600 rounded-full animate-spin" />
                 <DocumentArrowUpIcon className="w-10 h-10 text-indigo-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-800 mt-8 mb-2">Importing Contacts...</h3>
-              <p className="text-gray-600">Please wait while we process your CSV files</p>
+              <h3 className="text-2xl font-bold text-[#E2E8F0] mt-8 mb-2">Importing Contacts...</h3>
+              <p className="text-[#94A3B8]">Please wait while we process your CSV files</p>
             </div>
           )}
 
@@ -337,36 +337,36 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
             <div className="space-y-6">
               <div className="text-center">
                 <CheckCircleIcon className="w-20 h-20 text-indigo-400 mx-auto mb-4" />
-                <h3 className="text-3xl font-bold text-gray-800 mb-2">Import Complete!</h3>
-                <p className="text-gray-600">Your contacts have been successfully imported</p>
+                <h3 className="text-3xl font-bold text-[#E2E8F0] mb-2">Import Complete!</h3>
+                <p className="text-[#94A3B8]">Your contacts have been successfully imported</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 text-center">
+                <div className="bg-orange-500/10 border-2 border-orange-200 rounded-lg p-6 text-center">
                   <p className="text-4xl font-bold text-indigo-400">{importResults.contactsImported || importResults.imported || 0}</p>
-                  <p className="text-sm font-medium text-gray-600 mt-2">Contacts Imported</p>
+                  <p className="text-sm font-medium text-[#94A3B8] mt-2">Contacts Imported</p>
                 </div>
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 text-center">
+                <div className="bg-blue-500/10 border-2 border-blue-200 rounded-lg p-6 text-center">
                   <p className="text-4xl font-bold text-blue-600">{importResults.companiesCreated || 0}</p>
-                  <p className="text-sm font-medium text-gray-600 mt-2">Companies Created</p>
+                  <p className="text-sm font-medium text-[#94A3B8] mt-2">Companies Created</p>
                 </div>
-                <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 text-center">
+                <div className="bg-orange-500/10 border-2 border-orange-200 rounded-lg p-6 text-center">
                   <p className="text-4xl font-bold text-indigo-400">{importResults.totalProcessed || 0}</p>
-                  <p className="text-sm font-medium text-gray-600 mt-2">Total Processed</p>
+                  <p className="text-sm font-medium text-[#94A3B8] mt-2">Total Processed</p>
                 </div>
-                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-6 text-center">
+                <div className="bg-yellow-500/10 border-2 border-yellow-200 rounded-lg p-6 text-center">
                   <p className="text-4xl font-bold text-yellow-600">{importResults.duplicates || 0}</p>
-                  <p className="text-sm font-medium text-gray-600 mt-2">Duplicates Skipped</p>
+                  <p className="text-sm font-medium text-[#94A3B8] mt-2">Duplicates Skipped</p>
                 </div>
               </div>
 
               {/* Show detected CSV types */}
               {importResults.detectedTypes && importResults.detectedTypes.length > 0 && (
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                <div className="bg-blue-500/10 border-2 border-blue-200 rounded-lg p-4">
                   <h4 className="font-semibold text-blue-800 mb-2">📊 Detected Data Types</h4>
                   <div className="space-y-1">
                     {importResults.detectedTypes.map((type: string, idx: number) => (
-                      <p key={idx} className="text-sm text-blue-700">• {type}</p>
+                      <p key={idx} className="text-sm text-blue-400">• {type}</p>
                     ))}
                   </div>
                 </div>
@@ -374,8 +374,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 
               {/* Show errors if any */}
               {importResults.errors > 0 && importResults.errorsList && (
-                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-red-800 mb-2">❌ Errors Encountered</h4>
+                <div className="bg-red-500/10 border-2 border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-red-400 mb-2">❌ Errors Encountered</h4>
                   <div className="max-h-32 overflow-y-auto space-y-1">
                     {importResults.errorsList.map((error: string, idx: number) => (
                       <p key={idx} className="text-sm text-red-600">• {error}</p>
@@ -385,12 +385,12 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
               )}
 
               {importResults.duplicates > 0 && importResults.duplicatesList && (
-                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                <div className="bg-yellow-500/10 border-2 border-yellow-200 rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
                     <div className="flex-1">
-                      <h4 className="font-semibold text-yellow-800 mb-2">Duplicates Detected</h4>
-                      <p className="text-sm text-yellow-700 mb-2">The following contacts already exist and were skipped:</p>
+                      <h4 className="font-semibold text-yellow-400 mb-2">Duplicates Detected</h4>
+                      <p className="text-sm text-yellow-400 mb-2">The following contacts already exist and were skipped:</p>
                       <div className="max-h-32 overflow-y-auto space-y-1">
                         {importResults.duplicatesList.slice(0, 10).map((dup: string, idx: number) => (
                           <p key={idx} className="text-sm text-yellow-600">• {dup}</p>
@@ -405,8 +405,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
               )}
 
               {importResults.errors && importResults.errors.length > 0 && (
-                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-red-800 mb-2">Errors Encountered</h4>
+                <div className="bg-red-500/10 border-2 border-red-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-red-400 mb-2">Errors Encountered</h4>
                   <div className="max-h-32 overflow-y-auto space-y-1">
                     {importResults.errors.map((error: string, idx: number) => (
                       <p key={idx} className="text-sm text-red-600">• {error}</p>
@@ -419,13 +419,13 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 px-8 py-6 border-t border-gray-200 rounded-b-3xl">
+        <div className="bg-[#12121f] px-8 py-6 border-t border-[#2a2a44] rounded-b-3xl">
           <div className="flex items-center justify-between">
             {currentStep === 2 && (
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className="px-6 py-3 text-gray-700 font-semibold hover:bg-gray-200 rounded-xl transition-colors border-2 border-gray-300"
+                className="px-6 py-3 text-[#CBD5E1] font-semibold hover:bg-[#252540] rounded-xl transition-colors border-2 border-[#33335a]"
               >
                 Back
               </button>
@@ -434,7 +434,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-6 py-3 text-gray-700 font-semibold hover:bg-gray-200 rounded-xl transition-colors border-2 border-gray-300"
+                className="px-6 py-3 text-[#CBD5E1] font-semibold hover:bg-[#252540] rounded-xl transition-colors border-2 border-[#33335a]"
               >
                 {currentStep === 5 ? 'Close' : 'Cancel'}
               </button>
@@ -460,7 +460,7 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
                     handleImport();
                   }}
                   disabled={loading}
-                  className="px-6 py-3 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-semibold hover:bg-gray-100 transition-all shadow-md disabled:opacity-50"
+                  className="px-6 py-3 bg-[#161625] text-[#CBD5E1] border-2 border-[#33335a] rounded-xl font-semibold hover:bg-[#1c1c30] transition-all shadow-md disabled:opacity-50"
                 >
                   Import Without Enrichment
                 </button>
@@ -498,8 +498,8 @@ export function CSVImportModal({ isOpen, onClose, onImportComplete }: CSVImportM
 // Helper Components
 function StepIndicator({ number, label, active }: { number: number; label: string; active: boolean }) {
   return (
-    <div className={`flex items-center gap-2 ${active ? 'text-indigo-400' : 'text-gray-400'}`}>
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${active ? 'bg-orange-600 text-white' : 'bg-gray-200'}`}>
+    <div className={`flex items-center gap-2 ${active ? 'text-indigo-400' : 'text-[#64748B]'}`}>
+      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm ${active ? 'bg-orange-600 text-white' : 'bg-[#252540]'}`}>
         {number}
       </div>
       <span className="font-medium text-sm hidden sm:inline">{label}</span>
@@ -509,7 +509,7 @@ function StepIndicator({ number, label, active }: { number: number; label: strin
 
 function ProgressBar({ completed }: { completed: boolean }) {
   return (
-    <div className="flex-1 h-1 bg-gray-200 rounded max-w-[60px]">
+    <div className="flex-1 h-1 bg-[#252540] rounded max-w-[60px]">
       <div className={`h-full bg-orange-600 rounded transition-all duration-500 ${completed ? 'w-full' : 'w-0'}`} />
     </div>
   );

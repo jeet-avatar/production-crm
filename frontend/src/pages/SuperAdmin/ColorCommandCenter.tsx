@@ -68,7 +68,7 @@ export function ColorCommandCenter() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50/30 to-rose-50/30 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#12121f] via-orange-50/30 to-rose-50/30 p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -80,19 +80,19 @@ export function ColorCommandCenter() {
               <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 via-rose-600 to-orange-700 bg-clip-text text-transparent">
                 Color Command Center
               </h1>
-              <p className="text-gray-600 mt-1">Centralized design system control - Change colors everywhere with one command</p>
+              <p className="text-[#94A3B8] mt-1">Centralized design system control - Change colors everywhere with one command</p>
             </div>
           </div>
         </div>
 
         {/* Theme Presets */}
         <div className="card mb-8">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <div className="p-6 border-b border-[#1c1c30]">
+            <h2 className="text-2xl font-bold text-[#F1F5F9] flex items-center gap-2">
               <SparklesIcon className="w-6 h-6 text-purple-400" />
               Theme Presets
             </h2>
-            <p className="text-sm text-gray-600 mt-1">One-click theme changes that apply across ALL pages</p>
+            <p className="text-sm text-[#94A3B8] mt-1">One-click theme changes that apply across ALL pages</p>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -102,8 +102,8 @@ export function ColorCommandCenter() {
                   onClick={() => setSelectedTheme(key)}
                   className={`relative p-6 rounded-xl border-2 transition-all text-left ${
                     selectedTheme === key
-                      ? 'border-rose-500 bg-rose-50 shadow-lg'
-                      : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                      ? 'border-rose-500 bg-rose-500/10 shadow-lg'
+                      : 'border-[#2a2a44] hover:border-[#33335a] hover:shadow-md'
                   }`}
                 >
                   {selectedTheme === key && (
@@ -113,8 +113,8 @@ export function ColorCommandCenter() {
                       </div>
                     </div>
                   )}
-                  <h3 className="font-bold text-lg text-gray-900 mb-1">{theme.name}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{theme.description}</p>
+                  <h3 className="font-bold text-lg text-[#F1F5F9] mb-1">{theme.name}</h3>
+                  <p className="text-sm text-[#94A3B8] mb-4">{theme.description}</p>
                   <div className="flex gap-2">
                     {key === 'default' && (
                       <>
@@ -176,7 +176,7 @@ export function ColorCommandCenter() {
                 </button>
               </div>
               {saveMessage && (
-                <div className={`p-4 rounded-lg ${saveMessage.includes('✅') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
+                <div className={`p-4 rounded-lg ${saveMessage.includes('✅') ? 'bg-green-500/10 text-green-400 border border-green-200' : 'bg-red-500/10 text-red-400 border border-red-200'}`}>
                   {saveMessage}
                 </div>
               )}
@@ -188,21 +188,21 @@ export function ColorCommandCenter() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Primary Brand Colors */}
           <div className="card">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">Brand Colors</h2>
-              <p className="text-sm text-gray-600 mt-1">Core brand identity</p>
+            <div className="p-6 border-b border-[#1c1c30]">
+              <h2 className="text-xl font-bold text-[#F1F5F9]">Brand Colors</h2>
+              <p className="text-sm text-[#94A3B8] mt-1">Core brand identity</p>
             </div>
             <div className="p-6 space-y-4">
               {Object.entries(BRAND_COLORS).map(([key, color]) => (
-                <div key={key} className="border border-gray-200 rounded-lg p-4">
+                <div key={key} className="border border-[#2a2a44] rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{color.name}</h3>
-                      <p className="text-xs text-gray-500">{color.description}</p>
+                      <h3 className="font-semibold text-[#F1F5F9]">{color.name}</h3>
+                      <p className="text-xs text-[#94A3B8]">{color.description}</p>
                     </div>
                     <div className={`w-16 h-16 rounded-lg bg-gradient-to-r ${color.gradient} shadow-lg`}></div>
                   </div>
-                  <div className="text-xs font-mono text-gray-600 bg-gray-50 rounded px-3 py-2">
+                  <div className="text-xs font-mono text-[#94A3B8] bg-[#12121f] rounded px-3 py-2">
                     {color.gradient}
                   </div>
                 </div>
@@ -212,21 +212,21 @@ export function ColorCommandCenter() {
 
           {/* Semantic Colors */}
           <div className="card">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">Semantic Colors</h2>
-              <p className="text-sm text-gray-600 mt-1">Functional meanings</p>
+            <div className="p-6 border-b border-[#1c1c30]">
+              <h2 className="text-xl font-bold text-[#F1F5F9]">Semantic Colors</h2>
+              <p className="text-sm text-[#94A3B8] mt-1">Functional meanings</p>
             </div>
             <div className="p-6 space-y-4">
               {Object.entries(SEMANTIC_COLORS).map(([key, color]) => (
-                <div key={key} className="border border-gray-200 rounded-lg p-4">
+                <div key={key} className="border border-[#2a2a44] rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{color.name}</h3>
-                      <p className="text-xs text-gray-500">{color.description}</p>
+                      <h3 className="font-semibold text-[#F1F5F9]">{color.name}</h3>
+                      <p className="text-xs text-[#94A3B8]">{color.description}</p>
                     </div>
                     <div className={`w-16 h-16 rounded-lg bg-gradient-to-r ${color.gradient} shadow-lg`}></div>
                   </div>
-                  <div className="text-xs font-mono text-gray-600 bg-gray-50 rounded px-3 py-2">
+                  <div className="text-xs font-mono text-[#94A3B8] bg-[#12121f] rounded px-3 py-2">
                     {color.gradient}
                   </div>
                 </div>
@@ -237,18 +237,18 @@ export function ColorCommandCenter() {
 
         {/* Settings Page Colors */}
         <div className="card mb-6">
-          <div className="p-6 border-b border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900">Settings Page Tab Colors</h2>
-            <p className="text-sm text-gray-600 mt-1">Unique gradient for each settings section</p>
+          <div className="p-6 border-b border-[#1c1c30]">
+            <h2 className="text-xl font-bold text-[#F1F5F9]">Settings Page Tab Colors</h2>
+            <p className="text-sm text-[#94A3B8] mt-1">Unique gradient for each settings section</p>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {Object.entries(PAGE_COLORS.settings).map(([key, color]) => (
                 <div key={key} className="text-center">
                   <div className={`w-full h-24 rounded-lg bg-gradient-to-r ${color.gradient} shadow-lg mb-2`}></div>
-                  <h3 className="font-semibold text-sm text-gray-900 capitalize">{key}</h3>
-                  <p className="text-xs text-gray-500 mt-1">{color.description}</p>
-                  <div className="text-xs font-mono text-gray-600 bg-gray-50 rounded px-2 py-1 mt-2">
+                  <h3 className="font-semibold text-sm text-[#F1F5F9] capitalize">{key}</h3>
+                  <p className="text-xs text-[#94A3B8] mt-1">{color.description}</p>
+                  <div className="text-xs font-mono text-[#94A3B8] bg-[#12121f] rounded px-2 py-1 mt-2">
                     {color.gradient}
                   </div>
                 </div>
@@ -261,17 +261,17 @@ export function ColorCommandCenter() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Dashboard Stats */}
           <div className="card">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">Dashboard Stats</h2>
-              <p className="text-sm text-gray-600 mt-1">Stat card colors</p>
+            <div className="p-6 border-b border-[#1c1c30]">
+              <h2 className="text-xl font-bold text-[#F1F5F9]">Dashboard Stats</h2>
+              <p className="text-sm text-[#94A3B8] mt-1">Stat card colors</p>
             </div>
             <div className="p-6 space-y-3">
               {Object.entries(PAGE_COLORS.dashboard).map(([key, color]) => (
                 <div key={key} className="flex items-center gap-3">
                   <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${color.gradient} shadow-md`}></div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 capitalize">{key}</h3>
-                    <p className="text-xs text-gray-500">{color.description}</p>
+                    <h3 className="font-semibold text-[#F1F5F9] capitalize">{key}</h3>
+                    <p className="text-xs text-[#94A3B8]">{color.description}</p>
                   </div>
                 </div>
               ))}
@@ -280,17 +280,17 @@ export function ColorCommandCenter() {
 
           {/* Campaign Stats */}
           <div className="card">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900">Campaign Stats</h2>
-              <p className="text-sm text-gray-600 mt-1">Campaign metric colors</p>
+            <div className="p-6 border-b border-[#1c1c30]">
+              <h2 className="text-xl font-bold text-[#F1F5F9]">Campaign Stats</h2>
+              <p className="text-sm text-[#94A3B8] mt-1">Campaign metric colors</p>
             </div>
             <div className="p-6 space-y-3">
               {Object.entries(PAGE_COLORS.campaigns).map(([key, color]) => (
                 <div key={key} className="flex items-center gap-3">
                   <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${color.gradient} shadow-md`}></div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 capitalize">{key}</h3>
-                    <p className="text-xs text-gray-500">{color.description}</p>
+                    <h3 className="font-semibold text-[#F1F5F9] capitalize">{key}</h3>
+                    <p className="text-xs text-[#94A3B8]">{color.description}</p>
                   </div>
                 </div>
               ))}
@@ -301,11 +301,11 @@ export function ColorCommandCenter() {
         {/* Implementation Guide */}
         <div className="card mt-6 bg-gradient-to-br from-orange-50 to-rose-50 border-2 border-orange-200">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">📘 Implementation Guide</h2>
+            <h2 className="text-xl font-bold text-[#F1F5F9] mb-4">📘 Implementation Guide</h2>
             <div className="space-y-4 text-sm">
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">How to use centralized colors:</h3>
-                <code className="block bg-white rounded-lg p-4 text-xs font-mono text-gray-800 overflow-x-auto">
+                <h3 className="font-semibold text-[#F1F5F9] mb-2">How to use centralized colors:</h3>
+                <code className="block bg-[#161625] rounded-lg p-4 text-xs font-mono text-[#E2E8F0] overflow-x-auto">
                   {`// Import the design system
 import brandColors from '@/config/brandColors';
 
@@ -322,8 +322,8 @@ import brandColors from '@/config/brandColors';
               </div>
 
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Change theme in one command:</h3>
-                <code className="block bg-white rounded-lg p-4 text-xs font-mono text-gray-800">
+                <h3 className="font-semibold text-[#F1F5F9] mb-2">Change theme in one command:</h3>
+                <code className="block bg-[#161625] rounded-lg p-4 text-xs font-mono text-[#E2E8F0]">
                   {`// In brandColors.ts, change the BRAND_COLORS values
 // Example: Switch to Ocean theme
 export const BRAND_COLORS = {

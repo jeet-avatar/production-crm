@@ -86,8 +86,8 @@ export function TemplateLibrary({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Template Library</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-[#F1F5F9]">Template Library</h2>
+          <p className="text-sm text-[#94A3B8] mt-1">
             Choose a professional template or upload your own
           </p>
         </div>
@@ -106,13 +106,13 @@ export function TemplateLibrary({
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Search */}
         <div className="flex-1 relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#64748B]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search templates..."
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+            className="w-full pl-10 pr-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
           />
         </div>
 
@@ -125,7 +125,7 @@ export function TemplateLibrary({
               className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all ${
                 selectedCategory === category
                   ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-[#1c1c30] text-[#CBD5E1] hover:bg-[#252540]'
               }`}
             >
               {category}
@@ -135,7 +135,7 @@ export function TemplateLibrary({
 
         {/* System Filter */}
         <div className="flex items-center gap-2">
-          <FunnelIcon className="w-5 h-5 text-gray-400" />
+          <FunnelIcon className="w-5 h-5 text-[#64748B]" />
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -143,7 +143,7 @@ export function TemplateLibrary({
               onChange={(e) => setShowSystemOnly(e.target.checked)}
               className="rounded text-indigo-400 focus:ring-indigo-500"
             />
-            <span className="text-sm text-gray-700">System templates only</span>
+            <span className="text-sm text-[#CBD5E1]">System templates only</span>
           </label>
         </div>
       </div>
@@ -153,9 +153,9 @@ export function TemplateLibrary({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div key={i} className="animate-pulse">
-              <div className="aspect-video bg-gray-200 rounded-xl mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              <div className="aspect-video bg-[#252540] rounded-xl mb-4"></div>
+              <div className="h-4 bg-[#252540] rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-[#252540] rounded w-1/2"></div>
             </div>
           ))}
         </div>
@@ -171,11 +171,11 @@ export function TemplateLibrary({
         </div>
       ) : sortedTemplates.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600 mb-2">No templates found</p>
+          <p className="text-[#94A3B8] mb-2">No templates found</p>
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="text-indigo-400 hover:text-orange-700 font-medium"
+              className="text-indigo-400 hover:text-orange-400 font-medium"
             >
               Clear search
             </button>
@@ -199,7 +199,7 @@ export function TemplateLibrary({
 
       {/* Template Count */}
       {!loading && !error && (
-        <p className="text-sm text-gray-600 text-center">
+        <p className="text-sm text-[#94A3B8] text-center">
           Showing {sortedTemplates.length} of {templates.length} templates
         </p>
       )}
@@ -211,23 +211,23 @@ export function TemplateLibrary({
           onClick={() => setPreviewTemplate(null)}
         >
           <div
-            className="bg-white rounded-xl max-w-4xl w-full p-6"
+            className="bg-[#161625] rounded-xl max-w-4xl w-full p-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">
+                <h3 className="text-xl font-bold text-[#F1F5F9]">
                   {previewTemplate.name}
                 </h3>
                 {previewTemplate.description && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-[#94A3B8] mt-1">
                     {previewTemplate.description}
                   </p>
                 )}
               </div>
               <button
                 onClick={() => setPreviewTemplate(null)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-[#64748B] hover:text-[#94A3B8] transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -253,7 +253,7 @@ export function TemplateLibrary({
               </button>
               <button
                 onClick={() => setPreviewTemplate(null)}
-                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+                className="px-6 py-3 bg-[#1c1c30] text-[#CBD5E1] rounded-lg font-semibold hover:bg-[#252540] transition-colors"
               >
                 Close
               </button>

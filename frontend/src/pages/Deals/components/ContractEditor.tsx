@@ -80,14 +80,14 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#161625] rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">New Contract</h2>
+        <div className="flex items-center justify-between p-6 border-b border-[#2a2a44]">
+          <h2 className="text-xl font-bold text-[#F1F5F9]">New Contract</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+            className="p-2 rounded-full hover:bg-[#1c1c30] text-[#94A3B8] transition-colors"
             title="Close"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -97,14 +97,14 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-500/10 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {/* Title */}
           <div>
-            <label htmlFor="contract-title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="contract-title" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Contract Title *
             </label>
             <input
@@ -120,7 +120,7 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
 
           {/* Variable chips */}
           <div>
-            <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">
+            <p className="text-xs text-[#94A3B8] mb-2 font-medium uppercase tracking-wide">
               Click to insert variable
             </p>
             <div className="flex flex-wrap gap-2">
@@ -129,7 +129,7 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
                   key={v}
                   type="button"
                   onClick={() => setContent((prev) => prev + v)}
-                  className="text-xs px-2 py-1 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors font-mono"
+                  className="text-xs px-2 py-1 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-500/15 transition-colors font-mono"
                 >
                   {v}
                 </button>
@@ -145,7 +145,7 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 !preview
                   ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-[#1c1c30] text-[#94A3B8] hover:bg-[#252540]'
               }`}
             >
               Edit
@@ -156,7 +156,7 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 preview
                   ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-[#1c1c30] text-[#94A3B8] hover:bg-[#252540]'
               }`}
             >
               Preview
@@ -165,7 +165,7 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
 
           {/* Content area — edit or preview */}
           {preview ? (
-            <div className="card p-4 whitespace-pre-wrap text-sm text-gray-800 min-h-[280px]">
+            <div className="card p-4 whitespace-pre-wrap text-sm text-[#E2E8F0] min-h-[280px]">
               {resolveVariables(content)}
             </div>
           ) : (
@@ -179,11 +179,11 @@ export function ContractEditor({ dealId, deal, onClose, onSaved }: ContractEdito
           )}
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#2a2a44]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
+              className="px-4 py-2 border-2 border-[#33335a] rounded-lg hover:bg-[#12121f] transition-colors font-medium text-[#CBD5E1]"
               disabled={loading}
             >
               Cancel

@@ -147,12 +147,12 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
   const getUrgencyBadge = (urgency: string | null) => {
     if (!urgency) return null;
     const colors: Record<string, string> = {
-      High: 'bg-red-100 text-red-700',
-      Medium: 'bg-yellow-100 text-yellow-700',
-      Low: 'bg-green-100 text-green-700',
+      High: 'bg-red-500/15 text-red-400',
+      Medium: 'bg-yellow-500/15 text-yellow-400',
+      Low: 'bg-green-500/15 text-green-400',
     };
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${colors[urgency] || 'bg-gray-100 text-gray-700'}`}>
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${colors[urgency] || 'bg-[#1c1c30] text-[#CBD5E1]'}`}>
         <FireIcon className="h-3 w-3" />
         {urgency}
       </span>
@@ -164,7 +164,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-7xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-[#161625] rounded-2xl shadow-2xl border-4 border-[#33335a] max-w-7xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -176,7 +176,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all"
+              className="p-2 hover:bg-[#161625] hover:bg-opacity-20 rounded-lg transition-all"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -184,7 +184,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
         </div>
 
         {/* Filters & Actions */}
-        <div className="border-b-2 border-gray-100 p-6 bg-white flex-shrink-0">
+        <div className="border-b-2 border-[#1c1c30] p-6 bg-[#161625] flex-shrink-0">
           <div className="flex items-center justify-between gap-4 mb-4">
             <div className="flex gap-2">
               <button
@@ -192,7 +192,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   filterUnsent
                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-[#1c1c30] text-[#CBD5E1] hover:bg-[#252540]'
                 }`}
               >
                 Unsent Only
@@ -202,14 +202,14 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
                   filterLeadership
                     ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-[#1c1c30] text-[#CBD5E1] hover:bg-[#252540]'
                 }`}
               >
                 Leadership Only
               </button>
               <button
                 onClick={toggleAllVisible}
-                className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-semibold hover:bg-orange-200 transition-all"
+                className="px-4 py-2 bg-orange-500/15 text-orange-400 rounded-lg text-sm font-semibold hover:bg-orange-200 transition-all"
               >
                 {selectedPositions.length === filteredPositions.length ? 'Deselect All' : 'Select All'}
               </button>
@@ -220,16 +220,16 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search positions, companies..."
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none"
+                className="w-full px-4 py-2 border-2 border-[#33335a] rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none"
               />
             </div>
           </div>
 
           {selectedPositions.length > 0 && (
-            <div className="flex items-center justify-between bg-rose-50 border-2 border-rose-200 rounded-xl p-4">
+            <div className="flex items-center justify-between bg-rose-500/10 border-2 border-rose-200 rounded-xl p-4">
               <div>
                 <p className="text-sm font-semibold text-rose-900">{selectedPositions.length} positions selected</p>
-                <p className="text-xs text-rose-700">Generate personalized campaigns for all selected positions</p>
+                <p className="text-xs text-rose-400">Generate personalized campaigns for all selected positions</p>
               </div>
               <button
                 onClick={generateAllSelected}
@@ -260,9 +260,9 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
             </div>
           ) : filteredPositions.length === 0 ? (
             <div className="text-center py-12">
-              <BriefcaseIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No positions found</h3>
-              <p className="text-gray-600">Adjust your filters or add positions to get started</p>
+              <BriefcaseIcon className="h-16 w-16 text-[#64748B] mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-[#F1F5F9] mb-2">No positions found</h3>
+              <p className="text-[#94A3B8]">Adjust your filters or add positions to get started</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
@@ -271,8 +271,8 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                   key={position.id}
                   className={`border-2 rounded-xl p-6 transition-all cursor-pointer ${
                     selectedPositions.includes(position.id)
-                      ? 'border-rose-500 bg-rose-50 shadow-lg'
-                      : 'border-gray-200 bg-white hover:border-rose-300 hover:shadow-md'
+                      ? 'border-rose-500 bg-rose-500/10 shadow-lg'
+                      : 'border-[#2a2a44] bg-[#161625] hover:border-rose-300 hover:shadow-md'
                   }`}
                   onClick={() => togglePosition(position.id)}
                 >
@@ -283,23 +283,23 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                           type="checkbox"
                           checked={selectedPositions.includes(position.id)}
                           onChange={() => togglePosition(position.id)}
-                          className="w-5 h-5 rounded border-gray-300 text-purple-400 focus:ring-indigo-500"
+                          className="w-5 h-5 rounded border-[#33335a] text-purple-400 focus:ring-indigo-500"
                           onClick={(e) => e.stopPropagation()}
                         />
-                        <h3 className="text-xl font-bold text-gray-900">{position.title}</h3>
+                        <h3 className="text-xl font-bold text-[#F1F5F9]">{position.title}</h3>
                         {position.isLeadership && (
-                          <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                          <span className="px-3 py-1 bg-orange-500/15 text-orange-400 text-xs font-semibold rounded-full">
                             Leadership
                           </span>
                         )}
                         {position.isReplacement && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-500/15 text-orange-400 text-xs font-semibold rounded-full">
                             <ExclamationTriangleIcon className="h-3 w-3" />
                             Replacement
                           </span>
                         )}
                         {position.isExpansion && (
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/15 text-green-400 text-xs font-semibold rounded-full">
                             <TrendingUpIcon className="h-3 w-3" />
                             Expansion
                           </span>
@@ -307,7 +307,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                         {getUrgencyBadge(position.urgency)}
                       </div>
 
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                      <div className="flex items-center gap-4 text-sm text-[#94A3B8] mb-3">
                         <div className="flex items-center gap-1">
                           <BuildingOfficeIcon className="h-4 w-4" />
                           <span className="font-medium">{position.company.name}</span>
@@ -327,31 +327,31 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
                       </div>
 
                       {position.hiringIntent && (
-                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-3">
-                          <p className="text-xs font-semibold text-orange-700 mb-1">Hiring Intent:</p>
-                          <p className="text-sm text-gray-700">{position.hiringIntent}</p>
+                        <div className="bg-orange-500/10 border border-orange-200 rounded-lg p-3 mb-3">
+                          <p className="text-xs font-semibold text-orange-400 mb-1">Hiring Intent:</p>
+                          <p className="text-sm text-[#CBD5E1]">{position.hiringIntent}</p>
                         </div>
                       )}
 
                       {position.recentChanges && (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
-                          <p className="text-xs font-semibold text-yellow-700 mb-1">Recent Changes:</p>
-                          <p className="text-sm text-gray-700">{position.recentChanges}</p>
+                        <div className="bg-yellow-500/10 border border-yellow-200 rounded-lg p-3 mb-3">
+                          <p className="text-xs font-semibold text-yellow-400 mb-1">Recent Changes:</p>
+                          <p className="text-sm text-[#CBD5E1]">{position.recentChanges}</p>
                         </div>
                       )}
 
                       {position.aiPitch && (
-                        <div className="bg-rose-50 border border-rose-200 rounded-lg p-3">
-                          <p className="text-xs font-semibold text-rose-700 mb-1 flex items-center gap-1">
+                        <div className="bg-rose-500/10 border border-rose-200 rounded-lg p-3">
+                          <p className="text-xs font-semibold text-rose-400 mb-1 flex items-center gap-1">
                             <SparklesIcon className="h-3 w-3" />
                             AI-Generated Pitch:
                           </p>
-                          <p className="text-sm text-gray-700">{position.aiPitch}</p>
+                          <p className="text-sm text-[#CBD5E1]">{position.aiPitch}</p>
                         </div>
                       )}
 
                       {position.contact && (
-                        <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
+                        <div className="mt-3 flex items-center gap-2 text-sm text-[#94A3B8]">
                           <UserGroupIcon className="h-4 w-4" />
                           <span>
                             Decision Maker: {position.contact.firstName} {position.contact.lastName}
@@ -363,7 +363,7 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
 
                     <div className="flex flex-col items-end gap-2">
                       {position.campaignSent && (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/15 text-green-400 text-xs font-semibold rounded-full">
                           <CheckCircleIcon className="h-4 w-4" />
                           Campaign Sent
                         </span>
@@ -387,8 +387,8 @@ export function PositionCampaignBuilder({ isOpen, onClose, onCampaignCreated }: 
         </div>
 
         {/* Footer */}
-        <div className="border-t-2 border-gray-200 p-6 bg-gray-50 flex justify-between items-center flex-shrink-0">
-          <div className="text-sm text-gray-600">
+        <div className="border-t-2 border-[#2a2a44] p-6 bg-[#12121f] flex justify-between items-center flex-shrink-0">
+          <div className="text-sm text-[#94A3B8]">
             {selectedPositions.length} of {filteredPositions.length} positions selected
           </div>
           <button

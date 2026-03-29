@@ -113,8 +113,8 @@ export function TeamPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Team Members</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-3xl font-bold text-[#F1F5F9]">Team Members</h1>
+            <p className="mt-2 text-[#94A3B8]">
               Manage your team and invite new members to collaborate
             </p>
           </div>
@@ -130,20 +130,20 @@ export function TeamPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+        <div className="mb-6 bg-red-500/10 border border-red-200 rounded-lg p-4">
+          <p className="text-red-400">{error}</p>
         </div>
       )}
 
       {/* Success Message */}
       {inviteSuccess && (
-        <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-green-800">{inviteSuccess}</p>
+        <div className="mb-6 bg-green-500/10 border border-green-200 rounded-lg p-4">
+          <p className="text-green-400">{inviteSuccess}</p>
           {inviteToken && (
-            <div className="mt-3 p-3 bg-white border border-green-300 rounded">
-              <p className="text-sm font-semibold text-gray-700 mb-1">Invitation Token:</p>
-              <code className="text-xs text-gray-600 break-all">{inviteToken}</code>
-              <p className="text-xs text-gray-500 mt-2">
+            <div className="mt-3 p-3 bg-[#161625] border border-green-300 rounded">
+              <p className="text-sm font-semibold text-[#CBD5E1] mb-1">Invitation Token:</p>
+              <code className="text-xs text-[#94A3B8] break-all">{inviteToken}</code>
+              <p className="text-xs text-[#94A3B8] mt-2">
                 📧 In production, this would be sent via email. For now, share this token with the new member.
               </p>
             </div>
@@ -152,52 +152,52 @@ export function TeamPage() {
       )}
 
       {/* Team Members List */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="bg-[#161625] shadow rounded-lg overflow-hidden">
         {teamMembers.length === 0 ? (
           <div className="text-center py-12">
-            <UserPlusIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No team members yet</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <UserPlusIcon className="mx-auto h-12 w-12 text-[#64748B]" />
+            <h3 className="mt-2 text-sm font-medium text-[#F1F5F9]">No team members yet</h3>
+            <p className="mt-1 text-sm text-[#94A3B8]">
               Get started by inviting your first team member
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-[#2a2a44]">
+              <thead className="bg-[#12121f]">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase tracking-wider">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase tracking-wider">
                     Invited
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-medium text-[#94A3B8] uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-[#161625] divide-y divide-[#2a2a44]">
                 {teamMembers.map((member) => (
-                  <tr key={member.id} className="hover:bg-gray-50">
+                  <tr key={member.id} className="hover:bg-[#12121f]">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-[#F1F5F9]">
                         {member.firstName} {member.lastName}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-[#94A3B8]">
                         {member.teamRole === 'OWNER' ? (
                           <span className="font-semibold text-indigo-400">OWNER</span>
                         ) : (
                           <select
                             value={member.teamRole}
                             onChange={(e) => handleRoleChange(member.id, e.target.value as 'MEMBER' | 'ADMIN', `${member.firstName} ${member.lastName}`)}
-                            className="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="text-xs border border-[#33335a] rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                           >
                             <option value="MEMBER">MEMBER</option>
                             <option value="ADMIN">ADMIN</option>
@@ -206,22 +206,22 @@ export function TeamPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{member.email}</div>
+                      <div className="text-sm text-[#F1F5F9]">{member.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {member.inviteAccepted ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/15 text-green-400">
                           <CheckCircleIcon className="w-4 h-4 mr-1" />
                           Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-500/15 text-yellow-400">
                           <ClockIcon className="w-4 h-4 mr-1" />
                           Pending
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-[#94A3B8]">
                       {new Date(member.invitedAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -244,15 +244,15 @@ export function TeamPage() {
       {/* Invite Modal */}
       {showInviteModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
-          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Invite Team Member</h3>
+          <div className="relative bg-[#161625] rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-[#2a2a44]">
+              <h3 className="text-lg font-semibold text-[#F1F5F9]">Invite Team Member</h3>
             </div>
 
             <form onSubmit={handleInvite} className="px-6 py-4">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-1">
                     Email *
                   </label>
                   <input
@@ -260,13 +260,13 @@ export function TeamPage() {
                     required
                     value={inviteData.email}
                     onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-[#33335a] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="member@company.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-1">
                     First Name *
                   </label>
                   <input
@@ -274,13 +274,13 @@ export function TeamPage() {
                     required
                     value={inviteData.firstName}
                     onChange={(e) => setInviteData({ ...inviteData, firstName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-[#33335a] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="John"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-1">
                     Last Name *
                   </label>
                   <input
@@ -288,7 +288,7 @@ export function TeamPage() {
                     required
                     value={inviteData.lastName}
                     onChange={(e) => setInviteData({ ...inviteData, lastName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-[#33335a] rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="Doe"
                   />
                 </div>
@@ -302,7 +302,7 @@ export function TeamPage() {
                     setInviteData({ email: '', firstName: '', lastName: '' });
                     setError('');
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-[#33335a] rounded-md text-[#CBD5E1] hover:bg-[#12121f] transition-colors"
                   disabled={inviting}
                 >
                   Cancel

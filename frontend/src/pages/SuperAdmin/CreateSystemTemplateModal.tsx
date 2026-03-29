@@ -220,14 +220,14 @@ export function CreateSystemTemplateModal({
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-[#161625] rounded-2xl shadow-2xl max-w-5xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} p-6 text-white rounded-t-2xl`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-[#161625]/20 rounded-xl flex items-center justify-center">
                 <EnvelopeIcon className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -241,7 +241,7 @@ export function CreateSystemTemplateModal({
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
+              className="p-2 text-white/80 hover:text-white hover:bg-[#161625]/20 rounded-lg transition-all duration-200"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -251,7 +251,7 @@ export function CreateSystemTemplateModal({
         {/* Form Content */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <div className="bg-red-500/10 border border-red-200 rounded-xl p-4">
               <p className="text-red-600 text-sm font-medium">{error}</p>
             </div>
           )}
@@ -259,7 +259,7 @@ export function CreateSystemTemplateModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Template Name */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                 Template Name *
               </label>
               <input
@@ -267,20 +267,20 @@ export function CreateSystemTemplateModal({
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g., Welcome Email"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               />
             </div>
 
             {/* Template Type */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                 Template Type *
               </label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               >
                 <option value="">Select type...</option>
@@ -294,7 +294,7 @@ export function CreateSystemTemplateModal({
 
             {/* From Email */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                 From Email *
               </label>
               <select
@@ -307,7 +307,7 @@ export function CreateSystemTemplateModal({
                     fromName: selectedEmail?.name || formData.fromName,
                   });
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 required
               >
                 <option value="">Select verified email...</option>
@@ -317,14 +317,14 @@ export function CreateSystemTemplateModal({
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[#94A3B8] mt-1">
                 Only AWS SES verified emails can be used
               </p>
             </div>
 
             {/* From Name */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                 From Name
               </label>
               <input
@@ -332,14 +332,14 @@ export function CreateSystemTemplateModal({
                 value={formData.fromName}
                 onChange={(e) => setFormData({ ...formData, fromName: e.target.value })}
                 placeholder="e.g., BrandMonkz"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
           </div>
 
           {/* Email Subject */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
               Email Subject *
             </label>
             <input
@@ -347,7 +347,7 @@ export function CreateSystemTemplateModal({
               value={formData.subject}
               onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
               placeholder="e.g., Welcome to {{companyName}}!"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               required
             />
           </div>
@@ -357,10 +357,10 @@ export function CreateSystemTemplateModal({
             <div className="flex items-start gap-3">
               <SparklesIcon className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                <h4 className="text-sm font-semibold text-[#F1F5F9] mb-2">
                   Available Variables
                 </h4>
-                <p className="text-xs text-gray-600 mb-3">
+                <p className="text-xs text-[#94A3B8] mb-3">
                   Click to insert variables into your template. Use {`{{variableName}}`} syntax.
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -369,7 +369,7 @@ export function CreateSystemTemplateModal({
                       key={variable}
                       type="button"
                       onClick={() => insertVariable(variable)}
-                      className="px-3 py-1 bg-white text-blue-700 text-xs font-medium rounded-full hover:bg-blue-100 transition-colors border border-blue-200"
+                      className="px-3 py-1 bg-[#161625] text-blue-400 text-xs font-medium rounded-full hover:bg-blue-500/15 transition-colors border border-blue-200"
                     >
                       {`{{${variable}}}`}
                     </button>
@@ -377,7 +377,7 @@ export function CreateSystemTemplateModal({
                 </div>
                 {detectedVariables.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-blue-200">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">
+                    <p className="text-xs font-semibold text-[#CBD5E1] mb-2">
                       Detected in template: {detectedVariables.join(', ')}
                     </p>
                   </div>
@@ -388,7 +388,7 @@ export function CreateSystemTemplateModal({
 
           {/* HTML Content */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
               Email Content (HTML) *
             </label>
             <textarea
@@ -396,17 +396,17 @@ export function CreateSystemTemplateModal({
               onChange={(e) => setFormData({ ...formData, htmlContent: e.target.value })}
               placeholder="Enter your email HTML content here. Use {{variable}} for dynamic content."
               rows={12}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
+              className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-[#94A3B8] mt-1">
               Supports HTML tags and variable placeholders like {`{{firstName}}`}
             </p>
           </div>
 
           {/* Text Content (Optional) */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
               Plain Text Content (Optional)
             </label>
             <textarea
@@ -414,7 +414,7 @@ export function CreateSystemTemplateModal({
               onChange={(e) => setFormData({ ...formData, textContent: e.target.value })}
               placeholder="Plain text version for email clients that don't support HTML"
               rows={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
+              className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm"
             />
           </div>
 
@@ -425,22 +425,22 @@ export function CreateSystemTemplateModal({
               id="isActive"
               checked={formData.isActive}
               onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-[#33335a] rounded"
             />
-            <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
+            <label htmlFor="isActive" className="text-sm font-medium text-[#CBD5E1]">
               Template is active and can be used
             </label>
           </div>
         </form>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-6 bg-gray-50 rounded-b-2xl">
+        <div className="border-t border-[#2a2a44] p-6 bg-[#12121f] rounded-b-2xl">
           <div className="flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2.5 text-[#CBD5E1] bg-[#161625] border border-[#33335a] rounded-lg hover:bg-[#12121f] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

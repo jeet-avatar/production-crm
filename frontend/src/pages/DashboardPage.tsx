@@ -16,7 +16,6 @@ import {
   PlusIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../contexts/ThemeContext';
-import { AIChat } from '../components/AIChat';
 
 interface DashboardStats {
   totalContacts: number;
@@ -112,8 +111,8 @@ function StatCard({ title, value, change, trend, icon: Icon, gradient, iconColor
         {change && (
           <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
             trend === 'up'
-              ? 'bg-orange-100 text-orange-700'
-              : 'bg-rose-100 text-rose-700'
+              ? 'bg-[var(--color-success-100)] text-[var(--color-success-500)]'
+              : 'bg-[var(--color-error-100)] text-[var(--color-error-500)]'
           }`}>
             {trend === 'up' ? (
               <ArrowTrendingUpIcon className="h-3 w-3" />
@@ -125,8 +124,8 @@ function StatCard({ title, value, change, trend, icon: Icon, gradient, iconColor
         )}
       </div>
       <div>
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{title}</p>
-        <p className="text-4xl font-bold tracking-tight text-gray-900">{value}</p>
+        <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">{title}</p>
+        <p className="text-4xl font-bold tracking-tight text-[var(--text-primary)]">{value}</p>
       </div>
     </div>
   );
@@ -144,7 +143,7 @@ function CircularProgress({ percentage, size = 80 }: { percentage: number; size?
           cx={size / 2}
           cy={size / 2}
           r={size / 2 - 5}
-          stroke="#E5E7EB"
+          stroke="#374151"
           strokeWidth="8"
           fill="none"
         />
@@ -203,7 +202,6 @@ export function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>(emptyStats);
   const [isLoaded, setIsLoaded] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showAIChat, setShowAIChat] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -269,16 +267,16 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+    <div className="p-8 bg-[var(--bg-base)] min-h-screen">
       {/* Header with subtle shadow */}
-      <div className="mb-8 pb-6 border-b border-gray-200 bg-white/50 backdrop-blur-sm -mx-8 px-8 -mt-8 pt-8 shadow-sm">
+      <div className="mb-8 pb-6 border-b border-[var(--border-default)] bg-[var(--glass-bg)] backdrop-blur-sm -mx-8 px-8 -mt-8 pt-8 shadow-sm">
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md`}>
             <SparklesIcon className="h-6 w-6 text-white" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">Dashboard</h1>
         </div>
-        <p className="text-sm font-medium text-gray-700">Welcome back! Here's what's happening with your business today.</p>
+        <p className="text-sm font-medium text-[var(--text-secondary)]">Welcome back! Here's what's happening with your business today.</p>
       </div>
 
       {/* Main Stats Grid - Responsive */}
@@ -287,7 +285,7 @@ export function DashboardPage() {
           title="Total Revenue"
           value={formatCurrency(stats.totalRevenue)}
           icon={CurrencyDollarIcon}
-          gradient="from-orange-50 to-white"
+          gradient="from-[var(--bg-elevated)] to-[var(--glass-bg)]"
           iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={0}
         />
@@ -295,7 +293,7 @@ export function DashboardPage() {
           title="Active Deals"
           value={stats.activeDeals}
           icon={ChartBarIcon}
-          gradient="from-orange-50 to-white"
+          gradient="from-[var(--bg-elevated)] to-[var(--glass-bg)]"
           iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={100}
         />
@@ -303,7 +301,7 @@ export function DashboardPage() {
           title="Total Contacts"
           value={formatNumber(stats.totalContacts)}
           icon={UserGroupIcon}
-          gradient="from-orange-50 to-white"
+          gradient="from-[var(--bg-elevated)] to-[var(--glass-bg)]"
           iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={200}
         />
@@ -311,7 +309,7 @@ export function DashboardPage() {
           title="Companies"
           value={stats.totalCompanies}
           icon={BuildingOfficeIcon}
-          gradient="from-orange-50 to-white"
+          gradient="from-[var(--bg-elevated)] to-[var(--glass-bg)]"
           iconColor="bg-gradient-to-br from-indigo-500 to-purple-600"
           delay={300}
         />
@@ -367,19 +365,19 @@ export function DashboardPage() {
           return (
             <div
               key={index}
-              className={`card bg-white hover:shadow-lg transition-all duration-200 transform ${
+              className={`card bg-[var(--bg-elevated)] hover:shadow-lg transition-all duration-200 transform ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
               style={{ transitionDelay: `${400 + index * 100}ms` }}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">{metric.label}</h4>
+                  <h4 className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider mb-2">{metric.label}</h4>
                   <div className="flex items-baseline gap-2 mb-3">
-                    <span className="text-4xl font-bold tracking-tight text-gray-900">
+                    <span className="text-4xl font-bold tracking-tight text-[var(--text-primary)]">
                       {metric.label.includes('Revenue') ? formatCurrency(metric.value) : metric.value}
                     </span>
-                    <span className="text-xs font-medium text-gray-600">
+                    <span className="text-xs font-medium text-[var(--text-muted)]">
                       / {metric.label.includes('Revenue') ? formatCurrency(metric.target) : metric.target}
                     </span>
                   </div>
@@ -405,16 +403,16 @@ export function DashboardPage() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Sales Pipeline with Horizontal Bar Chart */}
-        <div className="lg:col-span-2 card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
+        <div className="lg:col-span-2 card bg-[var(--bg-elevated)] shadow-sm hover:shadow-lg transition-all duration-200">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              <h3 className="text-xl font-semibold text-[var(--text-primary)] flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                   <FireIcon className="h-5 w-5 text-white" />
                 </div>
                 Sales Pipeline
               </h3>
-              <p className="text-xs font-medium text-gray-600 mt-1">Deal distribution by stage</p>
+              <p className="text-xs font-medium text-[var(--text-muted)] mt-1">Deal distribution by stage</p>
             </div>
             <button
               type="button"
@@ -429,7 +427,7 @@ export function DashboardPage() {
           <div className="mb-6">
             {stats.pipelineData.length > 0 ? (
               <>
-                <div className="flex items-center h-12 rounded-xl overflow-hidden shadow-inner bg-gray-100">
+                <div className="flex items-center h-12 rounded-xl overflow-hidden shadow-inner bg-[var(--color-gray-100)]">
                   {stats.pipelineData.map((stage, index) => (
                     <div
                       key={index}
@@ -446,17 +444,17 @@ export function DashboardPage() {
                 </div>
                 <div className="flex justify-between mt-2 px-1">
                   {stats.pipelineData.map((stage, index) => (
-                    <div key={index} className="text-xs font-medium text-gray-600">
+                    <div key={index} className="text-xs font-medium text-[var(--text-muted)]">
                       {stage.name}
                     </div>
                   ))}
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center h-32 rounded-xl bg-gray-50 border-2 border-dashed border-gray-300">
+              <div className="flex items-center justify-center h-32 rounded-xl bg-[var(--bg-base)] border-2 border-dashed border-[var(--border-default)]">
                 <div className="text-center">
-                  <p className="text-sm font-medium text-gray-500">No deals in pipeline yet</p>
-                  <p className="text-xs text-gray-400 mt-1">Create your first deal to see the sales pipeline</p>
+                  <p className="text-sm font-medium text-[var(--text-muted)]">No deals in pipeline yet</p>
+                  <p className="text-xs text-[var(--text-muted)] mt-1">Create your first deal to see the sales pipeline</p>
                 </div>
               </div>
             )}
@@ -468,7 +466,7 @@ export function DashboardPage() {
               {stats.pipelineData.map((stage, index) => (
                 <div
                   key={index}
-                  className="p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-all duration-200 cursor-pointer border border-gray-200 hover:border-gray-300 hover:shadow-md group"
+                  className="p-4 rounded-xl bg-[var(--glass-bg)] hover:bg-[var(--glass-hover)] transition-all duration-200 cursor-pointer border border-[var(--border-subtle)] hover:border-[var(--border-default)] hover:shadow-md group"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 flex-1">
@@ -476,11 +474,11 @@ export function DashboardPage() {
                         className="w-3 h-3 rounded-full shadow-md"
                         style={{ backgroundColor: stage.color }}
                       ></div>
-                      <span className="text-sm font-medium text-gray-900">{stage.name}</span>
-                      <span className="text-xs font-medium text-gray-600">({stage.count} deals)</span>
+                      <span className="text-sm font-medium text-[var(--text-primary)]">{stage.name}</span>
+                      <span className="text-xs font-medium text-[var(--text-muted)]">({stage.count} deals)</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-xl font-semibold text-gray-900">{formatCurrency(stage.value)}</span>
+                      <span className="text-xl font-semibold text-[var(--text-primary)]">{formatCurrency(stage.value)}</span>
                     </div>
                   </div>
                 </div>
@@ -488,10 +486,10 @@ export function DashboardPage() {
             </div>
           )}
 
-          <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="mt-6 pt-6 border-t border-[var(--border-default)]">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pipeline Value</span>
-              <span className="text-4xl font-bold tracking-tight text-gray-900">
+              <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Total Pipeline Value</span>
+              <span className="text-4xl font-bold tracking-tight text-[var(--text-primary)]">
                 {formatCurrency(stats.pipelineData.reduce((sum, stage) => sum + stage.value, 0))}
               </span>
             </div>
@@ -499,8 +497,8 @@ export function DashboardPage() {
         </div>
 
         {/* Top Deals with Company Initials */}
-        <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+        <div className="card bg-[var(--bg-elevated)] shadow-sm hover:shadow-lg transition-all duration-200">
+          <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-6 flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
               <ChartBarIcon className="h-5 w-5 text-white" />
             </div>
@@ -519,12 +517,12 @@ export function DashboardPage() {
                   `bg-gradient-to-br ${dealGradients[1]}`,
                   `bg-gradient-to-br ${dealGradients[2]}`
                 ];
-                const bgColors = ['bg-orange-50', 'bg-amber-50', 'bg-yellow-50'];
+                const bgColors = ['bg-[var(--glass-bg)]', 'bg-[var(--glass-bg)]', 'bg-[var(--glass-bg)]'];
 
                 return (
                   <div
                     key={deal.id}
-                    className={`p-4 rounded-xl ${bgColors[index]} hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-300 group`}
+                    className={`p-4 rounded-xl ${bgColors[index]} hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent hover:border-[var(--border-default)] group`}
                     onClick={() => navigate('/deals')}
                   >
                     <div className="flex items-start gap-3 mb-3">
@@ -534,26 +532,26 @@ export function DashboardPage() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-indigo-400 bg-white px-2 py-0.5 rounded-full shadow-sm">
+                          <span className="text-xs font-medium text-indigo-400 bg-[var(--glass-bg)] px-2 py-0.5 rounded-full shadow-sm">
                             #{index + 1}
                           </span>
-                          <h4 className="text-sm font-medium text-gray-900">{deal.company}</h4>
+                          <h4 className="text-sm font-medium text-[var(--text-primary)]">{deal.company}</h4>
                         </div>
-                        <p className="text-xs font-medium text-gray-600">{deal.stage}</p>
+                        <p className="text-xs font-medium text-[var(--text-muted)]">{deal.stage}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-4xl font-bold tracking-tight text-gray-900">{formatCurrency(deal.value)}</span>
+                      <span className="text-4xl font-bold tracking-tight text-[var(--text-primary)]">{formatCurrency(deal.value)}</span>
                     </div>
 
                     {/* Probability Bar */}
                     <div className="mb-2">
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-xs font-medium text-gray-600">Win Probability</span>
-                        <span className="text-sm font-medium text-gray-900">{deal.probability}%</span>
+                        <span className="text-xs font-medium text-[var(--text-muted)]">Win Probability</span>
+                        <span className="text-sm font-medium text-[var(--text-primary)]">{deal.probability}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-[var(--color-gray-200)] rounded-full h-2 overflow-hidden">
                         <div
                           className={`h-2 rounded-full ${colors[index]} transition-all duration-500 shadow-sm`}
                           style={{ width: `${deal.probability}%` }}
@@ -562,11 +560,11 @@ export function DashboardPage() {
                     </div>
 
                     {/* Owner Avatar */}
-                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
-                      <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs font-semibold text-gray-700">
+                    <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--border-subtle)]">
+                      <div className="w-6 h-6 rounded-full bg-[var(--glass-bg)] flex items-center justify-center text-xs font-semibold text-[var(--text-secondary)]">
                         {getInitials(deal.owner)}
                       </div>
-                      <span className="text-xs text-gray-600">{deal.owner}</span>
+                      <span className="text-xs text-[var(--text-muted)]">{deal.owner}</span>
                     </div>
                   </div>
                 );
@@ -574,11 +572,11 @@ export function DashboardPage() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 px-4">
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                <ChartBarIcon className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 rounded-full bg-[var(--glass-bg)] flex items-center justify-center mb-4">
+                <ChartBarIcon className="w-8 h-8 text-[var(--text-muted)]" />
               </div>
-              <p className="text-sm font-medium text-gray-500 text-center">No deals yet</p>
-              <p className="text-xs text-gray-400 mt-1 text-center">Start tracking deals to see your top opportunities</p>
+              <p className="text-sm font-medium text-[var(--text-muted)] text-center">No deals yet</p>
+              <p className="text-xs text-[var(--text-muted)] mt-1 text-center">Start tracking deals to see your top opportunities</p>
               <button
                 type="button"
                 onClick={() => navigate('/deals')}
@@ -593,16 +591,16 @@ export function DashboardPage() {
       </div>
 
       {/* Recent Activity */}
-      <div className="card bg-white shadow-sm hover:shadow-lg transition-all duration-200">
+      <div className="card bg-[var(--bg-elevated)] shadow-sm hover:shadow-lg transition-all duration-200">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+            <h3 className="text-xl font-bold text-[var(--text-primary)] tracking-tight flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                 <ClockIcon className="h-5 w-5 text-white" />
               </div>
               Recent Activity
             </h3>
-            <p className="text-sm text-gray-500 mt-1">Latest updates from your team</p>
+            <p className="text-sm text-[var(--text-muted)] mt-1">Latest updates from your team</p>
           </div>
           <button
             type="button"
@@ -617,7 +615,7 @@ export function DashboardPage() {
           {stats.recentActivities.map((activity) => (
             <div
               key={activity.id}
-              className="flex gap-4 p-4 rounded-xl hover:bg-gray-50 transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200 hover:shadow-sm group"
+              className="flex gap-4 p-4 rounded-xl hover:bg-[var(--glass-hover)] transition-all duration-200 cursor-pointer border border-transparent hover:border-[var(--border-default)] hover:shadow-sm group"
               onClick={() => navigate('/activities')}
             >
               <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-200">
@@ -626,35 +624,18 @@ export function DashboardPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">{activity.title}</p>
-                    <p className="text-sm text-gray-600 mt-0.5">{activity.description}</p>
+                    <p className="font-semibold text-[var(--text-primary)]">{activity.title}</p>
+                    <p className="text-sm text-[var(--text-muted)] mt-0.5">{activity.description}</p>
                   </div>
-                  <span className="text-xs text-gray-500 whitespace-nowrap">{activity.timestamp}</span>
+                  <span className="text-xs text-[var(--text-muted)] whitespace-nowrap">{activity.timestamp}</span>
                 </div>
-                <p className="text-xs text-gray-500 mt-2">by {activity.user}</p>
+                <p className="text-xs text-[var(--text-muted)] mt-2">by {activity.user}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* AI Assistant Floating Button */}
-      <button
-        type="button"
-        onClick={() => setShowAIChat(true)}
-        className={`fixed bottom-8 right-8 p-4 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-full shadow-2xl hover:scale-110 transition-all z-50 flex items-center justify-center group`}
-        title="AI Assistant"
-      >
-        <SparklesIcon className="h-7 w-7" />
-        <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-          AI
-        </span>
-      </button>
-
-      {/* AI Chat Modal */}
-      {showAIChat && (
-        <AIChat isOpen={showAIChat} onClose={() => setShowAIChat(false)} />
-      )}
     </div>
   );
 }
