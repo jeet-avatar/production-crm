@@ -8,10 +8,20 @@ interface Props {
   onSuccess?: () => void;
 }
 
+interface Contact {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role?: string;
+  phone?: string;
+}
+
 interface Company {
   id: string;
   name: string;
   _count: { contacts: number };
+  contacts?: Contact[];
 }
 
 interface StaffingTemplate {
@@ -58,6 +68,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
   const [sendResult, setSendResult] = useState<SendResult | null>(null);
   const [seeding, setSeeding] = useState(false);
   const [seedDone, setSeedDone] = useState(false);
+  const [expandedCompanyId, setExpandedCompanyId] = useState<string | null>(null);
+  const [selectedContactIds, setSelectedContactIds] = useState<Set<string>>(new Set());
 
   const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -272,14 +284,68 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
   };
 
   const toggleCompany = (id: string) => {
-    setSelectedCompanyIds(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    );
+    setSelectedCompanyIds(prev => {
+      if (prev.includes(id)) {
+        // Deselecting company — also remove its contacts from selection
+        const company = companies.find(c => c.id === id);
+        if (company?.contacts) {
+          setSelectedContactIds(prevContacts => {
+            const next = new Set(prevContacts);
+            company.contacts!.forEach(c => next.delete(c.id));
+            return next;
+          });
+        }
+        return prev.filter(c => c !== id);
+      } else {
+        // Selecting company — auto-select all its contacts
+        const company = companies.find(c => c.id === id);
+        if (company?.contacts) {
+          setSelectedContactIds(prevContacts => {
+            const next = new Set(prevContacts);
+            company.contacts!.forEach(c => next.add(c.id));
+            return next;
+          });
+        }
+        return [...prev, id];
+      }
+    });
   };
 
-  const totalSelectedContacts = companies
-    .filter(c => selectedCompanyIds.includes(c.id))
-    .reduce((sum, c) => sum + (c._count?.contacts || 0), 0);
+  const toggleContact = (contactId: string, companyId: string) => {
+    setSelectedContactIds(prev => {
+      const next = new Set(prev);
+      if (next.has(contactId)) {
+        next.delete(contactId);
+      } else {
+        next.add(contactId);
+        // Also ensure the company is selected
+        if (!selectedCompanyIds.includes(companyId)) {
+          setSelectedCompanyIds(p => [...p, companyId]);
+        }
+      }
+      return next;
+    });
+  };
+
+  const toggleAllContactsInCompany = (company: Company) => {
+    const contacts = company.contacts || [];
+    const allSelected = contacts.every(c => selectedContactIds.has(c.id));
+    setSelectedContactIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) {
+        contacts.forEach(c => next.delete(c.id));
+      } else {
+        contacts.forEach(c => next.add(c.id));
+      }
+      return next;
+    });
+  };
+
+  const totalSelectedContacts = selectedContactIds.size > 0
+    ? selectedContactIds.size
+    : companies
+        .filter(c => selectedCompanyIds.includes(c.id))
+        .reduce((sum, c) => sum + (c._count?.contacts || 0), 0);
 
   const toneLabels: { value: 'professional' | 'friendly' | 'persuasive'; label: string }[] = [
     { value: 'professional', label: 'Professional' },
@@ -901,68 +967,119 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
               ) : (
                 <div
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
                     marginBottom: '16px',
-                    maxHeight: '320px',
+                    maxHeight: '400px',
                     overflowY: 'auto',
                     paddingRight: '4px',
                   }}
                 >
-                  {filtered.map((company, i) => {
+                  {filtered.map((company) => {
                     const isSelected = selectedCompanyIds.includes(company.id);
+                    const isExpanded = expandedCompanyId === company.id;
                     const contactCount = company._count?.contacts || 0;
+                    const contacts = company.contacts || [];
+                    const selectedInCompany = contacts.filter(c => selectedContactIds.has(c.id)).length;
+
                     return (
-                      <div
-                        key={company.id}
-                        onClick={() => toggleCompany(company.id)}
-                        style={{
-                          padding: '14px',
-                          borderRadius: '10px',
-                          border: isSelected
-                            ? '2px solid #6366F1'
-                            : '1px solid #3d3d5c',
-                          background: isSelected
-                            ? 'rgba(99,102,241,0.15)'
-                            : '#20203a',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                        }}
-                      >
-                        <div style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '8px',
-                          background: isSelected ? '#6366F1' : '#2d2d4a',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '16px',
-                          flexShrink: 0,
-                          color: '#fff',
-                          fontWeight: 700,
-                        }}>
-                          {isSelected ? '✓' : company.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div style={{ minWidth: 0 }}>
+                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : '#20203a', overflow: 'hidden', transition: 'all 0.15s' }}>
+                        {/* Company header row */}
+                        <div
+                          style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                          onClick={() => toggleCompany(company.id)}
+                        >
                           <div style={{
-                            fontWeight: 600,
-                            fontSize: '13px',
-                            color: '#F1F5F9',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
+                            width: '34px', height: '34px', borderRadius: '8px',
+                            background: isSelected ? '#6366F1' : '#2d2d4a',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '14px', flexShrink: 0, color: '#fff', fontWeight: 700,
                           }}>
-                            {company.name}
+                            {isSelected ? '✓' : company.name.charAt(0).toUpperCase()}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#94A3B8' }}>
-                            {contactCount} contact{contactCount !== 1 ? 's' : ''}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {company.name}
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                              {selectedInCompany > 0 ? `${selectedInCompany}/${contactCount} contacts selected` : `${contactCount} contact${contactCount !== 1 ? 's' : ''}`}
+                            </div>
                           </div>
+                          {/* Expand button */}
+                          {contactCount > 0 && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setExpandedCompanyId(isExpanded ? null : company.id); }}
+                              style={{
+                                background: 'none', border: 'none', cursor: 'pointer',
+                                color: '#94A3B8', fontSize: '12px', padding: '4px 8px',
+                                borderRadius: '6px', transition: 'all 0.15s',
+                              }}
+                              title={isExpanded ? 'Collapse contacts' : 'View contacts'}
+                            >
+                              {isExpanded ? '▲ Hide' : `▼ ${contactCount} contacts`}
+                            </button>
+                          )}
                         </div>
+
+                        {/* Expanded contact list */}
+                        {isExpanded && contacts.length > 0 && (
+                          <div style={{ borderTop: '1px solid #2d2d4a', padding: '8px 14px 12px', background: 'rgba(0,0,0,0.15)' }}>
+                            {/* Select all / none for this company */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <span style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Contacts in {company.name}
+                              </span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleAllContactsInCompany(company); }}
+                                style={{
+                                  background: 'none', border: '1px solid rgba(99,102,241,0.3)',
+                                  color: '#A5B4FC', fontSize: '11px', padding: '3px 8px',
+                                  borderRadius: '4px', cursor: 'pointer',
+                                }}
+                              >
+                                {contacts.every(c => selectedContactIds.has(c.id)) ? 'Deselect All' : 'Select All'}
+                              </button>
+                            </div>
+                            {contacts.map(contact => {
+                              const isContactSelected = selectedContactIds.has(contact.id);
+                              return (
+                                <div
+                                  key={contact.id}
+                                  onClick={(e) => { e.stopPropagation(); toggleContact(contact.id, company.id); }}
+                                  style={{
+                                    display: 'flex', alignItems: 'center', gap: '10px',
+                                    padding: '8px 10px', borderRadius: '6px', cursor: 'pointer',
+                                    background: isContactSelected ? 'rgba(99,102,241,0.12)' : 'transparent',
+                                    border: isContactSelected ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
+                                    marginBottom: '4px', transition: 'all 0.1s',
+                                  }}
+                                >
+                                  {/* Checkbox */}
+                                  <div style={{
+                                    width: '18px', height: '18px', borderRadius: '4px', flexShrink: 0,
+                                    border: isContactSelected ? '2px solid #6366F1' : '2px solid #3d3d5c',
+                                    background: isContactSelected ? '#6366F1' : 'transparent',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    fontSize: '10px', color: '#fff', fontWeight: 700,
+                                  }}>
+                                    {isContactSelected && '✓'}
+                                  </div>
+                                  {/* Contact info */}
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#F1F5F9' }}>
+                                      {contact.firstName} {contact.lastName}
+                                    </div>
+                                    <div style={{ fontSize: '11px', color: '#94A3B8', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                      <span>{contact.email}</span>
+                                      {contact.role && <span style={{ color: '#6366F1' }}>• {contact.role}</span>}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
