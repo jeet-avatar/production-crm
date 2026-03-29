@@ -522,6 +522,28 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                 </button>
               </div>
 
+              {/* Helper: replace template variables with sample data for preview */}
+              {(() => {
+                const fillTemplate = (text: string) => {
+                  return text
+                    .replace(/\{\{firstName\}\}/g, 'Sarah')
+                    .replace(/\{\{lastName\}\}/g, 'Mitchell')
+                    .replace(/\{\{companyName\}\}/g, 'Deloitte')
+                    .replace(/\{\{email\}\}/g, 'sarah.mitchell@deloitte.com')
+                    .replace(/\{\{fromName\}\}/g, 'BrandMonkz');
+                };
+
+                const selectTemplate = (name: string, subj: string, html: string, idx?: number, templateId?: string) => {
+                  setSubject(subj);
+                  setEmailBody(html);
+                  setCampaignName(name);
+                  if (idx !== undefined) setSelectedStaffingIdx(idx);
+                  if (templateId) setSelectedTemplateId(templateId);
+                };
+
+                return null; // This IIFE just defines helpers used below via closure
+              })()}
+
               {/* Staffing Templates (shown when "Staffing Templates" is selected) */}
               {contentSource === 'staffing' && (
                 <div>
@@ -531,11 +553,18 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                       <p style={{ fontSize: '15px', fontWeight: 600, marginBottom: '6px', color: '#F1F5F9' }}>Loading staffing templates...</p>
                       <p style={{ fontSize: '13px' }}>Professional templates for technology staffing outreach</p>
                     </div>
-                  ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', maxHeight: '340px', overflowY: 'auto' }}>
+                  ) : selectedStaffingIdx === null ? (
+                    /* Template selection cards — clean, no raw HTML */
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', maxHeight: '380px', overflowY: 'auto' }}>
                       {staffingTemplates.map((t, idx) => {
-                        const isSelected = selectedStaffingIdx === idx;
                         const colors = ['#667eea', '#f5576c', '#4facfe', '#fa709a', '#a18cd1'];
+                        const descriptions = [
+                          'General partnership proposal — highlights your staffing capabilities across all tech streams',
+                          'Targeted AI/ML talent pitch — pre-vetted GenAI, Computer Vision, NLP, and MLOps engineers',
+                          'Cloud & DevOps specialists — certified AWS, Azure, GCP architects and SRE engineers',
+                          'Cybersecurity urgency — penetration testers, SOC analysts, security architects',
+                          'Full-Stack developers — React, Angular, Vue, Node.js, Python, .NET, Java engineers',
+                        ];
                         return (
                           <div
                             key={idx}
@@ -548,49 +577,87 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                             style={{
                               padding: '16px',
                               borderRadius: '10px',
-                              border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c',
-                              background: isSelected ? 'rgba(99,102,241,0.15)' : '#20203a',
+                              border: '1px solid #3d3d5c',
+                              background: '#20203a',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
+                              display: 'flex',
+                              gap: '14px',
+                              alignItems: 'flex-start',
                             }}
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                              <div style={{
-                                width: '32px', height: '32px', borderRadius: '8px',
-                                background: colors[idx % colors.length],
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: '14px', color: '#fff', fontWeight: 700, flexShrink: 0,
-                              }}>
-                                {isSelected ? '✓' : (idx + 1)}
-                              </div>
-                              <div style={{ fontWeight: 600, fontSize: '14px', color: '#F1F5F9' }}>
+                            <div style={{
+                              width: '40px', height: '40px', borderRadius: '10px',
+                              background: `linear-gradient(135deg, ${colors[idx % colors.length]}, ${colors[(idx + 1) % colors.length]})`,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: '18px', color: '#fff', fontWeight: 700, flexShrink: 0,
+                            }}>
+                              {idx + 1}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 700, fontSize: '14px', color: '#F1F5F9', marginBottom: '4px' }}>
                                 {t.name}
                               </div>
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8', paddingLeft: '42px' }}>
-                              {t.subject.slice(0, 80)}{t.subject.length > 80 ? '...' : ''}
+                              <div style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.4 }}>
+                                {descriptions[idx] || t.subject.replace(/\{\{companyName\}\}/g, '[Company]').slice(0, 100)}
+                              </div>
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                  )}
+                  ) : (
+                    /* Selected template — show rendered preview, not raw HTML */
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <button
+                          onClick={() => setSelectedStaffingIdx(null)}
+                          style={{ background: 'none', border: 'none', color: '#A5B4FC', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}
+                        >
+                          ← Back to templates
+                        </button>
+                        <span style={{ fontSize: '12px', color: '#6366F1', fontWeight: 600 }}>
+                          {staffingTemplates[selectedStaffingIdx]?.name}
+                        </span>
+                      </div>
 
-                  {/* Subject + body editing for selected staffing template */}
-                  {selectedStaffingIdx !== null && (
-                    <div style={{ marginTop: '16px' }}>
-                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Subject line</label>
+                      {/* Subject line — editable */}
+                      <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Subject line (personalized per recipient)</label>
                       <input type="text" value={subject} onChange={e => setSubject(e.target.value)} style={{ ...inputStyle, marginBottom: '12px' }} />
-                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Email body (HTML)</label>
-                      <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={5}
-                        style={{ ...inputStyle, resize: 'vertical', minHeight: '100px', lineHeight: '1.5', fontFamily: 'monospace', fontSize: '12px' }}
-                      />
+
+                      {/* Rendered email preview — what the recipient actually sees */}
+                      <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email preview (names auto-filled per contact)</label>
+                      <div style={{
+                        border: '1px solid #3d3d5c',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        maxHeight: '250px',
+                        overflowY: 'auto',
+                      }}>
+                        <div style={{ background: '#ffffff', padding: '0' }}>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: DOMPurify.sanitize(
+                                emailBody
+                                  .replace(/\{\{firstName\}\}/g, 'Sarah')
+                                  .replace(/\{\{lastName\}\}/g, 'Mitchell')
+                                  .replace(/\{\{companyName\}\}/g, 'Deloitte')
+                                  .replace(/\{\{email\}\}/g, 'sarah.mitchell@deloitte.com')
+                                  .replace(/\{\{fromName\}\}/g, 'BrandMonkz')
+                              )
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <p style={{ fontSize: '11px', color: '#64748B', margin: '6px 0 0', fontStyle: 'italic' }}>
+                        Names shown above are samples — each recipient gets their own name and company auto-filled.
+                      </p>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Template picker (shown when "Use Template" is selected) */}
+              {/* Template picker (shown when "My Templates" is selected) */}
               {contentSource === 'template' && (
                 <div>
                   {templates.length === 0 ? (
@@ -602,52 +669,76 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                         Go to Email Templates →
                       </a>
                     </div>
-                  ) : (
+                  ) : !selectedTemplateId ? (
+                    /* Template cards — clean selection */
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', maxHeight: '300px', overflowY: 'auto' }}>
-                      {templates.map(t => {
-                        const isSelected = selectedTemplateId === t.id;
-                        return (
-                          <div
-                            key={t.id}
-                            onClick={() => {
-                              setSelectedTemplateId(t.id);
-                              setSubject(t.subject);
-                              setEmailBody(t.htmlContent);
-                              setCampaignName(t.name);
-                            }}
-                            style={{
-                              padding: '14px',
-                              borderRadius: '10px',
-                              border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c',
-                              background: isSelected ? 'rgba(99,102,241,0.15)' : '#20203a',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s',
-                            }}
-                          >
-                            <div style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              {isSelected && <span style={{ color: '#6366F1' }}>✓</span>}
-                              {t.name}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '4px' }}>
-                              Subject: {t.subject.slice(0, 60)}{t.subject.length > 60 ? '...' : ''}
-                            </div>
+                      {templates.map(t => (
+                        <div
+                          key={t.id}
+                          onClick={() => {
+                            setSelectedTemplateId(t.id);
+                            setSubject(t.subject);
+                            setEmailBody(t.htmlContent);
+                            setCampaignName(t.name);
+                          }}
+                          style={{
+                            padding: '14px',
+                            borderRadius: '10px',
+                            border: '1px solid #3d3d5c',
+                            background: '#20203a',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s',
+                          }}
+                        >
+                          <div style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9', marginBottom: '6px' }}>
+                            {t.name}
                           </div>
-                        );
-                      })}
+                          <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+                            {t.subject.replace(/\{\{.*?\}\}/g, '...').slice(0, 60)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    /* Selected user template — rendered preview */
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <button
+                          onClick={() => setSelectedTemplateId(null)}
+                          style={{ background: 'none', border: 'none', color: '#A5B4FC', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }}
+                        >
+                          ← Back to templates
+                        </button>
+                      </div>
+
+                      <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Subject line</label>
+                      <input type="text" value={subject} onChange={e => setSubject(e.target.value)} style={{ ...inputStyle, marginBottom: '12px' }} />
+
+                      <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email preview</label>
+                      <div style={{
+                        border: '1px solid #3d3d5c', borderRadius: '10px', overflow: 'hidden', maxHeight: '250px', overflowY: 'auto',
+                      }}>
+                        <div style={{ background: '#ffffff' }}>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: DOMPurify.sanitize(
+                                emailBody
+                                  .replace(/\{\{firstName\}\}/g, 'Sarah')
+                                  .replace(/\{\{lastName\}\}/g, 'Mitchell')
+                                  .replace(/\{\{companyName\}\}/g, 'Deloitte')
+                                  .replace(/\{\{email\}\}/g, 'sarah.mitchell@deloitte.com')
+                              )
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <p style={{ fontSize: '11px', color: '#64748B', margin: '6px 0 0', fontStyle: 'italic' }}>
+                        Names auto-filled per contact when sent.
+                      </p>
                     </div>
                   )}
 
-                  {/* Subject + body editing for selected template */}
-                  {selectedTemplateId && (
-                    <div style={{ marginTop: '16px' }}>
-                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Subject line</label>
-                      <input type="text" value={subject} onChange={e => setSubject(e.target.value)} style={{ ...inputStyle, marginBottom: '12px' }} />
-                      <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Email body</label>
-                      <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={6}
-                        style={{ ...inputStyle, resize: 'vertical', minHeight: '120px', lineHeight: '1.5' }}
-                      />
-                    </div>
-                  )}
+                  {/* Raw editing removed — preview is shown above */}
                 </div>
               )}
 
