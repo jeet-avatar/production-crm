@@ -101,7 +101,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full max-w-6xl transform overflow-hidden rounded-2xl bg-[var(--bg-elevated)] text-left align-middle shadow-xl transition-all">
                 {/* Header */}
                 <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4">
                   <div className="flex items-center justify-between">
@@ -109,14 +109,14 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                       <Dialog.Title className="text-2xl font-bold text-white">
                         Template Preview
                       </Dialog.Title>
-                      <p className="mt-1 text-sm text-gray-800 font-medium">
+                      <p className="mt-1 text-sm text-white/80 font-medium">
                         {template.name}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={onClose}
-                      className="rounded-xl bg-white bg-opacity-20 p-2 text-white hover:bg-opacity-30 transition-all"
+                      className="rounded-xl bg-[#161625] bg-opacity-20 p-2 text-white hover:bg-opacity-30 transition-all"
                     >
                       <XMarkIcon className="h-6 w-6" />
                     </button>
@@ -124,14 +124,14 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                 </div>
 
                 {/* View Mode Tabs */}
-                <div className="border-b border-gray-200 bg-gray-50 px-6">
+                <div className="border-b border-[var(--border-default)] bg-[var(--bg-base)] px-6">
                   <div className="flex gap-4">
                     <button
                       onClick={() => setViewMode('rendered')}
                       className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
                         viewMode === 'rendered'
                           ? 'border-indigo-500 text-indigo-400'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                       }`}
                     >
                       <EyeIcon className="h-5 w-5" />
@@ -142,7 +142,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                       className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
                         viewMode === 'html'
                           ? 'border-indigo-500 text-indigo-400'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                       }`}
                     >
                       <CodeBracketIcon className="h-5 w-5" />
@@ -153,7 +153,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                       className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-all ${
                         viewMode === 'text'
                           ? 'border-indigo-500 text-indigo-400'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                          : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                       }`}
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -167,7 +167,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                 {/* Content */}
                 <div className="p-6 max-h-[70vh] overflow-y-auto">
                   {/* Info Banner */}
-                  <div className="mb-4 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl">
+                  <div className="mb-4 bg-[var(--glass-bg)] border-l-4 border-[var(--accent-primary)] p-4 rounded-r-xl">
                     <div className="flex">
                       <div className="flex-shrink-0">
                         <svg className="h-5 w-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
@@ -175,7 +175,7 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                         </svg>
                       </div>
                       <div className="ml-3">
-                        <p className="text-sm text-blue-900 font-medium">
+                        <p className="text-sm text-[var(--text-secondary)] font-medium">
                           This preview uses <span className="font-bold">sample data</span> to show how the template will look. When you send the actual email, real data from your contacts will be used.
                         </p>
                       </div>
@@ -184,9 +184,9 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
 
                   {/* Rendered View */}
                   {viewMode === 'rendered' && (
-                    <div className="bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                    <div className="bg-[var(--bg-base)] p-4 rounded-xl border-2 border-[var(--border-default)]">
                       <div
-                        className="bg-white rounded-lg shadow-lg max-w-2xl mx-auto"
+                        className="bg-[#161625] rounded-lg shadow-lg max-w-2xl mx-auto"
                         dangerouslySetInnerHTML={{ __html: getPreviewHtml() }}
                       />
                     </div>
@@ -203,8 +203,8 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
 
                   {/* Plain Text View */}
                   {viewMode === 'text' && (
-                    <div className="bg-gray-50 p-6 rounded-xl border-2 border-gray-200">
-                      <pre className="whitespace-pre-wrap font-sans text-sm text-gray-800 leading-relaxed">
+                    <div className="bg-[var(--bg-base)] p-6 rounded-xl border-2 border-[var(--border-default)]">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-[var(--text-primary)] leading-relaxed">
                         {getPreviewText()}
                       </pre>
                     </div>
@@ -212,9 +212,9 @@ export function PreviewTemplateModal({ isOpen, onClose, template }: PreviewTempl
                 </div>
 
                 {/* Footer */}
-                <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <div className="bg-[var(--bg-elevated)] px-6 py-4 border-t border-[var(--border-default)]">
                   <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-[var(--text-muted)]">
                       <p className="font-medium">Template Variables: {template.variables.length}</p>
                       <p className="text-xs mt-1">Subject: {template.subject}</p>
                     </div>

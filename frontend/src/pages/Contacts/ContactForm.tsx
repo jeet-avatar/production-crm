@@ -60,6 +60,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
         phone: contact.phone || '',
         role: (contact as any).role || '',
         companyId: contact.company?.id || '',
+        companyName: '',
         status: contact.status,
         tagIds: contact.tags.map(tag => tag.id),
       });
@@ -102,8 +103,8 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
     loadTags();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setLoading(true);
     setError('');
 
@@ -196,19 +197,19 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
   };
 
   const statusOptions = [
-    { value: 'LEAD', label: 'Lead', color: 'bg-orange-100 text-orange-700' },
-    { value: 'PROSPECT', label: 'Prospect', color: 'bg-rose-100 text-rose-700' },
-    { value: 'CUSTOMER', label: 'Customer', color: 'bg-green-100 text-green-700' },
+    { value: 'LEAD', label: 'Lead', color: 'bg-orange-500/15 text-orange-400' },
+    { value: 'PROSPECT', label: 'Prospect', color: 'bg-rose-500/15 text-rose-400' },
+    { value: 'CUSTOMER', label: 'Customer', color: 'bg-green-500/15 text-green-400' },
     { value: 'COLD', label: 'Cold', color: 'bg-gray-100 text-gray-700' },
-    { value: 'WARM', label: 'Warm', color: 'bg-yellow-100 text-yellow-700' },
-    { value: 'HOT', label: 'Hot', color: 'bg-red-100 text-red-700' },
-    { value: 'CLOSED_WON', label: 'Closed Won', color: 'bg-emerald-100 text-emerald-700' },
-    { value: 'CLOSED_LOST', label: 'Closed Lost', color: 'bg-slate-100 text-slate-700' },
+    { value: 'WARM', label: 'Warm', color: 'bg-yellow-500/15 text-yellow-400' },
+    { value: 'HOT', label: 'Hot', color: 'bg-red-500/15 text-red-400' },
+    { value: 'CLOSED_WON', label: 'Closed Won', color: 'bg-emerald-500/15 text-emerald-400' },
+    { value: 'CLOSED_LOST', label: 'Closed Lost', color: 'bg-slate-500/15 text-slate-400' },
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-      <div className="bg-white rounded-[40px] shadow-2xl border-4 border-black max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+    <div style={{ background: "rgba(0,0,0,0.8)" }} className="fixed inset-0 flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+      <div style={{ background: "#161625", border: "1px solid #2a2a44" }} className="rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header with gradient */}
         <div className="relative bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 px-8 py-6 rounded-t-[40px]">
           <div className="flex items-center justify-between">
@@ -232,10 +233,10 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
         </div>
 
         {/* Form Content */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-8 space-y-8">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-r-lg flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
+              <div className="bg-red-500/10 border-l-4 border-red-500 text-red-400 px-6 py-4 rounded-r-lg flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
                 <div className="flex-shrink-0 mt-0.5">
                   <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
@@ -248,7 +249,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
             {/* Personal Information Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <UserCircleIcon className="h-5 w-5 text-gray-600" />
+                <UserCircleIcon className="h-5 w-5 text-gray-500" />
                 <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
               </div>
 
@@ -260,7 +261,6 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                   <input
                     type="text"
                     id="firstName"
-                    required
                     value={formData.firstName}
                     onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
@@ -275,7 +275,6 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                   <input
                     type="text"
                     id="lastName"
-                    required
                     value={formData.lastName}
                     onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
@@ -321,7 +320,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
             {/* Professional Details Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <BuildingOfficeIcon className="h-5 w-5 text-gray-600" />
+                <BuildingOfficeIcon className="h-5 w-5 text-gray-500" />
                 <h3 className="text-lg font-semibold text-gray-900">Professional Details</h3>
               </div>
 
@@ -384,7 +383,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   {formData.companyName && !formData.companyId && (
-                    <p className="mt-2 text-xs text-green-600">
+                    <p className="mt-2 text-xs text-green-400">
                       ✨ A new company "{formData.companyName}" will be created
                     </p>
                   )}
@@ -395,7 +394,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
             {/* Status Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <FunnelIcon className="h-5 w-5 text-gray-600" />
+                <FunnelIcon className="h-5 w-5 text-gray-500" />
                 <h3 className="text-lg font-semibold text-gray-900">Status</h3>
               </div>
 
@@ -408,7 +407,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                     className={`px-4 py-3 rounded-xl text-sm font-semibold border-2 transition-all duration-200 ${
                       formData.status === option.value
                         ? `${option.color} border-current shadow-md scale-105`
-                        : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:shadow-sm'
+                        : 'bg-white border-gray-300 text-gray-700 hover:border-gray-300 hover:shadow-sm'
                     }`}
                   >
                     {option.label}
@@ -421,7 +420,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
             {availableTags.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <TagIcon className="h-5 w-5 text-gray-600" />
+                  <TagIcon className="h-5 w-5 text-gray-500" />
                   <h3 className="text-lg font-semibold text-gray-900">Tags</h3>
                 </div>
 
@@ -433,8 +432,8 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                       onClick={() => handleTagToggle(tag.id)}
                       className={`px-4 py-2 text-sm font-medium rounded-full border-2 transition-all duration-200 ${
                         formData.tagIds.includes(tag.id)
-                          ? 'bg-orange-100 border-indigo-500 text-orange-700 shadow-sm'
-                          : 'bg-gray-50 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-100'
+                          ? 'bg-indigo-500/15 border-indigo-500 text-indigo-400 shadow-sm'
+                          : 'bg-gray-50 border-gray-300 text-gray-700 hover:border-gray-300 hover:bg-gray-100'
                       }`}
                     >
                       {tag.name}
@@ -446,7 +445,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
           </div>
 
           {/* Footer Actions */}
-          <div className="border-t border-gray-200 px-8 py-6 bg-gray-50">
+          <div className="border-t border-gray-300 px-8 py-6 bg-gray-50">
             <div className="flex items-center justify-end gap-4">
               <button
                 type="button"
@@ -457,7 +456,8 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
                 Cancel
               </button>
               <button
-                type="submit"
+                type="button"
+                onClick={handleSubmit as any}
                 className="inline-flex items-center gap-2 px-8 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
                 disabled={loading}
               >
@@ -475,7 +475,7 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
               </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -121,12 +121,12 @@ Looking forward to connecting,`;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+      <div className="bg-[#161625] rounded-2xl shadow-2xl border-4 border-[#33335a] max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
         {/* Header with gradient */}
         <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-[#161625]/20 rounded-xl flex items-center justify-center">
                 <EnvelopeIcon className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -136,7 +136,7 @@ Looking forward to connecting,`;
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-lg transition-all duration-200"
+              className="p-2 text-white/80 hover:text-white hover:bg-[#161625]/20 rounded-lg transition-all duration-200"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -147,15 +147,15 @@ Looking forward to connecting,`;
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
           {/* Recipient */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">To</label>
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">To</label>
             <div className="flex items-center gap-2">
               <input
                 value={recipientEmail}
                 disabled
-                className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 font-medium"
+                className="flex-1 px-4 py-3 bg-[#12121f] border-2 border-[#33335a] rounded-xl text-[#F1F5F9] font-medium"
               />
               {recipientName && (
-                <span className="px-4 py-3 bg-orange-100 text-orange-700 font-semibold rounded-xl border-2 border-orange-200">
+                <span className="px-4 py-3 bg-orange-500/15 text-orange-400 font-semibold rounded-xl border-2 border-orange-200">
                   {recipientName}
                 </span>
               )}
@@ -167,7 +167,7 @@ Looking forward to connecting,`;
             {!showCc && (
               <button
                 onClick={() => setShowCc(true)}
-                className="text-sm text-indigo-400 hover:text-orange-700 font-semibold"
+                className="text-sm text-indigo-400 hover:text-orange-400 font-semibold"
               >
                 + Add CC
               </button>
@@ -175,7 +175,7 @@ Looking forward to connecting,`;
             {!showBcc && (
               <button
                 onClick={() => setShowBcc(true)}
-                className="text-sm text-indigo-400 hover:text-orange-700 font-semibold"
+                className="text-sm text-indigo-400 hover:text-orange-400 font-semibold"
               >
                 + Add BCC
               </button>
@@ -185,12 +185,12 @@ Looking forward to connecting,`;
           {/* CC Field */}
           {showCc && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">CC</label>
+              <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">CC</label>
               <input
                 value={ccEmails}
                 onChange={(e) => setCcEmails(e.target.value)}
                 placeholder="email1@example.com, email2@example.com"
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#33335a] rounded-xl text-[#F1F5F9] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
               />
             </div>
           )}
@@ -198,23 +198,23 @@ Looking forward to connecting,`;
           {/* BCC Field */}
           {showBcc && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">BCC</label>
+              <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">BCC</label>
               <input
                 value={bccEmails}
                 onChange={(e) => setBccEmails(e.target.value)}
                 placeholder="email1@example.com, email2@example.com"
-                className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#33335a] rounded-xl text-[#F1F5F9] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
               />
             </div>
           )}
 
           {/* Template Selector */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Template</label>
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Email Template</label>
             <select
               value={selectedTemplate}
               onChange={(e) => handleTemplateChange(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#33335a] rounded-xl text-[#F1F5F9] font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
             >
               {EMAIL_TEMPLATES.map((template) => (
                 <option key={template.id} value={template.id}>
@@ -226,35 +226,35 @@ Looking forward to connecting,`;
 
           {/* Subject */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Subject</label>
             <input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Enter email subject..."
-              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#33335a] rounded-xl text-[#F1F5F9] placeholder-[#64748B] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
             />
           </div>
 
           {/* Message Body */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Message</label>
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Message</label>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={12}
               placeholder="Write your message..."
-              className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-none"
+              className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#33335a] rounded-xl text-[#F1F5F9] placeholder-[#64748B] focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 resize-none"
             />
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t-2 border-gray-200 px-8 py-6 bg-gray-50">
+        <div className="border-t-2 border-[#2a2a44] px-8 py-6 bg-[#12121f]">
           <div className="flex justify-between items-center">
             {/* AI Generate Button */}
             <button
               onClick={handleGenerateAI}
-              className="flex items-center gap-2 px-5 py-3 text-purple-400 bg-rose-100 border-2 border-rose-300 rounded-xl hover:bg-orange-200 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 px-5 py-3 text-purple-400 bg-rose-500/15 border-2 border-rose-300 rounded-xl hover:bg-orange-200 transition-all duration-200 font-semibold shadow-sm hover:shadow-md"
             >
               <SparklesIcon className="w-5 h-5" />
               Generate with AI
@@ -265,7 +265,7 @@ Looking forward to connecting,`;
               <button
                 onClick={onClose}
                 disabled={sending}
-                className="px-6 py-3 bg-white text-gray-700 text-sm font-semibold border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm"
+                className="px-6 py-3 bg-[#161625] text-[#CBD5E1] text-sm font-semibold border-2 border-[#33335a] rounded-xl hover:bg-[#12121f] hover:border-gray-400 transition-all duration-200 shadow-sm"
               >
                 Cancel
               </button>

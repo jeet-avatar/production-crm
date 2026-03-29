@@ -204,8 +204,8 @@ export function TagsPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded-xl w-1/4"></div>
-          <div className="h-64 bg-gray-200 rounded-xl"></div>
+          <div className="h-8 bg-[#252540] rounded-xl w-1/4"></div>
+          <div className="h-64 bg-[#252540] rounded-xl"></div>
         </div>
       </div>
     );
@@ -215,8 +215,8 @@ export function TagsPage() {
     <div className="p-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Tags</h1>
-        <p className="text-gray-600 mb-3">Organize and categorize your contacts, companies, and deals</p>
+        <h1 className="text-3xl font-bold text-[#F1F5F9] mb-2">Tags</h1>
+        <p className="text-[#94A3B8] mb-3">Organize and categorize your contacts, companies, and deals</p>
         <div className="bg-gradient-to-br from-orange-50 to-amber-50 border-l-4 border-indigo-500 p-4 rounded-r-xl shadow-sm">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -236,7 +236,7 @@ export function TagsPage() {
       {/* Search and Add */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between gap-4">
         <div className="relative flex-1 max-w-md">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#64748B]" />
           <input
             type="text"
             placeholder="Search tags..."
@@ -258,9 +258,9 @@ export function TagsPage() {
       {filteredTags.length === 0 ? (
         <div className="card">
           <div className="p-12 text-center">
-            <TagIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No tags found</h3>
-            <p className="text-gray-600 mb-4">
+            <TagIcon className="h-12 w-12 text-[#64748B] mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-[#F1F5F9] mb-2">No tags found</h3>
+            <p className="text-[#94A3B8] mb-4">
               {searchQuery ? 'Try a different search term' : 'Create your first tag to get started'}
             </p>
             {!searchQuery && (
@@ -289,7 +289,7 @@ export function TagsPage() {
                       <TagIcon className="h-6 w-6" style={{ color: tag.color }} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">{tag.name}</h3>
+                      <h3 className="text-lg font-bold text-[#F1F5F9]">{tag.name}</h3>
                       <div
                         className="inline-block px-2 py-0.5 rounded-lg text-xs font-bold text-white mt-1 shadow-sm"
                         style={{ backgroundColor: tag.color }}
@@ -301,13 +301,13 @@ export function TagsPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => openEditModal(tag)}
-                      className="p-2 text-gray-400 hover:text-indigo-400 hover:bg-orange-50 rounded-xl transition-all"
+                      className="p-2 text-[#64748B] hover:text-indigo-400 hover:bg-orange-500/10 rounded-xl transition-all"
                     >
                       <PencilIcon className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteTag(tag.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                      className="p-2 text-[#64748B] hover:text-red-600 hover:bg-red-500/10 rounded-xl transition-all"
                     >
                       <TrashIcon className="h-4 w-4" />
                     </button>
@@ -315,19 +315,19 @@ export function TagsPage() {
                 </div>
 
                 {/* Usage Stats */}
-                <div className="border-t-2 border-gray-100 pt-4">
+                <div className="border-t-2 border-[#1c1c30] pt-4">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-bold text-gray-900">{tag.contactCount}</div>
-                      <div className="text-xs font-medium text-gray-600">Contacts</div>
+                      <div className="text-2xl font-bold text-[#F1F5F9]">{tag.contactCount}</div>
+                      <div className="text-xs font-medium text-[#94A3B8]">Contacts</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-gray-900">{tag.companyCount}</div>
-                      <div className="text-xs font-medium text-gray-600">Companies</div>
+                      <div className="text-2xl font-bold text-[#F1F5F9]">{tag.companyCount}</div>
+                      <div className="text-xs font-medium text-[#94A3B8]">Companies</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-gray-900">{tag.dealCount}</div>
-                      <div className="text-xs font-medium text-gray-600">Deals</div>
+                      <div className="text-2xl font-bold text-[#F1F5F9]">{tag.dealCount}</div>
+                      <div className="text-xs font-medium text-[#94A3B8]">Deals</div>
                     </div>
                   </div>
                 </div>
@@ -341,15 +341,15 @@ export function TagsPage() {
       {(showAddModal || editingTag) && (
         <div className="modal-overlay" onClick={() => { setShowAddModal(false); setEditingTag(null); }}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-900">
+            <div className="p-6 border-b border-[#1c1c30]">
+              <h2 className="text-xl font-semibold text-[#F1F5F9]">
                 {editingTag ? 'Edit Tag' : 'Add New Tag'}
               </h2>
             </div>
             <div className="p-6">
               <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); editingTag ? handleEditTag() : handleAddTag(); }}>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Tag Name</label>
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Tag Name</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -360,7 +360,7 @@ export function TagsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Color</label>
                   <div className="grid grid-cols-7 gap-3">
                     {colorOptions.map((color) => (
                       <button
@@ -384,14 +384,14 @@ export function TagsPage() {
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
                       className="w-12 h-12 rounded-xl cursor-pointer shadow-md"
                     />
-                    <span className="text-sm font-medium text-gray-700">Or pick a custom color</span>
+                    <span className="text-sm font-medium text-[#CBD5E1]">Or pick a custom color</span>
                   </div>
                 </div>
                 <div className="pt-4 flex justify-end gap-3">
                   <button
                     type="button"
                     onClick={() => { setShowAddModal(false); setEditingTag(null); setFormData({ name: '', color: '#F97316' }); }}
-                    className="px-6 py-2.5 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-bold tracking-wide hover:bg-gray-50 hover:border-gray-400 transition-all"
+                    className="px-6 py-2.5 bg-[#161625] text-[#CBD5E1] border-2 border-[#33335a] rounded-xl font-bold tracking-wide hover:bg-[#12121f] hover:border-gray-400 transition-all"
                   >
                     Cancel
                   </button>

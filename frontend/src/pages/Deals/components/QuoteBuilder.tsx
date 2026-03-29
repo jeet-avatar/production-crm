@@ -80,14 +80,14 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#161625] rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">New Quote</h2>
+        <div className="flex items-center justify-between p-6 border-b border-[#2a2a44]">
+          <h2 className="text-xl font-bold text-[#F1F5F9]">New Quote</h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+            className="p-2 rounded-full hover:bg-[#1c1c30] text-[#94A3B8] transition-colors"
             title="Close"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -97,14 +97,14 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-500/10 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {/* Title */}
           <div>
-            <label htmlFor="quote-title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="quote-title" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Quote Title *
             </label>
             <input
@@ -120,11 +120,11 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
 
           {/* Line Items */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Line Items</label>
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
+            <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Line Items</label>
+            <div className="overflow-x-auto rounded-lg border border-[#2a2a44]">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50">
-                  <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <thead className="bg-[#12121f]">
+                  <tr className="text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
                     <th className="px-3 py-2">Description</th>
                     <th className="px-3 py-2">Qty</th>
                     <th className="px-3 py-2">Unit Price</th>
@@ -132,9 +132,9 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
                     <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-[#1c1c30]">
                   {lineItems.map((item, index) => (
-                    <tr key={index} className="bg-white">
+                    <tr key={index} className="bg-[#161625]">
                       <td className="px-3 py-2">
                         <input
                           type="text"
@@ -170,7 +170,7 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
                           min="0"
                         />
                       </td>
-                      <td className="px-3 py-2 text-gray-700 font-medium whitespace-nowrap">
+                      <td className="px-3 py-2 text-[#CBD5E1] font-medium whitespace-nowrap">
                         ${item.total.toFixed(2)}
                       </td>
                       <td className="px-3 py-2">
@@ -178,7 +178,7 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
                           type="button"
                           onClick={() => removeLineItem(index)}
                           disabled={lineItems.length <= 1}
-                          className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1 rounded hover:bg-red-500/10 text-[#64748B] hover:text-red-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                           title="Remove row"
                         >
                           <TrashIcon className="h-4 w-4" />
@@ -202,15 +202,15 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
           {/* Totals summary — right-aligned */}
           <div className="flex justify-end">
             <div className="space-y-1 text-sm w-56">
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[#94A3B8]">
                 <span>Subtotal:</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[#94A3B8]">
                 <span>Tax ({taxRate}%):</span>
                 <span>${taxAmount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between font-bold text-gray-900 border-t border-gray-200 pt-1">
+              <div className="flex justify-between font-bold text-[#F1F5F9] border-t border-[#2a2a44] pt-1">
                 <span>Total:</span>
                 <span>${total.toFixed(2)}</span>
               </div>
@@ -220,7 +220,7 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
           {/* Tax Rate, Valid Until, Notes — in a grid */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="tax-rate" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="tax-rate" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Tax Rate (%)
               </label>
               <input
@@ -236,7 +236,7 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
               />
             </div>
             <div>
-              <label htmlFor="valid-until" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="valid-until" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Valid Until
               </label>
               <input
@@ -250,7 +250,7 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
           </div>
 
           <div>
-            <label htmlFor="quote-notes" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="quote-notes" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Notes
             </label>
             <textarea
@@ -264,11 +264,11 @@ export function QuoteBuilder({ dealId, onClose, onSaved }: QuoteBuilderProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#2a2a44]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
+              className="px-4 py-2 border-2 border-[#33335a] rounded-lg hover:bg-[#12121f] transition-colors font-medium text-[#CBD5E1]"
               disabled={loading}
             >
               Cancel

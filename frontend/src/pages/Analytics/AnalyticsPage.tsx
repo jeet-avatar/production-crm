@@ -97,13 +97,13 @@ export function AnalyticsPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-8 bg-[#252540] rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              <div key={i} className="h-32 bg-[#252540] rounded"></div>
             ))}
           </div>
-          <div className="h-96 bg-gray-200 rounded"></div>
+          <div className="h-96 bg-[#252540] rounded"></div>
         </div>
       </div>
     );
@@ -112,9 +112,9 @@ export function AnalyticsPage() {
   if (error) {
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-500/10 border border-red-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-red-900 mb-2">Error Loading Analytics</h3>
-          <p className="text-red-700">{error}</p>
+          <p className="text-red-400">{error}</p>
           <button
             onClick={fetchAnalytics}
             className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl hover:shadow-lg font-bold tracking-wide shadow-md`}
@@ -129,7 +129,7 @@ export function AnalyticsPage() {
   if (!analytics) {
     return (
       <div className="p-8">
-        <div className="text-center text-gray-600">
+        <div className="text-center text-[#94A3B8]">
           <p>No analytics data available</p>
         </div>
       </div>
@@ -144,7 +144,7 @@ export function AnalyticsPage() {
       <div className="mb-8 flex justify-between items-center">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
+            <h1 className="text-3xl font-bold text-[#F1F5F9]">Analytics</h1>
             <button
               type="button"
               onClick={() => setShowHelpGuide(true)}
@@ -154,7 +154,7 @@ export function AnalyticsPage() {
               <QuestionMarkCircleIcon className="h-5 w-5" />
             </button>
           </div>
-          <p className="text-gray-600 mt-1">Real-time insights from your CRM data • Click ? for help</p>
+          <p className="text-[#94A3B8] mt-1">Real-time insights from your CRM data • Click ? for help</p>
         </div>
         <div className="flex gap-2">
           {(['7d', '30d', '90d', '1y'] as const).map((range) => (
@@ -165,7 +165,7 @@ export function AnalyticsPage() {
               className={`px-4 py-2 rounded-xl text-sm font-bold transition-all tracking-wide ${
                 timeRange === range
                   ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
-                  : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 shadow-sm'
+                  : 'bg-[#161625] text-[#CBD5E1] border-2 border-[#33335a] hover:bg-[#12121f] shadow-sm'
               }`}
             >
               {range === '7d' && 'Last 7 Days'}
@@ -193,9 +193,9 @@ export function AnalyticsPage() {
               {Math.abs(analytics.revenue.trend)}%
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">{formatCurrency(analytics.revenue.current)}</h3>
-          <p className="text-sm font-bold text-gray-900">Total Revenue</p>
-          <p className="text-xs font-medium text-gray-700 mt-2">Previous: {formatCurrency(analytics.revenue.previous)}</p>
+          <h3 className="text-3xl font-bold text-[#F1F5F9] mb-1">{formatCurrency(analytics.revenue.current)}</h3>
+          <p className="text-sm font-bold text-[#F1F5F9]">Total Revenue</p>
+          <p className="text-xs font-medium text-[#CBD5E1] mt-2">Previous: {formatCurrency(analytics.revenue.previous)}</p>
         </div>
 
         <div className="card p-6 bg-gradient-to-br from-orange-50 to-orange-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-200">
@@ -207,9 +207,9 @@ export function AnalyticsPage() {
               {analytics.deals.conversionRate}%
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">{analytics.deals.won}</h3>
-          <p className="text-sm font-bold text-gray-900">Deals Won</p>
-          <p className="text-xs font-medium text-gray-700 mt-2">
+          <h3 className="text-3xl font-bold text-[#F1F5F9] mb-1">{analytics.deals.won}</h3>
+          <p className="text-sm font-bold text-[#F1F5F9]">Deals Won</p>
+          <p className="text-xs font-medium text-[#CBD5E1] mt-2">
             {analytics.deals.lost} lost • {analytics.deals.pending} pending
           </p>
         </div>
@@ -220,11 +220,11 @@ export function AnalyticsPage() {
               <BuildingOfficeIcon className="h-6 w-6 text-white" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
+          <h3 className="text-3xl font-bold text-[#F1F5F9] mb-1">
             {formatCurrency(analytics.pipeline.reduce((sum, stage) => sum + stage.value, 0))}
           </h3>
-          <p className="text-sm font-bold text-gray-900">Pipeline Value</p>
-          <p className="text-xs font-medium text-gray-700 mt-2">
+          <p className="text-sm font-bold text-[#F1F5F9]">Pipeline Value</p>
+          <p className="text-xs font-medium text-[#CBD5E1] mt-2">
             {analytics.pipeline.reduce((sum, stage) => sum + stage.count, 0)} deals in pipeline
           </p>
         </div>
@@ -232,9 +232,9 @@ export function AnalyticsPage() {
 
       {/* Revenue Chart */}
       <div className="card mb-8">
-        <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">Revenue Trend</h3>
-          <p className="text-sm text-gray-600">Monthly revenue over the past year</p>
+        <div className="p-6 border-b border-[#1c1c30]">
+          <h3 className="text-lg font-semibold text-[#F1F5F9]">Revenue Trend</h3>
+          <p className="text-sm text-[#94A3B8]">Monthly revenue over the past year</p>
         </div>
         <div className="p-6">
           <div className="h-80 flex items-end justify-between gap-2">
@@ -252,7 +252,7 @@ export function AnalyticsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-600 mt-2 font-medium">{item.month}</div>
+                  <div className="text-xs text-[#94A3B8] mt-2 font-medium">{item.month}</div>
                 </div>
               );
             })}
@@ -264,27 +264,27 @@ export function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pipeline Distribution */}
         <div className="card">
-          <div className="p-6 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900">Pipeline Distribution</h3>
-            <p className="text-sm text-gray-600">Deals by stage</p>
+          <div className="p-6 border-b border-[#1c1c30]">
+            <h3 className="text-lg font-semibold text-[#F1F5F9]">Pipeline Distribution</h3>
+            <p className="text-sm text-[#94A3B8]">Deals by stage</p>
           </div>
           <div className="p-6">
             <div className="space-y-4">
               {analytics.pipeline.map((stage, index) => {
-                const colors = ['bg-gray-500', 'bg-orange-400', 'bg-orange-500', 'bg-orange-600', 'bg-green-500'];
+                const colors = ['bg-[#12121f]0', 'bg-orange-400', 'bg-orange-500', 'bg-orange-600', 'bg-green-500'];
                 const totalValue = analytics.pipeline.reduce((sum, s) => sum + s.value, 0);
                 const percentage = totalValue > 0 ? (stage.value / totalValue) * 100 : 0;
 
                 return (
                   <div key={index}>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-bold text-gray-900">{stage.stage}</span>
+                      <span className="text-sm font-bold text-[#F1F5F9]">{stage.stage}</span>
                       <div className="text-right">
-                        <span className="text-sm font-bold text-gray-900">{formatCurrency(stage.value)}</span>
-                        <span className="text-xs text-gray-600 ml-2 font-medium">({stage.count} deals)</span>
+                        <span className="text-sm font-bold text-[#F1F5F9]">{formatCurrency(stage.value)}</span>
+                        <span className="text-xs text-[#94A3B8] ml-2 font-medium">({stage.count} deals)</span>
                       </div>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                    <div className="w-full bg-[#252540] rounded-full h-3 shadow-inner">
                       <div
                         className={`h-3 rounded-full ${colors[index]} shadow-sm`}
                         style={{ width: `${percentage}%` }}
@@ -299,9 +299,9 @@ export function AnalyticsPage() {
 
         {/* Lead Sources */}
         <div className="card">
-          <div className="p-6 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900">Lead Sources</h3>
-            <p className="text-sm text-gray-600">Where your leads come from</p>
+          <div className="p-6 border-b border-[#1c1c30]">
+            <h3 className="text-lg font-semibold text-[#F1F5F9]">Lead Sources</h3>
+            <p className="text-sm text-[#94A3B8]">Where your leads come from</p>
           </div>
           <div className="p-6">
             {analytics.leadSources.length > 0 ? (
@@ -312,7 +312,7 @@ export function AnalyticsPage() {
                     'bg-orange-500',
                     'bg-orange-600',
                     'bg-amber-500',
-                    'bg-gray-500',
+                    'bg-[#12121f]0',
                   ];
 
                   return (
@@ -320,14 +320,14 @@ export function AnalyticsPage() {
                       <div className="flex justify-between items-center mb-2">
                         <div className="flex items-center gap-2">
                           <div className={`w-3 h-3 rounded-full ${colors[index % colors.length]} shadow-sm`}></div>
-                          <span className="text-sm font-bold text-gray-900">{source.source}</span>
+                          <span className="text-sm font-bold text-[#F1F5F9]">{source.source}</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-sm font-bold text-gray-900">{source.count}</span>
-                          <span className="text-xs text-gray-600 ml-2 font-medium">({source.percentage}%)</span>
+                          <span className="text-sm font-bold text-[#F1F5F9]">{source.count}</span>
+                          <span className="text-xs text-[#94A3B8] ml-2 font-medium">({source.percentage}%)</span>
                         </div>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                      <div className="w-full bg-[#252540] rounded-full h-3 shadow-inner">
                         <div
                           className={`h-3 rounded-full ${colors[index % colors.length]} shadow-sm`}
                           style={{ width: `${source.percentage}%` }}
@@ -338,7 +338,7 @@ export function AnalyticsPage() {
                 })}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-[#94A3B8]">
                 <p>No lead sources data available yet.</p>
                 <p className="text-sm mt-2">Add contacts with source information to see this data.</p>
               </div>

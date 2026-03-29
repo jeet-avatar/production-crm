@@ -95,8 +95,8 @@ export function AcceptInvitePage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-rose-50 px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
           <ExclamationCircleIcon className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Invalid Invitation</h2>
-          <p className="text-gray-600 mb-6">This invitation link is invalid or incomplete.</p>
+          <h2 className="text-2xl font-bold text-[#F1F5F9] mb-4">Invalid Invitation</h2>
+          <p className="text-[#94A3B8] mb-6">This invitation link is invalid or incomplete.</p>
           <a href="/login" className="text-indigo-400 hover:text-purple-400 font-medium">
             Go to Login
           </a>
@@ -110,8 +110,8 @@ export function AcceptInvitePage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-rose-50 px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
           <ExclamationCircleIcon className="mx-auto h-12 w-12 text-red-500 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Invitation Error</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <h2 className="text-2xl font-bold text-[#F1F5F9] mb-4">Invitation Error</h2>
+          <p className="text-[#94A3B8] mb-6">{error}</p>
           <a href="/login" className="text-indigo-400 hover:text-purple-400 font-medium">
             Go to Login
           </a>
@@ -125,8 +125,8 @@ export function AcceptInvitePage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-rose-50 px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
           <CheckCircleIcon className="mx-auto h-12 w-12 text-green-500 mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Welcome to BrandMonkz! 🎉</h2>
-          <p className="text-gray-600 mb-6">
+          <h2 className="text-2xl font-bold text-[#F1F5F9] mb-4">Welcome to BrandMonkz! 🎉</h2>
+          <p className="text-[#94A3B8] mb-6">
             Your invitation has been accepted successfully. Redirecting to login...
           </p>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto"></div>
@@ -140,16 +140,16 @@ export function AcceptInvitePage() {
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Accept Invitation 🎉</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-[#F1F5F9] mb-2">Accept Invitation 🎉</h1>
+          <p className="text-[#94A3B8]">
             Welcome <strong>{userInfo?.firstName} {userInfo?.lastName}</strong>!
           </p>
-          <p className="text-sm text-gray-500 mt-1">{userInfo?.email}</p>
+          <p className="text-sm text-[#94A3B8] mt-1">{userInfo?.email}</p>
         </div>
 
         {/* Main Card */}
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
+          <h2 className="text-xl font-semibold text-[#F1F5F9] mb-6 text-center">
             Choose how to join
           </h2>
 
@@ -176,7 +176,7 @@ export function AcceptInvitePage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            <span className="text-gray-700 font-medium">Continue with Google</span>
+            <span className="text-[#CBD5E1] font-medium">Continue with Google</span>
           </button>
 
           {/* Divider */}
@@ -185,21 +185,21 @@ export function AcceptInvitePage() {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or set a password</span>
+              <span className="px-2 bg-white text-[#94A3B8]">Or set a password</span>
             </div>
           </div>
 
           {/* Error Message */}
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-800 text-sm">{error}</p>
+              <p className="text-red-400 text-sm">{error}</p>
             </div>
           )}
 
           {/* Password Form */}
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Password *
               </label>
               <input
@@ -211,13 +211,13 @@ export function AcceptInvitePage() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="At least 8 characters"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[#94A3B8] mt-1">
                 ⚠️ You will be required to change this password on your first login
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Confirm Password *
               </label>
               <input
@@ -249,7 +249,7 @@ export function AcceptInvitePage() {
 
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-[#94A3B8]">
               Already have an account?{' '}
               <a href="/login" className="text-indigo-400 hover:text-purple-400 font-medium">
                 Sign in
@@ -260,7 +260,7 @@ export function AcceptInvitePage() {
 
         {/* Security Note */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-[#94A3B8]">
             🔒 Your data is encrypted and secure. This invitation expires in 7 days.
           </p>
         </div>

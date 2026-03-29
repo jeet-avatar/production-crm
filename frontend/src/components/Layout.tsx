@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
-import { AIChat } from './AIChat';
+import { AIChatWidget } from './AIChat';
 import type { User } from '../types';
 
 interface LayoutProps {
@@ -14,7 +14,7 @@ export function Layout({ user, onLogout }: LayoutProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', background: '#080810' }}>
       {/* Ambient blob decorations — fixed, behind everything */}
       {/* Blob 1: top-right indigo */}
       <div
@@ -78,7 +78,7 @@ export function Layout({ user, onLogout }: LayoutProps) {
       </div>
 
       {/* AI Chat */}
-      <AIChat isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <AIChatWidget isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 }

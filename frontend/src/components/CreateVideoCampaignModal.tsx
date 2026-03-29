@@ -282,23 +282,23 @@ export function CreateVideoCampaignModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white border-4 border-black rounded-3xl max-w-6xl w-full my-8 shadow-2xl">
+      <div className="bg-[#161625] border-4 border-black rounded-3xl max-w-6xl w-full my-8 shadow-2xl">
         {/* Header */}
-        <div className="p-6 border-b sticky top-0 bg-white z-10 rounded-t-xl">
+        <div className="p-6 border-b sticky top-0 bg-[#161625] z-10 rounded-t-xl">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold text-gray-900">Create Video Campaign</h2>
+              <h2 className="text-2xl font-bold text-[#F1F5F9]">Create Video Campaign</h2>
 
               {/* Draft Auto-Save Indicator */}
               {isSaving ? (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 border border-blue-200 rounded-lg">
                   <ClockIcon className="w-4 h-4 text-blue-600 animate-pulse" />
-                  <span className="text-xs font-medium text-blue-700">Saving draft...</span>
+                  <span className="text-xs font-medium text-blue-400">Saving draft...</span>
                 </div>
               ) : lastSaved ? (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-200 rounded-lg">
                   <ClockIcon className="w-4 h-4 text-green-600" />
-                  <span className="text-xs font-medium text-green-700">
+                  <span className="text-xs font-medium text-green-400">
                     Saved {new Date(lastSaved).toLocaleTimeString()}
                   </span>
                 </div>
@@ -310,7 +310,7 @@ export function CreateVideoCampaignModal({
                 resetForm();
                 onClose();
               }}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-[#64748B] hover:text-[#94A3B8] transition-colors"
             >
               <XMarkIcon className="w-6 h-6" />
             </button>
@@ -325,12 +325,12 @@ export function CreateVideoCampaignModal({
                     className={`h-2 rounded-full transition-all ${
                       index <= currentStepIndex
                         ? `bg-gradient-to-r ${gradients.brand.primary.gradient}`
-                        : 'bg-gray-200'
+                        : 'bg-[#252540]'
                     }`}
                   />
                   <p
                     className={`text-xs mt-1 font-medium ${
-                      index <= currentStepIndex ? 'text-indigo-400' : 'text-gray-400'
+                      index <= currentStepIndex ? 'text-indigo-400' : 'text-[#64748B]'
                     }`}
                   >
                     {s.label}
@@ -344,16 +344,16 @@ export function CreateVideoCampaignModal({
         {/* Content */}
         <div className="p-6 max-h-[calc(90vh-150px)] overflow-y-auto scrollbar-thin scrollbar-thumb-orange-500 scrollbar-track-gray-200">
           {/* Current Step Header */}
-          <div className="mb-6 pb-4 border-b-2 border-gray-100">
-            <h3 className="text-xl font-bold text-gray-900">{steps[currentStepIndex].label}</h3>
-            <p className="text-sm text-gray-600 mt-1">{steps[currentStepIndex].description}</p>
+          <div className="mb-6 pb-4 border-b-2 border-[#1c1c30]">
+            <h3 className="text-xl font-bold text-[#F1F5F9]">{steps[currentStepIndex].label}</h3>
+            <p className="text-sm text-[#94A3B8] mt-1">{steps[currentStepIndex].description}</p>
           </div>
 
           {/* Step 1: Basics */}
           {step === 'basics' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Campaign Name
                 </label>
                 <input
@@ -361,12 +361,12 @@ export function CreateVideoCampaignModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Welcome Video - Q1 2025"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Tone
                 </label>
                 <div className="grid grid-cols-4 gap-2">
@@ -377,7 +377,7 @@ export function CreateVideoCampaignModal({
                       className={`px-4 py-2.5 rounded-xl font-bold capitalize transition-all tracking-wide ${
                         tone === t
                           ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl`
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-[#1c1c30] text-[#CBD5E1] hover:bg-[#252540]'
                       }`}
                     >
                       {t}
@@ -387,7 +387,7 @@ export function CreateVideoCampaignModal({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Target Company Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -395,15 +395,15 @@ export function CreateVideoCampaignModal({
                   value={targetCompanyName}
                   onChange={(e) => setTargetCompanyName(e.target.value)}
                   placeholder="e.g., Acme Corp"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#94A3B8] mt-1">
                   The company you're creating this video for
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Your Company Name (Optional)
                 </label>
                 <input
@@ -411,16 +411,16 @@ export function CreateVideoCampaignModal({
                   value={userCompanyName}
                   onChange={(e) => setUserCompanyName(e.target.value)}
                   placeholder="e.g., BrandMonkz"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#94A3B8] mt-1">
                   Your company name to include in the video
                 </p>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-semibold text-gray-700">
+                  <label className="block text-sm font-semibold text-[#CBD5E1]">
                     Narration Script
                   </label>
                   <button
@@ -437,9 +437,9 @@ export function CreateVideoCampaignModal({
                   onChange={(e) => setScript(e.target.value)}
                   placeholder="Enter the narration script for your video..."
                   rows={8}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#94A3B8] mt-1">
                   Keep it between 100-150 words (30-60 seconds when spoken)
                 </p>
               </div>
@@ -474,7 +474,7 @@ export function CreateVideoCampaignModal({
           {step === 'source' && (
             <div className="space-y-4">
               {/* Info Box */}
-              <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+              <div className="p-4 bg-blue-500/10 border-2 border-blue-200 rounded-xl">
                 <p className="text-sm font-medium text-blue-900">
                   ℹ️ <strong>Choose a video template</strong> - This is the background video for your campaign.
                   You'll add your voice narration, logos, and text overlays in the next steps.
@@ -520,7 +520,7 @@ export function CreateVideoCampaignModal({
                 placeholder="Enter your company logo URL or upload"
               />
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Background Music URL (Optional)
                 </label>
                 <input
@@ -528,9 +528,9 @@ export function CreateVideoCampaignModal({
                   value={bgmUrl}
                   onChange={(e) => setBgmUrl(e.target.value)}
                   placeholder="https://example.com/music.mp3"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#94A3B8] mt-1">
                   Leave empty to use default background music
                 </p>
               </div>
@@ -548,38 +548,38 @@ export function CreateVideoCampaignModal({
           {step === 'preview' && (
             <div className="space-y-6">
               {/* Important Notice */}
-              <div className="p-4 bg-green-50 border-2 border-green-200 rounded-xl">
+              <div className="p-4 bg-green-500/10 border-2 border-green-200 rounded-xl">
                 <p className="text-sm font-medium text-green-900">
                   ✅ <strong>Ready to create your video!</strong> Review the details below, then click "Create & Generate" to produce your final personalized video.
                 </p>
               </div>
 
               <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl p-6 border-2 border-orange-200 shadow-lg">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Campaign Summary</h3>
+                <h3 className="text-lg font-bold text-[#F1F5F9] mb-4">Campaign Summary</h3>
                 <dl className="space-y-3">
                   <div>
-                    <dt className="text-sm font-semibold text-gray-700">Name:</dt>
-                    <dd className="text-gray-900">{name}</dd>
+                    <dt className="text-sm font-semibold text-[#CBD5E1]">Name:</dt>
+                    <dd className="text-[#F1F5F9]">{name}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-semibold text-gray-700">Video Source:</dt>
-                    <dd className="text-gray-900">
+                    <dt className="text-sm font-semibold text-[#CBD5E1]">Video Source:</dt>
+                    <dd className="text-[#F1F5F9]">
                       {videoSource === 'template'
                         ? selectedTemplate?.name || 'Template'
                         : 'Custom Upload'}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-semibold text-gray-700">Script:</dt>
-                    <dd className="text-gray-600 text-sm">{script.substring(0, 150)}...</dd>
+                    <dt className="text-sm font-semibold text-[#CBD5E1]">Script:</dt>
+                    <dd className="text-[#94A3B8] text-sm">{script.substring(0, 150)}...</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-semibold text-gray-700">Text Overlays:</dt>
-                    <dd className="text-gray-900">{overlays.length} overlay(s)</dd>
+                    <dt className="text-sm font-semibold text-[#CBD5E1]">Text Overlays:</dt>
+                    <dd className="text-[#F1F5F9]">{overlays.length} overlay(s)</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-semibold text-gray-700">Logos:</dt>
-                    <dd className="text-gray-900">
+                    <dt className="text-sm font-semibold text-[#CBD5E1]">Logos:</dt>
+                    <dd className="text-[#F1F5F9]">
                       {clientLogo && userLogo
                         ? 'Both logos added'
                         : clientLogo
@@ -592,8 +592,8 @@ export function CreateVideoCampaignModal({
                 </dl>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <p className="text-sm text-yellow-800">
+              <div className="bg-yellow-500/10 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-400">
                   ⚡ Video generation will start immediately after creation. This may take 3-5 minutes.
                 </p>
               </div>
@@ -602,18 +602,18 @@ export function CreateVideoCampaignModal({
 
           {/* Error Message */}
           {error && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800">{error}</p>
+            <div className="mt-4 p-4 bg-red-500/10 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-400">{error}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t bg-gray-50 rounded-b-xl flex items-center justify-between">
+        <div className="p-6 border-t bg-[#12121f] rounded-b-xl flex items-center justify-between">
           <button
             onClick={handleBack}
             disabled={step === 'basics'}
-            className="px-6 py-2 text-gray-700 font-semibold hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 text-[#CBD5E1] font-semibold hover:text-[#F1F5F9] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ← Back
           </button>
@@ -624,7 +624,7 @@ export function CreateVideoCampaignModal({
                 resetForm();
                 onClose();
               }}
-              className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
+              className="px-6 py-2 bg-[#1c1c30] text-[#CBD5E1] rounded-lg font-semibold hover:bg-[#252540] transition-colors"
             >
               Cancel
             </button>

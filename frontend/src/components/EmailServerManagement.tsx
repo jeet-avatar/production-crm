@@ -223,7 +223,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl border-4 border-gray-300 max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
+        className="bg-[#161625] rounded-2xl shadow-2xl border-4 border-[#33335a] max-w-4xl w-full my-8 flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -235,7 +235,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-all"
+              className="p-2 hover:bg-[#161625] hover:bg-opacity-20 rounded-lg transition-all"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
@@ -244,14 +244,14 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
 
         {/* Messages */}
         {error && (
-          <div className="mx-6 mt-6 bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
+          <div className="mx-6 mt-6 bg-red-500/10 border-2 border-red-200 text-red-400 px-4 py-3 rounded-xl flex items-center gap-2">
             <ExclamationCircleIcon className="h-5 w-5 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="mx-6 mt-6 bg-green-50 border-2 border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center gap-2">
+          <div className="mx-6 mt-6 bg-green-500/10 border-2 border-green-200 text-green-400 px-4 py-3 rounded-xl flex items-center gap-2">
             <CheckCircleIcon className="h-5 w-5 flex-shrink-0" />
             <span>{success}</span>
           </div>
@@ -263,7 +263,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
           {!showAddForm && (
             <button
               onClick={() => setShowAddForm(true)}
-              className="w-full mb-6 px-6 py-4 border-2 border-dashed border-orange-300 rounded-xl text-indigo-400 font-semibold hover:bg-orange-50 hover:border-orange-400 transition-all flex items-center justify-center gap-2"
+              className="w-full mb-6 px-6 py-4 border-2 border-dashed border-orange-300 rounded-xl text-indigo-400 font-semibold hover:bg-orange-500/10 hover:border-orange-400 transition-all flex items-center justify-center gap-2"
             >
               <PlusIcon className="h-5 w-5" />
               Add New Email Server
@@ -272,27 +272,27 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
 
           {/* Add Form */}
           {showAddForm && (
-            <div className="mb-6 bg-orange-50 border-2 border-orange-200 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Add Email Configuration</h3>
+            <div className="mb-6 bg-orange-500/10 border-2 border-orange-200 rounded-xl p-6">
+              <h3 className="text-xl font-bold text-[#F1F5F9] mb-4">Add Email Configuration</h3>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Configuration Name *</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Configuration Name *</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="e.g., My Gmail Account"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Provider *</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Provider *</label>
                   <select
                     value={formData.provider}
                     onChange={(e) => handleProviderChange(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   >
                     <option value="gmail">Gmail</option>
                     <option value="outlook">Outlook/Office365</option>
@@ -302,67 +302,67 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">SMTP Host *</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">SMTP Host *</label>
                   <input
                     type="text"
                     value={formData.host}
                     onChange={(e) => setFormData({ ...formData, host: e.target.value })}
                     placeholder="smtp.gmail.com"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Port *</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Port *</label>
                   <input
                     type="number"
                     value={formData.port}
                     onChange={(e) => setFormData({ ...formData, port: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Username/Email *</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Username/Email *</label>
                   <input
                     type="text"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                     placeholder="your@email.com"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Password/API Key *</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Password/API Key *</label>
                   <input
                     type="password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">From Email *</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">From Email *</label>
                   <input
                     type="email"
                     value={formData.fromEmail}
                     onChange={(e) => setFormData({ ...formData, fromEmail: e.target.value })}
                     placeholder="sender@company.com"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">From Name</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">From Name</label>
                   <input
                     type="text"
                     value={formData.fromName}
                     onChange={(e) => setFormData({ ...formData, fromName: e.target.value })}
                     placeholder="Your Company"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
+                    className="w-full px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-orange-200 outline-none"
                   />
                 </div>
               </div>
@@ -377,7 +377,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                 </button>
                 <button
                   onClick={() => setShowAddForm(false)}
-                  className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+                  className="px-6 py-3 border-2 border-[#33335a] text-[#CBD5E1] rounded-lg font-semibold hover:bg-[#12121f] transition-all"
                 >
                   Cancel
                 </button>
@@ -391,28 +391,28 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
               <div
                 key={server.id}
                 className={`border-2 rounded-xl p-6 transition-all ${
-                  server.isVerified ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-white'
+                  server.isVerified ? 'border-green-200 bg-green-500/10' : 'border-[#2a2a44] bg-[#161625]'
                 }`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <ServerIcon className="h-6 w-6 text-indigo-400" />
-                      <h3 className="text-xl font-bold text-gray-900">{server.name}</h3>
+                      <h3 className="text-xl font-bold text-[#F1F5F9]">{server.name}</h3>
                       {server.isVerified ? (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/15 text-green-400 text-xs font-semibold rounded-full">
                           <CheckCircleIcon className="h-4 w-4" />
                           Verified
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-500/15 text-yellow-400 text-xs font-semibold rounded-full">
                           <ExclamationCircleIcon className="h-4 w-4" />
                           Unverified
                         </span>
                       )}
                     </div>
 
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+                    <div className="flex items-center gap-4 text-sm text-[#94A3B8] mb-3">
                       <div className="flex items-center gap-1">
                         <EnvelopeIcon className="h-4 w-4" />
                         <span className="font-medium">{server.fromEmail}</span>
@@ -426,7 +426,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
 
                   <button
                     onClick={() => deleteServer(server.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                    className="p-2 text-red-600 hover:bg-red-500/10 rounded-lg transition-all"
                   >
                     <TrashIcon className="h-5 w-5" />
                   </button>
@@ -436,7 +436,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                   <button
                     onClick={() => testConnection(server.id)}
                     disabled={loading}
-                    className="inline-flex items-center gap-2 px-4 py-2 border-2 border-orange-300 text-orange-700 rounded-lg font-semibold hover:bg-orange-50 disabled:opacity-50 transition-all"
+                    className="inline-flex items-center gap-2 px-4 py-2 border-2 border-orange-300 text-orange-400 rounded-lg font-semibold hover:bg-orange-500/10 disabled:opacity-50 transition-all"
                   >
                     <ShieldCheckIcon className="h-4 w-4" />
                     Test Connection
@@ -456,8 +456,8 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
 
                 {/* Verification Code Input */}
                 {verifyingId === server.id && (
-                  <div className="mt-4 bg-white border-2 border-rose-200 rounded-lg p-4">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <div className="mt-4 bg-[#161625] border-2 border-rose-200 rounded-lg p-4">
+                    <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                       Enter 6-digit verification code sent to {server.fromEmail}
                     </label>
                     <div className="flex gap-2">
@@ -467,7 +467,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                         onChange={(e) => setVerificationCode(e.target.value)}
                         placeholder="000000"
                         maxLength={6}
-                        className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none text-2xl font-bold text-center tracking-widest"
+                        className="flex-1 px-4 py-3 border-2 border-[#33335a] rounded-lg focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none text-2xl font-bold text-center tracking-widest"
                       />
                       <button
                         onClick={verifyCode}
@@ -477,7 +477,7 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
                         Verify
                       </button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">Code expires in 15 minutes</p>
+                    <p className="text-xs text-[#94A3B8] mt-2">Code expires in 15 minutes</p>
                   </div>
                 )}
               </div>
@@ -486,16 +486,16 @@ export function EmailServerManagement({ isOpen, onClose, onEmailVerified }: Prop
 
           {servers.length === 0 && !showAddForm && (
             <div className="text-center py-12">
-              <ServerIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">No email servers configured</h3>
-              <p className="text-gray-600 mb-6">Add your first email configuration to start sending campaigns</p>
+              <ServerIcon className="h-16 w-16 text-[#64748B] mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-[#F1F5F9] mb-2">No email servers configured</h3>
+              <p className="text-[#94A3B8] mb-6">Add your first email configuration to start sending campaigns</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t-2 border-gray-200 p-6 bg-gray-50 flex justify-between items-center flex-shrink-0">
-          <p className="text-sm text-gray-600">
+        <div className="border-t-2 border-[#2a2a44] p-6 bg-[#12121f] flex justify-between items-center flex-shrink-0">
+          <p className="text-sm text-[#94A3B8]">
             {servers.filter(s => s.isVerified).length} of {servers.length} email(s) verified
           </p>
           <button

@@ -126,13 +126,13 @@ export const ChangePasswordPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
-            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+            <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-500/15 mb-4">
               <CheckCircleIcon className="h-10 w-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-[#F1F5F9] mb-2">
               Password Changed Successfully!
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-[#94A3B8] mb-4">
               Your password has been updated. Redirecting to dashboard...
             </p>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
@@ -151,10 +151,10 @@ export const ChangePasswordPage = () => {
             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-4">
               <LockClosedIcon className="h-10 w-10 text-primary-600" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-[#F1F5F9] mb-2">
               Change Your Password
             </h2>
-            <p className="text-gray-600">
+            <p className="text-[#94A3B8]">
               Please create a strong password to secure your account
             </p>
           </div>
@@ -167,7 +167,7 @@ export const ChangePasswordPage = () => {
                   <XCircleIcon className="h-5 w-5 text-red-400" />
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                  <p className="text-sm text-red-400">{error}</p>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export const ChangePasswordPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Current Password */}
             <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="currentPassword" className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 Current Password
               </label>
               <input
@@ -194,7 +194,7 @@ export const ChangePasswordPage = () => {
 
             {/* New Password */}
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="newPassword" className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 New Password
               </label>
               <input
@@ -212,7 +212,7 @@ export const ChangePasswordPage = () => {
               {formData.newPassword && (
                 <div className="mt-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-gray-600">
+                    <span className="text-xs font-medium text-[#94A3B8]">
                       Password Strength:
                     </span>
                     <span className={`text-xs font-semibold ${
@@ -234,9 +234,9 @@ export const ChangePasswordPage = () => {
                   {/* Feedback */}
                   {passwordStrength.feedback.length > 0 && (
                     <div className="mt-2 space-y-1">
-                      <p className="text-xs text-gray-600">Required:</p>
+                      <p className="text-xs text-[#94A3B8]">Required:</p>
                       {passwordStrength.feedback.map((item, index) => (
-                        <div key={index} className="flex items-center text-xs text-gray-500">
+                        <div key={index} className="flex items-center text-xs text-[#94A3B8]">
                           <XCircleIcon className="h-3 w-3 mr-1 text-red-400" />
                           {item}
                         </div>
@@ -249,7 +249,7 @@ export const ChangePasswordPage = () => {
 
             {/* Confirm New Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-[#CBD5E1] mb-2">
                 Confirm New Password
               </label>
               <input
@@ -303,7 +303,7 @@ export const ChangePasswordPage = () => {
 
           {/* Security Note */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-center text-gray-500">
+            <p className="text-xs text-center text-[#94A3B8]">
               🔒 Your password must be at least 8 characters and include uppercase, lowercase, numbers, and special characters.
             </p>
           </div>

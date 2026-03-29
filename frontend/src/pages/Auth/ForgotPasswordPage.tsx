@@ -38,24 +38,25 @@ export function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--bg-deep)' }}>
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="rounded-2xl p-8" style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-lg)' }}>
             {/* Success Message */}
-            <h2 className="text-center text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-center text-2xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
               Check Your Email
             </h2>
-            <p className="text-center text-gray-600 mb-6">
-              If an account exists with <strong>{email}</strong>, we've sent password reset instructions to that email address.
+            <p className="text-center mb-6" style={{ color: 'var(--text-secondary)' }}>
+              If an account exists with <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>, we've sent password reset instructions to that email address.
             </p>
-            <p className="text-center text-sm text-gray-500 mb-8">
+            <p className="text-center text-sm mb-8" style={{ color: 'var(--text-muted)' }}>
               Please check your inbox and spam folder. The link will expire in 1 hour.
             </p>
 
             {/* Back to Login Button */}
             <Link
               to="/login"
-              className="w-full btn-primary block text-center"
+              className="w-full block text-center py-3 px-6 rounded-xl font-bold transition-all"
+              style={{ background: 'var(--accent-gradient)', color: '#fff' }}
             >
               Back to Login
             </Link>
@@ -76,23 +77,23 @@ export function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--bg-deep)' }}>
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="rounded-2xl p-8" style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-lg)' }}>
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
               Forgot Password?
             </h2>
-            <p className="text-gray-600">
+            <p style={{ color: 'var(--text-secondary)' }}>
               No worries! Enter your email and we'll send you reset instructions.
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mb-6 rounded-xl p-4" style={{ backgroundColor: 'var(--color-error-100)', border: '1px solid rgba(248, 113, 113, 0.3)' }}>
+              <p className="text-sm" style={{ color: 'var(--color-error-500)' }}>{error}</p>
             </div>
           )}
 
@@ -100,7 +101,7 @@ export function ForgotPasswordPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                 Email address
               </label>
               <input
@@ -111,7 +112,8 @@ export function ForgotPasswordPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
+                className="w-full px-4 py-3 rounded-xl outline-none transition-all"
+                style={{ color: 'var(--text-primary)', backgroundColor: 'var(--glass-bg)', border: '2px solid var(--border-default)' }}
                 placeholder="Enter your email"
               />
             </div>
@@ -120,7 +122,8 @@ export function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary"
+              className="w-full py-3 px-6 text-white font-bold rounded-xl focus:outline-none focus:ring-4 focus:ring-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl"
+              style={{ background: 'var(--accent-gradient)' }}
             >
               {loading ? 'Sending...' : 'Send Reset Instructions'}
             </button>
@@ -130,7 +133,8 @@ export function ForgotPasswordPage() {
           <div className="mt-6 text-center">
             <Link
               to="/login"
-              className="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+              className="text-sm font-medium transition-colors duration-200"
+              style={{ color: 'var(--text-muted)' }}
             >
               ← Back to Login
             </Link>
@@ -138,7 +142,7 @@ export function ForgotPasswordPage() {
         </div>
 
         {/* Help Text */}
-        <div className="mt-6 text-center text-sm text-gray-600">
+        <div className="mt-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
           <p>
             Need help?{' '}
             <a href="mailto:support@brandmonkz.com" className="text-indigo-400 hover:text-purple-400 font-medium">

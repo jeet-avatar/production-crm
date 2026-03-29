@@ -369,7 +369,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#161625] rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-t-2xl z-10">
           <div className="flex items-center justify-between">
@@ -403,7 +403,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                 <div key={s} className="flex items-center">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                     s < step ? 'bg-green-500 text-white' :
-                    s === step ? 'bg-white text-purple-600' :
+                    s === step ? 'bg-[#161625] text-purple-600' :
                     'bg-purple-400 text-purple-100'
                   }`}>
                     {s < step ? '✓' : s}
@@ -425,7 +425,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
             <div className="space-y-6">
               {/* Company Name */}
               <div>
-                <label htmlFor="companyName" className="block text-sm font-bold text-gray-700 mb-2">
+                <label htmlFor="companyName" className="block text-sm font-bold text-[#CBD5E1] mb-2">
                   Company Name *
                 </label>
                 <input
@@ -434,14 +434,14 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="e.g., BrandMonkz, Acme Corp, Tech Solutions Inc."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-lg"
+                  className="w-full px-4 py-3 border border-[#33335a] rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all text-lg"
                   autoFocus
                 />
               </div>
 
               {/* Additional Context */}
               <div>
-                <label htmlFor="additionalContext" className="block text-sm font-bold text-gray-700 mb-2">
+                <label htmlFor="additionalContext" className="block text-sm font-bold text-[#CBD5E1] mb-2">
                   Additional Context (Optional)
                 </label>
                 <textarea
@@ -450,15 +450,15 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                   onChange={(e) => setAdditionalContext(e.target.value)}
                   placeholder="e.g., We're a B2B SaaS platform for project management, targeting remote teams..."
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 border border-[#33335a] rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#94A3B8] mt-1">
                   Provide details about your industry, target audience, and unique value proposition
                 </p>
               </div>
 
               {/* How It Works */}
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+              <div className="bg-purple-500/10 border border-purple-200 rounded-xl p-4">
                 <h3 className="font-bold text-purple-900 mb-2 flex items-center gap-2">
                   <SparklesIcon className="w-5 h-5" />
                   What Happens Next
@@ -476,11 +476,11 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
           {step === 2 && (
             <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+              <div className="bg-blue-500/10 border border-blue-200 rounded-xl p-4 mb-4">
                 <p className="text-sm text-blue-900">
                   <span className="font-bold">Company:</span> {companyName}
                   {additionalContext && (
-                    <span className="block mt-1 text-blue-700">{additionalContext.substring(0, 100)}{additionalContext.length > 100 ? '...' : ''}</span>
+                    <span className="block mt-1 text-blue-400">{additionalContext.substring(0, 100)}{additionalContext.length > 100 ? '...' : ''}</span>
                   )}
                 </p>
               </div>
@@ -506,7 +506,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
           {step === 3 && (
             <div className="space-y-4 relative">
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="bg-blue-500/10 border border-blue-200 rounded-xl p-4">
                 <p className="text-sm text-blue-900">
                   <span className="font-bold">Company:</span> {companyName} •
                   <span className="font-bold ml-2">Voice:</span> {voiceId ? `Selected (${voiceId.split(':')[0]})` : 'Custom Voice'}
@@ -514,14 +514,14 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
               </div>
 
               <div className="relative">
-                <h3 className="text-lg font-bold text-gray-900 mb-3">Choose a Video Template</h3>
+                <h3 className="text-lg font-bold text-[#F1F5F9] mb-3">Choose a Video Template</h3>
 
                 {loadingTemplates ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
                   </div>
                 ) : templates.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-[#94A3B8]">
                     No templates available
                   </div>
                 ) : (
@@ -534,7 +534,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                         className={`relative cursor-pointer rounded-xl overflow-hidden border-4 transition-all transform hover:scale-105 ${
                           selectedTemplateId === template.id
                             ? 'border-purple-600 shadow-lg'
-                            : 'border-gray-200 hover:border-purple-300'
+                            : 'border-[#2a2a44] hover:border-purple-300'
                         }`}
                       >
                         {template.thumbnailUrl || template.videoUrl ? (
@@ -556,9 +556,9 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                           </div>
                         )}
 
-                        <div className="p-3 bg-white">
-                          <p className="font-bold text-sm text-gray-900 truncate">{template.name}</p>
-                          <p className="text-xs text-gray-500">{template.category}</p>
+                        <div className="p-3 bg-[#161625]">
+                          <p className="font-bold text-sm text-[#F1F5F9] truncate">{template.name}</p>
+                          <p className="text-xs text-[#94A3B8]">{template.category}</p>
                         </div>
 
                         {selectedTemplateId === template.id && (
@@ -574,7 +574,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
                     {/* Loading Overlay - Appears when generating script preview */}
                     {isLoadingPreview && (
-                      <div className="absolute inset-0 bg-white/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center z-10 animate-fadeIn">
+                      <div className="absolute inset-0 bg-[#161625]/95 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center z-10 animate-fadeIn">
                         <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-8 shadow-2xl border-2 border-purple-200 max-w-md mx-auto">
                           <div className="flex flex-col items-center">
                             {/* Animated AI Icon */}
@@ -586,15 +586,15 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                             </div>
 
                             {/* Progress Text */}
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+                            <h3 className="text-2xl font-bold text-[#F1F5F9] mb-2 text-center">
                               Crafting Your Script
                             </h3>
-                            <p className="text-sm text-gray-600 text-center mb-4">
+                            <p className="text-sm text-[#94A3B8] text-center mb-4">
                               AI is analyzing your company and creating the perfect message
                             </p>
 
                             {/* Animated Progress Bar */}
-                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-3">
+                            <div className="w-full bg-[#252540] rounded-full h-2 overflow-hidden mb-3">
                               <div className="h-full bg-gradient-to-r from-purple-600 to-blue-600 rounded-full animate-progress"></div>
                             </div>
 
@@ -618,44 +618,44 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
               {isLoadingPreview ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mb-4"></div>
-                  <p className="text-lg font-semibold text-gray-700">Generating your script...</p>
-                  <p className="text-sm text-gray-500 mt-2">AI is analyzing your company and creating the perfect message</p>
+                  <p className="text-lg font-semibold text-[#CBD5E1]">Generating your script...</p>
+                  <p className="text-sm text-[#94A3B8] mt-2">AI is analyzing your company and creating the perfect message</p>
                 </div>
               ) : scriptPreview ? (
                 <>
                   {/* Header */}
                   <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl p-4 border border-purple-200">
-                    <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-[#F1F5F9] flex items-center gap-2">
                       📝 Review Your Video Script
                     </h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-[#94A3B8] mt-1">
                       Edit the script below, adjust overlays, or regenerate for a different version
                     </p>
                   </div>
 
                   {/* Industry & Audience */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white border-2 border-gray-200 rounded-lg p-3">
-                      <span className="text-xs font-bold text-gray-500 uppercase">Detected Industry</span>
-                      <p className="text-sm font-semibold text-gray-900 mt-1">{scriptPreview.industry}</p>
+                    <div className="bg-[#161625] border-2 border-[#2a2a44] rounded-lg p-3">
+                      <span className="text-xs font-bold text-[#94A3B8] uppercase">Detected Industry</span>
+                      <p className="text-sm font-semibold text-[#F1F5F9] mt-1">{scriptPreview.industry}</p>
                     </div>
-                    <div className="bg-white border-2 border-gray-200 rounded-lg p-3">
-                      <span className="text-xs font-bold text-gray-500 uppercase">Target Audience</span>
-                      <p className="text-sm font-semibold text-gray-900 mt-1">{scriptPreview.targetAudience}</p>
+                    <div className="bg-[#161625] border-2 border-[#2a2a44] rounded-lg p-3">
+                      <span className="text-xs font-bold text-[#94A3B8] uppercase">Target Audience</span>
+                      <p className="text-sm font-semibold text-[#F1F5F9] mt-1">{scriptPreview.targetAudience}</p>
                     </div>
                   </div>
 
                   {/* Script Editor */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <label className="block text-sm font-bold text-gray-700">
+                      <label className="block text-sm font-bold text-[#CBD5E1]">
                         Video Script (Narration)
                       </label>
                       <button
                         type="button"
                         onClick={regenerateScript}
                         disabled={isRegenerating}
-                        className="text-sm text-purple-600 hover:text-purple-700 font-medium flex items-center gap-1 disabled:opacity-50"
+                        className="text-sm text-purple-600 hover:text-purple-400 font-medium flex items-center gap-1 disabled:opacity-50"
                       >
                         {isRegenerating ? (
                           <>
@@ -683,7 +683,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                       placeholder="Edit your video script..."
                     />
                     <div className="flex items-center justify-between mt-2">
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-[#94A3B8]">
                         {scriptPreview.narrationScript.split(' ').filter(w => w).length} words •
                         ~{Math.ceil(scriptPreview.narrationScript.split(' ').filter(w => w).length / 150)} min speaking time
                       </span>
@@ -692,13 +692,13 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
                   {/* Text Overlays */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">
                       Text Overlays (will appear on video)
                     </label>
                     <div className="space-y-2">
                       {scriptPreview.overlays.map((overlay, index) => (
-                        <div key={index} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
-                          <span className="text-xs font-bold text-gray-500 bg-white px-2 py-1 rounded border border-gray-300">
+                        <div key={index} className="flex items-center gap-3 bg-[#12121f] border border-[#2a2a44] rounded-lg p-3">
+                          <span className="text-xs font-bold text-[#94A3B8] bg-[#161625] px-2 py-1 rounded border border-[#33335a]">
                             {overlay.timing}
                           </span>
                           <input
@@ -709,7 +709,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                               updatedOverlays[index] = { ...overlay, text: e.target.value };
                               setScriptPreview({ ...scriptPreview, overlays: updatedOverlays });
                             }}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                            className="flex-1 px-3 py-2 border border-[#33335a] rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                             placeholder={`Overlay ${index + 1}`}
                           />
                         </div>
@@ -720,33 +720,33 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                   {/* Key Message & CTA */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">
+                      <label className="block text-xs font-bold text-[#94A3B8] mb-2 uppercase">
                         Key Message
                       </label>
                       <input
                         type="text"
                         value={scriptPreview.keyMessage}
                         onChange={(e) => setScriptPreview({ ...scriptPreview, keyMessage: e.target.value })}
-                        className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                        className="w-full px-3 py-2 border-2 border-[#2a2a44] rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                         placeholder="Main value proposition"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-gray-500 mb-2 uppercase">
+                      <label className="block text-xs font-bold text-[#94A3B8] mb-2 uppercase">
                         Call to Action
                       </label>
                       <input
                         type="text"
                         value={scriptPreview.callToAction}
                         onChange={(e) => setScriptPreview({ ...scriptPreview, callToAction: e.target.value })}
-                        className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                        className="w-full px-3 py-2 border-2 border-[#2a2a44] rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
                         placeholder="Visit us at..."
                       />
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-[#94A3B8]">
                   Failed to load script preview
                 </div>
               )}
@@ -761,18 +761,18 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                   <SparklesIcon className="w-10 h-10 text-white" />
                 </div>
 
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold text-[#F1F5F9] mb-2">
                   {progressPercent === 100 ? '🎉 Video Complete!' : '⚡ Generating Your Video...'}
                 </h3>
 
-                <p className="text-gray-700 mb-6">
+                <p className="text-[#CBD5E1] mb-6">
                   {progressPercent === 100
                     ? 'Your professional video is ready!'
                     : 'AI is creating your professional marketing video'}
                 </p>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-6 mb-4 overflow-hidden shadow-inner">
+                <div className="w-full bg-[#252540] rounded-full h-6 mb-4 overflow-hidden shadow-inner">
                   <div
                     className="bg-gradient-to-r from-purple-600 to-blue-600 h-full rounded-full transition-all duration-500 ease-out flex items-center justify-center text-white text-sm font-bold shadow-lg"
                     style={{ width: `${progressPercent}%` }}
@@ -802,24 +802,24 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
                 )}
               </div>
 
-              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+              <div className="bg-[#12121f] rounded-xl p-4 space-y-3">
                 <div>
-                  <span className="text-sm font-bold text-gray-600">Company:</span>
-                  <p className="text-gray-900">{companyName}</p>
+                  <span className="text-sm font-bold text-[#94A3B8]">Company:</span>
+                  <p className="text-[#F1F5F9]">{companyName}</p>
                 </div>
                 {scriptPreview?.industry && (
                   <div>
-                    <span className="text-sm font-bold text-gray-600">Detected Industry:</span>
-                    <p className="text-gray-900">{scriptPreview.industry}</p>
+                    <span className="text-sm font-bold text-[#94A3B8]">Detected Industry:</span>
+                    <p className="text-[#F1F5F9]">{scriptPreview.industry}</p>
                   </div>
                 )}
                 <div>
-                  <span className="text-sm font-bold text-gray-600">Voice:</span>
-                  <p className="text-gray-900">{voiceId || 'Custom Voice'}</p>
+                  <span className="text-sm font-bold text-[#94A3B8]">Voice:</span>
+                  <p className="text-[#F1F5F9]">{voiceId || 'Custom Voice'}</p>
                 </div>
                 <div>
-                  <span className="text-sm font-bold text-gray-600">Template:</span>
-                  <p className="text-gray-900">{selectedTemplate?.name || 'Selected'}</p>
+                  <span className="text-sm font-bold text-[#94A3B8]">Template:</span>
+                  <p className="text-[#F1F5F9]">{selectedTemplate?.name || 'Selected'}</p>
                 </div>
               </div>
             </div>
@@ -827,7 +827,7 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
           {/* Error Message */}
           {error && (
-            <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+            <div className="mt-4 bg-red-500/10 border border-red-200 text-red-400 px-4 py-3 rounded-xl">
               {error}
             </div>
           )}
@@ -835,11 +835,11 @@ export function AutoGenerateVideoModal({ isOpen, onClose, onSuccess }: AutoGener
 
         {/* Footer */}
         {step < 5 && (
-          <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-between gap-3">
+          <div className="bg-[#12121f] px-6 py-4 rounded-b-2xl flex justify-between gap-3">
             <button
               type="button"
               onClick={step === 1 ? handleClose : handleBack}
-              className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 text-[#CBD5E1] bg-[#161625] border border-[#33335a] rounded-xl font-medium hover:bg-[#12121f] transition-all flex items-center gap-2"
               disabled={isGenerating || isLoadingPreview || isRegenerating}
             >
               {step === 1 ? (

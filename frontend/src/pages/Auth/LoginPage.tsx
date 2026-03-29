@@ -37,7 +37,7 @@ export function LoginPage() {
       if (data.requirePasswordChange) {
         window.location.href = '/change-password';
       } else {
-        window.location.reload();
+        window.location.href = '/';
       }
     } catch (err: any) {
       console.error('Login error:', err);
@@ -90,7 +90,7 @@ export function LoginPage() {
                   y="25"
                   fontSize="20"
                   fontWeight="700"
-                  fill="#1C1C1E"
+                  fill="#ffffff"
                   dominantBaseline="central"
                   fontFamily="-apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Text', 'Segoe UI', sans-serif"
                 >
@@ -109,18 +109,19 @@ export function LoginPage() {
                 </text>
               </svg>
             </div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">{BRANDING.login.welcomeTitle}</h2>
-            <p className="text-base text-gray-600">
+            <h2 className="text-2xl font-semibold mb-2" style={{ color: '#fff' }}>{BRANDING.login.welcomeTitle}</h2>
+            <p className="text-base" style={{ color: '#CBD5E1' }}>
               {BRANDING.login.welcomeSubtitle}
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div className="rounded-2xl p-8" style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-default)', boxShadow: 'var(--shadow-lg)' }}>
             {/* Google Sign In Button */}
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-white border-2 border-gray-300 rounded-xl font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-200"
+              style={{ color: 'var(--text-primary)', backgroundColor: 'var(--glass-bg)', border: '2px solid var(--border-default)' }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -134,10 +135,10 @@ export function LoginPage() {
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full" style={{ borderTop: '1px solid var(--border-default)' }}></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                <span className="px-3 text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)', backgroundColor: 'var(--bg-elevated)' }}>
                   {BRANDING.login.orDividerText}
                 </span>
               </div>
@@ -145,12 +146,12 @@ export function LoginPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+              <div className="mb-6 p-4 rounded-xl" style={{ backgroundColor: 'var(--color-error-100)', border: '2px solid rgba(248, 113, 113, 0.3)' }}>
                 <div className="flex items-center gap-2">
-                  <svg className="w-5 h-5 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--color-error-500)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <div className="text-sm font-semibold text-red-800">{error}</div>
+                  <div className="text-sm font-semibold" style={{ color: 'var(--color-error-500)' }}>{error}</div>
                 </div>
               </div>
             )}
@@ -159,7 +160,7 @@ export function LoginPage() {
             <form className="space-y-5" onSubmit={handleSubmit}>
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {BRANDING.login.emailLabel}
                 </label>
                 <input
@@ -170,17 +171,18 @@ export function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-gray-900 placeholder-gray-400"
+                  className="w-full px-4 py-3 rounded-xl outline-none transition-all"
+                  style={{ color: 'var(--text-primary)', backgroundColor: 'var(--glass-bg)', border: '2px solid var(--border-default)' }}
                   placeholder={BRANDING.login.emailPlaceholder}
                 />
               </div>
 
               {/* Password Input */}
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {BRANDING.login.passwordLabel}
                 </label>
-                <div className="relative">
+                <div className="relative" style={{position:'relative'}}>
                   <input
                     id="password"
                     name="password"
@@ -189,13 +191,15 @@ export function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all text-gray-900 placeholder-gray-400"
+                    className="w-full px-4 py-3 rounded-xl outline-none transition-all"
+                    style={{ color: 'var(--text-primary)', backgroundColor: 'var(--glass-bg)', border: '2px solid var(--border-default)', paddingRight: '3rem' }}
                     placeholder={BRANDING.login.passwordPlaceholder}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-indigo-400 transition-colors focus:outline-none"
+                    className="text-[#64748B] hover:text-indigo-400 transition-colors focus:outline-none"
+                    style={{position:'absolute', right:'0.75rem', top:'50%', transform:'translateY(-50%)', padding:'0.25rem', zIndex:10, background:'none', border:'none', cursor:'pointer'}}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -216,7 +220,7 @@ export function LoginPage() {
                     type="checkbox"
                     className="h-4 w-4 text-indigo-400 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
                   />
-                  <span className="ml-2 block text-sm font-medium text-gray-700">
+                  <span className="ml-2 block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                     {BRANDING.login.rememberMeText}
                   </span>
                 </label>
@@ -249,7 +253,7 @@ export function LoginPage() {
             </form>
 
             {/* Sign Up Link */}
-            <p className="mt-6 text-center text-base font-medium text-gray-700">
+            <p className="mt-6 text-center text-base font-medium" style={{ color: 'var(--text-muted)' }}>
               {BRANDING.login.noAccountText}{' '}
               <a href="/signup" className="text-indigo-400 hover:text-purple-400 font-bold transition-colors">
                 {BRANDING.login.signUpLinkText}

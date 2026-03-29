@@ -619,12 +619,12 @@ export function ActivitiesPage() {
 
   const getActivityColor = (type: string) => {
     switch (type.toUpperCase()) {
-      case 'EMAIL': return 'bg-orange-50 text-orange-700';
-      case 'CALL': case 'SMS': return 'bg-green-50 text-green-700';
-      case 'MEETING': return 'bg-rose-50 text-rose-700';
+      case 'EMAIL': return 'bg-orange-500/10 text-orange-400';
+      case 'CALL': case 'SMS': return 'bg-green-500/10 text-green-400';
+      case 'MEETING': return 'bg-rose-500/10 text-rose-400';
       case 'NOTE': return 'bg-amber-50 text-amber-700';
-      case 'TASK': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-50 text-gray-700';
+      case 'TASK': return 'bg-orange-500/15 text-orange-400';
+      default: return 'bg-[#12121f] text-[#CBD5E1]';
     }
   };
 
@@ -653,8 +653,8 @@ export function ActivitiesPage() {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-8 bg-[#252540] rounded w-1/4"></div>
+          <div className="h-64 bg-[#252540] rounded"></div>
         </div>
       </div>
     );
@@ -665,7 +665,7 @@ export function ActivitiesPage() {
       {/* Notification */}
       {notification && (
         <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center gap-3 ${
-          notification.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+          notification.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-200' : 'bg-red-500/10 text-red-400 border border-red-200'
         }`}>
           {notification.type === 'success' ? (
             <CheckCircleIcon className="h-5 w-5 text-green-600" />
@@ -679,7 +679,7 @@ export function ActivitiesPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-bold text-gray-900">Activities</h1>
+          <h1 className="text-3xl font-bold text-[#F1F5F9]">Activities</h1>
           <button
             type="button"
             onClick={() => setShowHelpGuide(true)}
@@ -689,7 +689,7 @@ export function ActivitiesPage() {
             <QuestionMarkCircleIcon className="h-5 w-5" />
           </button>
         </div>
-        <p className="text-gray-600 mt-1">Track emails, calls, meetings, and tasks across your CRM • Click ? for help</p>
+        <p className="text-[#94A3B8] mt-1">Track emails, calls, meetings, and tasks across your CRM • Click ? for help</p>
       </div>
 
       {/* Filters and Actions */}
@@ -704,7 +704,7 @@ export function ActivitiesPage() {
                 className={`inline-flex items-center px-4 py-2.5 rounded-xl font-bold text-sm transition-all tracking-wide shadow-sm ${
                   filterType === type.value
                     ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg hover:shadow-xl hover:scale-105`
-                    : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                    : 'bg-[#161625] text-[#CBD5E1] border-2 border-[#33335a] hover:bg-[#12121f] hover:border-gray-400'
                 }`}
               >
                 <Icon className="h-4 w-4 mr-2" />
@@ -727,9 +727,9 @@ export function ActivitiesPage() {
         <div className="p-6">
           {filteredActivities.length === 0 ? (
             <div className="text-center py-12">
-              <ClipboardDocumentCheckIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No activities found</h3>
-              <p className="text-gray-600 mb-4">
+              <ClipboardDocumentCheckIcon className="h-12 w-12 text-[#64748B] mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-[#F1F5F9] mb-2">No activities found</h3>
+              <p className="text-[#94A3B8] mb-4">
                 {filterType === 'all' ? 'Start adding activities to track your work' : `No ${filterType} activities found`}
               </p>
               <button
@@ -752,7 +752,7 @@ export function ActivitiesPage() {
                 return (
                   <div key={activity.id} className="relative">
                     {index !== filteredActivities.length - 1 && (
-                      <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gray-200"></div>
+                      <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-[#252540]"></div>
                     )}
 
                     <div className="flex gap-4">
@@ -760,20 +760,20 @@ export function ActivitiesPage() {
                         <Icon className="h-6 w-6" />
                       </div>
 
-                      <div className="flex-1 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                      <div className="flex-1 bg-[#12121f] rounded-lg p-4 hover:bg-[#1c1c30] transition-colors">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1">
-                            <h3 className="text-lg font-semibold text-gray-900">{activity.subject || activity.title || 'No subject'}</h3>
+                            <h3 className="text-lg font-semibold text-[#F1F5F9]">{activity.subject || activity.title || 'No subject'}</h3>
                             <div className="flex items-center gap-2 mt-1">
-                              <span className="text-sm text-gray-500">
+                              <span className="text-sm text-[#94A3B8]">
                                 {activity.contact ? `${activity.contact.firstName} ${activity.contact.lastName}` :
                                  activity.deal ? activity.deal.title :
                                  'No relation'}
                               </span>
                               {activity.contact?.email && (
                                 <>
-                                  <span className="text-gray-300">•</span>
-                                  <span className="text-sm text-gray-500">{activity.contact.email}</span>
+                                  <span className="text-[#64748B]">•</span>
+                                  <span className="text-sm text-[#94A3B8]">{activity.contact.email}</span>
                                 </>
                               )}
                             </div>
@@ -782,14 +782,14 @@ export function ActivitiesPage() {
                             <div className="mt-2 flex items-center gap-2">
                               {activity.emailStatus && (
                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                  activity.emailStatus === 'sent' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                  activity.emailStatus === 'sent' ? 'bg-green-500/15 text-green-400' : 'bg-[#1c1c30] text-[#E2E8F0]'
                                 }`}>
                                   {activity.emailStatus === 'sent' && <CheckCircleIcon className="h-3 w-3 mr-1" />}
                                   {activity.emailStatus}
                                 </span>
                               )}
                               {activity.isCompleted && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/15 text-green-400">
                                   <CheckCircleIcon className="h-3 w-3 mr-1" />
                                   Completed
                                 </span>
@@ -799,7 +799,7 @@ export function ActivitiesPage() {
                                   href={activity.meetingLink}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-50 text-orange-800 hover:bg-orange-100 shadow-sm tracking-wide"
+                                  className="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-500/10 text-orange-400 hover:bg-orange-500/15 shadow-sm tracking-wide"
                                 >
                                   <VideoCameraIcon className="h-4 w-4 mr-1.5" />
                                   Join Meeting
@@ -852,8 +852,8 @@ export function ActivitiesPage() {
                         {/* Email content with Read More functionality */}
                         {isEmail && activity.emailStatus === 'sent' ? (
                           <div className="mb-3">
-                            <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
-                              <div className="text-sm text-gray-600 mb-2">
+                            <div className="bg-[#161625] border-2 border-[#2a2a44] rounded-lg p-4">
+                              <div className="text-sm text-[#94A3B8] mb-2">
                                 {expandedEmails.has(activity.id) ? (
                                   <div
                                     className="whitespace-pre-wrap"
@@ -868,7 +868,7 @@ export function ActivitiesPage() {
                               <button
                                 type="button"
                                 onClick={() => toggleEmailExpansion(activity.id)}
-                                className="inline-flex items-center gap-1 text-sm font-bold text-indigo-400 hover:text-orange-700 transition-colors"
+                                className="inline-flex items-center gap-1 text-sm font-bold text-indigo-400 hover:text-orange-400 transition-colors"
                               >
                                 {expandedEmails.has(activity.id) ? (
                                   <>
@@ -889,10 +889,10 @@ export function ActivitiesPage() {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-gray-600 text-sm mb-3">{activity.description || 'No description'}</p>
+                          <p className="text-[#94A3B8] text-sm mb-3">{activity.description || 'No description'}</p>
                         )}
 
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                        <div className="flex items-center gap-4 text-xs text-[#94A3B8]">
                           <span>{formatDate(activity.createdAt)}</span>
                           <span>•</span>
                           <span>
@@ -912,19 +912,19 @@ export function ActivitiesPage() {
       {/* Modals */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col border-4 border-black">
+          <div className="bg-[#161625] rounded-xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col border-4 border-black">
             {modalType === 'create' && (
               <>
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900">Create Activity</h2>
+                <div className="p-6 border-b border-[#2a2a44]">
+                  <h2 className="text-2xl font-bold text-[#F1F5F9]">Create Activity</h2>
                 </div>
                 <div className="p-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Activity Type</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Activity Type</label>
                     <select
                       value={createForm.type}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, type: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                     >
                       <option value="EMAIL">Email</option>
                       <option value="CALL">Call</option>
@@ -934,30 +934,30 @@ export function ActivitiesPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Subject</label>
                     <input
                       type="text"
                       value={createForm.subject}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, subject: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       placeholder="Activity subject"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Description</label>
                     <textarea
                       value={createForm.description}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       rows={4}
                       placeholder="Activity description"
                     />
                   </div>
                 </div>
-                <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+                <div className="p-6 border-t border-[#2a2a44] flex justify-end gap-3">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-bold tracking-wide shadow-sm"
+                    className="px-4 py-2.5 text-[#CBD5E1] bg-[#161625] border-2 border-[#33335a] rounded-xl hover:bg-[#12121f] hover:border-gray-400 font-bold tracking-wide shadow-sm"
                   >
                     Cancel
                   </button>
@@ -1001,13 +1001,13 @@ export function ActivitiesPage() {
                 <div className="overflow-y-auto flex-1 px-5 py-4 space-y-4">
                   {/* Company Selection */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-sm font-bold text-[#F1F5F9] mb-2">
                       Select Company
                     </label>
                     <select
                       value={selectedCompanyId}
                       onChange={(e) => handleCompanyChange(e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                       aria-label="Select company"
                     >
                       <option value="">-- Select a company --</option>
@@ -1021,13 +1021,13 @@ export function ActivitiesPage() {
 
                   {/* Contact Selection */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-sm font-bold text-[#F1F5F9] mb-2">
                       Select Contact
                     </label>
                     <select
                       value={selectedContactId}
                       onChange={(e) => handleContactChange(e.target.value)}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                       disabled={!selectedCompanyId && filteredContacts.length === 0}
                       aria-label="Select contact"
                     >
@@ -1039,21 +1039,21 @@ export function ActivitiesPage() {
                       ))}
                     </select>
                     {selectedCompanyId && filteredContacts.length === 0 && (
-                      <p className="text-xs text-gray-500 mt-1">No contacts found for this company</p>
+                      <p className="text-xs text-[#94A3B8] mt-1">No contacts found for this company</p>
                     )}
                   </div>
 
                   {/* Email Template Selector - Compact */}
                   {emailTemplates.length > 0 && (
-                    <div className="bg-orange-50 border-2 border-orange-300 rounded-lg p-3">
+                    <div className="bg-orange-500/10 border-2 border-orange-300 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
                         <SparklesIcon className="h-4 w-4 text-indigo-400" />
-                        <label className="text-xs font-bold text-gray-900">Quick Template</label>
+                        <label className="text-xs font-bold text-[#F1F5F9]">Quick Template</label>
                       </div>
                       <select
                         value={selectedTemplateId}
                         onChange={(e) => handleTemplateSelect(e.target.value)}
-                        className="w-full px-3 py-2 border-2 border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 bg-white text-sm font-medium"
+                        className="w-full px-3 py-2 border-2 border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 bg-[#161625] text-sm font-medium"
                         aria-label="Select email template"
                       >
                         <option value="">-- Select a template --</option>
@@ -1064,7 +1064,7 @@ export function ActivitiesPage() {
                         ))}
                       </select>
                       {selectedTemplateId && (
-                        <p className="text-xs text-green-700 font-medium mt-2 flex items-center gap-1">
+                        <p className="text-xs text-green-400 font-medium mt-2 flex items-center gap-1">
                           <CheckCircleIcon className="h-3 w-3" />
                           Template loaded
                         </p>
@@ -1074,7 +1074,7 @@ export function ActivitiesPage() {
 
                   {/* To Field - Compact */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-sm font-bold text-[#F1F5F9] mb-2">
                       To <span className="text-red-500">*</span>
                     </label>
                     {emailForm.to.map((email, index) => (
@@ -1083,14 +1083,14 @@ export function ActivitiesPage() {
                           type="email"
                           value={email}
                           onChange={(e) => updateField('to', index, e.target.value)}
-                          className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                          className="flex-1 px-3 py-2 border-2 border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                           placeholder="recipient@example.com"
                         />
                         {emailForm.to.length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeField('to', index)}
-                            className="px-3 py-1 text-red-600 hover:bg-red-50 rounded-lg text-sm font-bold"
+                            className="px-3 py-1 text-red-600 hover:bg-red-500/10 rounded-lg text-sm font-bold"
                           >
                             ×
                           </button>
@@ -1101,7 +1101,7 @@ export function ActivitiesPage() {
                       <button
                         type="button"
                         onClick={() => addField('to')}
-                        className="text-sm font-bold text-indigo-400 hover:text-orange-700"
+                        className="text-sm font-bold text-indigo-400 hover:text-orange-400"
                       >
                         + Add recipient
                       </button>
@@ -1110,39 +1110,39 @@ export function ActivitiesPage() {
 
                   {/* Subject Field - Compact */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-sm font-bold text-[#F1F5F9] mb-2">
                       Subject <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={emailForm.subject}
                       onChange={(e) => setEmailForm(prev => ({ ...prev, subject: e.target.value }))}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                      className="w-full px-3 py-2 border-2 border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                       placeholder="Enter email subject..."
                     />
                   </div>
 
                   {/* Message Field - Compact */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                    <label className="block text-sm font-bold text-[#F1F5F9] mb-2">
                       Message <span className="text-red-500">*</span>
                     </label>
                     <textarea
                       value={emailForm.htmlContent}
                       onChange={(e) => setEmailForm(prev => ({ ...prev, htmlContent: e.target.value }))}
-                      className="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none"
+                      className="w-full px-3 py-2 border-2 border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm resize-none"
                       rows={8}
                       placeholder="Type your email message here..."
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-[#94A3B8] mt-1">
                       {emailForm.htmlContent.length} characters
                     </p>
                   </div>
                 </div>
 
                 {/* Compact Footer */}
-                <div className="px-5 py-3 border-t-2 border-gray-200 bg-gray-50 flex justify-between items-center">
-                  <div className="text-xs text-gray-600">
+                <div className="px-5 py-3 border-t-2 border-[#2a2a44] bg-[#12121f] flex justify-between items-center">
+                  <div className="text-xs text-[#94A3B8]">
                     {emailForm.to.filter(e => e.trim()).length > 0 && (
                       <span className="font-medium">
                         {emailForm.to.filter(e => e.trim()).length} recipient{emailForm.to.filter(e => e.trim()).length > 1 ? 's' : ''}
@@ -1153,7 +1153,7 @@ export function ActivitiesPage() {
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className="px-4 py-2 bg-white text-gray-700 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-50 text-sm"
+                      className="px-4 py-2 bg-[#161625] text-[#CBD5E1] font-bold rounded-lg border-2 border-[#33335a] hover:bg-[#12121f] text-sm"
                       disabled={isSending}
                     >
                       Cancel
@@ -1183,41 +1183,41 @@ export function ActivitiesPage() {
 
             {modalType === 'call' && selectedActivity && (
               <>
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900">Make Call</h2>
-                  <p className="text-sm text-gray-500 mt-1">Activity: {selectedActivity.subject}</p>
+                <div className="p-6 border-b border-[#2a2a44]">
+                  <h2 className="text-2xl font-bold text-[#F1F5F9]">Make Call</h2>
+                  <p className="text-sm text-[#94A3B8] mt-1">Activity: {selectedActivity.subject}</p>
                 </div>
                 <div className="p-6 space-y-4">
-                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-                    <p className="text-sm text-orange-800 font-medium">
+                  <div className="bg-orange-500/10 border border-orange-200 rounded-xl p-4">
+                    <p className="text-sm text-orange-400 font-medium">
                       Note: SMS/Call functionality requires a Twilio phone number. This is a simulation for now.
                     </p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Phone Number</label>
                     <input
                       type="tel"
                       value={callForm.phoneNumber}
                       onChange={(e) => setCallForm(prev => ({ ...prev, phoneNumber: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       placeholder="+1234567890"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Call Notes</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Call Notes</label>
                     <textarea
                       value={callForm.notes}
                       onChange={(e) => setCallForm(prev => ({ ...prev, notes: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       rows={6}
                       placeholder="Notes about the call..."
                     />
                   </div>
                 </div>
-                <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
+                <div className="p-6 border-t border-[#2a2a44] flex justify-end gap-3">
                   <button
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2.5 text-gray-700 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 font-bold tracking-wide shadow-sm"
+                    className="px-4 py-2.5 text-[#CBD5E1] bg-[#161625] border-2 border-[#33335a] rounded-xl hover:bg-[#12121f] hover:border-gray-400 font-bold tracking-wide shadow-sm"
                   >
                     Cancel
                   </button>
@@ -1239,56 +1239,56 @@ export function ActivitiesPage() {
 
             {modalType === 'meeting' && selectedActivity && (
               <>
-                <div className="p-6 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900">Schedule Meeting</h2>
-                  <p className="text-sm text-gray-500 mt-1">Activity: {selectedActivity.subject}</p>
+                <div className="p-6 border-b border-[#2a2a44]">
+                  <h2 className="text-2xl font-bold text-[#F1F5F9]">Schedule Meeting</h2>
+                  <p className="text-sm text-[#94A3B8] mt-1">Activity: {selectedActivity.subject}</p>
                 </div>
                 <div className="p-6 space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Meeting Title *</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Meeting Title *</label>
                     <input
                       type="text"
                       value={meetingForm.title}
                       onChange={(e) => setMeetingForm(prev => ({ ...prev, title: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       placeholder="Meeting title"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Start Time *</label>
+                      <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Start Time *</label>
                       <input
                         type="datetime-local"
                         value={meetingForm.startTime}
                         onChange={(e) => setMeetingForm(prev => ({ ...prev, startTime: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">End Time *</label>
+                      <label className="block text-sm font-medium text-[#CBD5E1] mb-2">End Time *</label>
                       <input
                         type="datetime-local"
                         value={meetingForm.endTime}
                         onChange={(e) => setMeetingForm(prev => ({ ...prev, endTime: e.target.value }))}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Attendees *</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Attendees *</label>
                     {meetingForm.attendees.map((email, index) => (
                       <div key={index} className="flex gap-2 mb-2">
                         <input
                           type="email"
                           value={email}
                           onChange={(e) => updateField('attendees', index, e.target.value)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                          className="flex-1 px-3 py-2 border border-[#33335a] rounded-md"
                           placeholder="attendee@example.com"
                         />
                         {meetingForm.attendees.length > 1 && (
                           <button
                             onClick={() => removeField('attendees', index)}
-                            className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-md"
+                            className="px-3 py-2 text-red-600 hover:bg-red-500/10 rounded-md"
                           >
                             Remove
                           </button>
@@ -1297,17 +1297,17 @@ export function ActivitiesPage() {
                     ))}
                     <button
                       onClick={() => addField('attendees')}
-                      className="text-sm text-indigo-400 hover:text-orange-700 font-bold"
+                      className="text-sm text-indigo-400 hover:text-orange-400 font-bold"
                     >
                       + Add attendee
                     </button>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Description</label>
                     <textarea
                       value={meetingForm.description}
                       onChange={(e) => setMeetingForm(prev => ({ ...prev, description: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-3 py-2 border border-[#33335a] rounded-md"
                       rows={4}
                       placeholder="Meeting description..."
                     />
@@ -1315,7 +1315,7 @@ export function ActivitiesPage() {
 
                   {/* Calendar Platform Selection */}
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 mb-3">
+                    <label className="block text-sm font-bold text-[#F1F5F9] mb-3">
                       Calendar Platform <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-3 gap-3">
@@ -1325,8 +1325,8 @@ export function ActivitiesPage() {
                         onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'google' }))}
                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                           meetingForm.calendarPlatform === 'google'
-                            ? 'border-indigo-500 bg-orange-50 shadow-md'
-                            : 'border-gray-300 bg-white hover:border-orange-300'
+                            ? 'border-indigo-500 bg-orange-500/10 shadow-md'
+                            : 'border-[#33335a] bg-[#161625] hover:border-orange-300'
                         }`}
                       >
                         <svg className="w-8 h-8" viewBox="0 0 48 48" fill="none">
@@ -1336,7 +1336,7 @@ export function ActivitiesPage() {
                           <path d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" fill="#1976D2"/>
                         </svg>
                         <span className={`text-sm font-bold ${
-                          meetingForm.calendarPlatform === 'google' ? 'text-orange-700' : 'text-gray-700'
+                          meetingForm.calendarPlatform === 'google' ? 'text-orange-400' : 'text-[#CBD5E1]'
                         }`}>
                           Google
                         </span>
@@ -1348,8 +1348,8 @@ export function ActivitiesPage() {
                         onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'zoom' }))}
                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                           meetingForm.calendarPlatform === 'zoom'
-                            ? 'border-indigo-500 bg-orange-50 shadow-md'
-                            : 'border-gray-300 bg-white hover:border-orange-300'
+                            ? 'border-indigo-500 bg-orange-500/10 shadow-md'
+                            : 'border-[#33335a] bg-[#161625] hover:border-orange-300'
                         }`}
                       >
                         <svg className="w-8 h-8" viewBox="0 0 48 48" fill="none">
@@ -1357,7 +1357,7 @@ export function ActivitiesPage() {
                           <path d="M18 14h-8c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V16c0-1.1-.9-2-2-2zm20 4l-8 6v-4c0-1.1-.9-2-2-2h-4v12h4c1.1 0 2-.9 2-2v-4l8 6V18z" fill="white"/>
                         </svg>
                         <span className={`text-sm font-bold ${
-                          meetingForm.calendarPlatform === 'zoom' ? 'text-orange-700' : 'text-gray-700'
+                          meetingForm.calendarPlatform === 'zoom' ? 'text-orange-400' : 'text-[#CBD5E1]'
                         }`}>
                           Zoom
                         </span>
@@ -1369,8 +1369,8 @@ export function ActivitiesPage() {
                         onClick={() => setMeetingForm(prev => ({ ...prev, calendarPlatform: 'teams' }))}
                         className={`flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all ${
                           meetingForm.calendarPlatform === 'teams'
-                            ? 'border-indigo-500 bg-orange-50 shadow-md'
-                            : 'border-gray-300 bg-white hover:border-orange-300'
+                            ? 'border-indigo-500 bg-orange-500/10 shadow-md'
+                            : 'border-[#33335a] bg-[#161625] hover:border-orange-300'
                         }`}
                       >
                         <svg className="w-8 h-8" viewBox="0 0 48 48" fill="none">
@@ -1379,7 +1379,7 @@ export function ActivitiesPage() {
                           <path d="M15 20h8v8h-8c-1.1 0-2-.9-2-2v-4c0-1.1.9-2 2-2z" fill="white"/>
                         </svg>
                         <span className={`text-sm font-bold ${
-                          meetingForm.calendarPlatform === 'teams' ? 'text-orange-700' : 'text-gray-700'
+                          meetingForm.calendarPlatform === 'teams' ? 'text-orange-400' : 'text-[#CBD5E1]'
                         }`}>
                           Teams
                         </span>
@@ -1389,9 +1389,9 @@ export function ActivitiesPage() {
                 </div>
 
                 {/* Footer with Send Invitation Option */}
-                <div className="p-6 border-t-2 border-gray-200 bg-gray-50">
+                <div className="p-6 border-t-2 border-[#2a2a44] bg-[#12121f]">
                   {/* Send Invitation Checkbox */}
-                  <div className="mb-4 flex items-center gap-3 bg-orange-50 border-2 border-orange-300 rounded-lg p-3">
+                  <div className="mb-4 flex items-center gap-3 bg-orange-500/10 border-2 border-orange-300 rounded-lg p-3">
                     <input
                       type="checkbox"
                       id="sendInvitation"
@@ -1399,7 +1399,7 @@ export function ActivitiesPage() {
                       onChange={(e) => setSendInvitation(e.target.checked)}
                       className="w-5 h-5 text-indigo-400 border-2 border-orange-400 rounded focus:ring-2 focus:ring-indigo-500"
                     />
-                    <label htmlFor="sendInvitation" className="flex items-center gap-2 text-sm font-bold text-gray-900 cursor-pointer">
+                    <label htmlFor="sendInvitation" className="flex items-center gap-2 text-sm font-bold text-[#F1F5F9] cursor-pointer">
                       <EnvelopeIcon className="h-5 w-5 text-indigo-400" />
                       Send calendar invitations to all attendees
                     </label>
@@ -1410,7 +1410,7 @@ export function ActivitiesPage() {
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className="px-4 py-2 bg-white text-gray-700 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-50 text-sm"
+                      className="px-4 py-2 bg-[#161625] text-[#CBD5E1] font-bold rounded-lg border-2 border-[#33335a] hover:bg-[#12121f] text-sm"
                       disabled={isSending}
                     >
                       Cancel

@@ -197,7 +197,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
 
   return (
     <div
-      className={`fixed bottom-6 right-6 bg-white rounded-2xl shadow-2xl transition-all duration-300 z-50 ${
+      className={`fixed bottom-6 right-6 bg-[#161625] rounded-2xl shadow-2xl transition-all duration-300 z-50 ${
         isMinimized ? 'w-80 h-16' : 'w-[450px] h-[700px]'
       }`}
     >
@@ -213,7 +213,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="hover:bg-white/20 p-1 rounded transition-colors"
+            className="hover:bg-[#161625]/20 p-1 rounded transition-colors"
           >
             {isMinimized ? (
               <ChevronUpIcon className="w-5 h-5" />
@@ -223,7 +223,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
           </button>
           <button
             onClick={() => setIsOpen(false)}
-            className="hover:bg-white/20 p-1 rounded transition-colors"
+            className="hover:bg-[#161625]/20 p-1 rounded transition-colors"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
@@ -241,7 +241,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
               </div>
               <div className="space-y-1">
                 {insights.slice(0, 2).map((insight, index) => (
-                  <p key={index} className="text-xs text-rose-700">
+                  <p key={index} className="text-xs text-rose-400">
                     {insight.replace(/^[-•\d.]\s*/, '')}
                   </p>
                 ))}
@@ -255,18 +255,18 @@ export default function AIAssistant({ context, title, placeholder, contextData }
               <div className="space-y-4">
                 <div className="text-center py-6">
                   <SparklesIcon className="w-12 h-12 text-orange-300 mx-auto mb-4" />
-                  <p className="text-gray-600 font-semibold mb-2">
+                  <p className="text-[#94A3B8] font-semibold mb-2">
                     AI Learning Mode
                   </p>
-                  <p className="text-gray-500 text-sm px-4">
+                  <p className="text-[#94A3B8] text-sm px-4">
                     I'm observing this {context} section to learn and provide insights. Ask me anything to improve your understanding!
                   </p>
                 </div>
 
                 {/* Suggested Questions */}
                 {(suggestedQuestions as any)[context] && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <h5 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <div className="bg-[#12121f] rounded-xl p-4">
+                    <h5 className="text-sm font-semibold text-[#CBD5E1] mb-3 flex items-center gap-2">
                       <ChartBarIcon className="w-4 h-4" />
                       Suggested Questions
                     </h5>
@@ -275,7 +275,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
                         <button
                           key={index}
                           onClick={() => setInputMessage(question)}
-                          className="w-full text-left text-sm text-purple-400 hover:bg-rose-50 p-2 rounded-lg transition-colors"
+                          className="w-full text-left text-sm text-purple-400 hover:bg-rose-500/10 p-2 rounded-lg transition-colors"
                         >
                           {question}
                         </button>
@@ -284,8 +284,8 @@ export default function AIAssistant({ context, title, placeholder, contextData }
                   </div>
                 )}
 
-                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-3">
-                  <p className="text-xs text-yellow-800">
+                <div className="bg-yellow-500/10 border-2 border-yellow-200 rounded-xl p-3">
+                  <p className="text-xs text-yellow-400">
                     <strong>🔒 Read-Only Mode:</strong> This AI observes and learns to provide insights. It cannot perform actions or modify data without your explicit approval.
                   </p>
                 </div>
@@ -303,13 +303,13 @@ export default function AIAssistant({ context, title, placeholder, contextData }
                   className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                     message.role === 'user'
                       ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-900 border-2 border-indigo-100'
+                      : 'bg-[#1c1c30] text-[#F1F5F9] border-2 border-indigo-100'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
                   <p
                     className={`text-xs mt-2 ${
-                      message.role === 'user' ? 'text-rose-100' : 'text-gray-500'
+                      message.role === 'user' ? 'text-rose-100' : 'text-[#94A3B8]'
                     }`}
                   >
                     {message.timestamp.toLocaleTimeString()}
@@ -320,7 +320,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-2xl px-4 py-3 border-2 border-indigo-100">
+                <div className="bg-[#1c1c30] rounded-2xl px-4 py-3 border-2 border-indigo-100">
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-purple-400 font-medium">AI is analyzing...</span>
                     <div className="flex gap-1">
@@ -343,7 +343,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
           </div>
 
           {/* Input */}
-          <div className="border-t border-gray-200 p-4 bg-gray-50">
+          <div className="border-t border-[#2a2a44] p-4 bg-[#12121f]">
             <div className="flex items-end gap-2">
               <textarea
                 value={inputMessage}
@@ -351,7 +351,7 @@ export default function AIAssistant({ context, title, placeholder, contextData }
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about this section..."
                 rows={2}
-                className="flex-1 resize-none rounded-xl border-2 border-gray-200 focus:border-rose-500 focus:ring-4 focus:ring-indigo-500/20 transition-all p-3 text-sm bg-white"
+                className="flex-1 resize-none rounded-xl border-2 border-[#2a2a44] focus:border-rose-500 focus:ring-4 focus:ring-indigo-500/20 transition-all p-3 text-sm bg-[#161625]"
                 disabled={isLoading}
               />
               <button

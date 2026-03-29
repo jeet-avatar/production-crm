@@ -32,7 +32,7 @@ export function ErrorDisplay({
       return {
         icon: XCircleIcon,
         gradient: "from-red-500 to-red-600",
-        bg: "bg-red-50",
+        bg: "bg-red-500/10",
         border: "border-red-300",
         iconColor: "text-red-500",
         title: title || "Error Occurred",
@@ -46,7 +46,7 @@ export function ErrorDisplay({
           return {
             icon: DocumentTextIcon,
             gradient: "from-orange-500 to-orange-600",
-            bg: "bg-orange-50",
+            bg: "bg-orange-500/10",
             border: "border-orange-300",
             iconColor: "text-indigo-400",
             title: title || "Invalid Request",
@@ -57,7 +57,7 @@ export function ErrorDisplay({
           return {
             icon: ShieldExclamationIcon,
             gradient: "from-yellow-500 to-yellow-600",
-            bg: "bg-yellow-50",
+            bg: "bg-yellow-500/10",
             border: "border-yellow-300",
             iconColor: "text-yellow-500",
             title: title || "Access Denied",
@@ -68,7 +68,7 @@ export function ErrorDisplay({
           return {
             icon: DocumentTextIcon,
             gradient: "from-indigo-500 to-purple-600",
-            bg: "bg-rose-50",
+            bg: "bg-rose-500/10",
             border: "border-rose-300",
             iconColor: "text-rose-500",
             title: title || "Not Found",
@@ -78,7 +78,7 @@ export function ErrorDisplay({
         return {
           icon: ExclamationTriangleIcon,
           gradient: "from-orange-500 to-orange-600",
-          bg: "bg-orange-50",
+          bg: "bg-orange-500/10",
           border: "border-orange-300",
           iconColor: "text-indigo-400",
           title: title || `Error ${code}`,
@@ -89,7 +89,7 @@ export function ErrorDisplay({
         return {
           icon: XCircleIcon,
           gradient: "from-red-500 to-red-600",
-          bg: "bg-red-50",
+          bg: "bg-red-500/10",
           border: "border-red-300",
           iconColor: "text-red-500",
           title: title || "Server Error",
@@ -99,10 +99,10 @@ export function ErrorDisplay({
       default: // Network or other errors
         return {
           icon: WifiIcon,
-          gradient: "from-gray-500 to-gray-600",
-          bg: "bg-gray-50",
-          border: "border-gray-300",
-          iconColor: "text-gray-500",
+          gradient: "from-[#12121f]0 to-gray-600",
+          bg: "bg-[#12121f]",
+          border: "border-[#33335a]",
+          iconColor: "text-[#94A3B8]",
           title: title || "Connection Error",
           defaultMessage: message || "Unable to connect to the server. Please check your internet connection.",
         };
@@ -128,7 +128,7 @@ export function ErrorDisplay({
             {onClose && (
               <button
                 onClick={onClose}
-                className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+                className="text-white hover:bg-[#161625]/20 rounded-lg p-2 transition-colors"
                 aria-label="Close"
               >
                 <XCircleIcon className="w-6 h-6" />
@@ -142,21 +142,21 @@ export function ErrorDisplay({
           {/* Main Message */}
           <div className={`flex items-start gap-3 ${config.bg} border-2 ${config.border} rounded-lg p-4`}>
             <ExclamationTriangleIcon className={`w-6 h-6 ${config.iconColor} flex-shrink-0 mt-0.5`} />
-            <p className="text-gray-800 text-lg">{config.defaultMessage}</p>
+            <p className="text-[#E2E8F0] text-lg">{config.defaultMessage}</p>
           </div>
 
           {/* Error Details */}
           {details && details.length > 0 && (
             <div className="space-y-3">
-              <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <h3 className="font-semibold text-[#E2E8F0] flex items-center gap-2">
                 <DocumentTextIcon className="w-5 h-5" />
                 Error Details:
               </h3>
-              <div className="bg-white border-2 border-gray-200 rounded-lg p-4 space-y-2">
+              <div className="bg-[#161625] border-2 border-[#2a2a44] rounded-lg p-4 space-y-2">
                 {details.map((detail, index) => (
                   <div key={index} className="flex items-start gap-2">
-                    <span className="text-gray-400 font-mono text-sm mt-0.5">•</span>
-                    <p className="text-gray-700 text-sm flex-1">{detail}</p>
+                    <span className="text-[#64748B] font-mono text-sm mt-0.5">•</span>
+                    <p className="text-[#CBD5E1] text-sm flex-1">{detail}</p>
                   </div>
                 ))}
               </div>
@@ -164,9 +164,9 @@ export function ErrorDisplay({
           )}
 
           {/* Common Solutions */}
-          <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
-            <h4 className="font-semibold text-orange-800 mb-2">Suggested Solutions:</h4>
-            <ul className="text-sm text-orange-700 space-y-1">
+          <div className="bg-orange-500/10 border-2 border-orange-200 rounded-lg p-4">
+            <h4 className="font-semibold text-orange-400 mb-2">Suggested Solutions:</h4>
+            <ul className="text-sm text-orange-400 space-y-1">
               {code === 400 && (
                 <>
                   <li>• Check that all required fields are filled correctly</li>
@@ -219,7 +219,7 @@ export function ErrorDisplay({
             {onClose && (
               <button
                 onClick={onClose}
-                className="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-xl font-semibold hover:bg-gray-300 transition-colors border-2 border-gray-300"
+                className="flex-1 px-6 py-3 bg-[#252540] text-[#E2E8F0] rounded-xl font-semibold hover:bg-gray-300 transition-colors border-2 border-[#33335a]"
               >
                 Close
               </button>
@@ -227,7 +227,7 @@ export function ErrorDisplay({
           </div>
 
           {/* Support Info */}
-          <div className="text-center text-sm text-gray-500 pt-4 border-t-2 border-gray-200">
+          <div className="text-center text-sm text-[#94A3B8] pt-4 border-t-2 border-[#2a2a44]">
             <p>
               Need help?{" "}
               <a href="mailto:support@brandmonkz.com" className="text-indigo-400 hover:underline font-medium">
@@ -254,15 +254,15 @@ export function InlineError({
   className?: string;
 }) {
   return (
-    <div className={`bg-red-50 border-2 border-red-200 rounded-lg p-4 ${className}`}>
+    <div className={`bg-red-500/10 border-2 border-red-200 rounded-lg p-4 ${className}`}>
       <div className="flex items-start gap-3">
         <ExclamationTriangleIcon className="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
-          <p className="text-red-800 font-medium">{message}</p>
+          <p className="text-red-400 font-medium">{message}</p>
           {details && details.length > 0 && (
             <ul className="mt-2 space-y-1">
               {details.map((detail, index) => (
-                <li key={index} className="text-sm text-red-700">
+                <li key={index} className="text-sm text-red-400">
                   • {detail}
                 </li>
               ))}

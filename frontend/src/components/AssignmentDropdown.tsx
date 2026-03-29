@@ -103,7 +103,7 @@ export function AssignmentDropdown({
           value={currentAssignedToId || ''}
           onChange={(e) => handleAssign(e.target.value)}
           disabled={assigning || loading}
-          className="text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+          className="text-sm rounded-md border-[#33335a] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-[#1c1c30] disabled:cursor-not-allowed"
           onClick={(e) => e.stopPropagation()} // Prevent row click when clicking dropdown
         >
           <option value="">Unassigned</option>
@@ -122,20 +122,20 @@ export function AssignmentDropdown({
 
   // Full view for detail pages
   return (
-    <div className="bg-white shadow rounded-lg p-6">
+    <div className="bg-[#161625] shadow rounded-lg p-6">
       <div className="flex items-center gap-2 mb-4">
-        <UserIcon className="h-5 w-5 text-gray-400" />
-        <h3 className="text-lg font-medium text-gray-900">Team Assignment</h3>
+        <UserIcon className="h-5 w-5 text-[#64748B]" />
+        <h3 className="text-lg font-medium text-[#F1F5F9]">Team Assignment</h3>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-200 rounded-md text-sm text-red-600">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-600 flex items-center gap-2">
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-200 rounded-md text-sm text-green-600 flex items-center gap-2">
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
@@ -145,18 +145,18 @@ export function AssignmentDropdown({
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
             Assigned To
           </label>
 
           {loading ? (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-[#94A3B8]">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
               Loading team members...
             </div>
           ) : teamMembers.length === 0 ? (
-            <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-md">
-              No team members available. <a href="/team" className="text-indigo-400 hover:text-orange-800">Invite team members</a> to enable assignment.
+            <div className="text-sm text-[#94A3B8] bg-[#12121f] p-3 rounded-md">
+              No team members available. <a href="/team" className="text-indigo-400 hover:text-orange-400">Invite team members</a> to enable assignment.
             </div>
           ) : (
             <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export function AssignmentDropdown({
                 value={currentAssignedToId || ''}
                 onChange={(e) => handleAssign(e.target.value)}
                 disabled={assigning}
-                className="flex-1 block rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                className="flex-1 block rounded-md border-[#33335a] shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-[#1c1c30] disabled:cursor-not-allowed"
               >
                 <option value="">Unassigned</option>
                 {teamMembers.map((member) => (
@@ -178,7 +178,7 @@ export function AssignmentDropdown({
                 <button
                   onClick={() => handleAssign('')}
                   disabled={assigning}
-                  className="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-400 bg-[#161625] hover:bg-red-500/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   title="Remove assignment"
                 >
                   <XMarkIcon className="h-4 w-4" />
@@ -193,8 +193,8 @@ export function AssignmentDropdown({
         </div>
 
         {currentAssignedTo && (
-          <div className="bg-orange-50 border border-orange-200 rounded-md p-3">
-            <div className="flex items-center gap-2 text-sm text-orange-800">
+          <div className="bg-orange-500/10 border border-orange-200 rounded-md p-3">
+            <div className="flex items-center gap-2 text-sm text-orange-400">
               <UserIcon className="h-4 w-4" />
               <span>
                 Currently assigned to: <strong>{currentAssignedTo.firstName} {currentAssignedTo.lastName}</strong>
@@ -203,7 +203,7 @@ export function AssignmentDropdown({
           </div>
         )}
 
-        <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-md">
+        <div className="text-xs text-[#94A3B8] bg-[#12121f] p-3 rounded-md">
           <p className="font-medium mb-1">How assignment works:</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Assigned team members can view and work on this {resourceType}</li>

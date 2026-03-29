@@ -46,6 +46,35 @@ router.post('/message', async (req, res, next) => {
     // Update last activity
     session.lastActivity = new Date();
 
+    // How-to intercept: return UI walkthrough ONLY for campaign/email-sending questions
+    const campaignHowToPatterns = /\b(how (do i|to|can i)|walk me through|steps to|guide me|help me|show me how to)\b.*\b(campaign|send (a |an )?(campaign|email|bulk email|mass email)|create (a |an )?(campaign|email)|launch (a |an )?campaign)\b/i;
+    const campaignHowToReverse = /\b(campaign|email campaign|send (a |an )?(campaign|email)|create (a |an )?(campaign|email))\b.*\b(how|steps|guide|walk me)\b/i;
+    if (campaignHowToPatterns.test(message) || campaignHowToReverse.test(message)) {
+      const walkthrough = `Here's exactly how to create and send a campaign — follow every step:
+
+STEP 1 — Open the Campaigns page:
+Look at the LEFT SIDE of the screen. You will see a dark sidebar with menu items. Find the word "Campaigns" in that sidebar (it has a megaphone icon next to it). Click it. The page will change and show your campaigns list.
+
+STEP 2 — Start a new campaign:
+Look at the TOP RIGHT of the Campaigns page. You will see a purple button that says "+ Create Campaign". Click that button. A big popup box will appear on the screen — this is the Campaign Wizard.
+
+STEP 3 — Write Your Email (Step 1 of 3 in the wizard):
+You will see a text box labeled "Describe your campaign". Type what your email is about in plain English — example: "Offer 20% discount on IT staffing services to our clients". Below the text box are 3 tone buttons: Professional, Friendly, Urgent. Click the one that fits best (it turns purple when selected). Now click the big button "✨ Write my email". Wait a few seconds — the AI will write the email for you. On the RIGHT side you will see a Subject Line and Email Body appear. You can click into them to edit, or click "🔄 Regenerate" for a new version. When happy, click "Next →" at the bottom right.
+
+STEP 4 — Choose Who Gets It (Step 2 of 3 in the wizard):
+You will now see a grid of company tiles. Each tile shows a company name and how many contacts it has. Click the tiles for the companies you want to send to — they turn purple when selected. You can pick more than one. At the bottom you will see "✅ X groups selected — Y contacts will receive this email". When done, click "Next →" at the bottom right.
+
+STEP 5 — Review and Send (Step 3 of 3 in the wizard):
+You will see 4 summary boxes: Campaign Name (editable), Sending To (companies + total contacts), Subject Line, and From Address. Read everything carefully. When ready, click the big green button "🚀 Send Campaign to X People". The emails go out immediately. The wizard closes and you are back on the Campaigns page — your campaign will appear there with a Sent status.
+
+That's it! To check open rates and click rates later, click on the campaign name in the list.`;
+
+      session.conversationHistory.push({ role: 'user', content: message });
+      session.conversationHistory.push({ role: 'assistant', content: walkthrough });
+      chatSessions.set(sessionId || userId, session);
+      return res.json({ success: true, response: walkthrough, requiresApproval: false, completed: false, sessionId: sessionId || userId });
+    }
+
     // Process request through AI orchestrator
     const response = await chatbotOpenAI.processRequest(message, {
       userId,

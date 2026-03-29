@@ -106,6 +106,171 @@ body {
 h1, h2, h3, h4, h5, h6 { font-family: 'Lexend', sans-serif; }
 code, pre, .mono { font-family: 'Fira Code', monospace; }
 
+/* ── Indigo Noir Dark Theme Utility Classes ────────────────────────────── */
+/* Backgrounds */
+.bg-\[\#161625\] { background-color: #161625 !important; }
+.bg-\[\#12121f\] { background-color: #12121f !important; }
+.bg-\[\#1c1c30\] { background-color: #1c1c30 !important; }
+.bg-\[\#252540\] { background-color: #252540 !important; }
+.bg-\[\#0F0F1A\] { background-color: #0F0F1A !important; }
+
+/* Borders */
+.border-\[\#1c1c30\] { border-color: #1c1c30; }
+.border-\[\#2a2a44\] { border-color: #2a2a44; }
+.border-\[\#33335a\] { border-color: #33335a; }
+
+/* Text */
+.text-\[\#F1F5F9\] { color: #F1F5F9; }
+.text-\[\#E2E8F0\] { color: #E2E8F0; }
+.text-\[\#CBD5E1\] { color: #CBD5E1; }
+.text-\[\#94A3B8\] { color: #94A3B8; }
+.text-\[\#64748B\] { color: #64748B; }
+
+/* Hover states */
+.hover\:bg-\[\#1c1c30\]:hover { background-color: #1c1c30; }
+.hover\:bg-\[\#252540\]:hover { background-color: #252540; }
+
+/* Dividers */
+.divide-\[\#2a2a44\] > :not([hidden]) ~ :not([hidden]) { border-color: #2a2a44; }
+.divide-\[\#1c1c30\] > :not([hidden]) ~ :not([hidden]) { border-color: #1c1c30; }
+
+/* Placeholders */
+.placeholder-\[\#64748B\]::placeholder { color: #64748B; }
+
+/* Dark-tinted badge backgrounds */
+.bg-orange-500\/10 { background-color: rgba(249,115,22,0.1); }
+.bg-orange-500\/15 { background-color: rgba(249,115,22,0.15); }
+.bg-red-500\/10 { background-color: rgba(239,68,68,0.1); }
+.bg-red-500\/15 { background-color: rgba(239,68,68,0.15); }
+.bg-green-500\/10 { background-color: rgba(34,197,94,0.1); }
+.bg-green-500\/15 { background-color: rgba(34,197,94,0.15); }
+.bg-blue-500\/10 { background-color: rgba(59,130,246,0.1); }
+.bg-blue-500\/15 { background-color: rgba(59,130,246,0.15); }
+.bg-yellow-500\/10 { background-color: rgba(234,179,8,0.1); }
+.bg-yellow-500\/15 { background-color: rgba(234,179,8,0.15); }
+.bg-rose-500\/10 { background-color: rgba(244,63,94,0.1); }
+.bg-rose-500\/15 { background-color: rgba(244,63,94,0.15); }
+.bg-purple-500\/10 { background-color: rgba(168,85,247,0.1); }
+.bg-purple-500\/15 { background-color: rgba(168,85,247,0.15); }
+.bg-cyan-500\/10 { background-color: rgba(6,182,212,0.1); }
+.bg-cyan-500\/15 { background-color: rgba(6,182,212,0.15); }
+.bg-slate-500\/10 { background-color: rgba(100,116,139,0.1); }
+.bg-slate-500\/15 { background-color: rgba(100,116,139,0.15); }
+.bg-emerald-500\/15 { background-color: rgba(16,185,129,0.15); }
+.bg-indigo-500\/15 { background-color: rgba(99,102,241,0.15); }
+
+/* Dark-tinted badge text */
+.text-orange-400 { color: #FB923C; }
+.text-red-400 { color: #F87171; }
+.text-green-400 { color: #4ADE80; }
+.text-blue-400 { color: #60A5FA; }
+.text-yellow-400 { color: #FACC15; }
+.text-rose-400 { color: #FB7185; }
+.text-purple-400 { color: #C084FC; }
+.text-cyan-400 { color: #22D3EE; }
+.text-slate-400 { color: #94A3B8; }
+.text-emerald-400 { color: #34D399; }
+.text-indigo-400 { color: #818CF8; }
+.text-indigo-300 { color: #A5B4FC; }
+
+/* Border color overrides for badges */
+.border-green-500\/30 { border-color: rgba(34,197,94,0.3); }
+.border-red-500\/30 { border-color: rgba(239,68,68,0.3); }
+.border-orange-500\/30 { border-color: rgba(249,115,22,0.3); }
+.border-blue-500\/30 { border-color: rgba(59,130,246,0.3); }
+.border-yellow-500\/30 { border-color: rgba(234,179,8,0.3); }
+.border-indigo-500\/30 { border-color: rgba(99,102,241,0.3); }
+.border-purple-500\/30 { border-color: rgba(168,85,247,0.3); }
+.border-cyan-500\/30 { border-color: rgba(6,182,212,0.3); }
+
+/* Apple-style component classes (Indigo Noir dark theme) */
+.apple-container { max-width: 80rem; margin: 0 auto; padding: 1.5rem; background: #080810 !important; }
+.apple-heading-1 { font-size: 1.875rem; font-weight: 700; color: #F1F5F9 !important; letter-spacing: -0.025em; }
+.apple-heading-2 { font-size: 1.25rem; font-weight: 600; color: #F1F5F9 !important; }
+.apple-heading-3 { font-size: 1rem; font-weight: 600; color: #E2E8F0 !important; }
+.apple-caption { font-size: 0.875rem; color: #94A3B8 !important; margin-top: 0.25rem; }
+
+.apple-button-primary {
+  padding: 0.5rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6); color: #fff !important;
+  border: 1px solid rgba(99,102,241,0.3); cursor: pointer;
+  transition: all 0.15s; box-shadow: 0 2px 8px rgba(99,102,241,0.2);
+}
+.apple-button-primary:hover { transform: scale(1.03); box-shadow: 0 4px 16px rgba(99,102,241,0.3); }
+
+.apple-button-secondary {
+  padding: 0.5rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem;
+  background: transparent; color: #94A3B8 !important;
+  border: 1px solid #2a2a44; cursor: pointer; transition: all 0.15s;
+}
+.apple-button-secondary:hover { background: #1c1c30; color: #F1F5F9 !important; }
+
+.apple-badge-gray { background: rgba(100,116,139,0.15); color: #94A3B8; border: 1px solid rgba(100,116,139,0.2); }
+.apple-badge-orange { background: rgba(249,115,22,0.15); color: #FB923C; border: 1px solid rgba(249,115,22,0.3); }
+
+.apple-input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  background: #161625;
+  color: #F1F5F9;
+  border: 1px solid #2a2a44;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.apple-input:focus { border-color: #6366F1; box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
+.apple-input::placeholder { color: #64748B; }
+.apple-input option { background: #161625; color: #F1F5F9; }
+
+.apple-table { width: 100%; border-collapse: collapse; }
+.apple-table th { padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; background: #12121f; }
+.apple-table td { padding: 0.75rem 1rem; }
+.apple-table tr { border-bottom: 1px solid #1c1c30; }
+.apple-table tr:hover { background: #12121f; }
+
+.apple-badge {
+  display: inline-flex;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: rgba(100,116,139,0.15);
+  color: #94A3B8;
+  border: 1px solid rgba(100,116,139,0.2);
+}
+.apple-badge-blue { background: rgba(99,102,241,0.15); color: #818CF8; border-color: rgba(99,102,241,0.3); }
+.apple-badge-purple { background: rgba(139,92,246,0.15); color: #A78BFA; border-color: rgba(139,92,246,0.3); }
+.apple-badge-green { background: rgba(34,197,94,0.15); color: #4ADE80; border-color: rgba(34,197,94,0.3); }
+.apple-badge-yellow { background: rgba(234,179,8,0.15); color: #FACC15; border-color: rgba(234,179,8,0.3); }
+.apple-badge-red { background: rgba(239,68,68,0.15); color: #F87171; border-color: rgba(239,68,68,0.3); }
+
+.apple-avatar {
+  width: 2.25rem; height: 2.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+}
+
+.apple-button-icon {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: #64748B;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.apple-button-icon:hover { background: #252540; color: #818CF8; }
+
+/* Force dark background on ALL select dropdowns and options */
+select, select option {
+  background-color: #161625 !important;
+  color: #F1F5F9 !important;
+}
+
 /* Layout utilities */
 .min-h-screen { min-height: 100vh; }
 .h-screen { height: 100vh; }
@@ -281,7 +446,24 @@ code, pre, .mono { font-family: 'Fira Code', monospace; }
 .text-blue-600 { color: var(--color-primary-600); }
 
 /* Backgrounds */
-.bg-white { background-color: var(--bg-elevated); }
+.bg-white { background-color: var(--bg-elevated) !important; }
+table, thead, tbody, tr, td, th { background-color: #080810 !important; color: #F1F5F9; }
+tr:hover td { background-color: #12121f !important; }
+.apple-table th { background: #0F0F1A !important; color: #94A3B8 !important; }
+.table-header { background-color: #0F0F1A !important; color: #94A3B8 !important; }
+.table-cell { color: #F1F5F9 !important; }
+main { background: transparent; }
+.hover\:bg-white:hover { background-color: var(--color-gray-200) !important; }
+.hover\:bg-gray-50:hover { background-color: var(--color-gray-100) !important; }
+.hover\:bg-gray-100:hover { background-color: var(--color-gray-200) !important; }
+.hover\:bg-gray-200:hover { background-color: var(--color-gray-300) !important; }
+.divide-gray-100 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-gray-200); }
+.divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--color-gray-300); }
+.border-gray-100 { border-color: var(--color-gray-200); }
+.border-gray-200 { border-color: var(--color-gray-300); }
+.border-gray-300 { border-color: var(--border-hover); }
+.placeholder-gray-400::placeholder { color: var(--text-muted); }
+.placeholder-gray-500::placeholder { color: var(--text-muted); }
 .bg-gray-50 { background-color: var(--color-gray-50); }
 .bg-gray-100 { background-color: var(--color-gray-100); }
 .bg-gray-200 { background-color: var(--color-gray-200); }
@@ -866,7 +1048,8 @@ code, pre, .mono { font-family: 'Fira Code', monospace; }
   width: 100%;
   border-radius: var(--radius-xl);
   border: 2px solid var(--glass-border);
-  background-color: var(--glass-bg);
+  background-color: #161625;
+  color: #F1F5F9;
   padding: 0.75rem 1rem;
   font-size: 1rem;
   line-height: 1.5rem;
@@ -1314,3 +1497,47 @@ code, pre, .mono { font-family: 'Fira Code', monospace; }
 .to-gray-500   { --tw-gradient-to: #64748B; }
 .to-gray-600   { --tw-gradient-to: #94A3B8; }
 .to-gray-950   { --tw-gradient-to: #080810; }
+
+/* ── Apple Design System — Dark Theme Overrides ───────────────────────── */
+/* Override hardcoded light values in appleDesign.css for Indigo Noir theme */
+:root {
+  --apple-gray-1: rgba(255, 255, 255, 0.08);
+  --apple-gray-2: rgba(255, 255, 255, 0.14);
+  --apple-gray-3: rgba(255, 255, 255, 0.2);
+  --apple-gray-4: #94A3B8;
+  --apple-gray-5: #CBD5E1;
+  --apple-gray-6: #F1F5F9;
+}
+
+.apple-card {
+  background: rgba(22, 22, 37, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Form inputs — visible dark background with light border */
+.bg-gray-50  { background-color: rgba(255, 255, 255, 0.07) !important; }
+.bg-gray-100 { background-color: rgba(255, 255, 255, 0.1)  !important; }
+
+/* Input borders — make them visible */
+.border-gray-300 { border-color: rgba(255, 255, 255, 0.2) !important; }
+.border-gray-200 { border-color: rgba(255, 255, 255, 0.12) !important; }
+
+/* Dropdowns and popover menus that use bg-white */
+.bg-white.rounded-lg,
+.bg-white.rounded-xl,
+.bg-white.rounded-2xl,
+.bg-white.rounded-\[40px\] {
+  background: rgba(22, 22, 37, 0.97) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Gradient light cards used in custom fields etc */
+.from-orange-50    { --tw-gradient-from: rgba(99, 102, 241, 0.1) !important; }
+.to-rose-50        { --tw-gradient-to:   rgba(139, 92, 246, 0.1) !important; }
+.border-orange-200 { border-color: rgba(99, 102, 241, 0.25) !important; }
+
+/* Select dropdowns */
+select.bg-gray-50,
+select { background-color: rgba(255, 255, 255, 0.07) !important; color: #F1F5F9 !important; }

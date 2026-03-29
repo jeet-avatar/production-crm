@@ -142,12 +142,12 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <DocumentTextIcon className="h-5 w-5 text-gray-500" />
-            <h3 className="text-lg font-semibold text-gray-900">Quotes</h3>
+            <DocumentTextIcon className="h-5 w-5 text-[#94A3B8]" />
+            <h3 className="text-lg font-semibold text-[#F1F5F9]">Quotes</h3>
           </div>
           <div className="flex items-center gap-3">
             {deal.stage !== 'CLOSED_WON' && (
-              <span className="text-xs text-gray-400">Available when deal is Closed Won</span>
+              <span className="text-xs text-[#64748B]">Available when deal is Closed Won</span>
             )}
             {deal.stage === 'CLOSED_WON' && (
               <button
@@ -169,12 +169,12 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
         ) : error ? (
           <p className="text-red-500 text-sm">{error}</p>
         ) : quotes.length === 0 ? (
-          <p className="text-gray-500 text-sm">No quotes yet.</p>
+          <p className="text-[#94A3B8] text-sm">No quotes yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead>
-                <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <tr className="text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
                   <th className="pb-3 pr-4">Title</th>
                   <th className="pb-3 pr-4">Total</th>
                   <th className="pb-3 pr-4">Status</th>
@@ -182,23 +182,23 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
                   <th className="pb-3">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#1c1c30]">
                 {quotes.map((quote) => (
                   <tr key={quote.id} className="text-sm">
-                    <td className="py-3 pr-4 font-medium text-gray-900">{quote.title}</td>
-                    <td className="py-3 pr-4 text-gray-700">{formatCurrency(quote.total)}</td>
+                    <td className="py-3 pr-4 font-medium text-[#F1F5F9]">{quote.title}</td>
+                    <td className="py-3 pr-4 text-[#CBD5E1]">{formatCurrency(quote.total)}</td>
                     <td className="py-3 pr-4">
                       <span className={quoteStatusBadge[quote.status] || 'badge badge-gray'}>
                         {quote.status}
                       </span>
                     </td>
-                    <td className="py-3 pr-4 text-gray-500">{formatDate(quote.createdAt)}</td>
+                    <td className="py-3 pr-4 text-[#94A3B8]">{formatDate(quote.createdAt)}</td>
                     <td className="py-3">
                       <div className="flex items-center gap-2">
                         <select
                           value={quote.status}
                           onChange={(e) => handleQuoteStatusChange(quote.id, e.target.value)}
-                          className="text-xs border border-gray-200 rounded px-1.5 py-1 bg-white text-gray-700 hover:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-colors"
+                          className="text-xs border border-[#2a2a44] rounded px-1.5 py-1 bg-[#161625] text-[#CBD5E1] hover:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-colors"
                           title="Change status"
                         >
                           <option value="DRAFT">Draft</option>
@@ -210,7 +210,7 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
                         <button
                           type="button"
                           onClick={() => handleDeleteQuote(quote.id)}
-                          className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                          className="p-1 rounded hover:bg-red-500/10 text-[#64748B] hover:text-red-600 transition-colors"
                           title="Delete quote"
                         >
                           <TrashIcon className="h-4 w-4" />
@@ -229,8 +229,8 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <DocumentTextIcon className="h-5 w-5 text-gray-500" />
-            <h3 className="text-lg font-semibold text-gray-900">Contracts</h3>
+            <DocumentTextIcon className="h-5 w-5 text-[#94A3B8]" />
+            <h3 className="text-lg font-semibold text-[#F1F5F9]">Contracts</h3>
           </div>
           <button
             type="button"
@@ -247,12 +247,12 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           </div>
         ) : contracts.length === 0 ? (
-          <p className="text-gray-500 text-sm">No contracts yet.</p>
+          <p className="text-[#94A3B8] text-sm">No contracts yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead>
-                <tr className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <tr className="text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
                   <th className="pb-3 pr-4">Title</th>
                   <th className="pb-3 pr-4">Status</th>
                   <th className="pb-3 pr-4">Signed By</th>
@@ -260,23 +260,23 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
                   <th className="pb-3">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-[#1c1c30]">
                 {contracts.map((contract) => (
                   <tr key={contract.id} className="text-sm">
-                    <td className="py-3 pr-4 font-medium text-gray-900">{contract.title}</td>
+                    <td className="py-3 pr-4 font-medium text-[#F1F5F9]">{contract.title}</td>
                     <td className="py-3 pr-4">
                       <span className={contractStatusBadge[contract.status] || 'badge badge-gray'}>
                         {contract.status.replace(/_/g, ' ')}
                       </span>
                     </td>
-                    <td className="py-3 pr-4 text-gray-500">{contract.signedBy || '—'}</td>
-                    <td className="py-3 pr-4 text-gray-500">{formatDate(contract.createdAt)}</td>
+                    <td className="py-3 pr-4 text-[#94A3B8]">{contract.signedBy || '—'}</td>
+                    <td className="py-3 pr-4 text-[#94A3B8]">{formatDate(contract.createdAt)}</td>
                     <td className="py-3">
                       <div className="flex items-center gap-2">
                         <select
                           value={contract.status}
                           onChange={(e) => handleContractStatusChange(contract.id, e.target.value)}
-                          className="text-xs border border-gray-200 rounded px-1.5 py-1 bg-white text-gray-700 hover:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-colors"
+                          className="text-xs border border-[#2a2a44] rounded px-1.5 py-1 bg-[#161625] text-[#CBD5E1] hover:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 transition-colors"
                           title="Change status"
                         >
                           <option value="DRAFT">Draft</option>
@@ -287,7 +287,7 @@ export function DocumentsTab({ dealId, deal }: DocumentsTabProps) {
                         <button
                           type="button"
                           onClick={() => handleDeleteContract(contract.id)}
-                          className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                          className="p-1 rounded hover:bg-red-500/10 text-[#64748B] hover:text-red-600 transition-colors"
                           title="Delete contract"
                         >
                           <TrashIcon className="h-4 w-4" />

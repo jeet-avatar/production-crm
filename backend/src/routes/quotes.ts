@@ -18,15 +18,18 @@ function serializeQuote(q: any) {
   };
 }
 
-// GET /api/quotes - List quotes filtered by ?dealId=
+// GET /api/quotes - List quotes, optionally filtered by ?dealId=
 router.get('/', async (req, res, next) => {
   try {
     const { dealId } = req.query as { dealId?: string };
 
+    const where: any = { userId: req.user!.id };
+    if (dealId) where.dealId = dealId;
+
     const quotes = await prisma.quote.findMany({
-      where: {
-        dealId: dealId as string,
-        userId: req.user!.id,
+      where,
+      include: {
+        deal: { select: { id: true, title: true } },
       },
       orderBy: { createdAt: 'desc' },
     });

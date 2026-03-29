@@ -162,10 +162,10 @@ export function DealForm({ deal, onClose }: DealFormProps) {
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl border-4 border-orange-300 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#161625] rounded-xl shadow-2xl border-4 border-orange-300 max-w-lg w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-orange-200 bg-gradient-to-r from-orange-50 to-rose-50">
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-[#F1F5F9]">
             {deal ? 'Edit Deal' : 'Add Deal'}
           </h2>
           <button
@@ -181,14 +181,14 @@ export function DealForm({ deal, onClose }: DealFormProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-500/10 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {/* Deal Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="title" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Deal Title *
             </label>
             <input
@@ -205,7 +205,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
           {/* Value and Stage */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="value" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="value" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Deal Value *
               </label>
               <input
@@ -221,7 +221,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="stage" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="stage" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Stage
               </label>
               <select
@@ -242,7 +242,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
           {/* Probability and Close Date */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="probability" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="probability" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Probability (%)
               </label>
               <input
@@ -256,7 +256,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
               />
             </div>
             <div>
-              <label htmlFor="closeDate" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="closeDate" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Expected Close Date
               </label>
               <input
@@ -272,7 +272,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
           {/* Contact and Company */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="contact" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="contact" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Contact
               </label>
               <select
@@ -290,7 +290,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
               </select>
             </div>
             <div>
-              <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="company" className="block text-sm font-medium text-[#CBD5E1] mb-1">
                 Company
               </label>
               <select
@@ -311,7 +311,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Description
             </label>
             <textarea
@@ -325,13 +325,13 @@ export function DealForm({ deal, onClose }: DealFormProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-between pt-4 border-t border-[#2a2a44]">
             <div>
               {deal && (
                 <button
                   type="button"
                   onClick={handleDeleteDeal}
-                  className="text-red-600 hover:text-red-700 text-sm font-medium"
+                  className="text-red-600 hover:text-red-400 text-sm font-medium"
                   disabled={loading}
                 >
                   Delete Deal
@@ -342,7 +342,7 @@ export function DealForm({ deal, onClose }: DealFormProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
+                className="px-4 py-2 border-2 border-[#33335a] rounded-lg hover:bg-[#12121f] transition-colors font-medium text-[#CBD5E1]"
                 disabled={loading}
               >
                 Cancel

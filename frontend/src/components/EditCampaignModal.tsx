@@ -161,18 +161,18 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={onClose}>
       <div
-        className="bg-white rounded-xl shadow-2xl border-4 border-gray-300 max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col"
+        className="bg-[#161625] rounded-xl shadow-2xl border-4 border-[#33335a] max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-indigo-600 to-purple-600">
+        <div className="flex items-center justify-between p-6 border-b border-[#2a2a44] bg-gradient-to-r from-indigo-600 to-purple-600">
           <div>
             <h2 className="text-2xl font-bold text-white">Edit Campaign</h2>
             <p className="text-sm text-white opacity-90 mt-1">{campaignName}</p>
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:bg-white hover:bg-opacity-20 transition-colors p-2 rounded-lg"
+            className="text-white hover:bg-[#161625] hover:bg-opacity-20 transition-colors p-2 rounded-lg"
           >
             <XMarkIcon className="w-6 h-6" />
           </button>
@@ -181,13 +181,13 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
         {/* Messages */}
         <div className="px-6 pt-4">
           {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            <div className="mb-4 bg-red-500/10 border border-red-200 text-red-400 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
+            <div className="mb-4 bg-green-500/10 border border-green-200 text-green-400 px-4 py-3 rounded-lg text-sm">
               {success}
             </div>
           )}
@@ -200,7 +200,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
               {/* Current Companies List */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-[#F1F5F9] flex items-center gap-2">
                     <BuildingOfficeIcon className="h-5 w-5" />
                     Companies in Campaign ({campaignCompanies.length})
                   </h3>
@@ -218,9 +218,9 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                   </div>
                 ) : campaignCompanies.length === 0 ? (
-                  <div className="bg-gray-50 rounded-xl p-8 text-center">
-                    <BuildingOfficeIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 font-medium mb-4">No companies in this campaign yet</p>
+                  <div className="bg-[#12121f] rounded-xl p-8 text-center">
+                    <BuildingOfficeIcon className="h-12 w-12 text-[#64748B] mx-auto mb-3" />
+                    <p className="text-[#94A3B8] font-medium mb-4">No companies in this campaign yet</p>
                     <button
                       onClick={() => setShowAddCompanies(true)}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md"
@@ -234,23 +234,23 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                     {campaignCompanies.map((company) => (
                       <div
                         key={company.id}
-                        className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-orange-300 transition-all duration-200 flex items-center justify-between"
+                        className="bg-[#161625] border-2 border-[#2a2a44] rounded-lg p-4 hover:shadow-md hover:border-orange-300 transition-all duration-200 flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
                             <BuildingOfficeIcon className="h-6 w-6 text-white" />
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900">{company.name}</p>
+                            <p className="font-semibold text-[#F1F5F9]">{company.name}</p>
                             {company.industry && (
-                              <p className="text-sm text-gray-500">{company.industry}</p>
+                              <p className="text-sm text-[#94A3B8]">{company.industry}</p>
                             )}
                           </div>
                         </div>
                         <button
                           onClick={() => handleRemoveCompany(company.id, company.name)}
                           disabled={loading}
-                          className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-all flex items-center gap-2 font-medium disabled:opacity-50"
+                          className="px-3 py-2 text-red-600 hover:bg-red-500/10 rounded-lg transition-all flex items-center gap-2 font-medium disabled:opacity-50"
                         >
                           <TrashIcon className="h-4 w-4" />
                           Remove
@@ -266,13 +266,13 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
               {/* Add Companies View */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Add Companies to Campaign</h3>
+                  <h3 className="text-lg font-semibold text-[#F1F5F9]">Add Companies to Campaign</h3>
                   <button
                     onClick={() => {
                       setShowAddCompanies(false);
                       setSearchTerm('');
                     }}
-                    className="text-sm text-gray-600 hover:text-gray-800 font-medium"
+                    className="text-sm text-[#94A3B8] hover:text-[#E2E8F0] font-medium"
                   >
                     ← Back to Campaign
                   </button>
@@ -280,13 +280,13 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
 
                 {/* Search */}
                 <div className="relative mb-4">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#64748B]" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search companies..."
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                   />
                 </div>
 
@@ -296,9 +296,9 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                   </div>
                 ) : filteredCompanies.length === 0 ? (
-                  <div className="bg-gray-50 rounded-xl p-8 text-center">
-                    <BuildingOfficeIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                    <p className="text-gray-600 font-medium">
+                  <div className="bg-[#12121f] rounded-xl p-8 text-center">
+                    <BuildingOfficeIcon className="h-12 w-12 text-[#64748B] mx-auto mb-3" />
+                    <p className="text-[#94A3B8] font-medium">
                       {searchTerm ? 'No companies found matching your search' : 'All companies have been added to this campaign'}
                     </p>
                   </div>
@@ -307,16 +307,16 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
                     {filteredCompanies.map((company) => (
                       <div
                         key={company.id}
-                        className="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-green-300 transition-all duration-200 flex items-center justify-between"
+                        className="bg-[#161625] border-2 border-[#2a2a44] rounded-lg p-4 hover:shadow-md hover:border-green-300 transition-all duration-200 flex items-center justify-between"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
                             <BuildingOfficeIcon className="h-6 w-6 text-white" />
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-900">{company.name}</p>
+                            <p className="font-semibold text-[#F1F5F9]">{company.name}</p>
                             {company.industry && (
-                              <p className="text-sm text-gray-500">{company.industry}</p>
+                              <p className="text-sm text-[#94A3B8]">{company.industry}</p>
                             )}
                           </div>
                         </div>
@@ -338,7 +338,7 @@ export function EditCampaignModal({ isOpen, onClose, campaignId, campaignName, o
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex gap-3 p-6 border-t border-[#2a2a44] bg-[#12121f]">
           <button
             onClick={() => {
               onSuccess?.();

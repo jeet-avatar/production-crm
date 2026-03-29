@@ -223,7 +223,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-4">
-      <div className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col mx-auto">
+      <div className="bg-[#161625] border-4 border-black rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col mx-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-rose-500 p-8 relative rounded-t-3xl">
           <div className="flex justify-between items-start mb-3">
@@ -240,8 +240,8 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('quickstart')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'quickstart'
-                  ? 'bg-white text-white font-bold shadow-lg border border-indigo-500/30'
-                  : 'bg-white/40 text-white/70 hover:bg-white/60'
+                  ? 'bg-[#161625] text-white font-bold shadow-lg border border-indigo-500/30'
+                  : 'bg-[#161625]/40 text-white/70 hover:bg-[#161625]/60'
               }`}
             >
               Quick Start
@@ -251,8 +251,8 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('features')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'features'
-                  ? 'bg-white text-white font-bold shadow-lg border border-indigo-500/30'
-                  : 'bg-white/40 text-white/70 hover:bg-white/60'
+                  ? 'bg-[#161625] text-white font-bold shadow-lg border border-indigo-500/30'
+                  : 'bg-[#161625]/40 text-white/70 hover:bg-[#161625]/60'
               }`}
             >
               Features
@@ -262,8 +262,8 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
               onClick={() => setActiveTab('tips')}
               className={`px-6 py-3 rounded-xl transition-all ${
                 activeTab === 'tips'
-                  ? 'bg-white text-white font-bold shadow-lg border border-indigo-500/30'
-                  : 'bg-white/40 text-white/70 hover:bg-white/60'
+                  ? 'bg-[#161625] text-white font-bold shadow-lg border border-indigo-500/30'
+                  : 'bg-[#161625]/40 text-white/70 hover:bg-[#161625]/60'
               }`}
             >
               Pro Tips
@@ -376,7 +376,7 @@ export function AnalyticsHelpGuide({ onClose }: HelpGuideProps) {
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 border-t-2 border-black p-6">
+        <div className="bg-[#12121f] border-t-2 border-black p-6">
           <button
             type="button"
             onClick={onClose}

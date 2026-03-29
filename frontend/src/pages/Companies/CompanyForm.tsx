@@ -100,17 +100,17 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl border-4 border-orange-300 max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div style={{ background: "rgba(0,0,0,0.8)" }} className="fixed inset-0 flex items-center justify-center p-4 z-50">
+      <div className="bg-[#161625] rounded-xl shadow-2xl  max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-orange-200 bg-gradient-to-r from-orange-50 to-rose-50">
-          <h2 className="text-xl font-bold text-gray-900">
+          <h2 className="text-xl font-bold text-[#F1F5F9]">
             {company ? 'Edit Company' : 'Add Company'}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-white hover:bg-black/10 rounded-full p-2 transition-colors"
+            className="text-white hover:bg-[#161625]/20 rounded-full p-2 transition-colors"
             title="Close modal"
           >
             <XMarkIcon className="h-6 w-6" />
@@ -120,14 +120,14 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-500/10 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
           {/* Company Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="name" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Company Name *
             </label>
             <input
@@ -143,7 +143,7 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
 
           {/* Domain */}
           <div>
-            <label htmlFor="domain" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="domain" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Website Domain
             </label>
             <input
@@ -158,7 +158,7 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
 
           {/* Industry */}
           <div>
-            <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="industry" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Industry
             </label>
             <select
@@ -178,7 +178,7 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
 
           {/* Company Size */}
           <div>
-            <label htmlFor="size" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="size" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Company Size
             </label>
             <select
@@ -198,7 +198,7 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-[#CBD5E1] mb-1">
               Description
             </label>
             <textarea
@@ -216,7 +216,7 @@ export function CompanyForm({ company, onClose }: CompanyFormProps) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
+              className="px-4 py-2 border-2 border-[#33335a] rounded-lg hover:bg-[#12121f] transition-colors font-medium text-[#CBD5E1]"
               disabled={loading}
             >
               Cancel

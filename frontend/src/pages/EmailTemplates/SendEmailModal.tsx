@@ -201,9 +201,10 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.8)', zIndex: 60 }}>
       <div
-        className="bg-white border-4 border-black rounded-3xl shadow-2xl max-w-3xl w-full my-8 flex flex-col max-h-[90vh]"
+        style={{ background: '#161625', border: '1px solid #2a2a44', maxHeight: '85vh' }}
+        className="rounded-2xl shadow-2xl max-w-3xl w-full flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -218,7 +219,7 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
             <button
               type="button"
               onClick={onClose}
-              className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-all"
+              className="text-white hover:bg-[#161625]/20 p-2 rounded-lg transition-all"
               aria-label="Close modal"
             >
               <XMarkIcon className="w-6 h-6" />
@@ -229,27 +230,27 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
         {/* Body */}
         <div className="flex-1 p-6 overflow-y-auto">
           {error && (
-            <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
-              <p className="text-sm text-red-700 font-medium">{error}</p>
+            <div className="mb-4 bg-[var(--color-error-100)] border-l-4 border-red-500 p-4 rounded-r-xl">
+              <p className="text-sm text-[var(--color-error-500)] font-medium">{error}</p>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-xl">
-              <p className="text-sm text-green-700 font-medium">{success}</p>
+            <div className="mb-4 border-l-4 border-green-500 p-4 rounded-r-xl" style={{ background: 'rgba(34,197,94,0.1)' }}>
+              <p className="text-sm font-medium" style={{ color: '#4ADE80' }}>{success}</p>
             </div>
           )}
 
           {/* Mode Toggle */}
           <div className="mb-6">
-            <div className="flex gap-2 bg-gray-100 rounded-xl p-1">
+            <div className="flex gap-2 bg-[var(--color-gray-100)] rounded-xl p-1">
               <button
                 type="button"
                 onClick={() => setSendMode('contacts')}
                 className={`flex-1 px-4 py-2.5 rounded-lg font-bold transition-all ${
                   sendMode === 'contacts'
                     ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
-                    : 'text-gray-600 hover:bg-gray-200'
+                    : 'text-[var(--text-muted)] hover:bg-[var(--glass-hover)]'
                 }`}
               >
                 <UserGroupIcon className="h-5 w-5 inline mr-2" />
@@ -261,7 +262,7 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
                 className={`flex-1 px-4 py-2.5 rounded-lg font-bold transition-all ${
                   sendMode === 'test'
                     ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-md`
-                    : 'text-gray-600 hover:bg-gray-200'
+                    : 'text-[var(--text-muted)] hover:bg-[var(--glass-hover)]'
                 }`}
               >
                 <PaperAirplaneIcon className="h-5 w-5 inline mr-2" />
@@ -279,7 +280,8 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
                   placeholder="Search contacts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  style={{ background: '#161625', color: '#F1F5F9' }}
+                  className="w-full px-4 py-3 border border-[var(--border-default)] rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                 />
               </div>
 
@@ -290,43 +292,43 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
                     type="checkbox"
                     checked={selectedContacts.length === filteredContacts.length && filteredContacts.length > 0}
                     onChange={handleSelectAll}
-                    className="w-5 h-5 text-indigo-400 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2"
+                    className="w-5 h-5 text-indigo-400 bg-[var(--color-gray-100)] border-[var(--border-default)] rounded focus:ring-indigo-500 focus:ring-2"
                   />
-                  <span className="text-sm font-bold text-gray-700">
+                  <span className="text-sm font-bold text-[var(--text-secondary)]">
                     Select All ({filteredContacts.length})
                   </span>
                 </label>
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-[var(--text-muted)]">
                   {selectedContacts.length} selected
                 </span>
               </div>
 
               {/* Contacts List */}
-              <div className="border border-gray-200 rounded-xl max-h-96 overflow-y-auto">
+              <div className="border border-[var(--border-default)] rounded-xl max-h-96 overflow-y-auto">
                 {filteredContacts.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
+                  <div className="p-8 text-center text-[var(--text-muted)]">
                     <p>No contacts found</p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-gray-200">
+                  <div className="divide-y divide-[var(--border-default)]">
                     {filteredContacts.map((contact) => (
                       <label
                         key={contact.id}
-                        className="flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                        className="flex items-center gap-3 p-4 hover:bg-[var(--glass-hover)] cursor-pointer transition-colors"
                       >
                         <input
                           type="checkbox"
                           checked={selectedContacts.includes(contact.id)}
                           onChange={() => handleToggleContact(contact.id)}
-                          className="w-5 h-5 text-indigo-400 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2"
+                          className="w-5 h-5 text-indigo-400 bg-[var(--color-gray-100)] border-[var(--border-default)] rounded focus:ring-indigo-500 focus:ring-2"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-gray-900">
+                          <p className="text-sm font-bold text-[var(--text-primary)]">
                             {contact.firstName} {contact.lastName}
                           </p>
-                          <p className="text-xs text-gray-600 truncate">{contact.email}</p>
+                          <p className="text-xs text-[var(--text-muted)] truncate">{contact.email}</p>
                           {contact.companyName && (
-                            <p className="text-xs text-gray-500">{contact.companyName}</p>
+                            <p className="text-xs text-[var(--text-muted)]">{contact.companyName}</p>
                           )}
                         </div>
                       </label>
@@ -339,7 +341,7 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
             <>
               {/* Test Email */}
               <div className="mb-4">
-                <label className="block text-sm font-bold text-gray-700 mb-2">
+                <label className="block text-sm font-bold text-[var(--text-secondary)] mb-2">
                   Test Email Address
                 </label>
                 <input
@@ -347,43 +349,45 @@ export function SendEmailModal({ isOpen, onClose, template }: SendEmailModalProp
                   value={testEmail}
                   onChange={(e) => setTestEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  style={{ background: '#161625', color: '#F1F5F9' }}
+                  className="w-full px-4 py-3 border border-[var(--border-default)] rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                 />
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-[var(--text-muted)] mt-2">
                   Test emails will use sample data for template variables
                 </p>
               </div>
 
               {/* Template Preview */}
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                <p className="text-xs font-bold text-gray-700 mb-2">Subject Preview:</p>
-                <p className="text-sm text-gray-900 font-medium mb-3">{template.subject}</p>
+              <div className="bg-[var(--bg-base)] border border-[var(--border-default)] rounded-xl p-4">
+                <p className="text-xs font-bold text-[var(--text-secondary)] mb-2">Subject Preview:</p>
+                <p className="text-sm text-[var(--text-primary)] font-medium mb-3">{template.subject}</p>
 
-                <p className="text-xs font-bold text-gray-700 mb-2">Variables in this template:</p>
+                <p className="text-xs font-bold text-[var(--text-secondary)] mb-2">Variables in this template:</p>
                 {template.variables && template.variables.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {template.variables.map((variable, index) => (
                       <span
                         key={index}
-                        className="inline-block px-2 py-1 rounded-lg text-xs font-bold text-orange-700 bg-orange-100"
+                        className="inline-block px-2 py-1 rounded-lg text-xs font-bold text-indigo-300 bg-indigo-500/15"
                       >
                         {`{{${variable}}}`}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-gray-500">No variables detected</p>
+                  <p className="text-xs text-[var(--text-muted)]">No variables detected</p>
                 )}
               </div>
             </>
           )}
 
           {/* Actions */}
-          <div className="pt-6 flex justify-end gap-3 border-t border-gray-200 mt-6">
+          <div className="pt-6 flex justify-end gap-3 border-t border-[var(--border-default)] mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2.5 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-bold tracking-wide hover:bg-gray-50 hover:border-gray-400 transition-all"
+              style={{ background: '#1c1c30' }}
+              className="px-6 py-2.5 text-[var(--text-secondary)] border-2 border-[var(--border-default)] rounded-xl font-bold tracking-wide hover:bg-[#252540] transition-all"
             >
               Cancel
             </button>

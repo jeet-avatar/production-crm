@@ -201,14 +201,14 @@ export function CompanyList() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-6 max-w-7xl mx-auto">
       {/* Main Container with Border */}
-      <div className="border-2 border-gray-200 rounded-2xl bg-white shadow-sm overflow-hidden">
+      <div className="border-2 border-[#2a2a44] rounded-2xl bg-[#161625] shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center p-8 border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-[#2a2a44] bg-[#0F0F1A]">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Companies</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-[#F1F5F9]">Companies</h1>
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
@@ -218,7 +218,7 @@ export function CompanyList() {
                 <QuestionMarkCircleIcon className="h-5 w-5" />
               </button>
             </div>
-            <p className="text-sm font-medium text-gray-600 mt-1">Manage your business relationships • Click ? for help</p>
+            <p className="text-sm font-medium text-[#94A3B8] mt-1">Manage your business relationships • Click ? for help</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -258,11 +258,11 @@ export function CompanyList() {
         </div>
 
         {/* Search and Filters */}
-        <div className="p-6 border-b border-gray-200 bg-gray-50 space-y-4">
+        <div className="px-6 py-3 border-b border-[#2a2a44] bg-[#12121f] space-y-4">
           <div className="flex items-center gap-4">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#64748B]" />
               <input
                 type="text"
                 placeholder="Search companies..."
@@ -274,16 +274,16 @@ export function CompanyList() {
 
             {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
-              <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+              <label className="text-sm font-semibold text-[#CBD5E1] flex items-center gap-2">
                 Sort by:
                 {sortBy !== 'createdAt' && (
-                  <span className="text-xs text-green-600 font-medium">✓ Saved</span>
+                  <span className="text-xs text-green-400 font-medium">✓ Saved</span>
                 )}
               </label>
               <select
                 value={sortBy}
                 onChange={(e) => handleSortChange(e.target.value)}
-                className="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                className="px-3 py-2 border-2 border-[#33335a] rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-[#161625]"
                 title="Your preference is automatically saved"
               >
                 <option value="createdAt">Recently Added</option>
@@ -296,13 +296,13 @@ export function CompanyList() {
               {/* Sort Order Toggle */}
               <button
                 onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                className="p-2 hover:bg-[#252540] rounded-lg transition-colors"
                 title={`${sortOrder === 'asc' ? 'Ascending' : 'Descending'} - Preference saved automatically`}
               >
                 {sortOrder === 'asc' ? (
-                  <ChevronUpIcon className="w-5 h-5 text-gray-600" />
+                  <ChevronUpIcon className="w-5 h-5 text-[#94A3B8]" />
                 ) : (
-                  <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                  <ChevronDownIcon className="w-5 h-5 text-[#94A3B8]" />
                 )}
               </button>
             </div>
@@ -313,13 +313,13 @@ export function CompanyList() {
               className={`px-4 py-2 flex items-center gap-2 rounded-xl font-bold tracking-wide transition-all shadow-md ${
                 showFilters
                   ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
-                  : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
+                  : 'bg-[#161625] border-2 border-[#33335a] text-[#CBD5E1] hover:bg-[#12121f]'
               }`}
             >
               <FunnelIcon className="w-4 h-4" />
               Filters
               {industryFilter && (
-                <span className="px-2 py-0.5 bg-white text-indigo-400 rounded-full text-xs font-bold">
+                <span className="px-2 py-0.5 bg-[#161625] text-indigo-400 rounded-full text-xs font-bold">
                   1
                 </span>
               )}
@@ -329,7 +329,7 @@ export function CompanyList() {
             {(searchTerm || industryFilter || sortBy !== 'createdAt') && (
               <button
                 onClick={clearFilters}
-                className="px-4 py-2 flex items-center gap-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                className="px-4 py-2 flex items-center gap-2 text-sm font-semibold text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
               >
                 <XMarkIcon className="w-4 h-4" />
                 Clear All
@@ -339,8 +339,8 @@ export function CompanyList() {
 
           {/* Advanced Filters Panel */}
           {showFilters && (
-            <div className="p-4 bg-white border-2 border-gray-200 rounded-xl space-y-4">
-              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <div className="p-4 bg-[#161625] border-2 border-[#2a2a44] rounded-xl space-y-4">
+              <h3 className="text-sm font-bold text-[#F1F5F9] mb-3 flex items-center gap-2">
                 <FunnelIcon className="w-4 h-4" />
                 Advanced Filters
               </h3>
@@ -348,7 +348,7 @@ export function CompanyList() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Industry Filter */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                     Industry
                   </label>
                   <input
@@ -362,7 +362,7 @@ export function CompanyList() {
 
                 {/* Quick Industry Tags */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                     Quick Select
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -373,7 +373,7 @@ export function CompanyList() {
                         className={`px-3 py-1.5 text-xs font-bold rounded-xl tracking-wide transition-all shadow-sm ${
                           industryFilter === ind
                             ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white`
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            : 'bg-[#1c1c30] text-[#CBD5E1] hover:bg-[#252540]'
                         }`}
                       >
                         {ind}
@@ -388,7 +388,7 @@ export function CompanyList() {
 
         {/* Error Message */}
         {error && (
-          <div className="mx-6 my-4 bg-red-50 border-l-4 border-red-500 text-red-700 px-6 py-4 rounded-r-lg">
+          <div className="mx-6 my-4 bg-red-500/10 border-l-4 border-red-500 text-red-400 px-6 py-4 rounded-r-lg">
             {error}
           </div>
         )}
@@ -397,24 +397,24 @@ export function CompanyList() {
         <div className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-[#12121f]">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Company</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Industry</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Headquarters</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Employees</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contacts</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Data Source</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Company</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Industry</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Headquarters</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Employees</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Contacts</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Data Source</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody>
               {companies.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-16 text-center">
-                    <BuildingOfficeIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                    <p className="text-lg font-medium text-gray-500 mb-2">No companies found</p>
-                    <p className="text-sm text-gray-400 mb-6">Get started by adding your first company</p>
+                  <td colSpan={7} className="px-4 py-12 text-center">
+                    <BuildingOfficeIcon className="h-16 w-16 text-[#64748B] mx-auto mb-4" />
+                    <p className="text-lg font-medium text-[#94A3B8] mb-2">No companies found</p>
+                    <p className="text-sm text-[#64748B] mb-6">Get started by adding your first company</p>
                     <button
                       onClick={handleAddCompany}
                       className={`bg-gradient-to-r ${gradients.brand.primary.gradient} text-white font-bold px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 tracking-wide`}
@@ -429,63 +429,63 @@ export function CompanyList() {
                     <tr
                       key={company.id}
                       onClick={() => navigate(`/companies/${company.id}`)}
-                      className="cursor-pointer hover:bg-gray-50 transition-colors border-b border-gray-100"
+                      className="cursor-pointer hover:bg-[#12121f] transition-colors border-b border-[#1c1c30]"
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} text-white font-bold flex items-center justify-center text-sm shadow-md`}>
                             {company.name.substring(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-medium text-gray-900">{company.name}</div>
+                            <div className="font-medium text-[#F1F5F9]">{company.name}</div>
                             {company.domain && (
-                              <div className="text-sm text-gray-500">{company.domain}</div>
+                              <div className="text-sm text-[#94A3B8]">{company.domain}</div>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-[#CBD5E1]">
                         {company.industry || '-'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-[#CBD5E1]">
                         {company.location || '-'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-[#CBD5E1]">
                         {company.employeeCount || '-'}
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm font-medium text-gray-900">
+                      <td className="px-4 py-3">
+                        <span className="text-sm font-medium text-[#F1F5F9]">
                           {company._count?.contacts || 0}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         {company.dataSource === 'csv_import' ? (
-                          <span className="px-2 py-1 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold">
+                          <span className="px-2 py-1 bg-orange-500/15 text-orange-400 rounded-lg text-xs font-bold">
                             📄 Manual Research
                           </span>
                         ) : company.dataSource === 'apollo' ? (
-                          <span className="px-2 py-1 bg-rose-50 text-rose-700 rounded-lg text-xs font-bold">
+                          <span className="px-2 py-1 bg-rose-500/15 text-rose-400 rounded-lg text-xs font-bold">
                             ⚡ Apollo.io
                           </span>
                         ) : company.dataSource === 'lead_discovery' ? (
-                          <span className="px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs font-bold">
+                          <span className="px-2 py-1 bg-green-500/15 text-green-400 rounded-lg text-xs font-bold">
                             🎯 Lead Discovery
                           </span>
                         ) : company.dataSource === 'manual_contact' ? (
-                          <span className="px-2 py-1 bg-orange-50 text-orange-700 rounded-lg text-xs font-bold">
+                          <span className="px-2 py-1 bg-orange-500/15 text-orange-400 rounded-lg text-xs font-bold">
                             👤 Added via Contact
                           </span>
                         ) : company.dataSource === 'socialflow' ? (
-                          <span className="px-2 py-1 bg-cyan-100 text-cyan-700 rounded text-xs font-medium">
+                          <span className="px-2 py-1 bg-cyan-500/15 text-cyan-400 rounded text-xs font-medium">
                             🌊 SocialFlow
                           </span>
                         ) : (
-                          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                          <span className="px-2 py-1 bg-[#1c1c30] text-[#CBD5E1] rounded text-xs font-medium">
                             📝 Manual Entry
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
@@ -523,10 +523,10 @@ export function CompanyList() {
 
         {/* Pagination */}
         {totalCompanies > companiesPerPage && (
-          <div className="border-t-2 border-gray-200 px-8 py-5 bg-gradient-to-r from-gray-50 to-white">
+          <div className="border-t-2 border-[#2a2a44] px-6 py-3 bg-[#0F0F1A]">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-gray-600">
-                Showing <span className="font-bold text-gray-900">{startIndex}</span> to <span className="font-bold text-gray-900">{endIndex}</span> of <span className="font-bold text-gray-900">{totalCompanies}</span> companies
+              <div className="text-sm font-medium text-[#94A3B8]">
+                Showing <span className="font-bold text-[#F1F5F9]">{startIndex}</span> to <span className="font-bold text-[#F1F5F9]">{endIndex}</span> of <span className="font-bold text-[#F1F5F9]">{totalCompanies}</span> companies
               </div>
               <div className="flex items-center gap-3">
                 <button

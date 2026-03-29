@@ -208,7 +208,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#161625] rounded-full flex items-center justify-center">
             <span className="text-2xl">💻</span>
           </div>
           <div>
@@ -227,7 +227,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#12121f]">
         {messages.map((message, index) => (
           <div
             key={index}
@@ -237,7 +237,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
               className={`max-w-[80%] rounded-lg p-3 ${
                 message.role === 'user'
                   ? 'bg-pink-600 text-white'
-                  : 'bg-white text-gray-800 border border-gray-200'
+                  : 'bg-[#161625] text-[#E2E8F0] border border-[#2a2a44]'
               }`}
             >
               <div className="text-sm whitespace-pre-wrap leading-relaxed">
@@ -250,7 +250,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
               {/* Code Changes Preview */}
               {message.requiresApproval && message.codeChanges && pendingChanges && (
                 <div className="mt-4 bg-gradient-to-r from-green-50 to-orange-50 border-2 border-green-300 rounded-lg p-4">
-                  <div className="text-sm font-bold text-green-800 mb-3 flex items-center">
+                  <div className="text-sm font-bold text-green-400 mb-3 flex items-center">
                     <span className="text-lg mr-2">📝</span>
                     Code Changes Ready for Approval
                   </div>
@@ -259,12 +259,12 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
                     <div key={idx} className="mb-3 last:mb-0">
                       <div className="space-y-2 text-xs">
                         <div className="flex items-start">
-                          <span className="font-semibold text-gray-700 mr-2">📁 File:</span>
-                          <span className="text-gray-900 break-all">{change.filePath}</span>
+                          <span className="font-semibold text-[#CBD5E1] mr-2">📁 File:</span>
+                          <span className="text-[#F1F5F9] break-all">{change.filePath}</span>
                         </div>
                         <div className="flex items-start">
-                          <span className="font-semibold text-gray-700 mr-2">📝 Change:</span>
-                          <span className="text-gray-900">{change.description}</span>
+                          <span className="font-semibold text-[#CBD5E1] mr-2">📝 Change:</span>
+                          <span className="text-[#F1F5F9]">{change.description}</span>
                         </div>
                         <div className="bg-gray-900 rounded p-2 overflow-x-auto max-h-32 overflow-y-auto">
                           <pre className="text-xs text-green-400 font-mono">{change.newCode.substring(0, 200)}...</pre>
@@ -297,7 +297,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
 
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 rounded-lg p-3">
+            <div className="bg-[#161625] border border-[#2a2a44] rounded-lg p-3">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" />
                 <div className="w-2 h-2 bg-pink-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -311,7 +311,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
       </div>
 
       {/* Input */}
-      <div className="p-4 bg-white border-t border-gray-200 rounded-b-lg">
+      <div className="p-4 bg-[#161625] border-t border-[#2a2a44] rounded-b-lg">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -325,7 +325,7 @@ export const AICodeAssistant: React.FC<AICodeAssistantProps> = ({
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Describe the code you want to generate..."
             disabled={isLoading}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:opacity-50"
+            className="flex-1 px-4 py-2 border border-[#33335a] rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:opacity-50"
           />
           <button
             type="submit"

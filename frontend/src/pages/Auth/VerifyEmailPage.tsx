@@ -155,10 +155,10 @@ export const VerifyEmailPage = () => {
           <div className="inline-block p-4 bg-primary-100 rounded-full mb-4">
             <EnvelopeIcon className="w-8 h-8 text-primary-600" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-[#F1F5F9] mb-2">
             Verify Your Email
           </h1>
-          <p className="text-gray-600">
+          <p className="text-[#94A3B8]">
             We sent a 6-digit code to<br />
             <strong>{email}</strong>
           </p>
@@ -167,7 +167,7 @@ export const VerifyEmailPage = () => {
         <form onSubmit={handleVerify} className="space-y-6">
           {/* OTP Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3 text-center">
+            <label className="block text-sm font-medium text-[#CBD5E1] mb-3 text-center">
               Enter Verification Code
             </label>
             <div className="flex justify-center gap-2">
@@ -190,7 +190,7 @@ export const VerifyEmailPage = () => {
 
           {/* Timer */}
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[#94A3B8]">
               {timeLeft > 0 ? (
                 <>Code expires in <strong>{formatTime(timeLeft)}</strong></>
               ) : (
@@ -233,7 +233,7 @@ export const VerifyEmailPage = () => {
 
           {/* Resend Button */}
           <div className="text-center">
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm text-[#94A3B8] mb-2">
               Didn't receive the code?
             </p>
             <button
@@ -251,7 +251,7 @@ export const VerifyEmailPage = () => {
         <div className="mt-6 text-center">
           <button
             onClick={() => navigate('/signup')}
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm text-[#94A3B8] hover:text-[#F1F5F9]"
           >
             Wrong email? Go back to register
           </button>

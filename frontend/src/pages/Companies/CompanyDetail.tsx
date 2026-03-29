@@ -290,8 +290,8 @@ export function CompanyDetail() {
 
   if (error || !company) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="bg-rose-50 border-l-4 border-rose-500 text-rose-700 px-6 py-4 rounded-r-lg">
+      <div className="min-h-screen bg-[#12121f] p-8">
+        <div className="border-l-4 border-rose-500 px-6 py-4 rounded-r-lg" style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>
           {error || 'Company not found'}
         </div>
       </div>
@@ -301,7 +301,7 @@ export function CompanyDetail() {
   const dataSourceInfo = dataSourceLabels[company.dataSource || 'manual'];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-[#12121f] p-8">
       {/* Header with back button */}
       <div className="mb-6">
         <button
@@ -324,8 +324,8 @@ export function CompanyDetail() {
             </div>
 
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">{company.name}</h1>
-              <div className="flex items-center gap-4 text-sm text-gray-600">
+              <h1 className="text-4xl font-bold text-[#F1F5F9] mb-2">{company.name}</h1>
+              <div className="flex items-center gap-4 text-sm text-[#94A3B8]">
                 {company.location && (
                   <span className="flex items-center gap-1">
                     <MapPinIcon className="w-4 h-4" />
@@ -350,8 +350,8 @@ export function CompanyDetail() {
               <div className="mt-3">
                 <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${
                   company.dataSource === 'apollo'
-                    ? 'bg-rose-100 text-rose-700'
-                    : 'bg-orange-100 text-orange-700'
+                    ? 'bg-rose-500/15 text-rose-400'
+                    : 'bg-orange-500/15 text-orange-400'
                 }`}>
                   <span>{dataSourceInfo.icon}</span>
                   {dataSourceInfo.label}
@@ -453,17 +453,17 @@ export function CompanyDetail() {
         <div className="col-span-2 space-y-6">
           {/* Description card */}
           {company.description && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">About</h2>
-              <p className="text-gray-700 leading-relaxed">{company.description}</p>
+            <div className="bg-[#161625] rounded-xl shadow-sm border border-[#2a2a44] p-6">
+              <h2 className="text-lg font-semibold text-[#F1F5F9] mb-4">About</h2>
+              <p className="text-[#CBD5E1] leading-relaxed">{company.description}</p>
             </div>
           )}
 
           {/* Enriching Status */}
           {company.enrichmentStatus === 'enriching' && (
-            <div className="bg-orange-50 rounded-lg p-4 flex items-center gap-3 border border-orange-200">
+            <div className="rounded-lg p-4 flex items-center gap-3 border" style={{ background: 'var(--glass-bg)', borderColor: 'var(--border-accent)' }}>
               <ArrowPathIcon className="w-5 h-5 animate-spin text-indigo-400" />
-              <span className="text-orange-800 font-medium">
+              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
                 AI is analyzing this company's website and gathering intelligence...
               </span>
             </div>
@@ -471,12 +471,12 @@ export function CompanyDetail() {
 
           {/* AI Intelligence Section */}
           {company.enrichmentStatus === 'enriched' && company.aiDescription && (
-            <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-xl p-6 border border-orange-200">
+            <div className="rounded-xl p-6 border" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}>
               <div className="flex items-center gap-2 mb-4">
                 <SparklesIcon className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-xl font-bold text-gray-900">AI Company Intelligence</h2>
+                <h2 className="text-xl font-bold text-[#F1F5F9]">AI Company Intelligence</h2>
                 {company.enrichedAt && (
-                  <span className="text-sm text-gray-500 ml-auto">
+                  <span className="text-sm text-[#94A3B8] ml-auto">
                     Updated: {new Date(company.enrichedAt).toLocaleDateString()}
                   </span>
                 )}
@@ -485,21 +485,21 @@ export function CompanyDetail() {
               <div className="grid grid-cols-2 gap-6">
                 {/* AI Description */}
                 <div className="col-span-2">
-                  <h3 className="font-semibold text-gray-700 mb-2">Company Overview</h3>
-                  <p className="text-gray-600">{company.aiDescription}</p>
+                  <h3 className="font-semibold text-[#CBD5E1] mb-2">Company Overview</h3>
+                  <p className="text-[#94A3B8]">{company.aiDescription}</p>
                 </div>
 
                 {/* Company Type & Industry */}
                 <div>
-                  <h3 className="font-semibold text-gray-700 mb-2">Type & Industry</h3>
+                  <h3 className="font-semibold text-[#CBD5E1] mb-2">Type & Industry</h3>
                   <div className="flex flex-wrap gap-2">
                     {company.aiCompanyType && (
-                      <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
+                      <span className="px-3 py-1 bg-orange-500/15 text-orange-400 rounded-full text-sm">
                         {company.aiCompanyType}
                       </span>
                     )}
                     {company.aiIndustry && (
-                      <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-semibold">
+                      <span className="px-3 py-1 bg-orange-500/15 text-orange-400 rounded-full text-sm font-semibold">
                         {company.aiIndustry}
                       </span>
                     )}
@@ -508,8 +508,8 @@ export function CompanyDetail() {
 
                 {/* Company Size */}
                 <div>
-                  <h3 className="font-semibold text-gray-700 mb-2">Size & Revenue</h3>
-                  <div className="text-gray-600">
+                  <h3 className="font-semibold text-[#CBD5E1] mb-2">Size & Revenue</h3>
+                  <div className="text-[#94A3B8]">
                     {company.aiEmployeeRange && (
                       <p>{company.aiEmployeeRange} employees</p>
                     )}
@@ -517,7 +517,7 @@ export function CompanyDetail() {
                       <p>{company.aiRevenue}</p>
                     )}
                     {company.aiFoundedYear && (
-                      <p className="text-gray-500 text-sm">Founded: {company.aiFoundedYear}</p>
+                      <p className="text-[#94A3B8] text-sm">Founded: {company.aiFoundedYear}</p>
                     )}
                   </div>
                 </div>
@@ -525,10 +525,10 @@ export function CompanyDetail() {
                 {/* Keywords */}
                 {company.aiKeywords && company.aiKeywords.length > 0 && (
                   <div className="col-span-2">
-                    <h3 className="font-semibold text-gray-700 mb-2">Keywords</h3>
+                    <h3 className="font-semibold text-[#CBD5E1] mb-2">Keywords</h3>
                     <div className="flex flex-wrap gap-2">
                       {company.aiKeywords.map((keyword, i) => (
-                        <span key={i} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                        <span key={i} className="px-3 py-1 bg-[#1c1c30] text-[#CBD5E1] rounded-full text-sm">
                           {keyword}
                         </span>
                       ))}
@@ -539,10 +539,10 @@ export function CompanyDetail() {
                 {/* Tech Stack */}
                 {company.aiTechStack && company.aiTechStack.length > 0 && (
                   <div className="col-span-2">
-                    <h3 className="font-semibold text-gray-700 mb-2">Tech Stack</h3>
+                    <h3 className="font-semibold text-[#CBD5E1] mb-2">Tech Stack</h3>
                     <div className="flex flex-wrap gap-2">
                       {company.aiTechStack.map((tech, i) => (
-                        <span key={i} className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
+                        <span key={i} className="px-3 py-1 bg-orange-500/15 text-orange-400 rounded-full text-sm">
                           {tech}
                         </span>
                       ))}
@@ -553,8 +553,8 @@ export function CompanyDetail() {
                 {/* Recent News */}
                 {company.aiRecentNews && (
                   <div className="col-span-2">
-                    <h3 className="font-semibold text-gray-700 mb-2">Recent News & Updates</h3>
-                    <p className="text-gray-600 text-sm">{company.aiRecentNews}</p>
+                    <h3 className="font-semibold text-[#CBD5E1] mb-2">Recent News & Updates</h3>
+                    <p className="text-[#94A3B8] text-sm">{company.aiRecentNews}</p>
                   </div>
                 )}
               </div>
@@ -571,7 +571,7 @@ export function CompanyDetail() {
           />
 
           {/* LinkedIn Employees */}
-          <div className="bg-white rounded-xl p-6 shadow-md border border-gray-200">
+          <div className="bg-[#161625] rounded-xl p-6 shadow-md border border-[#2a2a44]">
             <LinkedInEmployeeList
               companyId={company.id}
               companyName={company.name}
@@ -581,7 +581,7 @@ export function CompanyDetail() {
 
           {/* 🚀 PREMIUM: SocialFlow Data Display */}
           {company.socialFlowEnriched && company.socialFlowData && (
-            <div className="bg-gradient-to-br from-orange-50 via-rose-50 to-rose-100 p-6 rounded-xl shadow-lg border-2 border-yellow-400 mb-6">
+            <div className="p-6 rounded-xl shadow-lg border-2 border-yellow-400 mb-6" style={{ background: 'var(--bg-elevated)' }}>
               <div className="flex items-center gap-2 mb-4">
                 <svg className="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/>
@@ -590,7 +590,7 @@ export function CompanyDetail() {
                 <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-rose-600 to-rose-700">
                   SocialFlow Premium Intelligence ⭐
                 </h2>
-                <span className="ml-auto text-xs text-gray-500">
+                <span className="ml-auto text-xs text-[#94A3B8]">
                   Enriched: {new Date(company.socialFlowEnrichedAt).toLocaleDateString()}
                 </span>
                 <button
@@ -605,18 +605,18 @@ export function CompanyDetail() {
 
               {/* Show Enrichment Status if available */}
               {company.socialFlowData.enrichmentStatus && (
-                <div className="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Enrichment Status:</h3>
+                <div className="mb-4 p-3 bg-[#161625] rounded-lg border border-[#2a2a44]">
+                  <h3 className="text-sm font-semibold text-[#CBD5E1] mb-2">Enrichment Status:</h3>
                   <div className="space-y-1 text-xs">
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.creditRating?.success ? 'text-orange-700' : 'text-purple-400'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.creditRating?.success ? 'text-orange-400' : 'text-purple-400'}`}>
                       {company.socialFlowData.enrichmentStatus.creditRating?.success ? '✅' : '❌'}
                       <span>Credit Rating {company.socialFlowData.enrichmentStatus.creditRating?.error && `- ${company.socialFlowData.enrichmentStatus.creditRating.error}`}</span>
                     </div>
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.socialMedia?.success ? 'text-orange-700' : 'text-purple-400'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.socialMedia?.success ? 'text-orange-400' : 'text-purple-400'}`}>
                       {company.socialFlowData.enrichmentStatus.socialMedia?.success ? '✅' : '❌'}
                       <span>Social Media {company.socialFlowData.enrichmentStatus.socialMedia?.error && `- ${company.socialFlowData.enrichmentStatus.socialMedia.error}`}</span>
                     </div>
-                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? 'text-orange-700' : 'text-purple-400'}`}>
+                    <div className={`flex items-center gap-2 ${company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? 'text-orange-400' : 'text-purple-400'}`}>
                       {company.socialFlowData.enrichmentStatus.aiAnalysis?.success ? '✅' : '❌'}
                       <span>AI Analysis {company.socialFlowData.enrichmentStatus.aiAnalysis?.error && `- ${company.socialFlowData.enrichmentStatus.aiAnalysis.error}`}</span>
                     </div>
@@ -627,20 +627,20 @@ export function CompanyDetail() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Credit Rating */}
                 {company.socialFlowData.creditRating && (
-                  <div className="bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <div className="bg-[#161625] p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-[#CBD5E1] mb-3 flex items-center gap-2">
                       📊 Credit Rating
                     </h3>
                     <div className="space-y-2">
                       {typeof company.socialFlowData.creditRating === 'object' ? (
                         Object.entries(company.socialFlowData.creditRating).map(([key, value]) => (
                           <div key={key} className="flex justify-between">
-                            <span className="text-gray-600 capitalize">{key}:</span>
-                            <span className="font-semibold text-gray-900">{String(value)}</span>
+                            <span className="text-[#94A3B8] capitalize">{key}:</span>
+                            <span className="font-semibold text-[#F1F5F9]">{String(value)}</span>
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-600">{JSON.stringify(company.socialFlowData.creditRating)}</p>
+                        <p className="text-[#94A3B8]">{JSON.stringify(company.socialFlowData.creditRating)}</p>
                       )}
                     </div>
                   </div>
@@ -648,20 +648,20 @@ export function CompanyDetail() {
 
                 {/* Social Media */}
                 {company.socialFlowData.socialMedia && (
-                  <div className="bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <div className="bg-[#161625] p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-[#CBD5E1] mb-3 flex items-center gap-2">
                       🔗 Social Media Profiles
                     </h3>
                     <div className="space-y-2">
                       {company.socialFlowData.socialMedia.twitter && (
                         <a href={company.socialFlowData.socialMedia.twitter} target="_blank" rel="noopener noreferrer"
-                           className="flex items-center gap-2 text-indigo-400 hover:text-orange-800 hover:underline">
+                           className="flex items-center gap-2 text-indigo-400 hover:text-orange-400 hover:underline">
                           <span>🐦 Twitter/X</span>
                         </a>
                       )}
                       {company.socialFlowData.socialMedia.facebook && (
                         <a href={company.socialFlowData.socialMedia.facebook} target="_blank" rel="noopener noreferrer"
-                           className="flex items-center gap-2 text-orange-700 hover:text-orange-900 hover:underline">
+                           className="flex items-center gap-2 text-orange-400 hover:text-orange-900 hover:underline">
                           <span>👥 Facebook</span>
                         </a>
                       )}
@@ -681,7 +681,7 @@ export function CompanyDetail() {
                        !company.socialFlowData.socialMedia.facebook &&
                        !company.socialFlowData.socialMedia.instagram &&
                        !company.socialFlowData.socialMedia.youtube && (
-                        <p className="text-gray-500 text-sm">No social media profiles found</p>
+                        <p className="text-[#94A3B8] text-sm">No social media profiles found</p>
                       )}
                     </div>
                   </div>
@@ -689,13 +689,13 @@ export function CompanyDetail() {
 
                 {/* Tech Stack */}
                 {company.socialFlowData.technographics && company.socialFlowData.technographics.length > 0 && (
-                  <div className="bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <div className="bg-[#161625] p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-[#CBD5E1] mb-3 flex items-center gap-2">
                       💻 Technology Stack
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {company.socialFlowData.technographics.map((tech, i) => (
-                        <span key={i} className="px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-sm font-medium">
+                        <span key={i} className="px-3 py-1 bg-rose-500/15 text-rose-800 rounded-full text-sm font-medium">
                           {tech}
                         </span>
                       ))}
@@ -705,27 +705,27 @@ export function CompanyDetail() {
 
                 {/* Revenue & Funding */}
                 {(company.socialFlowData.revenue || company.socialFlowData.funding) && (
-                  <div className="bg-white p-4 rounded-lg shadow-md">
-                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <div className="bg-[#161625] p-4 rounded-lg shadow-md">
+                    <h3 className="font-semibold text-[#CBD5E1] mb-3 flex items-center gap-2">
                       💰 Financial Information
                     </h3>
                     <div className="space-y-2">
                       {company.socialFlowData.revenue && (
                         <div>
-                          <span className="text-gray-600">Revenue:</span>
-                          <p className="font-semibold text-gray-900">{company.socialFlowData.revenue}</p>
+                          <span className="text-[#94A3B8]">Revenue:</span>
+                          <p className="font-semibold text-[#F1F5F9]">{company.socialFlowData.revenue}</p>
                         </div>
                       )}
                       {company.socialFlowData.funding && (
                         <div>
-                          <span className="text-gray-600">Funding:</span>
-                          <p className="font-semibold text-gray-900">{company.socialFlowData.funding}</p>
+                          <span className="text-[#94A3B8]">Funding:</span>
+                          <p className="font-semibold text-[#F1F5F9]">{company.socialFlowData.funding}</p>
                         </div>
                       )}
                       {company.socialFlowData.growth && (
                         <div>
-                          <span className="text-gray-600">Growth Stage:</span>
-                          <p className="font-semibold text-gray-900">{company.socialFlowData.growth}</p>
+                          <span className="text-[#94A3B8]">Growth Stage:</span>
+                          <p className="font-semibold text-[#F1F5F9]">{company.socialFlowData.growth}</p>
                         </div>
                       )}
                     </div>
@@ -734,12 +734,12 @@ export function CompanyDetail() {
 
                 {/* Employee Count */}
                 {company.socialFlowData.employees && (
-                  <div className="bg-white p-4 rounded-lg shadow-md col-span-1">
-                    <h3 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <div className="bg-[#161625] p-4 rounded-lg shadow-md col-span-1">
+                    <h3 className="font-semibold text-[#CBD5E1] mb-3 flex items-center gap-2">
                       👥 Employee Information
                     </h3>
                     <p className="text-2xl font-bold text-purple-400">{company.socialFlowData.employees}</p>
-                    <p className="text-gray-500 text-sm">Estimated employees</p>
+                    <p className="text-[#94A3B8] text-sm">Estimated employees</p>
                   </div>
                 )}
               </div>
@@ -748,29 +748,29 @@ export function CompanyDetail() {
 
           {/* Intent & Hiring Info */}
           {company.intent && (
-            <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-orange-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="rounded-xl border p-6" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}>
+              <h2 className="text-lg font-semibold text-[#F1F5F9] mb-4 flex items-center gap-2">
                 <FireIcon className="w-5 h-5 text-indigo-400" />
                 Intent of Hiring
               </h2>
-              <p className="text-gray-700 leading-relaxed">{company.intent}</p>
+              <p className="text-[#CBD5E1] leading-relaxed">{company.intent}</p>
             </div>
           )}
 
           {company.hiringInfo && (
-            <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-rose-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="rounded-xl border p-6" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}>
+              <h2 className="text-lg font-semibold text-[#F1F5F9] mb-4 flex items-center gap-2">
                 <BriefcaseIcon className="w-5 h-5 text-purple-400" />
                 Recent Hiring Activity
               </h2>
-              <p className="text-gray-700 leading-relaxed">{company.hiringInfo}</p>
+              <p className="text-[#CBD5E1] leading-relaxed">{company.hiringInfo}</p>
             </div>
           )}
 
           {/* Additional AI Insights */}
           {(company.hiringIntent || company.techStack || company.aiPitch) && (
-            <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl border border-orange-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="rounded-xl border p-6" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}>
+              <h2 className="text-lg font-semibold text-[#F1F5F9] mb-4 flex items-center gap-2">
                 <ExclamationCircleIcon className="w-5 h-5 text-indigo-400" />
                 AI Insights
               </h2>
@@ -778,22 +778,22 @@ export function CompanyDetail() {
               <div className="space-y-4">
                 {company.hiringIntent && (
                   <div>
-                    <div className="text-sm font-semibold text-orange-700 mb-2">Hiring Intent Analysis</div>
-                    <p className="text-gray-700 text-sm whitespace-pre-wrap">{company.hiringIntent}</p>
+                    <div className="text-sm font-semibold text-orange-400 mb-2">Hiring Intent Analysis</div>
+                    <p className="text-[#CBD5E1] text-sm whitespace-pre-wrap">{company.hiringIntent}</p>
                   </div>
                 )}
 
                 {company.techStack && (
                   <div>
-                    <div className="text-sm font-semibold text-orange-700 mb-2">Technology Stack</div>
-                    <p className="text-gray-700 text-sm whitespace-pre-wrap">{company.techStack}</p>
+                    <div className="text-sm font-semibold text-orange-400 mb-2">Technology Stack</div>
+                    <p className="text-[#CBD5E1] text-sm whitespace-pre-wrap">{company.techStack}</p>
                   </div>
                 )}
 
                 {company.aiPitch && (
-                  <div className="bg-white rounded-lg p-4 border border-orange-200">
-                    <div className="text-sm font-semibold text-orange-700 mb-2">AI Solution Pitch</div>
-                    <p className="text-gray-700 text-sm whitespace-pre-wrap">{company.aiPitch}</p>
+                  <div className="bg-[#161625] rounded-lg p-4 border border-orange-200">
+                    <div className="text-sm font-semibold text-orange-400 mb-2">AI Solution Pitch</div>
+                    <p className="text-[#CBD5E1] text-sm whitespace-pre-wrap">{company.aiPitch}</p>
                   </div>
                 )}
               </div>
@@ -801,9 +801,9 @@ export function CompanyDetail() {
           )}
 
           {/* Contact Persons */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#161625] rounded-xl shadow-sm border border-[#2a2a44] p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-[#F1F5F9] flex items-center gap-2">
                 <UserGroupIcon className="w-5 h-5" />
                 Contact Persons ({company.contacts?.length || 0})
               </h2>
@@ -821,7 +821,7 @@ export function CompanyDetail() {
                 company.contacts.map((contact) => (
                   <div
                     key={contact.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-4 rounded-lg transition-colors cursor-pointer" style={{ background: 'var(--glass-bg)' }}
                     onClick={() => navigate(`/contacts/${contact.id}`)}
                   >
                     <div className="flex items-center gap-4">
@@ -829,13 +829,13 @@ export function CompanyDetail() {
                         {(contact.firstName?.[0] || '?').toUpperCase()}{(contact.lastName?.[0] || '?').toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-[#F1F5F9]">
                           {contact.firstName && contact.lastName
                             ? `${contact.firstName} ${contact.lastName}`
                             : contact.email || 'Unknown Contact'
                           }
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                        <div className="flex items-center gap-3 text-sm text-[#94A3B8]">
                           {contact.email && (contact.firstName && contact.lastName) && (
                             <span className="flex items-center gap-1">
                               <EnvelopeIcon className="w-3 h-3" />
@@ -852,33 +852,46 @@ export function CompanyDetail() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                             contact.status === 'CUSTOMER'
-                              ? 'bg-orange-100 text-orange-700'
+                              ? 'bg-orange-500/15 text-orange-400'
                               : contact.status === 'PROSPECT'
-                              ? 'bg-rose-100 text-rose-700'
-                              : 'bg-gray-100 text-gray-700'
+                              ? 'bg-rose-500/15 text-rose-400'
+                              : 'bg-[#1c1c30] text-[#CBD5E1]'
                           }`}>
                             {contact.status}
                           </span>
                           {(contact.title || contact.role) && (
-                            <span className="text-xs text-gray-500">{contact.title || contact.role}</span>
+                            <span className="text-xs text-[#94A3B8]">{contact.title || contact.role}</span>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = `mailto:${contact.email}`;
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
-                    >
-                      <EnvelopeIcon className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/contacts/${contact.id}`);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 font-medium rounded-lg hover:border-indigo-400 transition-all text-sm border" style={{ background: 'var(--glass-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
+                        title="Edit contact"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.location.href = `mailto:${contact.email}`;
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md"
+                      >
+                        <EnvelopeIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-gray-500">
+                <div className="text-center py-8 text-[#94A3B8]">
                   No contacts yet. Add the first contact for this company.
                 </div>
               )}
@@ -889,14 +902,14 @@ export function CompanyDetail() {
         {/* Right column - Quick stats & info */}
         <div className="space-y-6">
           {/* Quick stats */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+          <div className="bg-[#161625] rounded-xl shadow-sm border border-[#2a2a44] p-6">
+            <h3 className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
               Company Info
             </h3>
             <div className="space-y-4">
               {company.website && (
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">Website</div>
+                  <div className="text-xs text-[#94A3B8] mb-1">Website</div>
                   <a
                     href={company.website}
                     target="_blank"
@@ -910,42 +923,42 @@ export function CompanyDetail() {
 
               {company.industry && (
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">Industry</div>
-                  <div className="text-sm font-medium text-gray-900">{company.industry}</div>
+                  <div className="text-xs text-[#94A3B8] mb-1">Industry</div>
+                  <div className="text-sm font-medium text-[#F1F5F9]">{company.industry}</div>
                 </div>
               )}
 
               {company.location && (
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">Headquarters</div>
-                  <div className="text-sm font-medium text-gray-900">{company.location}</div>
+                  <div className="text-xs text-[#94A3B8] mb-1">Headquarters</div>
+                  <div className="text-sm font-medium text-[#F1F5F9]">{company.location}</div>
                 </div>
               )}
 
               {company.employeeCount && (
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">Company Size</div>
-                  <div className="text-sm font-medium text-gray-900">{company.employeeCount} employees</div>
+                  <div className="text-xs text-[#94A3B8] mb-1">Company Size</div>
+                  <div className="text-sm font-medium text-[#F1F5F9]">{company.employeeCount} employees</div>
                 </div>
               )}
 
               {company.foundedYear && (
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">Founded</div>
-                  <div className="text-sm font-medium text-gray-900">{company.foundedYear}</div>
+                  <div className="text-xs text-[#94A3B8] mb-1">Founded</div>
+                  <div className="text-sm font-medium text-[#F1F5F9]">{company.foundedYear}</div>
                 </div>
               )}
 
               {company.phone && (
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">Phone</div>
-                  <div className="text-sm font-medium text-gray-900">{company.phone}</div>
+                  <div className="text-xs text-[#94A3B8] mb-1">Phone</div>
+                  <div className="text-sm font-medium text-[#F1F5F9]">{company.phone}</div>
                 </div>
               )}
 
               {company.linkedin && (
                 <div>
-                  <div className="text-xs text-gray-500 mb-1">LinkedIn</div>
+                  <div className="text-xs text-[#94A3B8] mb-1">LinkedIn</div>
                   <a
                     href={company.linkedin}
                     target="_blank"
@@ -959,15 +972,15 @@ export function CompanyDetail() {
               )}
 
               <div>
-                <div className="text-xs text-gray-500 mb-1">Data Source</div>
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-xs text-[#94A3B8] mb-1">Data Source</div>
+                <div className="text-sm font-medium text-[#F1F5F9]">
                   {dataSourceInfo.label}
                 </div>
               </div>
 
               <div>
-                <div className="text-xs text-gray-500 mb-1">Added</div>
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-xs text-[#94A3B8] mb-1">Added</div>
+                <div className="text-sm font-medium text-[#F1F5F9]">
                   {new Date(company.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
@@ -979,23 +992,23 @@ export function CompanyDetail() {
           </div>
 
           {/* Activity stats */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">
+          <div className="bg-[#161625] rounded-xl shadow-sm border border-[#2a2a44] p-6">
+            <h3 className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-4">
               Activity
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Contacts</span>
-                <span className="text-lg font-bold text-gray-900">{company._count?.contacts || 0}</span>
+                <span className="text-sm text-[#94A3B8]">Contacts</span>
+                <span className="text-lg font-bold text-[#F1F5F9]">{company._count?.contacts || 0}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Active Deals</span>
-                <span className="text-lg font-bold text-gray-900">{company._count?.deals || 0}</span>
+                <span className="text-sm text-[#94A3B8]">Active Deals</span>
+                <span className="text-lg font-bold text-[#F1F5F9]">{company._count?.deals || 0}</span>
               </div>
               {company.revenue && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Revenue</span>
-                  <span className="text-lg font-bold text-gray-900">{company.revenue}</span>
+                  <span className="text-sm text-[#94A3B8]">Revenue</span>
+                  <span className="text-lg font-bold text-[#F1F5F9]">{company.revenue}</span>
                 </div>
               )}
             </div>
@@ -1003,12 +1016,12 @@ export function CompanyDetail() {
 
           {/* Job Postings */}
           {company.jobPostings && (
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <div className="rounded-xl border p-6" style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}>
+              <h3 className="text-sm font-semibold text-[#F1F5F9] mb-3 flex items-center gap-2">
                 <DocumentTextIcon className="w-4 h-4 text-indigo-400" />
                 Recent Job Postings
               </h3>
-              <div className="text-xs text-gray-700 whitespace-pre-wrap bg-white p-3 rounded-lg border border-orange-200 max-h-48 overflow-y-auto">
+              <div className="text-xs text-[#CBD5E1] whitespace-pre-wrap bg-[#161625] p-3 rounded-lg border border-orange-200 max-h-48 overflow-y-auto">
                 {company.jobPostings}
               </div>
             </div>
@@ -1016,15 +1029,15 @@ export function CompanyDetail() {
 
           {/* Technologies */}
           {company.technologies && company.technologies.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <div className="bg-[#161625] rounded-xl shadow-sm border border-[#2a2a44] p-6">
+              <h3 className="text-sm font-semibold text-[#94A3B8] uppercase tracking-wider mb-3">
                 Technologies
               </h3>
               <div className="flex flex-wrap gap-2">
                 {company.technologies.map((tech, index) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium"
+                    className="px-2 py-1 bg-orange-500/15 text-orange-400 rounded text-xs font-medium"
                   >
                     {tech}
                   </span>
@@ -1046,25 +1059,25 @@ export function CompanyDetail() {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl border-4 border-gray-300 max-w-md w-full">
+          <div className="bg-[#161625] rounded-xl shadow-2xl border-4 border-[#33335a] max-w-md w-full">
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Delete Company</h2>
-              <p className="text-gray-700 mb-2">
+              <h2 className="text-xl font-semibold text-[#F1F5F9] mb-4">Delete Company</h2>
+              <p className="text-[#CBD5E1] mb-2">
                 Are you sure you want to delete <strong>{company?.name}</strong>?
               </p>
               {company?._count?.contacts && company._count.contacts > 0 && (
-                <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg text-sm mb-4">
+                <div className="bg-yellow-500/10 border border-yellow-200 text-yellow-400 px-4 py-3 rounded-lg text-sm mb-4">
                   This company has {company._count.contacts} associated contact(s). They will remain in your CRM but won't be linked to this company.
                 </div>
               )}
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm text-[#94A3B8] mb-6">
                 This action cannot be undone.
               </p>
               <div className="flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowDeleteModal(false)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-bold rounded-lg border-2 border-gray-300 hover:bg-gray-50 transition-all shadow-md"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#161625] text-[#CBD5E1] font-bold rounded-lg border-2 border-[#33335a] hover:bg-[#12121f] transition-all shadow-md"
                   disabled={deleting}
                 >
                   <span>Cancel</span>

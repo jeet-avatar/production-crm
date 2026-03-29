@@ -1209,20 +1209,20 @@ export function SuperAdminDashboard() {
   // 🔒 AUTHORIZATION: Only Ethan can access Super Admin Dashboard
   if (currentUserEmail !== 'ethan@brandmonkz.com') {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
+      <div className="min-h-screen bg-[#12121f] flex items-center justify-center p-8">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+          <div className="bg-[#161625] rounded-2xl shadow-xl p-8 text-center">
             <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center mx-auto mb-6`}>
               <ShieldCheckIcon className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            <h1 className="text-2xl font-bold text-[#F1F5F9] mb-3">
               Access Restricted
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-[#94A3B8] mb-6">
               This page is restricted to super administrators only.
             </p>
-            <p className="text-sm text-gray-500 mb-6">
-              Current user: <span className="font-mono text-gray-700">{currentUserEmail || 'Not logged in'}</span>
+            <p className="text-sm text-[#94A3B8] mb-6">
+              Current user: <span className="font-mono text-[#CBD5E1]">{currentUserEmail || 'Not logged in'}</span>
             </p>
             <button
               onClick={() => window.location.href = '/'}
@@ -1237,7 +1237,7 @@ export function SuperAdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-[#12121f] p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -1249,7 +1249,7 @@ export function SuperAdminDashboard() {
               <h1 className={`text-4xl font-bold bg-gradient-to-r ${gradients.brand.primary.gradient} bg-clip-text text-transparent`}>
                 Super Admin Console
               </h1>
-              <p className="text-gray-600 mt-1">Complete system control and database management</p>
+              <p className="text-[#94A3B8] mt-1">Complete system control and database management</p>
             </div>
           </div>
         </div>
@@ -1266,7 +1266,7 @@ export function SuperAdminDashboard() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-lg mb-8 p-2">
+        <div className="bg-[#161625] rounded-2xl shadow-lg mb-8 p-2">
           <nav className="grid grid-cols-6 gap-2">
             {[
               { id: 'overview', label: 'Overview', icon: ChartBarIcon },
@@ -1287,7 +1287,7 @@ export function SuperAdminDashboard() {
                 className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold tracking-wide transition-all duration-200 ${
                   selectedTab === tab.id
                     ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white shadow-lg`
-                    : 'bg-white text-gray-700 border-2 border-gray-300'
+                    : 'bg-[#161625] text-[#CBD5E1] border-2 border-[#33335a]'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -1299,7 +1299,7 @@ export function SuperAdminDashboard() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3 shadow-lg">
+          <div className="mb-6 bg-red-500/10 border-2 border-red-200 text-red-400 px-6 py-4 rounded-2xl flex items-center gap-3 shadow-lg">
             <ExclamationTriangleIcon className="w-6 h-6 flex-shrink-0" />
             <span>{error}</span>
           </div>
@@ -1311,13 +1311,13 @@ export function SuperAdminDashboard() {
             {loading ? (
               <div className="text-center py-24">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent"></div>
-                <p className="mt-4 text-gray-600 font-medium">Loading statistics...</p>
+                <p className="mt-4 text-[#94A3B8] font-medium">Loading statistics...</p>
               </div>
             ) : stats ? (
               <>
                 {/* CRM Metrics */}
                 <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-[#F1F5F9] mb-4 flex items-center gap-2">
                     <ChartBarIcon className="w-4 h-4 text-indigo-400" />
                     CRM Metrics
                   </h2>
@@ -1365,7 +1365,7 @@ export function SuperAdminDashboard() {
 
                 {/* System Metrics */}
                 <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-[#F1F5F9] mb-4 flex items-center gap-2">
                     <ServerIcon className="w-4 h-4 text-indigo-400" />
                     System & Infrastructure
                   </h2>
@@ -1403,7 +1403,7 @@ export function SuperAdminDashboard() {
 
                 {/* Configuration & Monitoring */}
                 <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-[#F1F5F9] mb-4 flex items-center gap-2">
                     <PaintBrushIcon className="w-4 h-4 text-indigo-400" />
                     Configuration & Monitoring
                   </h2>
@@ -1441,7 +1441,7 @@ export function SuperAdminDashboard() {
 
                 {/* Email & Jobs Performance */}
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-[#F1F5F9] mb-4 flex items-center gap-2">
                     <EnvelopeIcon className="w-4 h-4 text-green-600" />
                     Email & Background Jobs
                   </h2>
@@ -1505,27 +1505,27 @@ export function SuperAdminDashboard() {
             </div>
 
             {/* Filters */}
-            <div className="mb-6 bg-white rounded-2xl shadow-lg p-6">
+            <div className="mb-6 bg-[#161625] rounded-2xl shadow-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Search</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Search</label>
                   <div className="relative">
-                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#64748B]" />
                     <input
                       type="text"
                       placeholder="Search by name or email..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-12 w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                      className="pl-12 w-full rounded-xl border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Role</label>
                   <select
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
-                    className="w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                    className="w-full rounded-xl border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
                   >
                     <option value="">All Roles</option>
                     <option value="SUPER_ADMIN">Super Admin</option>
@@ -1534,11 +1534,11 @@ export function SuperAdminDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Status</label>
                   <select
                     value={activeFilter}
                     onChange={(e) => setActiveFilter(e.target.value)}
-                    className="w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
+                    className="w-full rounded-xl border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all"
                   >
                     <option value="">All Status</option>
                     <option value="true">Active</option>
@@ -1550,40 +1550,40 @@ export function SuperAdminDashboard() {
 
             {/* Users Table */}
             {loading ? (
-              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+              <div className="text-center py-24 bg-[#161625] rounded-2xl shadow-lg">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-red-600 border-t-transparent"></div>
-                <p className="mt-4 text-gray-600 font-medium">Loading users...</p>
+                <p className="mt-4 text-[#94A3B8] font-medium">Loading users...</p>
               </div>
             ) : (
               <>
-                <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+                <div className="bg-[#161625] shadow-lg rounded-2xl overflow-hidden">
                   <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                    <table className="min-w-full divide-y divide-[#2a2a44]">
+                      <thead className="bg-gradient-to-r from-[#12121f] to-gray-100">
                         <tr>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                             User
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                             Role
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                             Team Role
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                             Status
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                             Created
                           </th>
-                          <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-100">
+                      <tbody className="bg-[#161625] divide-y divide-[#1c1c30]">
                         {users.map((user) => (
-                          <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                          <tr key={user.id} className="hover:bg-[#12121f] transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradients.brand.primary.gradient} flex items-center justify-center shadow-md`}>
@@ -1592,10 +1592,10 @@ export function SuperAdminDashboard() {
                                   </span>
                                 </div>
                                 <div className="ml-4">
-                                  <div className="text-sm font-semibold text-gray-900">
+                                  <div className="text-sm font-semibold text-[#F1F5F9]">
                                     {user.firstName} {user.lastName}
                                   </div>
-                                  <div className="text-sm text-gray-500">{user.email}</div>
+                                  <div className="text-sm text-[#94A3B8]">{user.email}</div>
                                 </div>
                               </div>
                             </td>
@@ -1603,7 +1603,7 @@ export function SuperAdminDashboard() {
                               <select
                                 value={user.role}
                                 onChange={(e) => updateUserRole(user.id, e.target.value)}
-                                className="text-sm rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-medium px-3 py-2 transition-all hover:border-gray-300 shadow-sm"
+                                className="text-sm rounded-xl border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 font-medium px-3 py-2 transition-all hover:border-[#33335a] shadow-sm"
                               >
                                 <option value="USER">User</option>
                                 <option value="ADMIN">Admin</option>
@@ -1611,37 +1611,37 @@ export function SuperAdminDashboard() {
                               </select>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className="text-sm font-medium text-gray-900">{user.teamRole}</span>
+                              <span className="text-sm font-medium text-[#F1F5F9]">{user.teamRole}</span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <button
                                 onClick={() => toggleUserStatus(user.id, user.isActive)}
                                 className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:scale-105 shadow-sm ${
                                   user.isActive
-                                    ? 'bg-green-50 hover:bg-green-100 border-2 border-green-200'
-                                    : 'bg-red-50 hover:bg-red-100 border-2 border-red-200'
+                                    ? 'bg-green-500/10 hover:bg-green-500/15 border-2 border-green-200'
+                                    : 'bg-red-500/10 hover:bg-red-500/15 border-2 border-red-200'
                                 }`}
                               >
                                 {user.isActive ? (
                                   <>
                                     <CheckCircleIcon className="w-4 h-4 text-green-500" />
-                                    <span className="text-sm font-medium text-green-700">Active</span>
+                                    <span className="text-sm font-medium text-green-400">Active</span>
                                   </>
                                 ) : (
                                   <>
                                     <XCircleIcon className="w-4 h-4 text-red-500" />
-                                    <span className="text-sm font-medium text-red-700">Inactive</span>
+                                    <span className="text-sm font-medium text-red-400">Inactive</span>
                                   </>
                                 )}
                               </button>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-[#94A3B8]">
                               {new Date(user.createdAt).toLocaleDateString()}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               <button
                                 onClick={() => deleteUser(user.id, user.email)}
-                                className="px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-900 font-semibold rounded-xl border-2 border-red-200 transition-all shadow-sm hover:shadow-md"
+                                className="px-3 py-2 bg-red-500/10 text-red-600 hover:bg-red-500/15 hover:text-red-900 font-semibold rounded-xl border-2 border-red-200 transition-all shadow-sm hover:shadow-md"
                               >
                                 Delete
                               </button>
@@ -1655,15 +1655,15 @@ export function SuperAdminDashboard() {
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                  <div className="mt-6 flex items-center justify-between bg-white rounded-2xl shadow-lg px-6 py-4">
-                    <div className="text-sm text-gray-700 font-medium">
+                  <div className="mt-6 flex items-center justify-between bg-[#161625] rounded-2xl shadow-lg px-6 py-4">
+                    <div className="text-sm text-[#CBD5E1] font-medium">
                       Page {pagination.page} of {pagination.totalPages} • {pagination.total} total users
                     </div>
                     <div className="flex gap-3">
                       <button
                         onClick={() => loadUsers(pagination.page - 1)}
                         disabled={pagination.page === 1}
-                        className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl font-semibold text-gray-700 hover:from-gray-200 hover:to-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                        className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl font-semibold text-[#CBD5E1] hover:from-gray-200 hover:to-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                       >
                         <ChevronLeftIcon className="w-4 h-4" />
                         Previous
@@ -1698,19 +1698,19 @@ export function SuperAdminDashboard() {
         {selectedTab === 'database' && (
           <div className="space-y-6">
             {/* Database Browser GUI */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-6">
                 <TableCellsIcon className="w-4 h-4 text-indigo-400" />
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Database Browser</h2>
-                  <p className="text-gray-600">View and edit database tables directly</p>
+                  <h2 className="text-2xl font-bold text-[#F1F5F9]">Database Browser</h2>
+                  <p className="text-[#94A3B8]">View and edit database tables directly</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 {/* Table Selector */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Select Table</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Select Table</label>
                   <div className="flex gap-3">
                     <select
                       value={selectedTable || ''}
@@ -1724,7 +1724,7 @@ export function SuperAdminDashboard() {
                           setTableSchema([]);
                         }
                       }}
-                      className="flex-1 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all p-3"
+                      className="flex-1 rounded-xl border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all p-3"
                     >
                       <option value="">-- Select a table --</option>
                       {dbTables.map((table) => (
@@ -1773,28 +1773,28 @@ export function SuperAdminDashboard() {
                       </div>
                       <button
                         onClick={() => loadTableData(selectedTable, tablePagination.page)}
-                        className="px-4 py-2.5 bg-white text-gray-700 rounded-xl font-bold tracking-wide hover:bg-gray-100 transition-all border-2 border-gray-300"
+                        className="px-4 py-2.5 bg-[#161625] text-[#CBD5E1] rounded-xl font-bold tracking-wide hover:bg-[#1c1c30] transition-all border-2 border-[#33335a]"
                       >
                         Refresh Data
                       </button>
                     </div>
 
                     {/* Data Table */}
-                    <div className="overflow-x-auto border-2 border-gray-200 rounded-xl">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <div className="overflow-x-auto border-2 border-[#2a2a44] rounded-xl">
+                      <table className="min-w-full divide-y divide-[#2a2a44]">
+                        <thead className="bg-[#12121f]">
                           <tr>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                            <th className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider">
                               Actions
                             </th>
                             {tableSchema.map((column: any) => (
                               <th
                                 key={column.column_name}
-                                className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
+                                className="px-4 py-3 text-left text-xs font-semibold text-[#94A3B8] uppercase tracking-wider"
                               >
                                 <div className="flex flex-col">
                                   <span>{column.column_name}</span>
-                                  <span className="text-gray-400 font-normal normal-case">
+                                  <span className="text-[#64748B] font-normal normal-case">
                                     {column.data_type}
                                   </span>
                                 </div>
@@ -1802,13 +1802,13 @@ export function SuperAdminDashboard() {
                             ))}
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody className="bg-[#161625] divide-y divide-[#2a2a44]">
                           {tableData.map((row: any, rowIndex: number) => (
-                            <tr key={row.id || rowIndex} className="hover:bg-gray-50">
+                            <tr key={row.id || rowIndex} className="hover:bg-[#12121f]">
                               <td className="px-4 py-3 whitespace-nowrap">
                                 <button
                                   onClick={() => deleteTableRow(row.id)}
-                                  className="text-red-600 hover:text-red-800 font-semibold text-sm"
+                                  className="text-red-600 hover:text-red-400 font-semibold text-sm"
                                 >
                                   Delete
                                 </button>
@@ -1823,7 +1823,7 @@ export function SuperAdminDashboard() {
                                 return (
                                   <td
                                     key={column.column_name}
-                                    className="px-4 py-3 text-sm text-gray-900"
+                                    className="px-4 py-3 text-sm text-[#F1F5F9]"
                                   >
                                     {isEditing ? (
                                       <input
@@ -1864,30 +1864,30 @@ export function SuperAdminDashboard() {
                                             column: column.column_name,
                                           })
                                         }
-                                        className="cursor-pointer hover:bg-orange-50 px-2 py-1 rounded min-h-[24px]"
+                                        className="cursor-pointer hover:bg-orange-500/10 px-2 py-1 rounded min-h-[24px]"
                                       >
                                         {cellValue === null ? (
-                                          <span className="text-gray-400 italic">NULL</span>
+                                          <span className="text-[#64748B] italic">NULL</span>
                                         ) : typeof cellValue === 'boolean' ? (
                                           <span
                                             className={`px-2 py-1 rounded-full text-xs font-semibold ${
                                               cellValue
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800'
+                                                ? 'bg-green-500/15 text-green-400'
+                                                : 'bg-red-500/15 text-red-400'
                                             }`}
                                           >
                                             {cellValue ? 'true' : 'false'}
                                           </span>
                                         ) : typeof cellValue === 'object' ? (
-                                          <span className="font-mono text-xs text-gray-600">
+                                          <span className="font-mono text-xs text-[#94A3B8]">
                                             {JSON.stringify(cellValue).substring(0, 50)}...
                                           </span>
                                         ) : cellValue instanceof Date ? (
-                                          <span className="text-gray-700">
+                                          <span className="text-[#CBD5E1]">
                                             {new Date(cellValue).toLocaleString()}
                                           </span>
                                         ) : (
-                                          <span className="text-gray-900">
+                                          <span className="text-[#F1F5F9]">
                                             {String(cellValue).substring(0, 100)}
                                             {String(cellValue).length > 100 ? '...' : ''}
                                           </span>
@@ -1904,8 +1904,8 @@ export function SuperAdminDashboard() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="flex items-center justify-between bg-gray-50 rounded-xl p-4">
-                      <div className="text-sm text-gray-600">
+                    <div className="flex items-center justify-between bg-[#12121f] rounded-xl p-4">
+                      <div className="text-sm text-[#94A3B8]">
                         Showing {(tablePagination.page - 1) * tablePagination.limit + 1} to{' '}
                         {Math.min(
                           tablePagination.page * tablePagination.limit,
@@ -1919,7 +1919,7 @@ export function SuperAdminDashboard() {
                             loadTableData(selectedTable, tablePagination.page - 1)
                           }
                           disabled={tablePagination.page === 1}
-                          className="px-4 py-2 bg-white border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          className="px-4 py-2 bg-[#161625] border-2 border-[#33335a] rounded-lg font-semibold hover:bg-[#12121f] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                           Previous
                         </button>
@@ -1928,7 +1928,7 @@ export function SuperAdminDashboard() {
                             loadTableData(selectedTable, tablePagination.page + 1)
                           }
                           disabled={tablePagination.page >= tablePagination.totalPages}
-                          className="px-4 py-2 bg-white border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                          className="px-4 py-2 bg-[#161625] border-2 border-[#33335a] rounded-lg font-semibold hover:bg-[#12121f] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
                           Next
                         </button>
@@ -1936,8 +1936,8 @@ export function SuperAdminDashboard() {
                     </div>
 
                     {/* Instructions */}
-                    <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
-                      <p className="text-sm text-orange-800">
+                    <div className="bg-orange-500/10 border-2 border-orange-200 rounded-xl p-4">
+                      <p className="text-sm text-orange-400">
                         <strong>💡 Tip:</strong> Click any cell to edit its value. Press Enter to save or Escape to cancel. Click "Delete" to remove a record.
                       </p>
                     </div>
@@ -1946,18 +1946,18 @@ export function SuperAdminDashboard() {
 
                 {/* Empty State */}
                 {!dbBrowserLoading && selectedTable && tableData.length === 0 && (
-                  <div className="text-center py-12 bg-gray-50 rounded-xl">
-                    <TableCellsIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 font-semibold">No data found in this table</p>
+                  <div className="text-center py-12 bg-[#12121f] rounded-xl">
+                    <TableCellsIcon className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+                    <p className="text-[#94A3B8] font-semibold">No data found in this table</p>
                   </div>
                 )}
 
                 {/* No Table Selected */}
                 {!selectedTable && (
-                  <div className="text-center py-12 bg-gray-50 rounded-xl">
-                    <TableCellsIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-600 font-semibold mb-2">Select a table to view data</p>
-                    <p className="text-gray-500 text-sm">
+                  <div className="text-center py-12 bg-[#12121f] rounded-xl">
+                    <TableCellsIcon className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+                    <p className="text-[#94A3B8] font-semibold mb-2">Select a table to view data</p>
+                    <p className="text-[#94A3B8] text-sm">
                       Choose a table from the dropdown above to browse and edit records
                     </p>
                   </div>
@@ -1966,24 +1966,24 @@ export function SuperAdminDashboard() {
             </div>
 
             {/* SQL Query Interface */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-6">
                 <CommandLineIcon className="w-4 h-4 text-indigo-400" />
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">SQL Query Console</h2>
-                  <p className="text-gray-600">Execute direct database queries with caution</p>
+                  <h2 className="text-2xl font-bold text-[#F1F5F9]">SQL Query Console</h2>
+                  <p className="text-[#94A3B8]">Execute direct database queries with caution</p>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">SQL Query</label>
+                  <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">SQL Query</label>
                   <textarea
                     value={sqlQuery}
                     onChange={(e) => setSqlQuery(e.target.value)}
                     placeholder="SELECT * FROM users WHERE email = 'example@domain.com';"
                     rows={8}
-                    className="w-full rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 font-mono text-sm transition-all p-4"
+                    className="w-full rounded-xl border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 font-mono text-sm transition-all p-4"
                   />
                 </div>
 
@@ -2003,16 +2003,16 @@ export function SuperAdminDashboard() {
                       setQueryResult(null);
                       setQueryError(null);
                     }}
-                    className="px-4 py-2.5 bg-white text-gray-700 border-2 border-gray-300 rounded-xl font-bold tracking-wide hover:bg-gray-100 transition-all"
+                    className="px-4 py-2.5 bg-[#161625] text-[#CBD5E1] border-2 border-[#33335a] rounded-xl font-bold tracking-wide hover:bg-[#1c1c30] transition-all"
                   >
                     Clear
                   </button>
                 </div>
 
                 {/* Warning */}
-                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 flex items-start gap-3">
+                <div className="bg-yellow-500/10 border-2 border-yellow-200 rounded-xl p-4 flex items-start gap-3">
                   <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-yellow-800">
+                  <div className="text-sm text-yellow-400">
                     <p className="font-semibold mb-1">⚠️ Warning: Direct Database Access</p>
                     <p>You have direct access to the production database. Use extreme caution with UPDATE, DELETE, and DROP commands. Always backup data before making changes.</p>
                   </div>
@@ -2022,12 +2022,12 @@ export function SuperAdminDashboard() {
 
             {/* Query Error */}
             {queryError && (
-              <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 shadow-lg">
+              <div className="bg-red-500/10 border-2 border-red-200 rounded-2xl p-6 shadow-lg">
                 <div className="flex items-start gap-3">
                   <XCircleIcon className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <h3 className="font-semibold text-red-900 mb-1">Query Error</h3>
-                    <p className="text-red-700 font-mono text-sm">{queryError}</p>
+                    <p className="text-red-400 font-mono text-sm">{queryError}</p>
                   </div>
                 </div>
               </div>
@@ -2035,7 +2035,7 @@ export function SuperAdminDashboard() {
 
             {/* Query Results */}
             {queryResult && (
-              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+              <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
                 <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-6 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-3 text-white">
                     <CheckCircleIcon className="w-6 h-6" />
@@ -2048,26 +2048,26 @@ export function SuperAdminDashboard() {
 
                 <div className="p-6 overflow-x-auto">
                   {queryResult.rows.length > 0 ? (
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-[#2a2a44]">
+                      <thead className="bg-[#12121f]">
                         <tr>
                           {queryResult.columns.map((column, idx) => (
                             <th
                               key={idx}
-                              className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                              className="px-6 py-3 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider"
                             >
                               {column}
                             </th>
                           ))}
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-100">
+                      <tbody className="bg-[#161625] divide-y divide-[#1c1c30]">
                         {queryResult.rows.map((row, rowIdx) => (
-                          <tr key={rowIdx} className="hover:bg-gray-50">
+                          <tr key={rowIdx} className="hover:bg-[#12121f]">
                             {row.map((cell, cellIdx) => (
-                              <td key={cellIdx} className="px-6 py-4 text-sm text-gray-900 font-mono">
+                              <td key={cellIdx} className="px-6 py-4 text-sm text-[#F1F5F9] font-mono">
                                 {cell === null ? (
-                                  <span className="text-gray-400 italic">NULL</span>
+                                  <span className="text-[#64748B] italic">NULL</span>
                                 ) : typeof cell === 'boolean' ? (
                                   <span className={cell ? 'text-green-600' : 'text-red-600'}>
                                     {cell.toString()}
@@ -2082,8 +2082,8 @@ export function SuperAdminDashboard() {
                       </tbody>
                     </table>
                   ) : (
-                    <div className="text-center py-12 text-gray-500">
-                      <DocumentTextIcon className="w-16 h-16 mx-auto mb-3 text-gray-300" />
+                    <div className="text-center py-12 text-[#94A3B8]">
+                      <DocumentTextIcon className="w-16 h-16 mx-auto mb-3 text-[#64748B]" />
                       <p className="font-medium">Query executed but returned no results</p>
                     </div>
                   )}
@@ -2092,8 +2092,8 @@ export function SuperAdminDashboard() {
             )}
 
             {/* Quick Query Templates */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
+              <h3 className="font-bold text-[#F1F5F9] mb-4 flex items-center gap-2">
                 <SparklesIcon className="w-4 h-4 text-indigo-400" />
                 Quick Query Templates
               </h3>
@@ -2107,7 +2107,7 @@ export function SuperAdminDashboard() {
                   <button
                     key={idx}
                     onClick={() => setSqlQuery(template.query)}
-                    className="text-left px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-xl text-sm font-medium text-gray-700 transition-all border-2 border-gray-200 hover:border-gray-300"
+                    className="text-left px-4 py-3 bg-gradient-to-r from-[#12121f] to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-xl text-sm font-medium text-[#CBD5E1] transition-all border-2 border-[#2a2a44] hover:border-[#33335a]"
                   >
                     {template.label}
                   </button>
@@ -2152,16 +2152,16 @@ export function SuperAdminDashboard() {
             </div>
 
             {/* Category Filter */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <CodeBracketIcon className="w-4 h-4 text-indigo-400" />
-                  <h3 className="text-lg font-bold text-gray-900">API Endpoints Monitor</h3>
+                  <h3 className="text-lg font-bold text-[#F1F5F9]">API Endpoints Monitor</h3>
                 </div>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all font-medium text-sm"
+                  className="px-4 py-2 rounded-xl border-2 border-[#2a2a44] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all font-medium text-sm"
                 >
                   <option value="all">All Categories</option>
                   {Object.keys(groupedRoutes).sort().map((category) => (
@@ -2175,9 +2175,9 @@ export function SuperAdminDashboard() {
 
             {/* Loading State */}
             {loading ? (
-              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+              <div className="text-center py-24 bg-[#161625] rounded-2xl shadow-lg">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent"></div>
-                <p className="mt-4 text-gray-600 font-medium">Loading API routes...</p>
+                <p className="mt-4 text-[#94A3B8] font-medium">Loading API routes...</p>
               </div>
             ) : (
               <>
@@ -2186,7 +2186,7 @@ export function SuperAdminDashboard() {
                   .sort()
                   .filter((category) => selectedCategory === 'all' || selectedCategory === category)
                   .map((category, catIdx) => (
-                    <div key={category} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div key={category} className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
                       {/* Category Header */}
                       <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                         <div className="flex items-center justify-between">
@@ -2212,46 +2212,46 @@ export function SuperAdminDashboard() {
                             <col style={{ width: '140px' }} />
                             <col style={{ width: '140px' }} />
                           </colgroup>
-                          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+                          <thead className="bg-gradient-to-r from-[#12121f] to-gray-100">
                             <tr>
-                              <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              <th className="px-6 py-4 text-center text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                                 Method
                               </th>
-                              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                                 Endpoint
                               </th>
-                              <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              <th className="px-6 py-4 text-left text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                                 Description
                               </th>
-                              <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              <th className="px-6 py-4 text-center text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                                 Status
                               </th>
-                              <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                              <th className="px-6 py-4 text-center text-xs font-bold text-[#CBD5E1] uppercase tracking-wider">
                                 Actions
                               </th>
                             </tr>
                           </thead>
-                          <tbody className="bg-white divide-y divide-gray-100">
+                          <tbody className="bg-[#161625] divide-y divide-[#1c1c30]">
                             {groupedRoutes[category].map((route, idx) => {
                               const key = `${route.method}:${route.path}`;
                               const testResult = testResults[key];
                               const isTesting = testingEndpoint === key;
 
                               return (
-                                <tr key={idx} className="hover:bg-orange-50/30 transition-colors">
+                                <tr key={idx} className="hover:bg-orange-500/10/30 transition-colors">
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex justify-center">
                                       <span
                                         className={`inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-xs font-bold w-20 ${
                                           route.method === 'GET'
-                                            ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                                            ? 'bg-orange-500/15 text-orange-400 border border-orange-200'
                                             : route.method === 'POST'
-                                            ? 'bg-green-100 text-green-700 border border-green-200'
+                                            ? 'bg-green-500/15 text-green-400 border border-green-200'
                                             : route.method === 'PUT' || route.method === 'PATCH'
-                                            ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                                            ? 'bg-yellow-500/15 text-yellow-400 border border-yellow-200'
                                             : route.method === 'DELETE'
-                                            ? 'bg-red-100 text-red-700 border border-red-200'
-                                            : 'bg-gray-100 text-gray-700 border border-gray-200'
+                                            ? 'bg-red-500/15 text-red-400 border border-red-200'
+                                            : 'bg-[#1c1c30] text-[#CBD5E1] border border-[#2a2a44]'
                                         }`}
                                       >
                                         {route.method}
@@ -2259,12 +2259,12 @@ export function SuperAdminDashboard() {
                                     </div>
                                   </td>
                                   <td className="px-6 py-4">
-                                    <code className="text-xs font-mono text-orange-700 bg-orange-50 px-3 py-1.5 rounded-lg border border-indigo-100 block truncate">
+                                    <code className="text-xs font-mono text-orange-400 bg-orange-500/10 px-3 py-1.5 rounded-lg border border-indigo-100 block truncate">
                                       {route.path}
                                     </code>
                                   </td>
                                   <td className="px-6 py-4">
-                                    <span className="text-sm text-gray-700 block">{route.description}</span>
+                                    <span className="text-sm text-[#CBD5E1] block">{route.description}</span>
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex justify-center items-center h-full">
@@ -2273,17 +2273,17 @@ export function SuperAdminDashboard() {
                                           {testResult.status === 'active' ? (
                                             <>
                                               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                              <span className="text-xs font-bold text-green-700">Active</span>
+                                              <span className="text-xs font-bold text-green-400">Active</span>
                                             </>
                                           ) : (
                                             <>
                                               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                              <span className="text-xs font-bold text-red-700">Error</span>
+                                              <span className="text-xs font-bold text-red-400">Error</span>
                                             </>
                                           )}
                                         </div>
                                       ) : (
-                                        <span className="text-sm text-gray-400 font-medium">—</span>
+                                        <span className="text-sm text-[#64748B] font-medium">—</span>
                                       )}
                                     </div>
                                   </td>
@@ -2336,12 +2336,12 @@ export function SuperAdminDashboard() {
         {selectedTab === 'credentials' && (
           <div className="space-y-6">
             {/* Credentials Header */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
               <div className="flex items-center gap-3 mb-2">
                 <KeyIcon className="w-5 h-5 text-amber-600" />
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">System Credentials</h2>
-                  <p className="text-gray-600">Manage all external API keys, passwords, and authentication credentials</p>
+                  <h2 className="text-2xl font-bold text-[#F1F5F9]">System Credentials</h2>
+                  <p className="text-[#94A3B8]">Manage all external API keys, passwords, and authentication credentials</p>
                 </div>
               </div>
             </div>
@@ -2358,7 +2358,7 @@ export function SuperAdminDashboard() {
             </div>
 
             {/* SMTP / Email Credentials */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -2375,53 +2375,53 @@ export function SuperAdminDashboard() {
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP Host</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">SMTP Host</label>
                     <input
                       type="text"
                       value="smtp.gmail.com"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP Port</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">SMTP Port</label>
                     <input
                       type="text"
                       value="587"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP User / Email</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">SMTP User / Email</label>
                     <input
                       type="text"
                       value="support@brandmonkz.com"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">SMTP Password</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">SMTP Password</label>
                     <div className="relative">
                       <input
                         type="password"
                         value="••••••••••••••••"
                         readOnly
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                        className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm pr-12"
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
                         <EyeSlashIcon className="w-5 h-5" />
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Stored in environment variable: SMTP_PASS</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Stored in environment variable: SMTP_PASS</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Database Credentials */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -2438,62 +2438,62 @@ export function SuperAdminDashboard() {
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Host</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">Database Host</label>
                     <input
                       type="text"
                       value="brandmonkz-crm-database.••••••.us-east-1.rds.amazonaws.com"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Port</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">Database Port</label>
                     <input
                       type="text"
                       value="5432"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Name</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">Database Name</label>
                     <input
                       type="text"
                       value="brandmonkz_crm"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Database User</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">Database User</label>
                     <input
                       type="text"
                       value="postgres"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-gray-700 mb-2">Database Password</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">Database Password</label>
                     <div className="relative">
                       <input
                         type="password"
                         value="••••••••••••••••"
                         readOnly
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                        className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm pr-12"
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
                         <EyeSlashIcon className="w-5 h-5" />
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Stored in environment variable: DATABASE_URL</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Stored in environment variable: DATABASE_URL</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* AWS Credentials */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className="bg-gradient-to-r from-indigo-400 to-purple-500 px-8 py-5">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -2510,59 +2510,59 @@ export function SuperAdminDashboard() {
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Region</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">AWS Region</label>
                     <input
                       type="text"
                       value="us-east-1"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Account ID</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">AWS Account ID</label>
                     <input
                       type="text"
                       value="••••••••3224"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Access Key ID</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">AWS Access Key ID</label>
                     <div className="relative">
                       <input
                         type="password"
                         value="••••••••••••••••••••"
                         readOnly
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                        className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm pr-12"
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
                         <EyeSlashIcon className="w-5 h-5" />
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Stored in AWS CLI configuration</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Stored in AWS CLI configuration</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">AWS Secret Access Key</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">AWS Secret Access Key</label>
                     <div className="relative">
                       <input
                         type="password"
                         value="••••••••••••••••••••••••••••••••••••••••"
                         readOnly
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                        className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm pr-12"
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
                         <EyeSlashIcon className="w-5 h-5" />
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Stored in AWS CLI configuration</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Stored in AWS CLI configuration</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* SSH Keys */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} px-8 py-5`}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -2579,39 +2579,39 @@ export function SuperAdminDashboard() {
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">EC2 Instance IP</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">EC2 Instance IP</label>
                     <input
                       type="text"
                       value="100.24.213.224"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">SSH User</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">SSH User</label>
                     <input
                       type="text"
                       value="ec2-user"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-bold text-gray-700 mb-2">SSH Key File</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">SSH Key File</label>
                     <input
                       type="text"
                       value="~/.ssh/brandmonkz-crm.pem"
                       readOnly
-                      className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm"
+                      className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Private key for SSH access to production server</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Private key for SSH access to production server</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* JWT Secret */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className={`bg-gradient-to-r ${gradients.brand.primary.gradient} px-8 py-5`}>
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white flex items-center gap-3">
@@ -2628,36 +2628,36 @@ export function SuperAdminDashboard() {
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">JWT Secret Key</label>
+                    <label className="block text-sm font-bold text-[#CBD5E1] mb-2">JWT Secret Key</label>
                     <div className="relative">
                       <input
                         type="password"
                         value="••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"
                         readOnly
-                        className="w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl font-mono text-sm pr-12"
+                        className="w-full px-4 py-3 bg-[#12121f] border-2 border-[#2a2a44] rounded-xl font-mono text-sm pr-12"
                       />
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]">
                         <EyeSlashIcon className="w-5 h-5" />
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Stored in environment variable: JWT_SECRET</p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Stored in environment variable: JWT_SECRET</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Instructions */}
-            <div className="bg-gray-50 rounded-2xl p-8 border-2 border-gray-200">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <DocumentTextIcon className="w-4 h-4 text-gray-700" />
+            <div className="bg-[#12121f] rounded-2xl p-8 border-2 border-[#2a2a44]">
+              <h3 className="text-lg font-bold text-[#F1F5F9] mb-4 flex items-center gap-2">
+                <DocumentTextIcon className="w-4 h-4 text-[#CBD5E1]" />
                 How to Update Credentials
               </h3>
-              <div className="space-y-3 text-sm text-gray-700">
-                <p>1. <strong>SSH into the server:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">ssh -i ~/.ssh/brandmonkz-crm.pem ec2-user@100.24.213.224</code></p>
-                <p>2. <strong>Edit environment file:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">sudo nano /var/www/crm-backend/backend/.env</code></p>
+              <div className="space-y-3 text-sm text-[#CBD5E1]">
+                <p>1. <strong>SSH into the server:</strong> <code className="bg-[#252540] px-2 py-1 rounded font-mono text-xs">ssh -i ~/.ssh/brandmonkz-crm.pem ec2-user@100.24.213.224</code></p>
+                <p>2. <strong>Edit environment file:</strong> <code className="bg-[#252540] px-2 py-1 rounded font-mono text-xs">sudo nano /var/www/crm-backend/backend/.env</code></p>
                 <p>3. <strong>Update the credential</strong> you need to change</p>
-                <p>4. <strong>Restart the backend:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">pm2 restart crm-backend</code></p>
-                <p>5. <strong>Verify the change:</strong> <code className="bg-gray-200 px-2 py-1 rounded font-mono text-xs">pm2 logs crm-backend --lines 20</code></p>
+                <p>4. <strong>Restart the backend:</strong> <code className="bg-[#252540] px-2 py-1 rounded font-mono text-xs">pm2 restart crm-backend</code></p>
+                <p>5. <strong>Verify the change:</strong> <code className="bg-[#252540] px-2 py-1 rounded font-mono text-xs">pm2 logs crm-backend --lines 20</code></p>
               </div>
             </div>
 
@@ -2705,14 +2705,14 @@ export function SuperAdminDashboard() {
             )}
 
             {/* Filters */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Action</label>
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Filter by Action</label>
                   <select
                     value={activityActionFilter}
                     onChange={(e) => setActivityActionFilter(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#2a2a44] rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   >
                     <option value="">All Actions</option>
                     <option value="USER_LOGIN">User Login</option>
@@ -2726,11 +2726,11 @@ export function SuperAdminDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Time Range</label>
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Time Range</label>
                   <select
                     value={activityDateFilter}
                     onChange={(e) => setActivityDateFilter(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#2a2a44] rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   >
                     <option value="all">All Time</option>
                     <option value="24h">Last 24 Hours</option>
@@ -2742,7 +2742,7 @@ export function SuperAdminDashboard() {
             </div>
 
             {/* Activity Logs Table */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className={`px-8 py-5 bg-gradient-to-r ${gradients.brand.primary.gradient}`}>
                 <h3 className="text-xl font-bold text-white">Activity Logs</h3>
                 <p className="text-white/90 text-sm mt-1">
@@ -2755,48 +2755,48 @@ export function SuperAdminDashboard() {
                     <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
                   </div>
                 ) : activityLogs.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <ClipboardDocumentListIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                  <div className="text-center py-12 text-[#94A3B8]">
+                    <ClipboardDocumentListIcon className="w-12 h-12 mx-auto mb-3 text-[#64748B]" />
                     <p>No activity logs found</p>
                   </div>
                 ) : (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-[#2a2a44]">
+                    <thead className="bg-[#12121f]">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IP Address</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Timestamp</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Action</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Description</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">IP Address</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-[#161625] divide-y divide-[#2a2a44]">
                       {activityLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <tr key={log.id} className="hover:bg-[#12121f]">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#F1F5F9]">
                             {new Date(log.createdAt).toLocaleString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             {log.user ? (
                               <div>
-                                <p className="font-medium text-gray-900">
+                                <p className="font-medium text-[#F1F5F9]">
                                   {log.user.firstName} {log.user.lastName}
                                 </p>
-                                <p className="text-gray-500 text-xs">{log.user.email}</p>
+                                <p className="text-[#94A3B8] text-xs">{log.user.email}</p>
                               </div>
                             ) : (
-                              <span className="text-gray-400">System</span>
+                              <span className="text-[#64748B]">System</span>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800">
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-800">
                               {log.action.replace(/_/g, ' ')}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-[#94A3B8]">
                             {log.description || '-'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#94A3B8]">
                             {log.ipAddress || '-'}
                           </td>
                         </tr>
@@ -2808,22 +2808,22 @@ export function SuperAdminDashboard() {
 
               {/* Pagination */}
               {activityLogsPagination.totalPages > 1 && (
-                <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-                  <p className="text-sm text-gray-700">
+                <div className="px-8 py-4 bg-[#12121f] border-t border-[#2a2a44] flex items-center justify-between">
+                  <p className="text-sm text-[#CBD5E1]">
                     Page {activityLogsPagination.page} of {activityLogsPagination.totalPages}
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => loadActivityLogs(activityLogsPagination.page - 1)}
                       disabled={activityLogsPagination.page === 1}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className="px-4 py-2 bg-[#161625] border border-[#33335a] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#12121f]"
                     >
                       <ChevronLeftIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => loadActivityLogs(activityLogsPagination.page + 1)}
                       disabled={activityLogsPagination.page === activityLogsPagination.totalPages}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className="px-4 py-2 bg-[#161625] border border-[#33335a] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#12121f]"
                     >
                       <ChevronRightIcon className="w-5 h-5" />
                     </button>
@@ -2885,14 +2885,14 @@ export function SuperAdminDashboard() {
             )}
 
             {/* Filters */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Filter by Status</label>
                   <select
                     value={emailStatusFilter}
                     onChange={(e) => setEmailStatusFilter(e.target.value)}
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#2a2a44] rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   >
                     <option value="">All Status</option>
                     <option value="SENT">Sent</option>
@@ -2902,20 +2902,20 @@ export function SuperAdminDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Search Recipient</label>
+                  <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Search Recipient</label>
                   <input
                     type="text"
                     value={emailRecipientFilter}
                     onChange={(e) => setEmailRecipientFilter(e.target.value)}
                     placeholder="Search by email..."
-                    className="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    className="w-full px-4 py-2 border-2 border-[#2a2a44] rounded-xl focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
                   />
                 </div>
               </div>
             </div>
 
             {/* Email Logs Table */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className="px-8 py-5 bg-gradient-to-r from-indigo-400 to-purple-500">
                 <h3 className="text-xl font-bold text-white">Email Logs</h3>
                 <p className="text-white/90 text-sm mt-1">
@@ -2928,39 +2928,39 @@ export function SuperAdminDashboard() {
                     <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
                   </div>
                 ) : emailLogs.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <EnvelopeIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                  <div className="text-center py-12 text-[#94A3B8]">
+                    <EnvelopeIcon className="w-12 h-12 mx-auto mb-3 text-[#64748B]" />
                     <p>No email logs found</p>
                   </div>
                 ) : (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-[#2a2a44]">
+                    <thead className="bg-[#12121f]">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sent At</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipient</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subject</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Tracking</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Sent At</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Recipient</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Subject</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Status</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-[#94A3B8] uppercase">Tracking</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-[#161625] divide-y divide-[#2a2a44]">
                       {emailLogs.map((email) => (
-                        <tr key={email.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <tr key={email.id} className="hover:bg-[#12121f]">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#F1F5F9]">
                             {new Date(email.sentAt).toLocaleString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#F1F5F9]">
                             {email.toEmail}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-[#94A3B8]">
                             {email.metadata?.subject || '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              email.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                              email.status === 'SENT' ? 'bg-orange-100 text-orange-800' :
-                              email.status === 'BOUNCED' ? 'bg-orange-100 text-orange-800' :
-                              'bg-red-100 text-red-800'
+                              email.status === 'DELIVERED' ? 'bg-green-500/15 text-green-400' :
+                              email.status === 'SENT' ? 'bg-orange-500/15 text-orange-400' :
+                              email.status === 'BOUNCED' ? 'bg-orange-500/15 text-orange-400' :
+                              'bg-red-500/15 text-red-400'
                             }`}>
                               {email.status}
                             </span>
@@ -2969,7 +2969,7 @@ export function SuperAdminDashboard() {
                             <div className="flex items-center justify-center gap-2">
                               {email.openedAt && <CheckCircleIcon className="w-4 h-4 text-green-600" title="Opened" />}
                               {email.clickedAt && <CheckCircleIcon className="w-4 h-4 text-indigo-400" title="Clicked" />}
-                              {!email.openedAt && !email.clickedAt && <span className="text-gray-400 text-xs">-</span>}
+                              {!email.openedAt && !email.clickedAt && <span className="text-[#64748B] text-xs">-</span>}
                             </div>
                           </td>
                         </tr>
@@ -2981,22 +2981,22 @@ export function SuperAdminDashboard() {
 
               {/* Pagination */}
               {emailLogsPagination.totalPages > 1 && (
-                <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-                  <p className="text-sm text-gray-700">
+                <div className="px-8 py-4 bg-[#12121f] border-t border-[#2a2a44] flex items-center justify-between">
+                  <p className="text-sm text-[#CBD5E1]">
                     Page {emailLogsPagination.page} of {emailLogsPagination.totalPages}
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => loadEmailLogs(emailLogsPagination.page - 1)}
                       disabled={emailLogsPagination.page === 1}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className="px-4 py-2 bg-[#161625] border border-[#33335a] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#12121f]"
                     >
                       <ChevronLeftIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => loadEmailLogs(emailLogsPagination.page + 1)}
                       disabled={emailLogsPagination.page === emailLogsPagination.totalPages}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className="px-4 py-2 bg-[#161625] border border-[#33335a] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#12121f]"
                     >
                       <ChevronRightIcon className="w-5 h-5" />
                     </button>
@@ -3057,12 +3057,12 @@ export function SuperAdminDashboard() {
             )}
 
             {/* Filter */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
+              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">Filter by Status</label>
               <select
                 value={jobStatusFilter}
                 onChange={(e) => setJobStatusFilter(e.target.value)}
-                className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full md:w-1/3 px-4 py-2 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
                 <option value="">All Status</option>
                 <option value="PENDING">Pending</option>
@@ -3073,7 +3073,7 @@ export function SuperAdminDashboard() {
             </div>
 
             {/* Background Jobs Table */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-[#161625] rounded-2xl shadow-lg overflow-hidden">
               <div className="px-8 py-5 bg-gradient-to-r from-indigo-400 to-purple-500">
                 <h3 className="text-xl font-bold text-white">Background Jobs</h3>
                 <p className="text-white/90 text-sm mt-1">
@@ -3086,45 +3086,45 @@ export function SuperAdminDashboard() {
                     <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
                   </div>
                 ) : backgroundJobs.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
-                    <ClockIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                  <div className="text-center py-12 text-[#94A3B8]">
+                    <ClockIcon className="w-12 h-12 mx-auto mb-3 text-[#64748B]" />
                     <p>No background jobs found</p>
                   </div>
                 ) : (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-[#2a2a44]">
+                    <thead className="bg-[#12121f]">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Campaign</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Progress</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Error</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Created</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Campaign</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Progress</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#94A3B8] uppercase">Error</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-[#94A3B8] uppercase">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-[#161625] divide-y divide-[#2a2a44]">
                       {backgroundJobs.map((job) => (
-                        <tr key={job.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <tr key={job.id} className="hover:bg-[#12121f]">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#F1F5F9]">
                             {new Date(job.createdAt).toLocaleString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[#F1F5F9]">
                             {job.campaign?.name || '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              job.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              job.status === 'processing' ? 'bg-orange-100 text-orange-800' :
-                              job.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
+                              job.status === 'completed' ? 'bg-green-500/15 text-green-400' :
+                              job.status === 'processing' ? 'bg-orange-500/15 text-orange-400' :
+                              job.status === 'pending' ? 'bg-yellow-500/15 text-yellow-400' :
+                              'bg-red-500/15 text-red-400'
                             }`}>
                               {job.status.toUpperCase()}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-sm">
                             <div>
-                              <p className="text-gray-600">{job.currentStep || '-'}</p>
-                              <p className="text-xs text-gray-400">Progress: {job.progress}%</p>
+                              <p className="text-[#94A3B8]">{job.currentStep || '-'}</p>
+                              <p className="text-xs text-[#64748B]">Progress: {job.progress}%</p>
                             </div>
                           </td>
                           <td className="px-6 py-4 text-sm text-red-600">
@@ -3161,22 +3161,22 @@ export function SuperAdminDashboard() {
 
               {/* Pagination */}
               {jobsPagination.totalPages > 1 && (
-                <div className="px-8 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-                  <p className="text-sm text-gray-700">
+                <div className="px-8 py-4 bg-[#12121f] border-t border-[#2a2a44] flex items-center justify-between">
+                  <p className="text-sm text-[#CBD5E1]">
                     Page {jobsPagination.page} of {jobsPagination.totalPages}
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => loadBackgroundJobs(jobsPagination.page - 1)}
                       disabled={jobsPagination.page === 1}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className="px-4 py-2 bg-[#161625] border border-[#33335a] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#12121f]"
                     >
                       <ChevronLeftIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => loadBackgroundJobs(jobsPagination.page + 1)}
                       disabled={jobsPagination.page === jobsPagination.totalPages}
-                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      className="px-4 py-2 bg-[#161625] border border-[#33335a] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#12121f]"
                     >
                       <ChevronRightIcon className="w-5 h-5" />
                     </button>
@@ -3191,9 +3191,9 @@ export function SuperAdminDashboard() {
         {selectedTab === 'tech-stack' && (
           <div className="space-y-6">
             {techStackLoading ? (
-              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+              <div className="text-center py-24 bg-[#161625] rounded-2xl shadow-lg">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-orange-600 border-t-transparent"></div>
-                <p className="text-gray-600 mt-4">Loading tech stack information...</p>
+                <p className="text-[#94A3B8] mt-4">Loading tech stack information...</p>
               </div>
             ) : techStack ? (
               <>
@@ -3235,39 +3235,39 @@ export function SuperAdminDashboard() {
 
                 {/* Infrastructure */}
                 {techStack.infrastructure && techStack.infrastructure.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <ServerIcon className="w-4 h-4 text-indigo-400" />
-                      <h2 className="text-2xl font-bold text-gray-900">Infrastructure</h2>
+                      <h2 className="text-2xl font-bold text-[#F1F5F9]">Infrastructure</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.infrastructure.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-500 transition-all">
+                        <div key={tech.name} className="border-2 border-[#2a2a44] rounded-xl p-4 hover:border-indigo-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
-                              <p className="text-sm text-gray-500">{tech.version}</p>
+                              <h3 className="font-bold text-lg text-[#F1F5F9]">{tech.name}</h3>
+                              <p className="text-sm text-[#94A3B8]">{tech.version}</p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              tech.status === 'healthy' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
                             }`}>
                               {tech.status === 'healthy' ? '✓ Healthy' : '✗ Down'}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                          <p className="text-[#94A3B8] text-sm mb-3">{tech.description}</p>
+                          <div className="bg-[#12121f] rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purpose:</span>
-                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                              <span className="text-[#94A3B8]">Purpose:</span>
+                              <span className="text-[#F1F5F9] font-medium text-right ml-2">{tech.purpose}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Connection:</span>
-                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                              <span className="text-[#94A3B8]">Connection:</span>
+                              <span className="text-[#F1F5F9] font-medium">{tech.connection}</span>
                             </div>
                             {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-gray-600">{key}:</span>
-                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                                <span className="text-[#94A3B8]">{key}:</span>
+                                <span className="text-[#F1F5F9] font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -3279,39 +3279,39 @@ export function SuperAdminDashboard() {
 
                 {/* Backend */}
                 {techStack.backend && techStack.backend.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <CodeBracketIcon className="w-5 h-5 text-green-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">Backend Technologies</h2>
+                      <h2 className="text-2xl font-bold text-[#F1F5F9]">Backend Technologies</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.backend.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-green-500 transition-all">
+                        <div key={tech.name} className="border-2 border-[#2a2a44] rounded-xl p-4 hover:border-green-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
-                              <p className="text-sm text-gray-500">{tech.version}</p>
+                              <h3 className="font-bold text-lg text-[#F1F5F9]">{tech.name}</h3>
+                              <p className="text-sm text-[#94A3B8]">{tech.version}</p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              tech.status === 'healthy' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
                             }`}>
                               {tech.status === 'healthy' ? '✓ Healthy' : '✗ Down'}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                          <p className="text-[#94A3B8] text-sm mb-3">{tech.description}</p>
+                          <div className="bg-[#12121f] rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purpose:</span>
-                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                              <span className="text-[#94A3B8]">Purpose:</span>
+                              <span className="text-[#F1F5F9] font-medium text-right ml-2">{tech.purpose}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Connection:</span>
-                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                              <span className="text-[#94A3B8]">Connection:</span>
+                              <span className="text-[#F1F5F9] font-medium">{tech.connection}</span>
                             </div>
                             {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-gray-600">{key}:</span>
-                                <span className="text-gray-900 font-medium text-right ml-2">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                                <span className="text-[#94A3B8]">{key}:</span>
+                                <span className="text-[#F1F5F9] font-medium text-right ml-2">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -3323,39 +3323,39 @@ export function SuperAdminDashboard() {
 
                 {/* Frontend */}
                 {techStack.frontend && techStack.frontend.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <SparklesIcon className="w-4 h-4 text-indigo-400" />
-                      <h2 className="text-2xl font-bold text-gray-900">Frontend Technologies</h2>
+                      <h2 className="text-2xl font-bold text-[#F1F5F9]">Frontend Technologies</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.frontend.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-500 transition-all">
+                        <div key={tech.name} className="border-2 border-[#2a2a44] rounded-xl p-4 hover:border-indigo-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
-                              <p className="text-sm text-gray-500">{tech.version}</p>
+                              <h3 className="font-bold text-lg text-[#F1F5F9]">{tech.name}</h3>
+                              <p className="text-sm text-[#94A3B8]">{tech.version}</p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              tech.status === 'healthy' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
                             }`}>
                               {tech.status === 'healthy' ? '✓ Healthy' : '✗ Down'}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                          <p className="text-[#94A3B8] text-sm mb-3">{tech.description}</p>
+                          <div className="bg-[#12121f] rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purpose:</span>
-                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                              <span className="text-[#94A3B8]">Purpose:</span>
+                              <span className="text-[#F1F5F9] font-medium text-right ml-2">{tech.purpose}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Connection:</span>
-                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                              <span className="text-[#94A3B8]">Connection:</span>
+                              <span className="text-[#F1F5F9] font-medium">{tech.connection}</span>
                             </div>
                             {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-gray-600">{key}:</span>
-                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                                <span className="text-[#94A3B8]">{key}:</span>
+                                <span className="text-[#F1F5F9] font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -3367,39 +3367,39 @@ export function SuperAdminDashboard() {
 
                 {/* Database */}
                 {techStack.database && techStack.database.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <CircleStackIcon className="w-4 h-4 text-indigo-400" />
-                      <h2 className="text-2xl font-bold text-gray-900">Database & Caching</h2>
+                      <h2 className="text-2xl font-bold text-[#F1F5F9]">Database & Caching</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.database.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-500 transition-all">
+                        <div key={tech.name} className="border-2 border-[#2a2a44] rounded-xl p-4 hover:border-indigo-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
-                              <p className="text-sm text-gray-500">{tech.version}</p>
+                              <h3 className="font-bold text-lg text-[#F1F5F9]">{tech.name}</h3>
+                              <p className="text-sm text-[#94A3B8]">{tech.version}</p>
                             </div>
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              tech.status === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                              tech.status === 'healthy' ? 'bg-green-500/15 text-green-400' : 'bg-yellow-500/15 text-yellow-400'
                             }`}>
                               {tech.status === 'healthy' ? '✓ Healthy' : '⚠ Degraded'}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                          <p className="text-[#94A3B8] text-sm mb-3">{tech.description}</p>
+                          <div className="bg-[#12121f] rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purpose:</span>
-                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                              <span className="text-[#94A3B8]">Purpose:</span>
+                              <span className="text-[#F1F5F9] font-medium text-right ml-2">{tech.purpose}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Connection:</span>
-                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                              <span className="text-[#94A3B8]">Connection:</span>
+                              <span className="text-[#F1F5F9] font-medium">{tech.connection}</span>
                             </div>
                             {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-gray-600">{key}:</span>
-                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                                <span className="text-[#94A3B8]">{key}:</span>
+                                <span className="text-[#F1F5F9] font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -3411,37 +3411,37 @@ export function SuperAdminDashboard() {
 
                 {/* Cloud Services */}
                 {techStack.cloud && techStack.cloud.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <CloudIcon className="w-5 h-5 text-sky-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">Cloud Services</h2>
+                      <h2 className="text-2xl font-bold text-[#F1F5F9]">Cloud Services</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.cloud.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-sky-500 transition-all">
+                        <div key={tech.name} className="border-2 border-[#2a2a44] rounded-xl p-4 hover:border-sky-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
-                              <p className="text-sm text-gray-500">{tech.version}</p>
+                              <h3 className="font-bold text-lg text-[#F1F5F9]">{tech.name}</h3>
+                              <p className="text-sm text-[#94A3B8]">{tech.version}</p>
                             </div>
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/15 text-green-400">
                               ✓ Healthy
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                          <p className="text-[#94A3B8] text-sm mb-3">{tech.description}</p>
+                          <div className="bg-[#12121f] rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purpose:</span>
-                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                              <span className="text-[#94A3B8]">Purpose:</span>
+                              <span className="text-[#F1F5F9] font-medium text-right ml-2">{tech.purpose}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Connection:</span>
-                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                              <span className="text-[#94A3B8]">Connection:</span>
+                              <span className="text-[#F1F5F9] font-medium">{tech.connection}</span>
                             </div>
                             {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-gray-600">{key}:</span>
-                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                                <span className="text-[#94A3B8]">{key}:</span>
+                                <span className="text-[#F1F5F9] font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -3453,37 +3453,37 @@ export function SuperAdminDashboard() {
 
                 {/* AI Services */}
                 {techStack.ai && techStack.ai.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <SparklesIcon className="w-5 h-5 text-pink-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">AI & Machine Learning</h2>
+                      <h2 className="text-2xl font-bold text-[#F1F5F9]">AI & Machine Learning</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.ai.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-pink-500 transition-all">
+                        <div key={tech.name} className="border-2 border-[#2a2a44] rounded-xl p-4 hover:border-pink-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
-                              <p className="text-sm text-gray-500">{tech.version}</p>
+                              <h3 className="font-bold text-lg text-[#F1F5F9]">{tech.name}</h3>
+                              <p className="text-sm text-[#94A3B8]">{tech.version}</p>
                             </div>
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/15 text-green-400">
                               ✓ Healthy
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                          <p className="text-[#94A3B8] text-sm mb-3">{tech.description}</p>
+                          <div className="bg-[#12121f] rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purpose:</span>
-                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                              <span className="text-[#94A3B8]">Purpose:</span>
+                              <span className="text-[#F1F5F9] font-medium text-right ml-2">{tech.purpose}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Connection:</span>
-                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                              <span className="text-[#94A3B8]">Connection:</span>
+                              <span className="text-[#F1F5F9] font-medium">{tech.connection}</span>
                             </div>
                             {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-gray-600">{key}:</span>
-                                <span className="text-gray-900 font-medium">{String(value)}</span>
+                                <span className="text-[#94A3B8]">{key}:</span>
+                                <span className="text-[#F1F5F9] font-medium">{String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -3495,37 +3495,37 @@ export function SuperAdminDashboard() {
 
                 {/* Monitoring & Security */}
                 {techStack.monitoring && techStack.monitoring.length > 0 && (
-                  <div className="bg-white rounded-2xl shadow-lg p-6">
+                  <div className="bg-[#161625] rounded-2xl shadow-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
                       <ShieldCheckIcon className="w-5 h-5 text-red-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">Monitoring & Security</h2>
+                      <h2 className="text-2xl font-bold text-[#F1F5F9]">Monitoring & Security</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {techStack.monitoring.map((tech: any) => (
-                        <div key={tech.name} className="border-2 border-gray-200 rounded-xl p-4 hover:border-red-500 transition-all">
+                        <div key={tech.name} className="border-2 border-[#2a2a44] rounded-xl p-4 hover:border-red-500 transition-all">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-bold text-lg text-gray-900">{tech.name}</h3>
-                              <p className="text-sm text-gray-500">{tech.version}</p>
+                              <h3 className="font-bold text-lg text-[#F1F5F9]">{tech.name}</h3>
+                              <p className="text-sm text-[#94A3B8]">{tech.version}</p>
                             </div>
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-500/15 text-green-400">
                               ✓ Healthy
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mb-3">{tech.description}</p>
-                          <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
+                          <p className="text-[#94A3B8] text-sm mb-3">{tech.description}</p>
+                          <div className="bg-[#12121f] rounded-lg p-3 space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Purpose:</span>
-                              <span className="text-gray-900 font-medium text-right ml-2">{tech.purpose}</span>
+                              <span className="text-[#94A3B8]">Purpose:</span>
+                              <span className="text-[#F1F5F9] font-medium text-right ml-2">{tech.purpose}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Connection:</span>
-                              <span className="text-gray-900 font-medium">{tech.connection}</span>
+                              <span className="text-[#94A3B8]">Connection:</span>
+                              <span className="text-[#F1F5F9] font-medium">{tech.connection}</span>
                             </div>
                             {tech.metrics && Object.entries(tech.metrics).map(([key, value]: [string, any]) => (
                               <div key={key} className="flex justify-between">
-                                <span className="text-gray-600">{key}:</span>
-                                <span className="text-gray-900 font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                                <span className="text-[#94A3B8]">{key}:</span>
+                                <span className="text-[#F1F5F9] font-medium">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
                               </div>
                             ))}
                           </div>
@@ -3545,9 +3545,9 @@ export function SuperAdminDashboard() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
-                <CogIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 font-semibold mb-2">No tech stack data available</p>
+              <div className="text-center py-24 bg-[#161625] rounded-2xl shadow-lg">
+                <CogIcon className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+                <p className="text-[#94A3B8] font-semibold mb-2">No tech stack data available</p>
                 <button
                   onClick={loadTechStack}
                   className={`mt-4 px-4 py-2.5 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold tracking-wide hover:shadow-lg transition-all`}
@@ -3562,22 +3562,22 @@ export function SuperAdminDashboard() {
         {/* UI Configuration Tab */}
         {selectedTab === 'ui-config' && (
           <div>
-            <div className="bg-white rounded-2xl shadow-lg p-8">
+            <div className="bg-[#161625] rounded-2xl shadow-lg p-8">
               <div className="flex items-center gap-3 mb-6">
                 <PaintBrushIcon className="w-4 h-4 text-indigo-400" />
-                <h2 className="text-2xl font-bold text-gray-900">UI Configuration</h2>
+                <h2 className="text-2xl font-bold text-[#F1F5F9]">UI Configuration</h2>
               </div>
-              <p className="text-gray-600 mb-8">
+              <p className="text-[#94A3B8] mb-8">
                 Manage navigation, themes, and branding across your entire application. Changes apply instantly to all users.
               </p>
 
               <div className="space-y-8">
                 {/* Navigation Manager */}
-                <div className="border border-gray-200 rounded-xl p-6">
+                <div className="border border-[#2a2a44] rounded-xl p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <Bars3Icon className="w-4 h-4 text-indigo-400" />
-                      <h3 className="text-xl font-bold text-gray-900">Navigation Manager</h3>
+                      <h3 className="text-xl font-bold text-[#F1F5F9]">Navigation Manager</h3>
                     </div>
                     <button
                       onClick={() => alert('Navigation editor coming soon!\n\nFor now, use API:\nPOST /api/super-admin/navigation\n\nExample:\n{\n  "label": "My Custom Page",\n  "path": "/custom",\n  "icon": "StarIcon",\n  "order": 13,\n  "roles": ["SUPER_ADMIN"]\n}')}
@@ -3587,22 +3587,22 @@ export function SuperAdminDashboard() {
                       Add Navigation Item
                     </button>
                   </div>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-[#94A3B8] mb-4">
                     Configure sidebar navigation items, order, visibility, and role-based access.
                   </p>
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                    <p className="text-sm text-orange-700">
+                  <div className="bg-orange-500/10 border border-orange-200 rounded-lg p-4">
+                    <p className="text-sm text-orange-400">
                       <strong>Coming Soon:</strong> Drag-and-drop navigation editor with live preview. For now, navigation is managed via API endpoints.
                     </p>
                   </div>
                 </div>
 
                 {/* Theme Manager */}
-                <div className="border border-gray-200 rounded-xl p-6">
+                <div className="border border-[#2a2a44] rounded-xl p-6">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                       <PaintBrushIcon className="w-4 h-4 text-indigo-400" />
-                      <h3 className="text-xl font-bold text-gray-900">Theme Manager</h3>
+                      <h3 className="text-xl font-bold text-[#F1F5F9]">Theme Manager</h3>
                     </div>
                     <button
                       onClick={() => alert('Theme creator coming soon!\n\nFor now, use API:\nPOST /api/super-admin/themes\n\nExample:\n{\n  "name": "Ocean Blue",\n  "primaryColor": "#0EA5E9",\n  "secondaryColor": "#06B6D4",\n  "accentColor": "#14B8A6",\n  "backgroundColor": "#FFFFFF",\n  "textColor": "#0F172A"\n}')}
@@ -3612,17 +3612,17 @@ export function SuperAdminDashboard() {
                       Create Theme
                     </button>
                   </div>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-[#94A3B8] mb-4">
                     Create and manage color themes, typography, and custom CSS.
                   </p>
                   {uiConfigLoading ? (
                     <div className="text-center py-12">
                       <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-orange-600 border-t-transparent"></div>
-                      <p className="mt-4 text-gray-600">Loading themes...</p>
+                      <p className="mt-4 text-[#94A3B8]">Loading themes...</p>
                     </div>
                   ) : themes.length === 0 ? (
-                    <div className="text-center py-12 text-gray-500">
-                      <PaintBrushIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <div className="text-center py-12 text-[#94A3B8]">
+                      <PaintBrushIcon className="w-12 h-12 mx-auto mb-3 text-[#64748B]" />
                       <p>No themes found</p>
                     </div>
                   ) : (
@@ -3632,21 +3632,21 @@ export function SuperAdminDashboard() {
                           key={theme.id}
                           className={`rounded-lg p-4 ${
                             theme.isActive
-                              ? 'border-2 border-green-500 bg-orange-50'
+                              ? 'border-2 border-green-500 bg-orange-500/10'
                               : theme.backgroundColor === '#111827' || theme.backgroundColor.includes('gray')
-                              ? 'border border-gray-300 bg-gradient-to-br from-gray-800 to-gray-900 text-white'
-                              : 'border border-gray-300 bg-white'
+                              ? 'border border-[#33335a] bg-gradient-to-br from-gray-800 to-gray-900 text-white'
+                              : 'border border-[#33335a] bg-[#161625]'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className={`font-bold ${theme.isActive || theme.backgroundColor.includes('111') ? '' : 'text-gray-900'}`}>
+                            <h4 className={`font-bold ${theme.isActive || theme.backgroundColor.includes('111') ? '' : 'text-[#F1F5F9]'}`}>
                               {theme.name}
                             </h4>
                             <span
                               className={`px-2 py-1 text-xs font-semibold rounded-full ${
                                 theme.isActive
                                   ? 'bg-green-600 text-white'
-                                  : 'bg-gray-200 text-gray-700'
+                                  : 'bg-[#252540] text-[#CBD5E1]'
                               }`}
                             >
                               {theme.isActive ? 'Active' : 'Inactive'}
@@ -3669,7 +3669,7 @@ export function SuperAdminDashboard() {
                               title={`Accent: ${theme.accentColor}`}
                             />
                           </div>
-                          <p className={`text-sm mb-3 ${theme.backgroundColor.includes('111') ? 'text-gray-400' : 'text-gray-600'}`}>
+                          <p className={`text-sm mb-3 ${theme.backgroundColor.includes('111') ? 'text-[#64748B]' : 'text-[#94A3B8]'}`}>
                             {theme.fontFamily || 'System font'} • {theme.fontSize || '14px'}
                           </p>
                           <div className="flex gap-2">
@@ -3683,7 +3683,7 @@ export function SuperAdminDashboard() {
                             )}
                             <button
                               onClick={() => alert('Theme editing UI coming soon! For now, use API: POST /api/super-admin/themes/' + theme.id)}
-                              className="flex-1 px-4 py-2.5 bg-white border-2 border-gray-300 text-gray-700 rounded-xl text-sm font-bold tracking-wide hover:bg-gray-50 cursor-pointer transition-all"
+                              className="flex-1 px-4 py-2.5 bg-[#161625] border-2 border-[#33335a] text-[#CBD5E1] rounded-xl text-sm font-bold tracking-wide hover:bg-[#12121f] cursor-pointer transition-all"
                             >
                               Edit
                             </button>
@@ -3695,103 +3695,103 @@ export function SuperAdminDashboard() {
                 </div>
 
                 {/* Branding Manager */}
-                <div className="border border-gray-200 rounded-xl p-6">
+                <div className="border border-[#2a2a44] rounded-xl p-6">
                   <div className="flex items-center gap-3 mb-6">
                     <BuildingOfficeIcon className="w-6 h-6 text-indigo-400" />
-                    <h3 className="text-xl font-bold text-gray-900">Branding Configuration</h3>
+                    <h3 className="text-xl font-bold text-[#F1F5F9]">Branding Configuration</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-[#94A3B8] mb-4">
                     Customize company branding, logos, and contact information.
                   </p>
                   {branding ? (
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                             Company Name
                           </label>
                           <input
                             type="text"
                             value={branding.companyName}
                             disabled
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                            className="w-full px-3 py-2 border border-[#33335a] rounded-lg bg-[#12121f]"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                             Support Email
                           </label>
                           <input
                             type="email"
                             value={branding.supportEmail || 'Not configured'}
                             disabled
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                            className="w-full px-3 py-2 border border-[#33335a] rounded-lg bg-[#12121f]"
                           />
                         </div>
                       </div>
                       {branding.supportPhone && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                          <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                             Support Phone
                           </label>
                           <input
                             type="text"
                             value={branding.supportPhone}
                             disabled
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                            className="w-full px-3 py-2 border border-[#33335a] rounded-lg bg-[#12121f]"
                           />
                         </div>
                       )}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                           Footer Text
                         </label>
                         <input
                           type="text"
                           value={branding.footerText || 'Not configured'}
                           disabled
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                          className="w-full px-3 py-2 border border-[#33335a] rounded-lg bg-[#12121f]"
                         />
                       </div>
                       {(branding.logoUrl || branding.faviconUrl) && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {branding.logoUrl && (
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                                 Logo URL
                               </label>
                               <input
                                 type="text"
                                 value={branding.logoUrl}
                                 disabled
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                                className="w-full px-3 py-2 border border-[#33335a] rounded-lg bg-[#12121f] text-sm"
                               />
                             </div>
                           )}
                           {branding.faviconUrl && (
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                              <label className="block text-sm font-medium text-[#CBD5E1] mb-2">
                                 Favicon URL
                               </label>
                               <input
                                 type="text"
                                 value={branding.faviconUrl}
                                 disabled
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                                className="w-full px-3 py-2 border border-[#33335a] rounded-lg bg-[#12121f] text-sm"
                               />
                             </div>
                           )}
                         </div>
                       )}
-                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                        <p className="text-sm text-orange-700">
+                      <div className="bg-orange-500/10 border border-orange-200 rounded-lg p-4">
+                        <p className="text-sm text-orange-400">
                           <strong>Info:</strong> Branding is configured via database. Use the API endpoints to modify these values programmatically.
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-12 text-gray-500">
-                      <BuildingOfficeIcon className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                    <div className="text-center py-12 text-[#94A3B8]">
+                      <BuildingOfficeIcon className="w-12 h-12 mx-auto mb-3 text-[#64748B]" />
                       <p>No branding configuration found</p>
                     </div>
                   )}
@@ -3801,32 +3801,32 @@ export function SuperAdminDashboard() {
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-orange-200">
                   <div className="flex items-center gap-3 mb-4">
                     <CodeBracketIcon className="w-6 h-6 text-indigo-400" />
-                    <h3 className="text-xl font-bold text-gray-900">API Endpoints</h3>
+                    <h3 className="text-xl font-bold text-[#F1F5F9]">API Endpoints</h3>
                   </div>
-                  <p className="text-gray-700 mb-4">
+                  <p className="text-[#CBD5E1] mb-4">
                     Use these endpoints to programmatically manage UI configuration:
                   </p>
                   <div className="space-y-2 font-mono text-sm">
-                    <div className="bg-white rounded p-3 border border-orange-200">
+                    <div className="bg-[#161625] rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/navigation
                     </div>
-                    <div className="bg-white rounded p-3 border border-orange-200">
+                    <div className="bg-[#161625] rounded p-3 border border-orange-200">
                       <span className="text-indigo-400 font-bold">POST</span> /api/super-admin/navigation
                     </div>
-                    <div className="bg-white rounded p-3 border border-orange-200">
+                    <div className="bg-[#161625] rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/themes
                     </div>
-                    <div className="bg-white rounded p-3 border border-orange-200">
+                    <div className="bg-[#161625] rounded p-3 border border-orange-200">
                       <span className="text-indigo-400 font-bold">POST</span> /api/super-admin/themes/:id/activate
                     </div>
-                    <div className="bg-white rounded p-3 border border-orange-200">
+                    <div className="bg-[#161625] rounded p-3 border border-orange-200">
                       <span className="text-green-600 font-bold">GET</span> /api/super-admin/branding
                     </div>
-                    <div className="bg-white rounded p-3 border border-orange-200">
+                    <div className="bg-[#161625] rounded p-3 border border-orange-200">
                       <span className="text-indigo-400 font-bold">POST</span> /api/super-admin/branding
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mt-4">
+                  <p className="text-sm text-[#94A3B8] mt-4">
                     Full API documentation is available in the implementation guide.
                   </p>
                 </div>
@@ -3848,37 +3848,37 @@ export function SuperAdminDashboard() {
         {selectedTab === 'system' && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-green-200">
+              <div className="bg-[#161625] rounded-2xl shadow-lg p-6 border-2 border-green-200">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
                     <ServerIcon className="w-6 h-6 text-green-600" />
                   </div>
                   <CheckCircleIcon className="w-5 h-5 text-green-600" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1">Backend API</h3>
-                <p className="text-sm text-green-700 font-medium">All systems operational</p>
+                <h3 className="font-bold text-[#F1F5F9] mb-1">Backend API</h3>
+                <p className="text-sm text-green-400 font-medium">All systems operational</p>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-green-200">
+              <div className="bg-[#161625] rounded-2xl shadow-lg p-6 border-2 border-green-200">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
                     <CircleStackIcon className="w-6 h-6 text-green-600" />
                   </div>
                   <CheckCircleIcon className="w-5 h-5 text-green-600" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1">Database Connection</h3>
-                <p className="text-sm text-green-700 font-medium">Connected and responsive</p>
+                <h3 className="font-bold text-[#F1F5F9] mb-1">Database Connection</h3>
+                <p className="text-sm text-green-400 font-medium">Connected and responsive</p>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-lg p-6 border-2 border-green-200">
+              <div className="bg-[#161625] rounded-2xl shadow-lg p-6 border-2 border-green-200">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-green-500/15 flex items-center justify-center">
                     <MegaphoneIcon className="w-6 h-6 text-green-600" />
                   </div>
                   <CheckCircleIcon className="w-5 h-5 text-green-600" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1">Email Service</h3>
-                <p className="text-sm text-green-700 font-medium">Google Workspace SMTP active</p>
+                <h3 className="font-bold text-[#F1F5F9] mb-1">Email Service</h3>
+                <p className="text-sm text-green-400 font-medium">Google Workspace SMTP active</p>
               </div>
             </div>
 

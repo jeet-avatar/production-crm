@@ -115,13 +115,13 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
   return (
     <div className="space-y-4">
       {/* Mode Selector */}
-      <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+      <div className="flex gap-2 p-1 bg-[#1c1c30] rounded-lg">
         <button
           onClick={() => setMode('upload')}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
             mode === 'upload'
-              ? 'bg-white text-indigo-400 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-[#161625] text-indigo-400 shadow-sm'
+              : 'text-[#94A3B8] hover:text-[#F1F5F9]'
           }`}
         >
           <CloudArrowUpIcon className="w-5 h-5 inline mr-2" />
@@ -131,8 +131,8 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
           onClick={() => setMode('url')}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition-all ${
             mode === 'url'
-              ? 'bg-white text-indigo-400 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-[#161625] text-indigo-400 shadow-sm'
+              : 'text-[#94A3B8] hover:text-[#F1F5F9]'
           }`}
         >
           <VideoCameraIcon className="w-5 h-5 inline mr-2" />
@@ -144,22 +144,22 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
       {mode === 'upload' && (
         <div>
           {isUploading ? (
-            <div className="border-2 border-gray-200 rounded-xl p-8 bg-gray-50">
+            <div className="border-2 border-[#2a2a44] rounded-xl p-8 bg-[#12121f]">
               <div className="space-y-4">
                 <div className="flex items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
                 </div>
                 <div>
-                  <p className="text-center text-gray-700 font-medium mb-2">
+                  <p className="text-center text-[#CBD5E1] font-medium mb-2">
                     Uploading video...
                   </p>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-[#252540] rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all duration-500"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
-                  <p className="text-center text-sm text-gray-600 mt-2">
+                  <p className="text-center text-sm text-[#94A3B8] mt-2">
                     {uploadProgress}% complete
                   </p>
                 </div>
@@ -172,19 +172,19 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
               onDragLeave={handleDragLeave}
               className={`border-2 border-dashed rounded-xl p-12 text-center transition-all cursor-pointer ${
                 isDragging
-                  ? 'border-indigo-500 bg-orange-50 scale-105'
-                  : 'border-gray-300 hover:border-orange-400 hover:bg-gray-50'
+                  ? 'border-indigo-500 bg-orange-500/10 scale-105'
+                  : 'border-[#33335a] hover:border-orange-400 hover:bg-[#12121f]'
               }`}
               onClick={() => fileInputRef.current?.click()}
             >
-              <CloudArrowUpIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <p className="text-lg font-semibold text-gray-700 mb-2">
+              <CloudArrowUpIcon className="w-16 h-16 text-[#64748B] mx-auto mb-4" />
+              <p className="text-lg font-semibold text-[#CBD5E1] mb-2">
                 {isDragging ? 'Drop your video here' : 'Upload your video'}
               </p>
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-[#94A3B8] mb-4">
                 <span className="font-semibold text-indigo-400">Click to browse</span> or drag and drop
               </p>
-              <div className="space-y-1 text-xs text-gray-500">
+              <div className="space-y-1 text-xs text-[#94A3B8]">
                 <p>Supported formats: MP4, MOV, AVI, WEBM</p>
                 <p>Maximum file size: 500MB</p>
               </div>
@@ -205,7 +205,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
       {mode === 'url' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">
               Video URL
             </label>
             <input
@@ -216,9 +216,9 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
                 setError('');
               }}
               placeholder="https://example.com/your-video.mp4"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+              className="w-full px-4 py-3 border border-[#33335a] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             />
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-[#94A3B8]">
               Enter a direct link to your video file (must be publicly accessible)
             </p>
           </div>
@@ -235,9 +235,9 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+        <div className="p-4 bg-red-500/10 border border-red-200 rounded-lg flex items-start gap-2">
           <XMarkIcon className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-800">{error}</p>
+          <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
 
@@ -245,7 +245,7 @@ export function VideoUploader({ onUploadComplete, onCancel }: VideoUploaderProps
       {onCancel && !isUploading && (
         <button
           onClick={onCancel}
-          className="w-full py-2 text-gray-600 hover:text-gray-900 font-medium transition-colors"
+          className="w-full py-2 text-[#94A3B8] hover:text-[#F1F5F9] font-medium transition-colors"
         >
           Cancel
         </button>

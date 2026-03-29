@@ -314,6 +314,7 @@ router.put('/:id', async (req, res, next) => {
       email,
       phone,
       companyId,
+      companyName,
       status,
       tagIds = [],
     } = req.body;
@@ -339,6 +340,23 @@ router.put('/:id', async (req, res, next) => {
       });
     }
 
+    // Resolve companyId — if companyName provided but no companyId, find or create company
+    let resolvedCompanyId = companyId || null;
+    if (!resolvedCompanyId && companyName && companyName.trim()) {
+      const trimmedName = companyName.trim();
+      const existing = await prisma.company.findFirst({
+        where: { name: { equals: trimmedName, mode: 'insensitive' }, userId: req.user!.id },
+      });
+      if (existing) {
+        resolvedCompanyId = existing.id;
+      } else {
+        const created = await prisma.company.create({
+          data: { name: trimmedName, userId: req.user!.id },
+        });
+        resolvedCompanyId = created.id;
+      }
+    }
+
     // Update contact
     const contact = await prisma.contact.update({
       where: { id },
@@ -348,7 +366,7 @@ router.put('/:id', async (req, res, next) => {
         email,
         phone,
         status,
-        companyId: companyId || null,
+        companyId: resolvedCompanyId,
         updatedAt: new Date(),
       },
       include: {

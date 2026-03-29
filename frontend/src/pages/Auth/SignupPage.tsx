@@ -115,10 +115,10 @@ export function SignupPage() {
               <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-2xl">C</span>
               </div>
-              <span className="ml-3 text-2xl font-bold tracking-tight text-gray-900">CRM Pro</span>
+              <span className="ml-3 text-2xl font-bold tracking-tight text-[#F1F5F9]">CRM Pro</span>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900">Create your account</h2>
-            <p className="mt-2 text-sm font-medium text-gray-700">
+            <h2 className="text-3xl font-bold tracking-tight text-[#F1F5F9]">Create your account</h2>
+            <p className="mt-2 text-sm font-medium text-[#CBD5E1]">
               Start managing your business like a pro
             </p>
           </div>
@@ -129,7 +129,7 @@ export function SignupPage() {
               <button
                 type="button"
                 onClick={handleGoogleSignup}
-                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-gray-700 text-base font-semibold border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg transition-all shadow-md active:scale-95"
+                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-[#CBD5E1] text-base font-semibold border-2 border-gray-300 rounded-xl hover:bg-gray-50 hover:border-gray-400 hover:shadow-lg transition-all shadow-md active:scale-95"
               >
                 <GoogleIcon />
                 Continue with Google
@@ -142,7 +142,7 @@ export function SignupPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-white text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                <span className="px-3 bg-white text-sm font-semibold text-[#94A3B8] uppercase tracking-wider">
                   Or sign up with email
                 </span>
               </div>
@@ -151,7 +151,7 @@ export function SignupPage() {
             {/* Error Message */}
             {error && (
               <div className="mt-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
-                <div className="text-sm font-semibold text-red-800">{error}</div>
+                <div className="text-sm font-semibold text-red-400">{error}</div>
               </div>
             )}
 
@@ -160,7 +160,7 @@ export function SignupPage() {
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="firstName" className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                     First name
                   </label>
                   <input
@@ -176,7 +176,7 @@ export function SignupPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="lastName" className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                     Last name
                   </label>
                   <input
@@ -194,7 +194,7 @@ export function SignupPage() {
 
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Email address
                 </label>
                 <input
@@ -212,7 +212,7 @@ export function SignupPage() {
 
               {/* Password Input */}
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -230,7 +230,7 @@ export function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#64748B] hover:text-[#94A3B8] transition-colors"
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="h-5 w-5" />
@@ -243,7 +243,7 @@ export function SignupPage() {
 
               {/* Confirm Password Input */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-[#CBD5E1] mb-2">
                   Confirm password
                 </label>
                 <div className="relative">
@@ -261,7 +261,7 @@ export function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#64748B] hover:text-[#94A3B8] transition-colors"
                   >
                     {showConfirmPassword ? (
                       <EyeSlashIcon className="h-5 w-5" />
@@ -281,7 +281,7 @@ export function SignupPage() {
                   required
                   className="h-4 w-4 text-indigo-400 focus:ring-indigo-500 border-gray-300 rounded mt-0.5"
                 />
-                <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="terms" className="ml-2 block text-sm text-[#CBD5E1]">
                   I agree to the{' '}
                   <a href="#" className="font-medium text-indigo-400 hover:text-purple-400">
                     Terms of Service
@@ -311,7 +311,7 @@ export function SignupPage() {
             </form>
 
             {/* Login Link */}
-            <p className="mt-6 text-center text-base font-medium text-gray-700">
+            <p className="mt-6 text-center text-base font-medium text-[#CBD5E1]">
               Already have an account?{' '}
               <a href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }} className="text-indigo-400 hover:text-purple-400 font-bold transition-colors">
                 Sign in

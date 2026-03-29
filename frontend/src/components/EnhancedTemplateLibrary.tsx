@@ -110,10 +110,10 @@ export function EnhancedTemplateLibrary({
   return (
     <div className="space-y-6">
       {/* Header with Tabs */}
-      <div className="bg-gradient-to-br from-gray-50 to-white rounded-2xl border-2 border-gray-200 shadow-lg p-6">
+      <div className="bg-gradient-to-br from-[#12121f] to-white rounded-2xl border-2 border-[#2a2a44] shadow-lg p-6">
         <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Video Template Selection</h2>
-          <p className="text-gray-600">
+          <h2 className="text-3xl font-bold text-[#F1F5F9] mb-2">Video Template Selection</h2>
+          <p className="text-[#94A3B8]">
             Choose from saved templates, browse stock videos, generate with AI, or upload your own
           </p>
         </div>
@@ -129,15 +129,15 @@ export function EnhancedTemplateLibrary({
                 className={`group relative p-4 rounded-xl border-2 transition-all text-left ${
                   viewMode === tab.id
                     ? `bg-gradient-to-r ${gradients.brand.primary.gradient} border-transparent shadow-lg text-white`
-                    : 'bg-white border-gray-300 hover:border-gray-400 hover:shadow-md text-gray-700'
+                    : 'bg-[#161625] border-[#33335a] hover:border-gray-400 hover:shadow-md text-[#CBD5E1]'
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={`p-2 rounded-lg transition-colors ${
                       viewMode === tab.id
-                        ? 'bg-white/20'
-                        : 'bg-gray-100 group-hover:bg-gray-200'
+                        ? 'bg-[#161625]/20'
+                        : 'bg-[#1c1c30] group-hover:bg-[#252540]'
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -146,7 +146,7 @@ export function EnhancedTemplateLibrary({
                     <h3 className="font-bold text-sm mb-1">{tab.label}</h3>
                     <p
                       className={`text-xs line-clamp-2 ${
-                        viewMode === tab.id ? 'text-white/80' : 'text-gray-500'
+                        viewMode === tab.id ? 'text-white/80' : 'text-[#94A3B8]'
                       }`}
                     >
                       {tab.description}
@@ -157,7 +157,7 @@ export function EnhancedTemplateLibrary({
                 {/* Active Indicator */}
                 {viewMode === tab.id && (
                   <div className="absolute top-2 right-2">
-                    <div className="w-2 h-2 bg-white rounded-full shadow-md"></div>
+                    <div className="w-2 h-2 bg-[#161625] rounded-full shadow-md"></div>
                   </div>
                 )}
               </button>
@@ -169,7 +169,7 @@ export function EnhancedTemplateLibrary({
       {/* Content Area */}
       <div className="min-h-[600px]">
         {savingTemplate && (
-          <div className="mb-4 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
+          <div className="mb-4 p-4 bg-blue-500/10 border-2 border-blue-200 rounded-xl">
             <p className="text-blue-800 font-medium">💾 Saving video as template...</p>
           </div>
         )}
@@ -209,7 +209,7 @@ export function EnhancedTemplateLibrary({
             />
 
             {/* Info Box */}
-            <div className="mt-6 bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
+            <div className="mt-6 bg-purple-500/10 border-2 border-purple-200 rounded-xl p-6">
               <h4 className="font-bold text-purple-900 mb-2">🤖 How AI Video Generation Works</h4>
               <ul className="space-y-2 text-sm text-purple-800">
                 <li className="flex items-start gap-2">
@@ -244,7 +244,7 @@ export function EnhancedTemplateLibrary({
             />
 
             {/* Info Box */}
-            <div className="mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+            <div className="mt-6 bg-blue-500/10 border-2 border-blue-200 rounded-xl p-6">
               <h4 className="font-bold text-blue-900 mb-2">📤 Upload Guidelines</h4>
               <ul className="space-y-2 text-sm text-blue-800">
                 <li className="flex items-start gap-2">

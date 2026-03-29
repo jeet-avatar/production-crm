@@ -42,7 +42,7 @@ export function LoadingSpinner({
         />
       </div>
       {message && (
-        <p className={`${textClasses[size]} text-gray-700 font-medium animate-pulse`}>
+        <p className={`${textClasses[size]} text-[#CBD5E1] font-medium animate-pulse`}>
           {message}
         </p>
       )}
@@ -51,7 +51,7 @@ export function LoadingSpinner({
 
   if (fullScreen) {
     return (
-      <div className={`fixed inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-50 ${className}`}>
+      <div className={`fixed inset-0 bg-[#161625]/90 backdrop-blur-sm flex items-center justify-center z-50 ${className}`}>
         {spinner}
       </div>
     );
@@ -76,8 +76,8 @@ export function SkeletonLoader({ rows = 3, className = "" }: { rows?: number; cl
     <div className={`space-y-4 ${className}`}>
       {Array.from({ length: rows }).map((_, index) => (
         <div key={index} className="animate-pulse space-y-3">
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-4 bg-[#252540] rounded w-3/4"></div>
+          <div className="h-4 bg-[#252540] rounded w-1/2"></div>
         </div>
       ))}
     </div>
@@ -96,14 +96,14 @@ export function ProgressLoader({
 }) {
   return (
     <div className={`space-y-3 ${className}`}>
-      {message && <p className="text-sm text-gray-700 font-medium">{message}</p>}
-      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+      {message && <p className="text-sm text-[#CBD5E1] font-medium">{message}</p>}
+      <div className="w-full bg-[#252540] rounded-full h-3 overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-all duration-300 ease-out"
           style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
         />
       </div>
-      <p className="text-xs text-gray-500 text-right">{Math.round(progress)}%</p>
+      <p className="text-xs text-[#94A3B8] text-right">{Math.round(progress)}%</p>
     </div>
   );
 }

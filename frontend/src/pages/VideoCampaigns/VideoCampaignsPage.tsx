@@ -216,13 +216,13 @@ export function VideoCampaignsPage() {
             <h1 className="text-5xl font-bold text-white mb-4">
               🎉 Your Video is Ready!
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-[#94A3B8] max-w-2xl mx-auto">
               Your professional video campaign has been generated successfully.
             </p>
           </div>
 
           {/* Video Player */}
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
+          <div className="bg-[#161625] rounded-3xl shadow-2xl overflow-hidden mb-8">
             <div className="aspect-video bg-black relative max-h-[600px]">
               <video
                 src={generatedVideo.url}
@@ -236,10 +236,10 @@ export function VideoCampaignsPage() {
 
             {/* Video Info */}
             <div className="p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-2xl font-bold text-[#F1F5F9] mb-2">
                 {generatedVideo.name}
               </h2>
-              <p className="text-gray-600 mb-6">
+              <p className="text-[#94A3B8] mb-6">
                 Campaign ID: {generatedVideo.campaignId}
               </p>
 
@@ -248,7 +248,7 @@ export function VideoCampaignsPage() {
                 <button
                   type="button"
                   onClick={() => setGeneratedVideo(null)}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-700 rounded-xl font-bold border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+                  className="flex items-center justify-center gap-2 px-6 py-3 bg-[#161625] text-[#CBD5E1] rounded-xl font-bold border-2 border-[#33335a] hover:bg-[#12121f] hover:border-gray-400 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
                 >
                   <ArrowLeftIcon className="w-5 h-5" />
                   Back to Library
@@ -300,10 +300,10 @@ export function VideoCampaignsPage() {
               { icon: '🎬', title: 'HD Quality', desc: '1920x1080 resolution' },
               { icon: '🚀', title: 'Ready to Use', desc: 'Download and share now' },
             ].map((stat, index) => (
-              <div key={index} className="bg-white rounded-xl p-6 shadow-md text-center">
+              <div key={index} className="bg-[#161625] rounded-xl p-6 shadow-md text-center">
                 <div className="text-4xl mb-2">{stat.icon}</div>
-                <h4 className="font-bold text-gray-900 mb-1">{stat.title}</h4>
-                <p className="text-sm text-gray-600">{stat.desc}</p>
+                <h4 className="font-bold text-[#F1F5F9] mb-1">{stat.title}</h4>
+                <p className="text-sm text-[#94A3B8]">{stat.desc}</p>
               </div>
             ))}
           </div>
@@ -338,7 +338,7 @@ export function VideoCampaignsPage() {
               <h1 className="text-5xl font-bold text-white">
                 Video Library
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-[#94A3B8] mt-2">
                 {previousVideos.length} video{previousVideos.length !== 1 ? 's' : ''} in library
               </p>
             </div>
@@ -373,7 +373,7 @@ export function VideoCampaignsPage() {
                   className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ease-in-out capitalize tracking-wide ${
                     activeFilter === filter
                       ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border border-indigo-500/30 shadow-lg hover:shadow-xl hover:scale-105'
-                      : 'bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 hover:scale-105 shadow-sm'
+                      : 'bg-[#161625] text-[#CBD5E1] border-2 border-[#33335a] hover:bg-[#12121f] hover:border-gray-400 hover:scale-105 shadow-sm'
                   }`}
                 >
                   {filter}
@@ -387,7 +387,7 @@ export function VideoCampaignsPage() {
         {loadingVideos && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-500"></div>
-            <p className="mt-4 text-gray-600">Loading your videos...</p>
+            <p className="mt-4 text-[#94A3B8]">Loading your videos...</p>
           </div>
         )}
 
@@ -400,7 +400,7 @@ export function VideoCampaignsPage() {
             <h2 className="text-3xl font-bold text-white mb-3">
               No videos yet
             </h2>
-            <p className="text-gray-600 mb-8">
+            <p className="text-[#94A3B8] mb-8">
               Create your first AI-powered video campaign
             </p>
             <button
@@ -420,7 +420,7 @@ export function VideoCampaignsPage() {
             {filteredVideos.map((campaign) => (
               <div
                 key={campaign.id}
-                className="bg-white rounded-2xl overflow-hidden border-2 border-orange-200 hover:border-indigo-500 shadow-md hover:shadow-xl hover:shadow-orange-200/50 transition-all duration-300"
+                className="bg-[#161625] rounded-2xl overflow-hidden border-2 border-orange-200 hover:border-indigo-500 shadow-md hover:shadow-xl hover:shadow-orange-200/50 transition-all duration-300"
               >
                 {/* Video Player Section */}
                 <div className="relative aspect-video bg-gray-900 rounded-t-xl overflow-hidden">
@@ -477,12 +477,12 @@ export function VideoCampaignsPage() {
 
                 {/* Video Info */}
                 <div className="p-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">
+                  <h3 className="text-lg font-bold text-[#F1F5F9] mb-3 line-clamp-2">
                     {campaign.name}
                   </h3>
 
                   {/* Metadata */}
-                  <div className="flex items-center gap-3 text-sm text-gray-600 mb-4">
+                  <div className="flex items-center gap-3 text-sm text-[#94A3B8] mb-4">
                     <UsersIcon className="w-4 h-4 text-indigo-400" />
                     <span>{campaign._count?.companies || 0} companies</span>
                   </div>
@@ -503,7 +503,7 @@ export function VideoCampaignsPage() {
                         <button
                           type="button"
                           onClick={(e) => handleDownloadVideo(campaign, e)}
-                          className="p-2.5 bg-white border-2 border-indigo-500 rounded-xl hover:bg-orange-50 hover:scale-105 transition-all active:scale-95"
+                          className="p-2.5 bg-[#161625] border-2 border-indigo-500 rounded-xl hover:bg-orange-500/10 hover:scale-105 transition-all active:scale-95"
                           title="Download video"
                         >
                           <ArrowDownTrayIcon className="w-5 h-5 text-indigo-400" />
@@ -514,7 +514,7 @@ export function VideoCampaignsPage() {
                     <button
                       type="button"
                       onClick={(e) => handleDeleteVideo(campaign, e)}
-                      className="p-2.5 bg-white border-2 border-red-500 rounded-xl hover:bg-red-50 hover:scale-105 transition-all active:scale-95"
+                      className="p-2.5 bg-[#161625] border-2 border-red-500 rounded-xl hover:bg-red-500/10 hover:scale-105 transition-all active:scale-95"
                       title="Delete video"
                     >
                       <TrashIcon className="w-5 h-5 text-red-600" />
@@ -522,8 +522,8 @@ export function VideoCampaignsPage() {
                   </div>
 
                   {/* Created Date */}
-                  <div className="pt-4 border-t border-gray-200">
-                    <p className="text-xs text-gray-500">
+                  <div className="pt-4 border-t border-[#2a2a44]">
+                    <p className="text-xs text-[#94A3B8]">
                       Created {new Date(campaign.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -540,7 +540,7 @@ export function VideoCampaignsPage() {
         {/* Empty Filter State */}
         {!loadingVideos && previousVideos.length > 0 && filteredVideos.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-gray-600 text-lg">No videos found with status: <span className="font-bold text-indigo-400">{activeFilter}</span></p>
+            <p className="text-[#94A3B8] text-lg">No videos found with status: <span className="font-bold text-indigo-400">{activeFilter}</span></p>
           </div>
         )}
       </div>
