@@ -631,10 +631,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                         border: '1px solid #3d3d5c',
                         borderRadius: '10px',
                         overflow: 'hidden',
-                        maxHeight: '250px',
+                        maxHeight: '450px',
                         overflowY: 'auto',
                       }}>
-                        <div style={{ background: '#ffffff', padding: '0' }}>
+                        <div style={{ background: '#ffffff', color: '#333333', padding: '16px', fontSize: '14px', lineHeight: '1.6' }}>
                           <div
                             dangerouslySetInnerHTML={{
                               __html: DOMPurify.sanitize(
@@ -646,6 +646,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                                   .replace(/\{\{fromName\}\}/g, 'BrandMonkz')
                               )
                             }}
+                            style={{ color: '#333333' }}
                           />
                         </div>
                       </div>
@@ -716,9 +717,9 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
 
                       <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email preview</label>
                       <div style={{
-                        border: '1px solid #3d3d5c', borderRadius: '10px', overflow: 'hidden', maxHeight: '250px', overflowY: 'auto',
+                        border: '1px solid #3d3d5c', borderRadius: '10px', overflow: 'hidden', maxHeight: '450px', overflowY: 'auto',
                       }}>
-                        <div style={{ background: '#ffffff' }}>
+                        <div style={{ background: '#ffffff', color: '#333333', padding: '16px', fontSize: '14px', lineHeight: '1.6' }}>
                           <div
                             dangerouslySetInnerHTML={{
                               __html: DOMPurify.sanitize(
@@ -729,6 +730,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                                   .replace(/\{\{email\}\}/g, 'sarah.mitchell@deloitte.com')
                               )
                             }}
+                            style={{ color: '#333333' }}
                           />
                         </div>
                       </div>
@@ -1360,8 +1362,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                     </div>
                   </div>
                   {/* Email body — with real names filled in */}
-                  <div style={{ background: '#ffffff', maxHeight: '280px', overflowY: 'auto' }}>
-                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fillVars(emailBody)) }} />
+                  <div style={{ background: '#ffffff', color: '#333333', maxHeight: '450px', overflowY: 'auto', padding: '16px', fontSize: '14px', lineHeight: '1.6' }}>
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fillVars(emailBody)) }} style={{ color: '#333333' }} />
                   </div>
                 </div>
 
