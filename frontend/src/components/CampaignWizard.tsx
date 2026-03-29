@@ -1075,73 +1075,44 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                     const selectedInCompany = contacts.filter(c => selectedContactIds.has(c.id)).length;
 
                     return (
-                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : '#20203a', overflow: 'hidden', transition: 'all 0.15s' }}>
+                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : '#20203a', transition: 'all 0.15s' }}>
                         {/* Company header row */}
                         <div
-                          style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                          onClick={() => toggleCompany(company.id)}
+                          style={{ minHeight: '56px', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxSizing: 'border-box' }}
                         >
                           {/* Checkbox */}
-                          <div
-                            onClick={() => toggleCompany(company.id)}
-                            style={{
-                              width: '22px', height: '22px', borderRadius: '6px', flexShrink: 0,
-                              border: isSelected ? '2px solid #6366F1' : '2px solid #3d3d5c',
-                              background: isSelected ? '#6366F1' : 'transparent',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: '12px', color: '#fff', fontWeight: 700, cursor: 'pointer',
-                            }}
-                          >
-                            {isSelected && '✓'}
-                          </div>
-
-                          {/* Company icon */}
                           <div style={{
-                            width: '36px', height: '36px', borderRadius: '8px',
-                            background: 'linear-gradient(135deg, #252540, #2d2d4a)',
-                            border: '1px solid #3d3d5c',
+                            width: '20px', height: '20px', minWidth: '20px', borderRadius: '5px',
+                            border: isSelected ? 'none' : '2px solid #4a4a6a',
+                            background: isSelected ? '#6366F1' : 'transparent',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '15px', flexShrink: 0, color: '#A5B4FC', fontWeight: 700,
+                            color: '#fff', fontSize: '11px', fontWeight: 800, lineHeight: '1',
                           }}>
-                            {company.name.charAt(0).toUpperCase()}
+                            {isSelected ? '✓' : ''}
                           </div>
 
-                          {/* Company name + contact count */}
-                          <div
-                            onClick={() => toggleCompany(company.id)}
-                            style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
-                          >
-                            <div style={{ fontWeight: 600, fontSize: '14px', color: '#F1F5F9', marginBottom: '2px' }}>
-                              {company.name}
-                            </div>
-                            <div style={{ fontSize: '12px', color: selectedInCompany > 0 ? '#A5B4FC' : '#64748B' }}>
-                              {selectedInCompany > 0
-                                ? `${selectedInCompany} of ${contactCount} contacts selected`
-                                : `${contactCount} contact${contactCount !== 1 ? 's' : ''}`
-                              }
-                            </div>
+                          {/* Company name + contact count — simple text */}
+                          <div style={{ flex: '1 1 auto', overflow: 'hidden' }}>
+                            <span style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9' }}>
+                              {company.name || '(unnamed)'}
+                            </span>
+                            <span style={{ fontSize: '12px', color: '#64748B', marginLeft: '8px' }}>
+                              — {contactCount} {contactCount === 1 ? 'contact' : 'contacts'}
+                              {selectedInCompany > 0 && <span style={{ color: '#A5B4FC' }}> ({selectedInCompany} selected)</span>}
+                            </span>
                           </div>
 
-                          {/* Contact count badge */}
-                          <div style={{
-                            background: contactCount > 2 ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
-                            color: contactCount > 2 ? '#A5B4FC' : '#64748B',
-                            padding: '4px 10px', borderRadius: '12px',
-                            fontSize: '12px', fontWeight: 700, flexShrink: 0,
-                          }}>
-                            {contactCount}
-                          </div>
-
-                          {/* Expand/collapse arrow */}
+                          {/* Expand button */}
                           {contactCount > 0 && (
                             <button
                               onClick={(e) => { e.stopPropagation(); setExpandedCompanyId(isExpanded ? null : company.id); }}
                               style={{
-                                background: isExpanded ? 'rgba(99,102,241,0.15)' : 'transparent',
-                                border: '1px solid ' + (isExpanded ? 'rgba(99,102,241,0.3)' : '#3d3d5c'),
-                                cursor: 'pointer',
-                                color: isExpanded ? '#A5B4FC' : '#64748B',
-                                fontSize: '11px', padding: '6px 10px',
-                                borderRadius: '6px', transition: 'all 0.15s', fontWeight: 600, flexShrink: 0,
+                                background: isExpanded ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.05)',
+                                border: 'none', cursor: 'pointer',
+                                color: isExpanded ? '#A5B4FC' : '#94A3B8',
+                                fontSize: '11px', padding: '5px 10px', minWidth: '50px',
+                                borderRadius: '6px', fontWeight: 600, whiteSpace: 'nowrap',
                               }}
                             >
                               {isExpanded ? '▲ Hide' : '▼ View'}
