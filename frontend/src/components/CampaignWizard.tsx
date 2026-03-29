@@ -1262,142 +1262,113 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
           })()}
 
           {/* ======================== STEP 3 ======================== */}
-          {step === 3 && (
+          {step === 3 && (() => {
+            // Build the actual recipient list from selected companies + contacts
+            const allRecipients: { firstName: string; lastName: string; email: string; companyName: string }[] = [];
+            companies.filter(c => selectedCompanyIds.includes(c.id)).forEach(company => {
+              (company.contacts || []).forEach(contact => {
+                if (selectedContactIds.size === 0 || selectedContactIds.has(contact.id)) {
+                  allRecipients.push({
+                    firstName: contact.firstName || '',
+                    lastName: contact.lastName || '',
+                    email: contact.email || '',
+                    companyName: company.name || '',
+                  });
+                }
+              });
+            });
+
+            // Use first recipient for preview, fallback to sample
+            const previewRecipient = allRecipients[0] || { firstName: 'Sarah', lastName: 'Mitchell', email: 'sarah@example.com', companyName: 'Deloitte' };
+
+            // Replace template variables with real recipient data
+            const fillVars = (text: string) => text
+              .replace(/\{\{firstName\}\}/g, previewRecipient.firstName)
+              .replace(/\{\{lastName\}\}/g, previewRecipient.lastName)
+              .replace(/\{\{companyName\}\}/g, previewRecipient.companyName)
+              .replace(/\{\{email\}\}/g, previewRecipient.email)
+              .replace(/\{\{fromName\}\}/g, 'BrandMonkz');
+
+            return (
             <div>
-              {/* 2x2 summary cards */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: '12px',
-                  marginBottom: '20px',
-                }}
-              >
-                {/* Card 1: Campaign name */}
-                <div style={cardStyle}>
-                  <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
-                    Campaign name
-                  </p>
-                  <input
-                    type="text"
-                    value={campaignName}
-                    onChange={e => setCampaignName(e.target.value)}
-                    style={{ ...inputStyle }}
-                  />
+              {/* Recipient list — who exactly gets this email */}
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px', fontWeight: 600 }}>
+                  Sending to {allRecipients.length} {allRecipients.length === 1 ? 'person' : 'people'}
+                </p>
+                <div style={{ maxHeight: '120px', overflowY: 'auto', borderRadius: '8px', border: '1px solid #3d3d5c', background: '#1e1e36' }}>
+                  {allRecipients.map((r, idx) => (
+                    <div key={idx} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '8px 12px',
+                      borderBottom: idx < allRecipients.length - 1 ? '1px solid #2d2d4a' : 'none',
+                      fontSize: '12px',
+                    }}>
+                      <div>
+                        <span style={{ color: '#F1F5F9', fontWeight: 600 }}>{r.firstName} {r.lastName}</span>
+                        <span style={{ color: '#64748B', marginLeft: '6px' }}>{r.email}</span>
+                      </div>
+                      <span style={{ color: '#6366F1', fontSize: '11px', fontWeight: 500 }}>{r.companyName}</span>
+                    </div>
+                  ))}
+                  {allRecipients.length === 0 && (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#64748B', fontSize: '13px' }}>
+                      No contacts selected — go back and select contacts
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {/* Card 2: Sending to */}
+              {/* 2-column summary */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                 <div style={cardStyle}>
-                  <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
-                    Sending to
-                  </p>
-                  <p style={{ fontSize: '14px', color: '#F1F5F9', margin: 0, fontWeight: 500 }}>
-                    {companies
-                      .filter(c => selectedCompanyIds.includes(c.id))
-                      .map(c => c.name)
-                      .join(', ')}
-                  </p>
-                  <p style={{ fontSize: '12px', color: '#94A3B8', margin: '4px 0 0' }}>
-                    {totalSelectedContacts} contacts total
-                  </p>
+                  <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>Campaign name</p>
+                  <input type="text" value={campaignName} onChange={e => setCampaignName(e.target.value)} style={{ ...inputStyle }} />
                 </div>
-
-                {/* Card 3: Subject line */}
-                <div style={cardStyle}>
-                  <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 6px' }}>
-                    Subject line
-                  </p>
-                  <p style={{ fontSize: '14px', color: '#F1F5F9', margin: 0 }}>{subject}</p>
-                </div>
-
-                {/* Card 4: From address */}
                 <div style={cardStyle}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
-                      From address
-                    </p>
-                    <button
-                      onClick={() => setEditingFrom(f => !f)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#6366F1',
-                        fontSize: '12px',
-                      }}
-                    >
+                    <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>From address</p>
+                    <button onClick={() => setEditingFrom(f => !f)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6366F1', fontSize: '12px' }}>
                       ✏️ edit
                     </button>
                   </div>
                   {editingFrom ? (
-                    <input
-                      type="email"
-                      value={fromAddress}
-                      onChange={e => setFromAddress(e.target.value)}
-                      style={{ ...inputStyle }}
-                    />
+                    <input type="email" value={fromAddress} onChange={e => setFromAddress(e.target.value)} style={{ ...inputStyle }} />
                   ) : (
                     <p style={{ fontSize: '14px', color: '#F1F5F9', margin: 0 }}>{fromAddress}</p>
                   )}
                 </div>
               </div>
 
-              {/* Email Preview Toggle */}
+              {/* Email preview — auto-populated with REAL recipient data */}
               <div style={{ marginBottom: '16px' }}>
-                <button
-                  onClick={() => setShowPreview(!showPreview)}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(99,102,241,0.4)',
-                    background: showPreview ? 'rgba(99,102,241,0.15)' : 'transparent',
-                    color: '#A5B4FC',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {showPreview ? '🔽 Hide Email Preview' : '👁️ Preview Email'}
-                </button>
+                <p style={{ fontSize: '11px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px', fontWeight: 600 }}>
+                  Email preview — showing how <span style={{ color: '#A5B4FC' }}>{previewRecipient.firstName} {previewRecipient.lastName}</span> at <span style={{ color: '#A5B4FC' }}>{previewRecipient.companyName}</span> will see it
+                </p>
 
-                {showPreview && emailBody && (
-                  <div style={{
-                    marginTop: '12px',
-                    border: '1px solid #3d3d5c',
-                    borderRadius: '10px',
-                    overflow: 'hidden',
-                  }}>
-                    {/* Email client header simulation */}
-                    <div style={{
-                      background: '#1e1e36',
-                      padding: '12px 16px',
-                      borderBottom: '1px solid #3d3d5c',
-                    }}>
-                      <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>
-                        <strong style={{ color: '#CBD5E1' }}>From:</strong> {fromAddress || 'campaigns@brandmonkz.com'}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>
-                        <strong style={{ color: '#CBD5E1' }}>To:</strong> {'{'}{'{'} recipient {'}'}{'}'}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8' }}>
-                        <strong style={{ color: '#CBD5E1' }}>Subject:</strong> {subject}
-                      </div>
+                <div style={{ border: '1px solid #3d3d5c', borderRadius: '10px', overflow: 'hidden' }}>
+                  {/* Email header */}
+                  <div style={{ background: '#1e1e36', padding: '10px 14px', borderBottom: '1px solid #3d3d5c' }}>
+                    <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '3px' }}>
+                      <strong style={{ color: '#CBD5E1' }}>From:</strong> {fromAddress || 'campaigns@brandmonkz.com'}
                     </div>
-                    {/* Email body preview */}
-                    <div style={{
-                      background: '#ffffff',
-                      padding: '0',
-                      maxHeight: '300px',
-                      overflowY: 'auto',
-                    }}>
-                      <div
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(emailBody) }}
-                        style={{ padding: '0' }}
-                      />
+                    <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '3px' }}>
+                      <strong style={{ color: '#CBD5E1' }}>To:</strong> {previewRecipient.firstName} {previewRecipient.lastName} &lt;{previewRecipient.email}&gt;
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                      <strong style={{ color: '#CBD5E1' }}>Subject:</strong> {fillVars(subject)}
                     </div>
                   </div>
+                  {/* Email body — with real names filled in */}
+                  <div style={{ background: '#ffffff', maxHeight: '280px', overflowY: 'auto' }}>
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(fillVars(emailBody)) }} />
+                  </div>
+                </div>
+
+                {allRecipients.length > 1 && (
+                  <p style={{ fontSize: '11px', color: '#64748B', margin: '6px 0 0', fontStyle: 'italic' }}>
+                    Each of the {allRecipients.length} recipients gets their own personalized version with their name and company.
+                  </p>
                 )}
               </div>
 
@@ -1468,7 +1439,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                 </button>
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* ======================== STEP 4: SUCCESS ======================== */}
           {step === 4 && sendResult && (
