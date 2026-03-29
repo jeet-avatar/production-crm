@@ -440,6 +440,19 @@ export default function JobLeadsPage() {
                 }}>
                   {lead.stream}
                 </span>
+                {lead.source && (
+                  <span style={{
+                    fontSize: '0.65rem',
+                    fontWeight: 500,
+                    borderRadius: '4px',
+                    padding: '2px 6px',
+                    background: 'rgba(255,255,255,0.06)',
+                    color: 'var(--text-muted)',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {lead.source}
+                  </span>
+                )}
               </div>
 
               {/* Location */}

@@ -82,20 +82,173 @@ function classifyStream(title: string, description: string): string {
 }
 
 // ============================================
-// In-memory cache — refreshes once per day automatically
+// In-memory cache — refreshes every 4 hours
 // ============================================
 let cachedLeads: any[] | null = null;
 let cacheTimestamp: number = 0;
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours (was 24h — too stale)
 
 function isCacheValid(): boolean {
   return cachedLeads !== null && (Date.now() - cacheTimestamp) < CACHE_TTL_MS;
 }
 
 // ============================================
+// MULTI-SOURCE JOB FETCHERS
+// ============================================
+const HEADERS = {
+  'Accept': 'application/json',
+  'User-Agent': 'Mozilla/5.0 (compatible; BrandMonkz-CRM/1.0)',
+};
+
+// Source 1: Remotive — fetch ALL categories for maximum coverage
+const REMOTIVE_CATEGORIES = [
+  'software-dev', 'devops-sysadmin', 'data', 'product', 'design',
+  'customer-support', 'marketing', 'sales', 'business', 'finance-legal',
+  'hr', 'qa', 'writing', 'all-others'
+];
+
+async function fetchRemotiveJobs(): Promise<any[]> {
+  const allJobs: any[] = [];
+  const seenIds = new Set<number>();
+
+  // Fetch all categories in parallel
+  const results = await Promise.allSettled(
+    REMOTIVE_CATEGORIES.map(cat =>
+      axios.get(`https://remotive.com/api/remote-jobs?category=${cat}&limit=50`, {
+        timeout: 15000, headers: HEADERS,
+      }).then(r => r.data?.jobs || [])
+    )
+  );
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      for (const job of result.value) {
+        if (!seenIds.has(job.id)) {
+          seenIds.add(job.id);
+          const domain = companyToDomain(job.company_name);
+          allJobs.push({
+            id: job.id,
+            title: job.title,
+            companyName: job.company_name,
+            companyLogo: job.company_logo || job.company_logo_url || null,
+            url: job.url,
+            location: job.candidate_required_location || 'Worldwide',
+            postedAt: job.publication_date,
+            stream: classifyStream(job.title || '', job.description || ''),
+            tags: job.tags || [],
+            source: 'Remotive',
+            companyDomain: domain,
+            companyEmail: domain ? `hr@${domain}` : '',
+            emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
+          });
+        }
+      }
+    }
+  }
+  return allJobs;
+}
+
+// Source 2: Jobicy — fresh daily remote tech jobs
+async function fetchJobicyJobs(): Promise<any[]> {
+  try {
+    const response = await axios.get('https://jobicy.com/api/v2/remote-jobs?count=50', {
+      timeout: 15000, headers: HEADERS,
+    });
+    const jobs = response.data?.jobs || [];
+    return jobs.map((job: any) => {
+      const domain = companyToDomain(job.companyName);
+      return {
+        id: `jobicy-${job.id || Math.random().toString(36).slice(2)}`,
+        title: job.jobTitle,
+        companyName: job.companyName,
+        companyLogo: job.companyLogo || null,
+        url: job.url,
+        location: job.jobGeo || 'Remote',
+        postedAt: job.pubDate,
+        stream: classifyStream(job.jobTitle || '', job.jobExcerpt || ''),
+        tags: [job.jobIndustry, job.jobType].filter(Boolean),
+        source: 'Jobicy',
+        companyDomain: domain,
+        companyEmail: domain ? `hr@${domain}` : '',
+        emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
+      };
+    });
+  } catch (err: any) {
+    console.error('Jobicy fetch error:', err.message);
+    return [];
+  }
+}
+
+// Source 3: Arbeitnow — large volume remote job board
+async function fetchArbeitnowJobs(): Promise<any[]> {
+  try {
+    const response = await axios.get('https://www.arbeitnow.com/api/job-board-api', {
+      timeout: 15000, headers: HEADERS,
+    });
+    const jobs = response.data?.data || [];
+    return jobs.slice(0, 100).map((job: any) => {
+      const domain = companyToDomain(job.company_name);
+      return {
+        id: `arbeitnow-${job.slug || Math.random().toString(36).slice(2)}`,
+        title: job.title,
+        companyName: job.company_name,
+        companyLogo: null,
+        url: job.url,
+        location: job.location || 'Remote',
+        postedAt: job.created_at ? new Date(job.created_at * 1000).toISOString() : new Date().toISOString(),
+        stream: classifyStream(job.title || '', job.description || ''),
+        tags: job.tags || [],
+        source: 'Arbeitnow',
+        companyDomain: domain,
+        companyEmail: domain ? `hr@${domain}` : '',
+        emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
+      };
+    });
+  } catch (err: any) {
+    console.error('Arbeitnow fetch error:', err.message);
+    return [];
+  }
+}
+
+// Source 4: RapidAPI LinkedIn Jobs (if RAPIDAPI_KEY configured)
+async function fetchLinkedInJobs(): Promise<any[]> {
+  const apiKey = process.env.RAPIDAPI_KEY;
+  if (!apiKey) return [];
+
+  try {
+    const response = await axios.get('https://linkedin-jobs-search.p.rapidapi.com/jobs', {
+      params: { keywords: 'software engineer', locationId: '92000000', datePosted: 'pastWeek', rows: 50 },
+      headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'linkedin-jobs-search.p.rapidapi.com' },
+      timeout: 15000,
+    });
+    const jobs = Array.isArray(response.data) ? response.data : [];
+    return jobs.map((job: any) => {
+      const domain = companyToDomain(job.company || '');
+      return {
+        id: `linkedin-${job.id || Math.random().toString(36).slice(2)}`,
+        title: job.title,
+        companyName: job.company,
+        companyLogo: job.companyLogo || null,
+        url: job.jobUrl || job.url,
+        location: job.location || 'Remote',
+        postedAt: job.postedAt || new Date().toISOString(),
+        stream: classifyStream(job.title || '', job.description || ''),
+        tags: ['LinkedIn'],
+        source: 'LinkedIn',
+        companyDomain: domain,
+        companyEmail: domain ? `hr@${domain}` : '',
+        emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
+      };
+    });
+  } catch (err: any) {
+    console.error('LinkedIn jobs fetch error:', err.message);
+    return [];
+  }
+}
+
+// ============================================
 // GET /api/job-leads/fetch
-// Fetch job leads from Remotive API + classify
-// Returns cached data if less than 24 hours old
+// Aggregates jobs from multiple sources: Remotive, Jobicy, Arbeitnow, LinkedIn
 // ============================================
 router.get('/fetch', async (req, res) => {
   try {
@@ -119,48 +272,33 @@ router.get('/fetch', async (req, res) => {
       });
     }
 
-    // Fetch fresh data from Remotive API
-    const response = await axios.get('https://remotive.com/api/remote-jobs', {
-      timeout: 20000,
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (compatible; BrandMonkz-CRM/1.0)',
-      },
-    });
+    // Fetch from ALL sources in parallel
+    const [remotiveJobs, jobicyJobs, arbeitnowJobs, linkedinJobs] = await Promise.all([
+      fetchRemotiveJobs(),
+      fetchJobicyJobs(),
+      fetchArbeitnowJobs(),
+      fetchLinkedInJobs(),
+    ]);
 
-    if (!response.data || !Array.isArray(response.data.jobs)) {
-      return res.json({ leads: [], total: 0, streams: {}, error: 'Unexpected response from job board' });
+    // Merge and deduplicate by title+company
+    const seen = new Set<string>();
+    const leads: any[] = [];
+    for (const job of [...jobicyJobs, ...linkedinJobs, ...remotiveJobs, ...arbeitnowJobs]) {
+      const key = `${job.title?.toLowerCase().trim()}|${job.companyName?.toLowerCase().trim()}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        leads.push(job);
+      }
     }
 
-    // Keep only jobs open to India / Worldwide / Global
-    const indiaJobs = response.data.jobs.filter((job: any) =>
-      isOpenToIndia(job.candidate_required_location || '')
-    );
-
-    const leads = indiaJobs.map((job: any) => {
-      // Derive domain from company NAME, not the remotive.com job URL
-      const domain = companyToDomain(job.company_name);
-      return {
-        id: job.id,
-        title: job.title,
-        companyName: job.company_name,
-        companyLogo: job.company_logo || job.company_logo_url || null,
-        url: job.url,
-        location: job.candidate_required_location || 'Worldwide',
-        postedAt: job.publication_date,
-        stream: classifyStream(job.title || '', job.description || ''),
-        tags: job.tags || [],
-        companyDomain: domain,
-        companyEmail: domain ? `hr@${domain}` : '',
-        emailCandidates: domain ? [`hr@${domain}`, `careers@${domain}`, `jobs@${domain}`] : [],
-      };
-    });
+    // Sort by date (newest first)
+    leads.sort((a, b) => new Date(b.postedAt).getTime() - new Date(a.postedAt).getTime());
 
     // Cache the results
     cachedLeads = leads;
     cacheTimestamp = Date.now();
 
-    // Count by stream — all technology hiring categories
+    // Count by stream
     const streams: Record<string, number> = {};
     for (const lead of leads) {
       streams[lead.stream] = (streams[lead.stream] || 0) + 1;
@@ -169,7 +307,13 @@ router.get('/fetch', async (req, res) => {
     // Filter by stream if query param provided
     const filtered = stream ? leads.filter((l: any) => l.stream === stream) : leads;
 
-    return res.json({ leads: filtered, total: filtered.length, streams, totalFetched: response.data.jobs.length, cached: false });
+    // Count sources
+    const sources: Record<string, number> = {};
+    for (const lead of leads) {
+      sources[lead.source] = (sources[lead.source] || 0) + 1;
+    }
+
+    return res.json({ leads: filtered, total: filtered.length, streams, sources, totalFetched: leads.length, cached: false });
   } catch (error: any) {
     console.error('Job leads fetch error:', error.message);
     return res.json({ leads: [], total: 0, streams: {}, error: 'Failed to fetch from job board' });
