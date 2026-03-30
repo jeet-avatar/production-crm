@@ -58,6 +58,13 @@ export function CampaignsPage() {
 
   useEffect(() => {
     loadCampaigns();
+    // Auto-open wizard if coming from follow-up
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('followup') === 'true') {
+      setShowCreateModal(true);
+      // Clean URL
+      window.history.replaceState({}, '', '/campaigns');
+    }
   }, []);
 
   const loadCampaigns = async () => {
@@ -352,6 +359,11 @@ export function CampaignsPage() {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
+                      {campaign.name.startsWith('Follow-up:') && (
+                        <span className="px-2 py-1 rounded-md text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                          FOLLOW-UP
+                        </span>
+                      )}
                       <h3 className="text-2xl font-bold text-[var(--text-primary)]">{campaign.name}</h3>
                       <span className={getStatusBadge(campaign.status)}>{campaign.status}</span>
                       {sendResult?.id === campaign.id && (
