@@ -859,71 +859,48 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
                   )}
                 </div>
 
-                {/* Right panel — visible only after generation */}
+                {/* Right panel — rendered preview after generation */}
                 {subject && emailBody && (
                   <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: '8px',
-                      }}
-                    >
-                      <p
-                        style={{
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          color: '#6366F1',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
-                          margin: 0,
-                        }}
-                      >
-                        AI Draft — edit anything
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 600, color: '#6366F1', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                        AI Draft — Ready to Send
                       </p>
                       <button
                         onClick={runGeneration}
                         disabled={generating}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: '#A5B4FC',
-                          fontSize: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                        }}
+                        style={{ background: 'none', border: '1px solid rgba(99,102,241,0.3)', cursor: 'pointer', color: '#A5B4FC', fontSize: '11px', padding: '4px 10px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}
                       >
                         🔄 Regenerate
                       </button>
                     </div>
 
-                    <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>
-                      Subject line
-                    </label>
-                    <input
-                      type="text"
-                      value={subject}
-                      onChange={e => setSubject(e.target.value)}
-                      style={{ ...inputStyle, marginBottom: '12px' }}
-                    />
+                    {/* Subject line — editable */}
+                    <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Subject line</label>
+                    <input type="text" value={subject} onChange={e => setSubject(e.target.value)} style={{ ...inputStyle, marginBottom: '10px' }} />
 
-                    <label style={{ fontSize: '12px', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>
-                      Email body
-                    </label>
-                    <textarea
-                      value={emailBody}
-                      onChange={e => setEmailBody(e.target.value)}
-                      rows={6}
-                      style={{
-                        ...inputStyle,
-                        resize: 'vertical',
-                        minHeight: '130px',
-                        lineHeight: '1.5',
-                      }}
-                    />
+                    {/* Rendered email preview */}
+                    <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email preview</label>
+                    <div style={{ border: '1px solid #3d3d5c', borderRadius: '10px', overflow: 'hidden', maxHeight: '300px', overflowY: 'auto' }}>
+                      <div style={{ background: '#ffffff', color: '#333333', padding: '12px', fontSize: '14px', lineHeight: '1.6' }}>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(
+                              emailBody
+                                .replace(/\{\{firstName\}\}/g, 'Sarah')
+                                .replace(/\{\{lastName\}\}/g, 'Mitchell')
+                                .replace(/\{\{companyName\}\}/g, 'Deloitte')
+                                .replace(/\{\{email\}\}/g, 'sarah.mitchell@deloitte.com')
+                                .replace(/\{\{fromName\}\}/g, 'BrandMonkz')
+                            )
+                          }}
+                          style={{ color: '#333333' }}
+                        />
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '10px', color: '#64748B', margin: '4px 0 0', fontStyle: 'italic' }}>
+                      Names auto-filled per recipient when sent.
+                    </p>
                   </div>
                 )}
               </div>
