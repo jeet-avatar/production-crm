@@ -778,7 +778,7 @@ export function ContactList() {
                   return (
                     <React.Fragment key={companyName}>
                       {/* Company header row with first contact */}
-                      <tr style={{ background: '#161625' }} className="hover:bg-[#12121f]">
+                      <tr style={{ background: '#161625' }} style={{ background: "#161625", cursor: "pointer" }}>
                         <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", width: "48px" }}>
                           <input
                             type="checkbox"
@@ -798,7 +798,7 @@ export function ContactList() {
                                   e.stopPropagation();
                                   toggleCompany(companyName);
                                 }}
-                                className="p-1 hover:bg-[#252540] rounded transition-colors"
+                                style={{ padding: "4px", borderRadius: "6px", background: "transparent", border: "none", cursor: "pointer" }}
                               >
                                 {isExpanded ? (
                                   <ChevronDownIcon className="h-4 w-4 text-[#94A3B8]" />
@@ -890,7 +890,7 @@ export function ContactList() {
                                 e.stopPropagation();
                                 handleEditContact(displayContact);
                               }}
-                              className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
+                              style={{ padding: "8px", borderRadius: "8px", background: "transparent", border: "none", cursor: "pointer", color: "#94A3B8" }}
                               title="Edit contact"
                             >
                               <PencilIcon className="h-4 w-4" />
@@ -900,7 +900,7 @@ export function ContactList() {
                                 e.stopPropagation();
                                 handleDeleteContact(displayContact.id);
                               }}
-                              className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
+                              style={{ padding: "8px", borderRadius: "8px", background: "transparent", border: "none", cursor: "pointer", color: "#94A3B8" }}
                               title="Delete contact"
                             >
                               <TrashIcon className="h-4 w-4" />
@@ -913,7 +913,7 @@ export function ContactList() {
                       {isExpanded && hasMultipleContacts && companyContacts.slice(1).map((contact) => (
                         <tr
                           key={contact.id}
-                          className="hover:bg-[#12121f] bg-[#12121f]/50"
+                          style={{ background: "rgba(18,18,31,0.5)" }}
                         >
                           <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             <div className="flex items-center space-x-3 pl-12">
@@ -992,7 +992,7 @@ export function ContactList() {
                                   e.stopPropagation();
                                   handleEditContact(contact);
                                 }}
-                                className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
+                                style={{ padding: "8px", borderRadius: "8px", background: "transparent", border: "none", cursor: "pointer", color: "#94A3B8" }}
                                 title="Edit contact"
                               >
                                 <PencilIcon className="h-4 w-4" />
@@ -1002,7 +1002,7 @@ export function ContactList() {
                                   e.stopPropagation();
                                   handleDeleteContact(contact.id);
                                 }}
-                                className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
+                                style={{ padding: "8px", borderRadius: "8px", background: "transparent", border: "none", cursor: "pointer", color: "#94A3B8" }}
                                 title="Delete contact"
                               >
                                 <TrashIcon className="h-4 w-4" />
