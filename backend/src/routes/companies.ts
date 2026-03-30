@@ -463,7 +463,10 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
   try {
     console.log('[CSV Import] Starting import process...');
     const userId = req.user!.id;
-    console.log('[CSV Import] User ID:', userId);
+    // Group name: from query param, form field, or auto-generated from filename + date
+    const groupName = (req.query.group as string) || (req.body?.group as string) ||
+      `Import ${req.file?.originalname?.replace(/\.\w+$/, '') || 'CSV'} — ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    console.log('[CSV Import] User ID:', userId, '| Group:', groupName);
 
     if (!req.file) {
       console.error('[CSV Import] ERROR: No file uploaded');
@@ -553,6 +556,7 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
             ...companyData,
             userId,
             dataSource: 'csv_import',
+            tags: [groupName, 'csv_import'],
           },
           include: {
             _count: {
@@ -585,6 +589,7 @@ router.post('/import', upload.single('file'), async (req, res, next) => {
 
     res.json({
       message: 'Company import completed',
+      group: groupName,
       totalProcessed: records.length,
       imported: importedCompanies.length,
       duplicates,

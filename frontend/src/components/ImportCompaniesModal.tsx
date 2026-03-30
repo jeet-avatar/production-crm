@@ -31,6 +31,8 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
   const [processingStatus, setProcessingStatus] = useState<Record<number, ProcessingStatus>>({});
   const [enrichedCount, setEnrichedCount] = useState(0);
   const [importing, setImporting] = useState(false);
+  const [groupName, setGroupName] = useState('');
+  const [importResult, setImportResult] = useState<{ group: string; imported: number; duplicates: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
@@ -51,6 +53,11 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
     }
 
     setFile(selectedFile);
+
+    // Auto-generate group name from filename
+    const baseName = selectedFile.name.replace(/\.\w+$/, '').replace(/[_-]/g, ' ');
+    const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    setGroupName(`${baseName} — ${date}`);
 
     // Parse CSV
     Papa.parse(selectedFile, {
@@ -185,7 +192,8 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
       formData.append('file', blob, 'enriched_companies.csv');
 
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${apiUrl}/api/companies/import`, {
+      const groupParam = encodeURIComponent(groupName || `Import — ${new Date().toLocaleDateString()}`);
+      const response = await fetch(`${apiUrl}/api/companies/import?group=${groupParam}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -199,11 +207,17 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
         throw new Error(result.message || 'Import failed');
       }
 
-      // Show success and close
+      // Show success with group info
+      setImportResult({
+        group: result.group || groupName,
+        imported: result.imported || 0,
+        duplicates: result.duplicates || 0,
+      });
+
       setTimeout(() => {
         onImportComplete();
         handleClose();
-      }, 1500);
+      }, 3000);
 
     } catch (error: any) {
       console.error('Import error:', error);
@@ -220,6 +234,8 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
     setProcessingStatus({});
     setEnrichedCount(0);
     setImporting(false);
+    setGroupName('');
+    setImportResult(null);
     onClose();
   };
 
@@ -320,6 +336,33 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                     <p className="text-xs text-[#64748B] mt-2">...and {companies.length - 20} more</p>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Group Name */}
+            {companies.length > 0 && (
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-[#CBD5E1] mb-2">Group Name</label>
+                <p className="text-xs text-[#64748B] mb-2">This keeps your import separate from existing data. You can filter by group later.</p>
+                <input
+                  type="text"
+                  value={groupName}
+                  onChange={e => setGroupName(e.target.value)}
+                  placeholder="e.g. Deloitte Prospects Q1, Tech Companies March 2026"
+                  className="w-full bg-[#252540] border border-[#3d3d5c] rounded-lg text-[#F1F5F9] px-4 py-3 text-sm outline-none focus:border-indigo-500"
+                />
+              </div>
+            )}
+
+            {/* Import Result */}
+            {importResult && (
+              <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
+                <div className="text-3xl mb-2">&#10003;</div>
+                <p className="text-green-400 font-bold text-lg">Import Complete!</p>
+                <p className="text-[#94A3B8] text-sm mt-1">
+                  {importResult.imported} companies imported to group "<span className="text-indigo-400 font-semibold">{importResult.group}</span>"
+                  {importResult.duplicates > 0 && ` (${importResult.duplicates} duplicates skipped)`}
+                </p>
               </div>
             )}
 
