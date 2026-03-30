@@ -1082,10 +1082,11 @@ export function ContactList() {
       {/* Duplicates Modal */}
       {showDuplicates && duplicateGroups.length > 0 && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" style={{ paddingLeft: '272px', paddingTop: '16px', paddingRight: '16px', paddingBottom: '16px' }}>
-          <div className="bg-[#161625] rounded-2xl shadow-2xl border border-[#2a2a44] max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-5 flex items-center justify-between rounded-t-2xl">
-              <h2 className="text-xl font-bold text-white">
-                Found {duplicateGroups.reduce((sum, group) => sum + group.length, 0)} Duplicates in {duplicateGroups.length} Group{duplicateGroups.length !== 1 ? 's' : ''}
+          <div className="bg-[#161625] rounded-2xl shadow-2xl border border-[#2a2a44] max-w-3xl w-full max-h-[85vh] flex flex-col">
+            {/* Header — fixed */}
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-4 flex items-center justify-between rounded-t-2xl flex-shrink-0">
+              <h2 className="text-lg font-bold text-white">
+                {duplicateGroups.reduce((sum, group) => sum + group.length, 0)} Duplicates in {duplicateGroups.length} Group{duplicateGroups.length !== 1 ? 's' : ''}
               </h2>
               <button
                 type="button"
@@ -1095,9 +1096,40 @@ export function ContactList() {
                 <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto flex-1">
-              <p className="text-[#94A3B8] mb-4 text-sm">
-                Select the duplicates you want to remove. Uncheck the ones you want to keep.
+
+            {/* Quick actions — fixed */}
+            <div className="px-6 py-3 bg-[#12121f] border-b border-[#2a2a44] flex items-center justify-between flex-shrink-0">
+              <p className="text-[#94A3B8] text-xs">
+                Check contacts to delete, uncheck to keep
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const all = new Set<string>();
+                    duplicateGroups.forEach(group => {
+                      group.slice(1).forEach(c => all.add(c.id));
+                    });
+                    setSelectedContacts(all);
+                  }}
+                  className="px-3 py-1.5 text-xs font-medium text-indigo-400 border border-indigo-500/30 rounded-md hover:bg-indigo-500/10 transition-colors"
+                >
+                  Select All Duplicates
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedContacts(new Set())}
+                  className="px-3 py-1.5 text-xs font-medium text-[#94A3B8] border border-[#3d3d5c] rounded-md hover:bg-[#1e1e36] transition-colors"
+                >
+                  Clear Selection
+                </button>
+              </div>
+            </div>
+
+            {/* Scrollable content */}
+            <div className="overflow-y-auto flex-1 p-4" style={{ maxHeight: 'calc(85vh - 200px)' }}>
+              <p className="text-amber-400 text-xs mb-3 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                First contact in each group is the original. Others are duplicates — select and delete them.
               </p>
               {duplicateGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className="mb-4 border border-[#2a2a44] rounded-lg overflow-hidden">
@@ -1107,24 +1139,59 @@ export function ContactList() {
                     </h3>
                   </div>
                   <div className="divide-y divide-[#2a2a44]">
-                    {group.map(contact => (
-                      <div key={contact.id} className="flex items-center gap-3 px-4 py-3 bg-[#161625] hover:bg-[#1e1e36] transition-colors">
-                        <input
-                          type="checkbox"
-                          checked={selectedContacts.has(contact.id)}
-                          onChange={() => toggleContactSelection(contact.id)}
-                          className="w-4 h-4 rounded border-[#3d3d5c] text-indigo-500 focus:ring-indigo-500 cursor-pointer"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="font-medium text-[#F1F5F9] text-sm">
-                            {contact.firstName} {contact.lastName}
+                    {group.map((contact, contactIdx) => {
+                      const isOriginal = contactIdx === 0;
+                      const isChecked = selectedContacts.has(contact.id);
+                      return (
+                        <div key={contact.id} className={`flex items-center gap-3 px-4 py-3 ${isOriginal ? 'bg-green-500/5' : 'bg-[#161625]'} hover:bg-[#1e1e36] transition-colors`}>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleContactSelection(contact.id)}
+                            className="w-4 h-4 rounded border-[#3d3d5c] text-indigo-500 focus:ring-indigo-500 cursor-pointer flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-[#F1F5F9] text-sm">
+                                {contact.firstName} {contact.lastName}
+                              </span>
+                              {isOriginal && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-500/15 text-green-400 rounded">KEEP</span>
+                              )}
+                              {!isOriginal && (
+                                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500/15 text-red-400 rounded">DUPLICATE</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-[#94A3B8] mt-0.5">
+                              {contact.email}{contact.phone && ` • ${contact.phone}`}{contact.company && ` • ${contact.company.name}`}
+                            </div>
                           </div>
-                          <div className="text-xs text-[#94A3B8]">
-                            {contact.email}{contact.phone && ` • ${contact.phone}`}{contact.company && ` • ${contact.company.name}`}
-                          </div>
+                          {!isOriginal && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (confirm(`Delete ${contact.firstName} ${contact.lastName}?`)) {
+                                  try {
+                                    const token = localStorage.getItem('crmToken');
+                                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+                                    await fetch(`${apiUrl}/api/contacts/${contact.id}`, {
+                                      method: 'DELETE',
+                                      headers: { 'Authorization': `Bearer ${token}` },
+                                    });
+                                    // Remove from group
+                                    setDuplicateGroups(prev => prev.map(g => g.filter(c => c.id !== contact.id)).filter(g => g.length > 1));
+                                    loadContacts();
+                                  } catch { /* ignore */ }
+                                }
+                              }}
+                              className="px-2 py-1 text-xs font-medium text-red-400 border border-red-500/30 rounded hover:bg-red-500/10 transition-colors flex-shrink-0"
+                            >
+                              Delete
+                            </button>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
