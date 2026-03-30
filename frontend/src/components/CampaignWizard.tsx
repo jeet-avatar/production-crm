@@ -97,6 +97,38 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
       setSendResult(null);
       setShowPreview(false);
       setError('');
+
+      // Check for follow-up campaign data
+      try {
+        const followUpRaw = sessionStorage.getItem('followUpCampaign');
+        if (followUpRaw) {
+          const followUp = JSON.parse(followUpRaw);
+          sessionStorage.removeItem('followUpCampaign');
+          if (followUp.isFollowUp) {
+            setCampaignName(`Follow-up: ${followUp.originalName}`);
+            setSubject(`Re: ${followUp.originalSubject}`);
+            setEmailBody(`<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+  <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;'>
+    <h1 style='color: #ffffff; margin: 0; font-size: 22px;'>Follow-up: ${followUp.originalName}</h1>
+    <p style='color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 13px;'>Following up on our previous outreach</p>
+  </div>
+  <div style='padding: 24px; background: #ffffff; color: #333;'>
+    <p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+    <p style='font-size: 15px; line-height: 1.6;'>I wanted to follow up on my previous email about technology staffing for {{companyName}}.</p>
+    <p style='font-size: 15px; line-height: 1.6;'>I understand how busy things can get, so I\\'ll keep this brief — we still have <strong>pre-vetted engineers</strong> ready for immediate engagement across AI/ML, Cloud, Full-Stack, and DevOps.</p>
+    <p style='font-size: 15px; line-height: 1.6;'>Would a quick 10-minute call this week work for you?</p>
+    <div style='text-align: center; margin: 24px 0;'>
+      <a href='#' style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block;'>Schedule a Quick Call</a>
+    </div>
+    <p style='font-size: 15px; line-height: 1.6;'>Best regards,<br/><strong>BrandMonkz Staffing Team</strong></p>
+  </div>
+</div>`);
+            setContentSource('staffing');
+          }
+        }
+      } catch {
+        // ignore
+      }
     }
   }, [isOpen]);
 

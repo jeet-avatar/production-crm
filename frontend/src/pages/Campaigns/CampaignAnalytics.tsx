@@ -260,7 +260,23 @@ export default function CampaignAnalytics() {
               Export Report
             </button>
             <button
-              onClick={() => navigate('/campaigns')}
+              onClick={() => {
+                // Store follow-up context for the campaign wizard
+                const followUpData = {
+                  isFollowUp: true,
+                  originalCampaignId: analytics.campaign.id,
+                  originalName: analytics.campaign.name,
+                  originalSubject: analytics.campaign.subject,
+                  recipients: analytics.emailLogs.map(log => ({
+                    contactId: log.contact.id,
+                    name: `${log.contact.firstName} ${log.contact.lastName}`,
+                    email: log.contact.email,
+                    company: log.contact.company?.name || '',
+                  })),
+                };
+                sessionStorage.setItem('followUpCampaign', JSON.stringify(followUpData));
+                navigate('/campaigns?followup=true');
+              }}
               className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-medium flex items-center gap-2"
             >
               <Send className="w-4 h-4" />
