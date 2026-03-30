@@ -133,63 +133,44 @@ export function RemoveDuplicatesModal({ isOpen, onClose, onComplete }: RemoveDup
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#161625] rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" style={{ paddingLeft: '272px', paddingTop: '16px', paddingRight: '16px', paddingBottom: '16px' }}>
+      <div className="bg-[#161625] rounded-2xl shadow-2xl border border-[#2a2a44] max-w-3xl w-full max-h-[85vh] flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-red-600 to-orange-600 px-8 py-6 relative">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-5 relative rounded-t-2xl">
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 text-white hover:bg-[#161625]/20 rounded-lg p-2 transition-colors"
+            className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
           >
-            <XMarkIcon className="w-6 h-6" />
+            <XMarkIcon className="w-5 h-5" />
           </button>
-          <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-            <ExclamationTriangleIcon className="w-8 h-8" />
+          <h2 className="text-xl font-bold text-white flex items-center gap-3">
+            <ExclamationTriangleIcon className="w-6 h-6" />
             Remove Duplicate Contacts
           </h2>
-          <p className="text-red-100 mt-2">
+          <p className="text-indigo-100 mt-1 text-sm">
             Find and remove duplicate contacts from your database
           </p>
         </div>
 
         {/* Progress Steps */}
-        <div className="px-8 py-4 bg-[#12121f] border-b border-[#2a2a44]">
-          <div className="flex items-center justify-between max-w-2xl mx-auto">
-            <div className={`flex items-center gap-2 ${currentStep >= 1 ? 'text-red-600' : 'text-[#64748B]'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 1 ? 'bg-red-600 text-white' : 'bg-gray-300'}`}>
-                1
+        <div className="px-6 py-3 bg-[#12121f] border-b border-[#2a2a44]">
+          <div className="flex items-center gap-2">
+            {[{ n: 1, l: 'Detect' }, { n: 2, l: 'Review' }, { n: 3, l: 'Remove' }, { n: 4, l: 'Done' }].map((s, i) => (
+              <div key={s.n} className="flex items-center">
+                {i > 0 && <div className={`w-8 h-0.5 ${currentStep >= s.n ? 'bg-indigo-500' : 'bg-[#2a2a44]'}`} />}
+                <div className={`flex items-center gap-1.5 ${currentStep >= s.n ? 'text-indigo-400' : 'text-[#64748B]'}`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${currentStep >= s.n ? 'bg-indigo-500 text-white' : 'bg-[#252540] text-[#64748B]'}`}>
+                    {s.n === 4 && currentStep >= 4 ? '✓' : s.n}
+                  </div>
+                  <span className="text-xs font-medium">{s.l}</span>
+                </div>
               </div>
-              <span className="font-medium">Detecting</span>
-            </div>
-            <div className={`flex-1 h-1 mx-4 ${currentStep >= 2 ? 'bg-red-600' : 'bg-gray-300'}`} />
-
-            <div className={`flex items-center gap-2 ${currentStep >= 2 ? 'text-red-600' : 'text-[#64748B]'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 2 ? 'bg-red-600 text-white' : 'bg-gray-300'}`}>
-                2
-              </div>
-              <span className="font-medium">Review</span>
-            </div>
-            <div className={`flex-1 h-1 mx-4 ${currentStep >= 3 ? 'bg-red-600' : 'bg-gray-300'}`} />
-
-            <div className={`flex items-center gap-2 ${currentStep >= 3 ? 'text-red-600' : 'text-[#64748B]'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 3 ? 'bg-red-600 text-white' : 'bg-gray-300'}`}>
-                3
-              </div>
-              <span className="font-medium">Remove</span>
-            </div>
-            <div className={`flex-1 h-1 mx-4 ${currentStep >= 4 ? 'bg-green-600' : 'bg-gray-300'}`} />
-
-            <div className={`flex items-center gap-2 ${currentStep >= 4 ? 'text-green-600' : 'text-[#64748B]'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= 4 ? 'bg-green-600 text-white' : 'bg-gray-300'}`}>
-                ✓
-              </div>
-              <span className="font-medium">Complete</span>
-            </div>
+            ))}
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-8 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 280px)' }}>
+        <div className="p-6 overflow-y-auto flex-1">
           {/* Step 1: Detecting */}
           {currentStep === 1 && (
             <div className="text-center py-12">
@@ -216,12 +197,12 @@ export function RemoveDuplicatesModal({ isOpen, onClose, onComplete }: RemoveDup
                 </div>
               ) : (
                 <>
-                  <div className="bg-yellow-500/10 border-l-4 border-yellow-500 px-6 py-4 rounded-r-lg">
-                    <p className="font-semibold text-yellow-900">
-                      Found {totalDuplicates} duplicate contact{totalDuplicates !== 1 ? 's' : ''} in {duplicateGroups.length} group{duplicateGroups.length !== 1 ? 's' : ''}
+                  <div className="bg-amber-500/10 border border-amber-500/30 px-4 py-3 rounded-lg">
+                    <p className="font-semibold text-amber-400 text-sm">
+                      Found {totalDuplicates} duplicate{totalDuplicates !== 1 ? 's' : ''} in {duplicateGroups.length} group{duplicateGroups.length !== 1 ? 's' : ''}
                     </p>
-                    <p className="text-sm text-yellow-400 mt-1">
-                      Review the duplicates below. The oldest contact in each group will be kept (highlighted in green).
+                    <p className="text-xs text-[#94A3B8] mt-1">
+                      The oldest contact in each group will be kept (green). Check the ones to remove.
                     </p>
                   </div>
 
@@ -313,10 +294,10 @@ export function RemoveDuplicatesModal({ isOpen, onClose, onComplete }: RemoveDup
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-6 bg-[#12121f] border-t border-[#2a2a44] flex justify-between items-center">
+        <div className="px-6 py-4 bg-[#12121f] border-t border-[#2a2a44] flex justify-between items-center">
           <button
             onClick={handleClose}
-            className="px-6 py-3 bg-[#161625] border-2 border-[#33335a] rounded-xl font-semibold text-[#CBD5E1] hover:bg-[#12121f] transition-all shadow-sm"
+            className="px-5 py-2.5 border border-[#3d3d5c] rounded-lg font-medium text-[#94A3B8] hover:bg-[#1e1e36] hover:text-[#F1F5F9] transition-colors text-sm"
           >
             {currentStep === 4 ? 'Close' : 'Cancel'}
           </button>
@@ -325,9 +306,9 @@ export function RemoveDuplicatesModal({ isOpen, onClose, onComplete }: RemoveDup
             <button
               onClick={removeDuplicates}
               disabled={selectedDuplicates.size === 0}
-              className="px-8 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl font-semibold hover:from-red-700 hover:to-orange-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg font-semibold text-sm hover:from-red-700 hover:to-rose-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              <TrashIcon className="w-5 h-5" />
+              <TrashIcon className="w-4 h-4" />
               Remove {selectedDuplicates.size} Duplicate{selectedDuplicates.size !== 1 ? 's' : ''}
             </button>
           )}
@@ -335,7 +316,7 @@ export function RemoveDuplicatesModal({ isOpen, onClose, onComplete }: RemoveDup
           {currentStep === 4 && (
             <button
               onClick={handleComplete}
-              className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg"
+              className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold text-sm transition-all"
             >
               Done
             </button>
