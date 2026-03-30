@@ -327,14 +327,25 @@ export function ContactList() {
       }
     });
 
-    // Group by EXACT same phone
+    // Group by EXACT same phone — but ONLY if contacts are at DIFFERENT companies
+    // Same phone at same company = shared office number (NOT a duplicate)
     const phoneMap = new Map<string, Contact[]>();
     contacts.forEach(contact => {
       if (contact.phone && contact.phone.trim()) {
-        const key = contact.phone.replace(/\D/g, '');
-        if (key.length >= 7) { // Only match real phone numbers
-          if (!phoneMap.has(key)) phoneMap.set(key, []);
-          phoneMap.get(key)!.push(contact);
+        const digits = contact.phone.replace(/\D/g, '');
+        if (digits.length >= 7) {
+          if (!phoneMap.has(digits)) phoneMap.set(digits, []);
+          phoneMap.get(digits)!.push(contact);
+        }
+      }
+    });
+    // Remove phone groups where all contacts share the same company (office number)
+    phoneMap.forEach((group, key) => {
+      if (group.length > 1) {
+        const companies = new Set(group.map(c => c.company?.name?.toLowerCase().trim()).filter(Boolean));
+        if (companies.size <= 1) {
+          // All same company — shared office phone, not duplicates
+          phoneMap.delete(key);
         }
       }
     });
