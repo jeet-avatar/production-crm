@@ -119,6 +119,7 @@ router.get('/', async (req, res, next) => {
             name: true,
             domain: true,
             industry: true,
+            tags: true,
           },
         },
         tags: {
