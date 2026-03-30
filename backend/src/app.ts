@@ -35,7 +35,7 @@ import csvImportRoutes from './routes/csvImport';
 import calendarAuthRoutes from './routes/calendar-auth';
 import positionRoutes from './routes/positions';
 import emailServerRoutes from './routes/emailServers';
-// import emailTrackingRoutes from "./routes/emailTracking";
+import emailTrackingRoutes from "./routes/emailTracking";
 import analyticsRoutes from './routes/analytics';
 import subscriptionRoutes from './routes/subscriptions';
 import pricingRoutes from './routes/pricing';
@@ -303,7 +303,7 @@ app.use('/api/csv-import', csvImportRoutes);
 // app.use('/api/calendar', calendarAuthRoutes); // Moved before auth middleware (line 227)
 app.use('/api/positions', positionRoutes);
 app.use('/api/email-servers', emailServerRoutes);
-// app.use("/api/tracking", emailTrackingRoutes);
+app.use("/api/tracking", emailTrackingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/pricing', pricingRoutes);
