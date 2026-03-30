@@ -281,8 +281,8 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
   );
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-[#161625] rounded-2xl shadow-2xl border border-[#2a2a44] w-full max-w-6xl max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" style={{ paddingLeft: '272px', paddingTop: '16px', paddingRight: '16px', paddingBottom: '16px' }}>
+      <div className="bg-[#161625] rounded-2xl shadow-2xl border border-[#2a2a44] w-full max-w-4xl max-h-[85vh] flex flex-col">
 
         {/* Header with gradient */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
