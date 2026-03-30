@@ -41,17 +41,6 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Validate file type
-    const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-    const isValidType = validTypes.includes(selectedFile.type) ||
-                        selectedFile.name.endsWith('.csv') ||
-                        selectedFile.name.endsWith('.xlsx');
-
-    if (!isValidType) {
-      alert('Please select a CSV or XLSX file');
-      return;
-    }
-
     setFile(selectedFile);
 
     // Auto-generate group name from filename
@@ -59,35 +48,76 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
     const date = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     setGroupName(`${baseName} — ${date}`);
 
-    // Parse CSV
+    // Parse CSV — accept any text-based file
     Papa.parse(selectedFile, {
       header: true,
+      skipEmptyLines: true,
+      delimiter: '', // auto-detect delimiter (comma, tab, semicolon)
       complete: (results) => {
+        if (!results.data || results.data.length === 0) {
+          alert('No data found in file. Make sure it has a header row and at least one data row.');
+          return;
+        }
+
+        // Show detected columns to help debug
+        const headers = Object.keys(results.data[0] || {});
+        console.log('Detected columns:', headers);
+
         const parsedCompanies = results.data
-          .filter((row: any) => row.name || row.Name || row['Company Name'])
-          .map((row: any) => ({
-            name: row.name || row.Name || row['Company Name'],
-            domain: row.domain || row.Domain || row.Website?.replace(/https?:\/\//g, '').split('/')[0],
-            industry: row.industry || row.Industry,
-            location: row.location || row.Location || row.Headquarters,
-            size: row.size || row.Size || row['Company Size'],
-            description: row.description || row.Description,
-            website: row.website || row.Website,
-            employeeCount: row.employeeCount || row.Employees || row['Employee Count'],
-          }));
+          .filter((row: any) => {
+            // Try many common column name variations
+            return row.name || row.Name || row['Company Name'] || row['company_name'] ||
+                   row['Company'] || row.company || row['Organization'] || row['organisation'] ||
+                   row['Business Name'] || row['business_name'] || row['Account Name'] ||
+                   // If no name column found, use the first non-empty column value
+                   Object.values(row).some(v => v && String(v).trim().length > 0);
+          })
+          .map((row: any) => {
+            // Extract company name from many possible column names
+            const name = row.name || row.Name || row['Company Name'] || row['company_name'] ||
+                         row['Company'] || row.company || row['Organization'] || row['organisation'] ||
+                         row['Business Name'] || row['business_name'] || row['Account Name'] ||
+                         Object.values(row).find(v => v && String(v).trim().length > 1) || '';
+
+            // Extract other fields from various column names
+            const website = row.website || row.Website || row.URL || row.url || row['Web'] || row['web'] || '';
+            const domain = row.domain || row.Domain || (website ? String(website).replace(/https?:\/\//g, '').split('/')[0] : '');
+            const industry = row.industry || row.Industry || row['Sector'] || row['sector'] || row['Category'] || '';
+            const location = row.location || row.Location || row.Headquarters || row['City'] || row['city'] ||
+                            row['Address'] || row['Country'] || row['State'] || '';
+            const email = row.email || row.Email || row['Contact Email'] || row['Email Address'] || row['e-mail'] || '';
+            const phone = row.phone || row.Phone || row['Phone Number'] || row['Tel'] || row['Telephone'] || '';
+
+            return {
+              name: String(name).trim(),
+              domain: String(domain).trim(),
+              industry: String(industry).trim(),
+              location: String(location).trim(),
+              size: (row.size || row.Size || row['Company Size'] || row['Employees'] || '').toString().trim(),
+              description: (row.description || row.Description || row['About'] || '').toString().trim(),
+              website: String(website).trim(),
+              employeeCount: (row.employeeCount || row.Employees || row['Employee Count'] || row['employees'] || '').toString().trim(),
+            };
+          })
+          .filter((c: any) => c.name && c.name.length > 0);
+
+        if (parsedCompanies.length === 0) {
+          alert(`Could not find company names in the file.\n\nDetected columns: ${headers.join(', ')}\n\nMake sure one column is named "name", "Company Name", or "Company".`);
+          return;
+        }
 
         setCompanies(parsedCompanies);
 
         // Initialize processing status
         const initialStatus: Record<number, ProcessingStatus> = {};
-        parsedCompanies.forEach((_, i) => {
+        parsedCompanies.forEach((_: any, i: number) => {
           initialStatus[i] = 'pending';
         });
         setProcessingStatus(initialStatus);
       },
       error: (error) => {
-        console.error('CSV parsing error:', error);
-        alert('Error parsing CSV file. Please check the file format.');
+        console.error('File parsing error:', error);
+        alert('Could not read this file. Please save it as a CSV file (.csv) and try again.\n\nTip: In Excel, go to File → Save As → choose "CSV (Comma delimited)"');
       },
     });
   };
@@ -295,12 +325,12 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
                 Drop your company CSV file here
               </p>
               <p className="text-sm text-[#94A3B8] mb-4">
-                or click to browse (CSV, XLSX accepted)
+                or click to browse (CSV, XLS, XLSX, TXT accepted)
               </p>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".csv,.xlsx"
+                accept=".csv,.xlsx,.xls,.txt,.tsv"
                 onChange={handleFileUpload}
                 className="hidden"
               />
