@@ -463,8 +463,8 @@ export function ContactList() {
   }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1280px', margin: '0 auto', minHeight: '100vh' }}>
-      <div style={{ background: '#161625', borderRadius: '16px', border: '1px solid #2a2a44', overflow: 'hidden' }}>
+    <div style={{ padding: '16px', minHeight: '100vh' }}>
+      <div style={{ background: '#161625', borderRadius: '12px', border: '1px solid #2a2a44', overflow: 'hidden' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #2a2a44', background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.05))' }}>
           <div className="flex-1">
@@ -693,7 +693,7 @@ export function ContactList() {
         {/* Contacts Table */}
         <div className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: '#161625', color: '#F1F5F9' }}>
             <thead>
               <tr>
                 <th style={{ padding: "10px 16px", background: "#12121f", borderBottom: "1px solid #2a2a44", width: "48px" }}>
@@ -778,7 +778,7 @@ export function ContactList() {
                   return (
                     <React.Fragment key={companyName}>
                       {/* Company header row with first contact */}
-                      <tr className="hover:bg-[#12121f]">
+                      <tr style={{ background: '#161625' }} className="hover:bg-[#12121f]">
                         <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", width: "48px" }}>
                           <input
                             type="checkbox"
@@ -1037,7 +1037,7 @@ export function ContactList() {
                     setContactsPerPage(Number(e.target.value));
                     setCurrentPage(1); // Reset to first page when changing page size
                   }}
-                  className="px-3 py-1.5 text-sm border border-[#2a2a44] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  style={{ background: '#252540', border: '1px solid #3d3d5c', borderRadius: '8px', color: '#F1F5F9', padding: '6px 12px', fontSize: '13px', outline: 'none' }}
                 >
                   <option value={10}>10</option>
                   <option value={15}>15</option>
