@@ -463,11 +463,10 @@ export function ContactList() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* Main Container with Border */}
-      <div style={{ padding: "0", background: "#0f0f1a", minHeight: "100vh" }}>
+    <div style={{ padding: '24px', maxWidth: '1280px', margin: '0 auto', minHeight: '100vh' }}>
+      <div style={{ background: '#161625', borderRadius: '16px', border: '1px solid #2a2a44', overflow: 'hidden' }}>
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-[#2a2a44] bg-[#12121f]">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: '1px solid #2a2a44', background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.05))' }}>
           <div className="flex-1">
             <div className="flex items-center gap-4 mb-2">
               <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#F1F5F9", margin: 0 }}>Contacts</h1>
@@ -590,7 +589,7 @@ export function ContactList() {
         </div>
 
         {/* Filters */}
-        <div className="p-6 border-b border-[#2a2a44] bg-[#12121f]">
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid #2a2a44', background: '#12121f' }}>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
@@ -628,7 +627,7 @@ export function ContactList() {
 
         {/* Error Message - Only show for critical errors, not for empty states */}
         {error && contacts.length === 0 && !loading && (
-          <div className="mx-6 my-4 bg-[#1e1e36] border border-[#2a2a44] rounded-xl p-6">
+          <div style={{ margin: "16px 24px", background: "#1e1e36", border: "1px solid #2a2a44", borderRadius: "12px", padding: "24px" }}>
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <QuestionMarkCircleIcon className="h-8 w-8 text-indigo-400" />
@@ -655,7 +654,7 @@ export function ContactList() {
 
         {/* Bulk Actions Toolbar */}
         {selectedContacts.size > 0 && (
-          <div className="mx-6 my-4 bg-[#1e1e36] border border-[#2a2a44] rounded-xl p-4">
+          <div style={{ margin: "16px 24px", background: "#1e1e36", border: "1px solid #2a2a44", borderRadius: "12px", padding: "16px" }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <span className="text-lg font-bold text-[#F1F5F9]">
@@ -697,7 +696,7 @@ export function ContactList() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th className="table-header w-12">
+                <th style={{ padding: "10px 16px", background: "#12121f", borderBottom: "1px solid #2a2a44", width: "48px" }}>
                   <input
                     type="checkbox"
                     checked={contacts.length > 0 && selectedContacts.size === contacts.length}
@@ -706,22 +705,22 @@ export function ContactList() {
                     title="Select all contacts"
                   />
                 </th>
-                <th className="table-header">Contact</th>
-                <th className="table-header">Role</th>
-                <th className="table-header">Company</th>
-                <th className="table-header">Status</th>
+                <th style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", background: "#12121f", borderBottom: "1px solid #2a2a44" }}>Contact</th>
+                <th style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", background: "#12121f", borderBottom: "1px solid #2a2a44" }}>Role</th>
+                <th style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", background: "#12121f", borderBottom: "1px solid #2a2a44" }}>Company</th>
+                <th style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", background: "#12121f", borderBottom: "1px solid #2a2a44" }}>Status</th>
                 {/* Dynamic custom field columns */}
                 {customFieldKeys.map(key => (
-                  <th key={key} className="table-header">{key}</th>
+                  <th key={key} style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", background: "#12121f", borderBottom: "1px solid #2a2a44" }}>{key}</th>
                 ))}
-                <th className="table-header">Phone</th>
-                <th className="table-header">Actions</th>
+                <th style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", background: "#12121f", borderBottom: "1px solid #2a2a44" }}>Phone</th>
+                <th style={{ padding: "10px 16px", textAlign: "left", fontSize: "11px", fontWeight: 600, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.05em", background: "#12121f", borderBottom: "1px solid #2a2a44" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {contacts.length === 0 ? (
                 <tr>
-                  <td colSpan={7 + customFieldKeys.length} className="table-cell text-center py-16">
+                  <td colSpan={7 + customFieldKeys.length} style={{ padding: "64px 16px", textAlign: "center", borderBottom: "1px solid #1e1e36", color: "#94A3B8" }}>
                     {searchTerm || statusFilter ? (
                       // No results found state (when filters are active)
                       <>
@@ -780,7 +779,7 @@ export function ContactList() {
                     <React.Fragment key={companyName}>
                       {/* Company header row with first contact */}
                       <tr className="hover:bg-[#12121f]">
-                        <td className="table-cell w-12">
+                        <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", width: "48px" }}>
                           <input
                             type="checkbox"
                             checked={selectedContacts.has(displayContact.id)}
@@ -790,7 +789,7 @@ export function ContactList() {
                             aria-label={`Select ${displayContact.firstName} ${displayContact.lastName}`}
                           />
                         </td>
-                        <td className="table-cell">
+                        <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                           <div className="flex items-center space-x-3">
                             {hasMultipleContacts && (
                               <button
@@ -830,7 +829,7 @@ export function ContactList() {
                             </div>
                           </div>
                         </td>
-                        <td className="table-cell">
+                        <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                           {displayContact.role ? (
                             <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
                               {displayContact.role}
@@ -839,20 +838,20 @@ export function ContactList() {
                             <span className="text-[#64748B]">-</span>
                           )}
                         </td>
-                        <td className="table-cell">
+                        <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                           <div className="flex items-center gap-2">
                             <BuildingOfficeIcon className="h-4 w-4 text-[#94A3B8]" />
                             <span className="font-medium text-[#F1F5F9]">{companyName}</span>
                           </div>
                         </td>
-                        <td className="table-cell">
+                        <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                           <span className={statusColors[displayContact.status]}>
                             {displayContact.status.replace('_', ' ')}
                           </span>
                         </td>
                         {/* Dynamic Custom Fields */}
                         {customFieldKeys.map(key => (
-                          <td key={key} className="table-cell">
+                          <td key={key} style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             {displayContact.customFields?.[key] ? (
                               <span className={`text-sm ${
                                 key.toLowerCase().includes('intent') || key.toLowerCase().includes('hiring')
@@ -874,7 +873,7 @@ export function ContactList() {
                             )}
                           </td>
                         ))}
-                        <td className="table-cell">
+                        <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                           {displayContact.phone ? (
                             <div className="flex items-center text-[#F1F5F9]">
                               <PhoneIcon className="h-4 w-4 mr-1" />
@@ -884,7 +883,7 @@ export function ContactList() {
                             <span className="text-[#64748B]">-</span>
                           )}
                         </td>
-                        <td className="table-cell">
+                        <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={(e) => {
@@ -916,7 +915,7 @@ export function ContactList() {
                           key={contact.id}
                           className="hover:bg-[#12121f] bg-[#12121f]/50"
                         >
-                          <td className="table-cell">
+                          <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             <div className="flex items-center space-x-3 pl-12">
                               <div
                                 style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #252540, #2d2d4a)', border: '1px solid #3d3d5c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#A5B4FC', fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
@@ -935,7 +934,7 @@ export function ContactList() {
                               </div>
                             </div>
                           </td>
-                          <td className="table-cell">
+                          <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             {contact.role ? (
                               <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
                                 {contact.role}
@@ -944,17 +943,17 @@ export function ContactList() {
                               <span className="text-[#64748B]">-</span>
                             )}
                           </td>
-                          <td className="table-cell">
+                          <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             <span className="text-[#64748B] text-sm">↳ Same company</span>
                           </td>
-                          <td className="table-cell">
+                          <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             <span className={statusColors[contact.status]}>
                               {contact.status.replace('_', ' ')}
                             </span>
                           </td>
                           {/* Dynamic Custom Fields */}
                           {customFieldKeys.map(key => (
-                            <td key={key} className="table-cell">
+                            <td key={key} style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                               {contact.customFields?.[key] ? (
                                 <span className={`text-sm ${
                                   key.toLowerCase().includes('intent') || key.toLowerCase().includes('hiring')
@@ -976,7 +975,7 @@ export function ContactList() {
                               )}
                             </td>
                           ))}
-                          <td className="table-cell">
+                          <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             {contact.phone ? (
                               <div className="flex items-center text-[#F1F5F9]">
                                 <PhoneIcon className="h-4 w-4 mr-1" />
@@ -986,7 +985,7 @@ export function ContactList() {
                               <span className="text-[#64748B]">-</span>
                             )}
                           </td>
-                          <td className="table-cell">
+                          <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
                             <div className="flex items-center space-x-2">
                               <button
                                 onClick={(e) => {
