@@ -240,16 +240,16 @@ Provider agrees to deliver the following technology consulting services:
 • Timeline: {{timeline}}
 
 2. PRICING MODEL
-☐ Fixed Price: ${{fixedPrice}} for complete project delivery
+☐ Fixed Price: $[fixedPrice] for complete project delivery
 ☐ Time & Materials: Billed at rates specified in Rate Card (Exhibit B)
-  - Project Manager: ${{pmRate}}/hr
-  - Senior Engineer: ${{seniorRate}}/hr
-  - Engineer: ${{midRate}}/hr
-  - Monthly cap: ${{monthlyCap}} (if applicable)
+  - Project Manager: $[pmRate]/hr
+  - Senior Engineer: $[seniorRate]/hr
+  - Engineer: $[midRate]/hr
+  - Monthly cap: $[monthlyCap] (if applicable)
 
 3. PAYMENT SCHEDULE
 For Fixed Price:
-• 30% upon signing (${{deposit}})
+• 30% upon signing ($[deposit])
 • 40% at mid-project milestone
 • 30% upon final delivery and acceptance
 
