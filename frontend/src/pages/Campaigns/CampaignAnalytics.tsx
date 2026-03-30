@@ -77,10 +77,80 @@ export default function CampaignAnalytics() {
 
   const loadAnalytics = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/tracking/analytics/${campaignId}`);
-      if (!response.ok) throw new Error('Failed to load analytics');
-      const data = await response.json();
-      setAnalytics(data);
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const token = localStorage.getItem('crmToken');
+      if (!token) throw new Error('Not logged in');
+
+      const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
+
+      // Fetch campaign details (includes companies + contacts)
+      const campaignRes = await fetch(`${API_URL}/api/campaigns/${campaignId}`, { headers });
+      if (!campaignRes.ok) throw new Error('Campaign not found');
+      const campaignData = await campaignRes.json();
+      const campaign = campaignData.campaign;
+
+      if (!campaign) throw new Error('Campaign not found');
+
+      // Build analytics from campaign data
+      const totalSent = campaign.totalSent || campaign._count?.emailLogs || 0;
+      const totalOpened = campaign.totalOpened || 0;
+      const totalClicked = campaign.totalClicked || 0;
+      const totalBounced = campaign.totalBounced || 0;
+
+      // Build recipient list from linked companies
+      const emailLogs: EmailLog[] = [];
+      if (campaign.companies) {
+        for (const cc of campaign.companies) {
+          const company = cc.company;
+          if (company?.contacts) {
+            for (const contact of company.contacts) {
+              emailLogs.push({
+                id: contact.id,
+                contact: {
+                  id: contact.id,
+                  firstName: contact.firstName || '',
+                  lastName: contact.lastName || '',
+                  email: contact.email || '',
+                  company: { name: company.name || '' },
+                },
+                status: totalSent > 0 ? 'QUEUED' : 'PENDING',
+                sentAt: campaign.sentAt || campaign.createdAt,
+                totalOpens: 0,
+                totalClicks: 0,
+                engagementScore: 0,
+                firstOpenedAt: null,
+                lastOpenedAt: null,
+                ipAddress: null,
+                deviceType: null,
+                emailClient: null,
+                browser: null,
+                location: null,
+                recentEvents: [],
+              });
+            }
+          }
+        }
+      }
+
+      setAnalytics({
+        campaign: {
+          id: campaign.id,
+          name: campaign.name,
+          subject: campaign.subject || '',
+          status: campaign.status,
+          sentAt: campaign.sentAt || campaign.createdAt,
+        },
+        stats: {
+          totalSent: totalSent || emailLogs.length,
+          totalOpened,
+          totalClicked,
+          totalBounced,
+          openRate: totalSent > 0 ? ((totalOpened / totalSent) * 100).toFixed(1) : '0',
+          clickRate: totalSent > 0 ? ((totalClicked / totalSent) * 100).toFixed(1) : '0',
+        },
+        topPerformers: [],
+        emailLogs,
+      });
       setLoading(false);
     } catch (err: any) {
       setError(err.message);
@@ -98,8 +168,20 @@ export default function CampaignAnalytics() {
 
   if (error || !analytics) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-lg text-red-600">Error: {error || 'Analytics not found'}</div>
+      <div className="flex flex-col items-center justify-center h-96 gap-4">
+        <div className="text-5xl">📊</div>
+        <div className="text-xl font-bold text-[#F1F5F9]">Campaign Analytics</div>
+        <div className="text-sm text-[#94A3B8] max-w-md text-center">
+          {error === 'Campaign not found'
+            ? 'This campaign could not be found. It may have been deleted.'
+            : 'Analytics data is not available yet. Email tracking data will appear here once recipients open or click your emails.'}
+        </div>
+        <button
+          onClick={() => navigate('/campaigns')}
+          className="mt-4 px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-medium"
+        >
+          Back to Campaigns
+        </button>
       </div>
     );
   }
