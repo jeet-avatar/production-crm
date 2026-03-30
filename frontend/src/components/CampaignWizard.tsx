@@ -917,6 +917,63 @@ export function CampaignWizard({ isOpen, onClose, onSuccess }: Props) {
               </div>
               )}
 
+              {/* Universal email preview — shows for ANY tab once email content exists */}
+              {emailBody && (
+                <div style={{ marginTop: '16px', borderTop: '1px solid #3d3d5c', paddingTop: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <button
+                      onClick={() => setShowPreview(!showPreview)}
+                      style={{
+                        background: showPreview ? 'rgba(99,102,241,0.15)' : 'transparent',
+                        border: '1px solid rgba(99,102,241,0.3)',
+                        color: '#A5B4FC',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                      }}
+                    >
+                      {showPreview ? '🔽 Hide Preview' : '👁️ Preview Email'}
+                    </button>
+                    {subject && (
+                      <span style={{ fontSize: '12px', color: '#64748B' }}>
+                        Subject: <span style={{ color: '#F1F5F9' }}>{subject.replace(/\{\{companyName\}\}/g, 'Deloitte').slice(0, 50)}{subject.length > 50 ? '...' : ''}</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {showPreview && (
+                    <div style={{ border: '1px solid #3d3d5c', borderRadius: '10px', overflow: 'hidden' }}>
+                      <div style={{ background: '#1e1e36', padding: '8px 14px', borderBottom: '1px solid #3d3d5c' }}>
+                        <div style={{ fontSize: '11px', color: '#94A3B8' }}>
+                          <strong style={{ color: '#CBD5E1' }}>Subject:</strong> {subject.replace(/\{\{companyName\}\}/g, 'Deloitte').replace(/\{\{firstName\}\}/g, 'Sarah')}
+                        </div>
+                      </div>
+                      <div style={{ background: '#ffffff', color: '#333333', maxHeight: '400px', overflowY: 'auto', padding: '16px', fontSize: '14px', lineHeight: '1.6' }}>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(
+                              emailBody
+                                .replace(/\{\{firstName\}\}/g, 'Sarah')
+                                .replace(/\{\{lastName\}\}/g, 'Mitchell')
+                                .replace(/\{\{companyName\}\}/g, 'Deloitte')
+                                .replace(/\{\{email\}\}/g, 'sarah.mitchell@deloitte.com')
+                                .replace(/\{\{fromName\}\}/g, 'BrandMonkz')
+                            )
+                          }}
+                          style={{ color: '#333333' }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Step 1 footer */}
               <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
                 <button
