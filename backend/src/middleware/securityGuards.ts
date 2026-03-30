@@ -57,7 +57,10 @@ export function sqlInjectionGuard(req: Request, res: Response, next: NextFunctio
         req.path.startsWith('/video-campaigns') ||
         req.path.startsWith('/staffing') ||
         req.path.startsWith('/email-composer') ||
-        req.path.startsWith('/ai-code')) {
+        req.path.startsWith('/ai-code') ||
+        req.path.startsWith('/companies') ||
+        req.path.startsWith('/contacts') ||
+        req.path.startsWith('/csv-import')) {
       return next();
     }
 
