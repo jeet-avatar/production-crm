@@ -26,7 +26,7 @@ export function sanitizeInputGuard(req: Request, res: Response, next: NextFuncti
 
     // Sanitize body (but preserve necessary HTML in specific fields)
     if (req.body && typeof req.body === 'object') {
-      const htmlAllowedFields = ['content', 'htmlContent', 'body', 'description'];
+      const htmlAllowedFields = ['content', 'htmlContent', 'body', 'description', 'subject', 'name', 'campaignName', 'goal', 'prompt', 'narrationScript', 'script', 'textContent', 'previewText', 'notes'];
 
       for (const key in req.body) {
         if (typeof req.body[key] === 'string' && !htmlAllowedFields.includes(key)) {
