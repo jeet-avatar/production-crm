@@ -36,6 +36,8 @@ import { SubscriptionSuccess } from './pages/Subscription/SubscriptionSuccess';
 import { SuperAdminDashboard } from './pages/SuperAdmin/SuperAdminDashboard';
 import { SystemTemplates } from './pages/SuperAdmin/SystemTemplates';
 import JobLeadsPage from './pages/JobLeads/JobLeadsPage';
+import ScheduleCallPage from './pages/Landing/ScheduleCallPage';
+import TalentPage from './pages/Landing/TalentPage';
 import type { User } from './types';
 
 // Create a client
@@ -92,7 +94,9 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <Router>
         <Routes>
-          {/* Public routes */}
+          {/* Public routes — CTA landing pages (no login required) */}
+          <Route path="/schedule" element={<ScheduleCallPage />} />
+          <Route path="/talent" element={<TalentPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />

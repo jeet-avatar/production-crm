@@ -242,7 +242,7 @@ const STAFFING_EMAIL_TEMPLATES = [
     </ul>
     <p style="color: #333; font-size: 15px; line-height: 1.6;">We currently have <strong>200+ pre-screened engineers</strong> ready for immediate engagement across all major technology streams.</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="#" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">Schedule a 15-Min Discovery Call</a>
+      <a href="https://brandmonkz.com/schedule" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">Schedule a 15-Min Discovery Call</a>
     </div>
     <p style="color: #666; font-size: 14px; line-height: 1.6;">Looking forward to partnering with {{companyName}}.</p>
     <p style="color: #333; font-size: 15px;">Best regards,<br/><strong>BrandMonkz Staffing Team</strong></p>
@@ -281,7 +281,7 @@ const STAFFING_EMAIL_TEMPLATES = [
     </table>
     <p style="color: #333; font-size: 15px; line-height: 1.6;">All candidates have been <strong>technically assessed</strong> and can start within <strong>2 weeks</strong>.</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="#" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">View AI/ML Candidate Profiles</a>
+      <a href="https://brandmonkz.com/talent?stream=ai-ml" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">View AI/ML Candidate Profiles</a>
     </div>
     <p style="color: #333; font-size: 15px;">Best,<br/><strong>BrandMonkz AI Staffing Division</strong></p>
   </div>
@@ -311,7 +311,7 @@ const STAFFING_EMAIL_TEMPLATES = [
       <p style="color: #333; margin: 0; font-size: 14px;"><strong>Client Success:</strong> We helped a Fortune 500 scale their cloud team from 12 to 45 engineers in 8 weeks with a 95% retention rate.</p>
     </div>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="#" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">Get Cloud Talent Profiles</a>
+      <a href="https://brandmonkz.com/talent?stream=cloud" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">Get Cloud Talent Profiles</a>
     </div>
     <p style="color: #333; font-size: 15px;">Best,<br/><strong>BrandMonkz Cloud Staffing</strong></p>
   </div>
@@ -338,7 +338,7 @@ const STAFFING_EMAIL_TEMPLATES = [
       <li>Incident Response / Digital Forensics</li>
     </ul>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="#" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">Request Security Talent Profiles</a>
+      <a href="https://brandmonkz.com/talent?stream=cybersecurity" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">Request Security Talent Profiles</a>
     </div>
     <p style="color: #333; font-size: 15px;">Best,<br/><strong>BrandMonkz Cybersecurity Staffing</strong></p>
   </div>
@@ -368,7 +368,7 @@ const STAFFING_EMAIL_TEMPLATES = [
     </div>
     <p style="color: #333; font-size: 15px; line-height: 1.6;">Every candidate passes our <strong>3-stage technical assessment</strong> (coding challenge + system design + culture fit).</p>
     <div style="text-align: center; margin: 30px 0;">
-      <a href="#" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">Browse Developer Profiles</a>
+      <a href="https://brandmonkz.com/talent?stream=fullstack" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 15px; display: inline-block;">Browse Developer Profiles</a>
     </div>
     <p style="color: #333; font-size: 15px;">Best,<br/><strong>BrandMonkz Developer Staffing</strong></p>
   </div>
