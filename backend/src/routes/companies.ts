@@ -85,6 +85,11 @@ router.get('/', async (req, res, next) => {
 
     const teamAccessConditions = [
       { userId: userId },
+      // Team members see account owner's data
+      ...(req.user?.teamRole === 'MEMBER' && req.user?.accountOwnerId ? [{
+        userId: req.user.accountOwnerId,
+      }] : []),
+      // Owners see all team members' data
       ...(req.user?.teamRole === 'OWNER' ? [{
         user: {
           OR: [
