@@ -317,48 +317,70 @@ export function ContactList() {
     const duplicates: Contact[][] = [];
     const processed = new Set<string>();
 
-    contacts.forEach((contact, index) => {
-      if (processed.has(contact.id)) return;
+    // Group by EXACT same email (the strongest duplicate signal)
+    const emailMap = new Map<string, Contact[]>();
+    contacts.forEach(contact => {
+      if (contact.email && contact.email.trim()) {
+        const key = contact.email.toLowerCase().trim();
+        if (!emailMap.has(key)) emailMap.set(key, []);
+        emailMap.get(key)!.push(contact);
+      }
+    });
 
-      const group: Contact[] = [contact];
-      processed.add(contact.id);
-
-      // Find duplicates by email, phone, or similar name+company
-      contacts.slice(index + 1).forEach(otherContact => {
-        if (processed.has(otherContact.id)) return;
-
-        const duplicateReasons: string[] = [];
-
-        // Same email
-        if (contact.email && otherContact.email &&
-            contact.email.toLowerCase() === otherContact.email.toLowerCase()) {
-          duplicateReasons.push('Same email');
+    // Group by EXACT same phone
+    const phoneMap = new Map<string, Contact[]>();
+    contacts.forEach(contact => {
+      if (contact.phone && contact.phone.trim()) {
+        const key = contact.phone.replace(/\D/g, '');
+        if (key.length >= 7) { // Only match real phone numbers
+          if (!phoneMap.has(key)) phoneMap.set(key, []);
+          phoneMap.get(key)!.push(contact);
         }
+      }
+    });
 
-        // Same phone
-        if (contact.phone && otherContact.phone &&
-            contact.phone.replace(/\D/g, '') === otherContact.phone.replace(/\D/g, '')) {
-          duplicateReasons.push('Same phone');
-        }
+    // Group by EXACT same full name + same company (must have both first AND last name)
+    const nameCompanyMap = new Map<string, Contact[]>();
+    contacts.forEach(contact => {
+      if (contact.firstName && contact.lastName && contact.company?.name) {
+        const key = `${contact.firstName.toLowerCase().trim()}|${contact.lastName.toLowerCase().trim()}|${contact.company.name.toLowerCase().trim()}`;
+        if (!nameCompanyMap.has(key)) nameCompanyMap.set(key, []);
+        nameCompanyMap.get(key)!.push(contact);
+      }
+    });
 
-        // Similar name + same company
-        const nameMatch =
-          contact.firstName?.toLowerCase() === otherContact.firstName?.toLowerCase() &&
-          contact.lastName?.toLowerCase() === otherContact.lastName?.toLowerCase();
-        const companyMatch = contact.company?.name === otherContact.company?.name && contact.company?.name;
+    // Collect groups with 2+ contacts (actual duplicates)
+    const addedGroups = new Set<string>();
 
-        if (nameMatch && companyMatch) {
-          duplicateReasons.push('Same name and company');
-        }
-
-        if (duplicateReasons.length > 0) {
-          group.push(otherContact);
-          processed.add(otherContact.id);
-        }
-      });
-
+    emailMap.forEach((group, key) => {
       if (group.length > 1) {
-        duplicates.push(group);
+        const groupKey = group.map(c => c.id).sort().join(',');
+        if (!addedGroups.has(groupKey)) {
+          addedGroups.add(groupKey);
+          duplicates.push(group);
+          group.forEach(c => processed.add(c.id));
+        }
+      }
+    });
+
+    phoneMap.forEach((group) => {
+      if (group.length > 1) {
+        // Only add if not already covered by email match
+        const ungrouped = group.filter(c => !processed.has(c.id));
+        if (ungrouped.length > 1) {
+          duplicates.push(group);
+          group.forEach(c => processed.add(c.id));
+        }
+      }
+    });
+
+    nameCompanyMap.forEach((group) => {
+      if (group.length > 1) {
+        const ungrouped = group.filter(c => !processed.has(c.id));
+        if (ungrouped.length > 1) {
+          duplicates.push(group);
+          group.forEach(c => processed.add(c.id));
+        }
       }
     });
 
@@ -366,7 +388,7 @@ export function ContactList() {
     setShowDuplicates(true);
 
     if (duplicates.length === 0) {
-      alert('🎉 No duplicates found! Your contact list is clean.');
+      alert('No duplicates found. Your contact list is clean.');
     }
   };
 
@@ -1133,10 +1155,18 @@ export function ContactList() {
               </p>
               {duplicateGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className="mb-4 border border-[#2a2a44] rounded-lg overflow-hidden">
-                  <div className="bg-[#1e1e36] px-4 py-2.5 border-b border-[#2a2a44]">
+                  <div className="bg-[#1e1e36] px-4 py-2.5 border-b border-[#2a2a44] flex items-center justify-between">
                     <h3 className="font-semibold text-sm text-[#F1F5F9]">
                       Group {groupIndex + 1} — {group.length} contacts
                     </h3>
+                    <span className="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded">
+                      {group[0]?.email && group.every(c => c.email?.toLowerCase() === group[0].email?.toLowerCase())
+                        ? `Same email: ${group[0].email}`
+                        : group[0]?.phone && group.every(c => c.phone?.replace(/\D/g, '') === group[0].phone?.replace(/\D/g, ''))
+                        ? `Same phone: ${group[0].phone}`
+                        : `Same name at ${group[0]?.company?.name || 'same company'}`
+                      }
+                    </span>
                   </div>
                   <div className="divide-y divide-[#2a2a44]">
                     {group.map((contact, contactIdx) => {
