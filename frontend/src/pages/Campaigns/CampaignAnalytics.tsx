@@ -248,11 +248,39 @@ export default function CampaignAnalytics() {
           </div>
 
           <div className="flex gap-3">
-            <button className="px-4 py-2 border-2 border-[#33335a] rounded-lg hover:bg-[#12121f] transition-colors font-medium flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (!analytics) return;
+                const rows = [['Name', 'Email', 'Company', 'Status', 'Opens', 'Clicks', 'Engagement']];
+                analytics.emailLogs.forEach(log => {
+                  rows.push([
+                    `${log.contact.firstName} ${log.contact.lastName}`,
+                    log.contact.email,
+                    log.contact.company?.name || '',
+                    log.status,
+                    String(log.totalOpens),
+                    String(log.totalClicks),
+                    String(log.engagementScore),
+                  ]);
+                });
+                const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${analytics.campaign.name.replace(/[^a-zA-Z0-9]/g, '_')}_report.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="px-4 py-2 border-2 border-[#33335a] rounded-lg hover:bg-[#12121f] transition-colors font-medium flex items-center gap-2"
+            >
               <Download className="w-4 h-4" />
               Export Report
             </button>
-            <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-medium flex items-center gap-2">
+            <button
+              onClick={() => navigate('/campaigns')}
+              className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors font-medium flex items-center gap-2"
+            >
               <Send className="w-4 h-4" />
               Send Follow-up
             </button>
