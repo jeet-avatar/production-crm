@@ -467,7 +467,7 @@ export function ContactList() {
       {/* Main Container with Border */}
       <div className="apple-container">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-300 bg-gray-50">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-[#2a2a44] bg-[#12121f]">
           <div className="flex-1">
             <div className="flex items-center gap-4 mb-2">
               <h1 className="apple-heading-1">Contacts</h1>
@@ -486,16 +486,16 @@ export function ContactList() {
 
           {/* First-time user help banner */}
           {!hasSeenHelpGuide && (
-            <div className="bg-gray-100 border border-gray-300 rounded-2xl p-6 mb-6 flex items-center justify-between shadow-lg animate-in slide-in-from-top duration-500">
+            <div className="bg-[#1e1e36] border border-[#2a2a44] rounded-2xl p-6 mb-6 flex items-center justify-between shadow-lg animate-in slide-in-from-top duration-500">
               <div className="flex items-center gap-4">
                 <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-4 border border-indigo-500/30">
                   <LightBulbIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
+                  <h3 className="text-xl font-bold text-[#F1F5F9] mb-1">
                     👋 Welcome to Contacts!
                   </h3>
-                  <p className="text-gray-700">
+                  <p className="text-[#CBD5E1]">
                     Learn how to add contacts, import CSV files, discover leads, and build your customer base
                   </p>
                 </div>
@@ -518,7 +518,7 @@ export function ContactList() {
                     localStorage.setItem('contactsHelpSeen', 'true');
                     setHasSeenHelpGuide(true);
                   }}
-                  className="text-gray-400 hover:text-gray-500 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="text-[#64748B] hover:text-[#94A3B8] p-2 rounded-lg hover:bg-[#1e1e36] transition-colors"
                   aria-label="Dismiss help banner"
                 >
                   <XMarkIcon className="w-6 h-6" />
@@ -539,7 +539,7 @@ export function ContactList() {
               <ArrowDownTrayIcon className="h-5 w-5" />
               <span>Export CSV</span>
               {selectedContacts.size > 0 && (
-                <span className="ml-1 px-2 py-0.5 bg-white text-white rounded-full text-xs font-bold">
+                <span className="ml-1 px-2 py-0.5 bg-[#161625] text-white rounded-full text-xs font-bold">
                   {selectedContacts.size}
                 </span>
               )}
@@ -590,17 +590,17 @@ export function ContactList() {
         </div>
 
         {/* Filters */}
-        <div className="p-6 border-b border-gray-300 bg-gray-50">
+        <div className="p-6 border-b border-[#2a2a44] bg-[#12121f]">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
-            <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#64748B]" />
             <input
               type="text"
               placeholder="Search contacts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="apple-input w-full pl-10"
+              className="w-full pl-10 bg-[#252540] border border-[#3d3d5c] rounded-lg text-[#F1F5F9] px-4 py-2.5 text-sm outline-none focus:border-indigo-500 placeholder-[#64748B]"
             />
           </div>
 
@@ -609,7 +609,7 @@ export function ContactList() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="apple-input"
+              className="bg-[#252540] border border-[#3d3d5c] rounded-lg text-[#F1F5F9] px-4 py-2.5 text-sm outline-none focus:border-indigo-500"
               title="Filter by status"
             >
               <option value="">All Statuses</option>
@@ -628,14 +628,14 @@ export function ContactList() {
 
         {/* Error Message - Only show for critical errors, not for empty states */}
         {error && contacts.length === 0 && !loading && (
-          <div className="mx-6 my-4 bg-gray-100 border border-gray-300 rounded-xl p-6">
+          <div className="mx-6 my-4 bg-[#1e1e36] border border-[#2a2a44] rounded-xl p-6">
             <div className="flex items-start gap-4">
               <div className="flex-shrink-0">
                 <QuestionMarkCircleIcon className="h-8 w-8 text-indigo-400" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Having trouble loading data?</h3>
-                <p className="text-sm text-gray-700 mb-4">
+                <h3 className="text-lg font-semibold text-[#F1F5F9] mb-2">Having trouble loading data?</h3>
+                <p className="text-sm text-[#CBD5E1] mb-4">
                   We're here to help! Our support team will get back to you shortly.
                 </p>
                 <button
@@ -655,16 +655,16 @@ export function ContactList() {
 
         {/* Bulk Actions Toolbar */}
         {selectedContacts.size > 0 && (
-          <div className="mx-6 my-4 bg-gray-100 border border-gray-300 rounded-xl p-4">
+          <div className="mx-6 my-4 bg-[#1e1e36] border border-[#2a2a44] rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <span className="text-lg font-bold text-gray-900">
+                <span className="text-lg font-bold text-[#F1F5F9]">
                   {selectedContacts.size} contact{selectedContacts.size > 1 ? 's' : ''} selected
                 </span>
                 <button
                   type="button"
                   onClick={() => setSelectedContacts(new Set())}
-                  className="text-sm text-gray-500 hover:text-gray-900 underline"
+                  className="text-sm text-[#94A3B8] hover:text-[#F1F5F9] underline"
                 >
                   Clear selection
                 </button>
@@ -673,7 +673,7 @@ export function ContactList() {
                 <button
                   type="button"
                   onClick={handleExportCSV}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-semibold rounded-lg border-2 border-gray-300 hover:border-indigo-500 transition-all"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#161625] text-[#CBD5E1] font-semibold rounded-lg border-2 border-[#2a2a44] hover:border-indigo-500 transition-all"
                 >
                   <ArrowDownTrayIcon className="h-4 w-4" />
                   <span>Export Selected</span>
@@ -702,7 +702,7 @@ export function ContactList() {
                     type="checkbox"
                     checked={contacts.length > 0 && selectedContacts.size === contacts.length}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500 cursor-pointer"
+                    className="w-4 h-4 rounded border-[#2a2a44] text-indigo-400 focus:ring-indigo-500 cursor-pointer"
                     title="Select all contacts"
                   />
                 </th>
@@ -725,9 +725,9 @@ export function ContactList() {
                     {searchTerm || statusFilter ? (
                       // No results found state (when filters are active)
                       <>
-                        <MagnifyingGlassIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No contacts found</h3>
-                        <p className="text-sm text-gray-500 mb-6">
+                        <MagnifyingGlassIcon className="h-16 w-16 text-[#64748B] mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-[#F1F5F9] mb-2">No contacts found</h3>
+                        <p className="text-sm text-[#94A3B8] mb-6">
                           Try adjusting your search or filters to find what you're looking for
                         </p>
                         <button
@@ -745,9 +745,9 @@ export function ContactList() {
                     ) : (
                       // No data uploaded state (when no filters are active)
                       <>
-                        <UserIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Uploaded</h3>
-                        <p className="text-sm text-gray-500 mb-6">Get started by adding contacts or importing from CSV</p>
+                        <UserIcon className="h-16 w-16 text-[#64748B] mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-[#F1F5F9] mb-2">No Data Uploaded</h3>
+                        <p className="text-sm text-[#94A3B8] mb-6">Get started by adding contacts or importing from CSV</p>
                         <div className="flex items-center justify-center gap-3">
                           <button
                             type="button"
@@ -779,14 +779,14 @@ export function ContactList() {
                   return (
                     <React.Fragment key={companyName}>
                       {/* Company header row with first contact */}
-                      <tr className="hover:bg-gray-50">
+                      <tr className="hover:bg-[#12121f]">
                         <td className="table-cell w-12">
                           <input
                             type="checkbox"
                             checked={selectedContacts.has(displayContact.id)}
                             onChange={() => toggleContactSelection(displayContact.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-4 h-4 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500 cursor-pointer"
+                            className="w-4 h-4 rounded border-[#2a2a44] text-indigo-400 focus:ring-indigo-500 cursor-pointer"
                             aria-label={`Select ${displayContact.firstName} ${displayContact.lastName}`}
                           />
                         </td>
@@ -799,12 +799,12 @@ export function ContactList() {
                                   e.stopPropagation();
                                   toggleCompany(companyName);
                                 }}
-                                className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                className="p-1 hover:bg-[#252540] rounded transition-colors"
                               >
                                 {isExpanded ? (
-                                  <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+                                  <ChevronDownIcon className="h-4 w-4 text-[#94A3B8]" />
                                 ) : (
-                                  <ChevronRightIcon className="h-4 w-4 text-gray-500" />
+                                  <ChevronRightIcon className="h-4 w-4 text-[#94A3B8]" />
                                 )}
                               </button>
                             )}
@@ -815,15 +815,15 @@ export function ContactList() {
                               {displayContact.firstName?.[0] || '?'}{displayContact.lastName?.[0] || '?'}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900 cursor-pointer hover:text-indigo-400" onClick={() => navigate(`/contacts/${displayContact.id}`)}>
+                              <div className="font-medium text-[#F1F5F9] cursor-pointer hover:text-indigo-400" onClick={() => navigate(`/contacts/${displayContact.id}`)}>
                                 {displayContact.firstName || 'No'} {displayContact.lastName || 'Name'}
                                 {hasMultipleContacts && (
-                                  <span className="ml-2 text-xs text-gray-500">
+                                  <span className="ml-2 text-xs text-[#94A3B8]">
                                     +{companyContacts.length - 1} more
                                   </span>
                                 )}
                               </div>
-                              <div className="text-gray-500 text-sm flex items-center">
+                              <div className="text-[#94A3B8] text-sm flex items-center">
                                 <EnvelopeIcon className="h-4 w-4 mr-1" />
                                 {displayContact.email || 'No email'}
                               </div>
@@ -836,13 +836,13 @@ export function ContactList() {
                               {displayContact.role}
                             </span>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-[#64748B]">-</span>
                           )}
                         </td>
                         <td className="table-cell">
                           <div className="flex items-center gap-2">
-                            <BuildingOfficeIcon className="h-4 w-4 text-gray-500" />
-                            <span className="font-medium text-gray-900">{companyName}</span>
+                            <BuildingOfficeIcon className="h-4 w-4 text-[#94A3B8]" />
+                            <span className="font-medium text-[#F1F5F9]">{companyName}</span>
                           </div>
                         </td>
                         <td className="table-cell">
@@ -864,24 +864,24 @@ export function ContactList() {
                                         : 'bg-yellow-500/15 text-yellow-400'
                                     }`
                                   : key.toLowerCase().includes('budget')
-                                  ? 'font-medium text-gray-900'
-                                  : 'text-gray-700'
+                                  ? 'font-medium text-[#F1F5F9]'
+                                  : 'text-[#CBD5E1]'
                               }`}>
                                 {displayContact.customFields[key]}
                               </span>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-[#64748B]">-</span>
                             )}
                           </td>
                         ))}
                         <td className="table-cell">
                           {displayContact.phone ? (
-                            <div className="flex items-center text-gray-900">
+                            <div className="flex items-center text-[#F1F5F9]">
                               <PhoneIcon className="h-4 w-4 mr-1" />
                               {displayContact.phone}
                             </div>
                           ) : (
-                            <span className="text-gray-400">-</span>
+                            <span className="text-[#64748B]">-</span>
                           )}
                         </td>
                         <td className="table-cell">
@@ -914,7 +914,7 @@ export function ContactList() {
                       {isExpanded && hasMultipleContacts && companyContacts.slice(1).map((contact) => (
                         <tr
                           key={contact.id}
-                          className="hover:bg-gray-50 bg-gray-50/50"
+                          className="hover:bg-[#12121f] bg-[#12121f]/50"
                         >
                           <td className="table-cell">
                             <div className="flex items-center space-x-3 pl-12">
@@ -925,10 +925,10 @@ export function ContactList() {
                                 {contact.firstName?.[0] || '?'}{contact.lastName?.[0] || '?'}
                               </div>
                               <div>
-                                <div className="font-medium text-gray-900 cursor-pointer hover:text-indigo-400" onClick={() => navigate(`/contacts/${contact.id}`)}>
+                                <div className="font-medium text-[#F1F5F9] cursor-pointer hover:text-indigo-400" onClick={() => navigate(`/contacts/${contact.id}`)}>
                                   {contact.firstName || 'No'} {contact.lastName || 'Name'}
                                 </div>
-                                <div className="text-gray-500 text-sm flex items-center">
+                                <div className="text-[#94A3B8] text-sm flex items-center">
                                   <EnvelopeIcon className="h-4 w-4 mr-1" />
                                   {contact.email || 'No email'}
                                 </div>
@@ -941,11 +941,11 @@ export function ContactList() {
                                 {contact.role}
                               </span>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-[#64748B]">-</span>
                             )}
                           </td>
                           <td className="table-cell">
-                            <span className="text-gray-400 text-sm">↳ Same company</span>
+                            <span className="text-[#64748B] text-sm">↳ Same company</span>
                           </td>
                           <td className="table-cell">
                             <span className={statusColors[contact.status]}>
@@ -966,24 +966,24 @@ export function ContactList() {
                                           : 'bg-yellow-500/15 text-yellow-400'
                                       }`
                                     : key.toLowerCase().includes('budget')
-                                    ? 'font-medium text-gray-900'
-                                    : 'text-gray-700'
+                                    ? 'font-medium text-[#F1F5F9]'
+                                    : 'text-[#CBD5E1]'
                                 }`}>
                                   {contact.customFields[key]}
                                 </span>
                               ) : (
-                                <span className="text-gray-400">-</span>
+                                <span className="text-[#64748B]">-</span>
                               )}
                             </td>
                           ))}
                           <td className="table-cell">
                             {contact.phone ? (
-                              <div className="flex items-center text-gray-900">
+                              <div className="flex items-center text-[#F1F5F9]">
                                 <PhoneIcon className="h-4 w-4 mr-1" />
                                 {contact.phone}
                               </div>
                             ) : (
-                              <span className="text-gray-400">-</span>
+                              <span className="text-[#64748B]">-</span>
                             )}
                           </td>
                           <td className="table-cell">
@@ -1022,13 +1022,13 @@ export function ContactList() {
 
         {/* Pagination */}
         {totalCompanies > 0 && (
-          <div className="border-t-2 border-gray-300 px-6 py-5 flex items-center justify-between bg-gray-50">
+          <div className="border-t-2 border-[#2a2a44] px-6 py-5 flex items-center justify-between bg-[#12121f]">
             <div className="flex items-center gap-4">
-              <div className="text-sm font-semibold text-gray-700">
+              <div className="text-sm font-semibold text-[#CBD5E1]">
                 Showing {startIndex} to {endIndex} of {totalCompanies} companies ({totalContacts} contacts total)
               </div>
               <div className="flex items-center gap-2">
-                <label htmlFor="contactsPerPage" className="text-sm text-gray-500">
+                <label htmlFor="contactsPerPage" className="text-sm text-[#94A3B8]">
                   Show:
                 </label>
                 <select
@@ -1038,13 +1038,13 @@ export function ContactList() {
                     setContactsPerPage(Number(e.target.value));
                     setCurrentPage(1); // Reset to first page when changing page size
                   }}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="px-3 py-1.5 text-sm border border-[#2a2a44] rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value={10}>10</option>
                   <option value={15}>15</option>
                   <option value={20}>20</option>
                 </select>
-                <span className="text-sm text-gray-500">companies per page</span>
+                <span className="text-sm text-[#94A3B8]">companies per page</span>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -1055,7 +1055,7 @@ export function ContactList() {
               >
                 Previous
               </button>
-              <span className="text-sm font-semibold text-gray-700 px-3">
+              <span className="text-sm font-semibold text-[#CBD5E1] px-3">
                 Page {currentPage} of {totalPages}
               </span>
               <button
@@ -1124,7 +1124,7 @@ export function ContactList() {
               <button
                 type="button"
                 onClick={() => setShowDuplicates(false)}
-                className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+                className="text-white hover:bg-[#161625]/20 rounded-lg p-2 transition-colors"
               >
                 <XMarkIcon className="h-5 w-5" />
               </button>
@@ -1284,8 +1284,8 @@ export function ContactList() {
         aria-label="Open help guide"
       >
         {/* Main button - smaller and subtle */}
-        <div className="relative bg-white hover:bg-gray-50 rounded-full p-2 shadow-lg border-2 border-gray-300 hover:border-indigo-500 hover:scale-105 transition-all duration-200">
-          <QuestionMarkCircleIcon className="w-5 h-5 text-gray-500 group-hover:text-indigo-400" />
+        <div className="relative bg-[#161625] hover:bg-[#12121f] rounded-full p-2 shadow-lg border-2 border-[#2a2a44] hover:border-indigo-500 hover:scale-105 transition-all duration-200">
+          <QuestionMarkCircleIcon className="w-5 h-5 text-[#94A3B8] group-hover:text-indigo-400" />
         </div>
 
         {/* Tooltip */}
