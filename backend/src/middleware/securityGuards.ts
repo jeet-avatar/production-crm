@@ -49,8 +49,15 @@ export function sanitizeInputGuard(req: Request, res: Response, next: NextFuncti
  */
 export function sqlInjectionGuard(req: Request, res: Response, next: NextFunction) {
   try {
-    // Skip AI chat routes - they need to accept natural language with SQL-like words
-    if (req.path.startsWith('/ai-chat')) {
+    // Skip routes that accept natural language / HTML content — these legitimately
+    // contain words like "SELECT", "CREATE", "DROP", "ALTER" in normal English
+    if (req.path.startsWith('/ai-chat') ||
+        req.path.startsWith('/campaigns') ||
+        req.path.startsWith('/email-templates') ||
+        req.path.startsWith('/video-campaigns') ||
+        req.path.startsWith('/staffing') ||
+        req.path.startsWith('/email-composer') ||
+        req.path.startsWith('/ai-code')) {
       return next();
     }
 
