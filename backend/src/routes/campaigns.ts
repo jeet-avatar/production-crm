@@ -15,9 +15,23 @@ router.use(authenticate);
 // GET /api/campaigns - Get all campaigns
 router.get('/', async (req, res, next) => {
   try {
+    // Team-aware: show own campaigns + account owner's campaigns for team members
+    const userIds = [req.user?.id];
+    if (req.user?.teamRole === 'MEMBER' && req.user?.accountOwnerId) {
+      userIds.push(req.user.accountOwnerId);
+    }
+    if (req.user?.teamRole === 'OWNER') {
+      // Owner sees all team members' campaigns too
+      const teamMembers = await prisma.user.findMany({
+        where: { accountOwnerId: req.user.id },
+        select: { id: true },
+      });
+      teamMembers.forEach(m => userIds.push(m.id));
+    }
+
     const campaigns = await prisma.campaign.findMany({
       where: {
-        userId: req.user?.id, // ✅ Data isolation - only user's campaigns
+        userId: { in: userIds.filter(Boolean) as string[] },
       },
       include: {
         _count: {
