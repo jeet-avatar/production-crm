@@ -262,15 +262,17 @@ router.post('/ai/generate-basics', async (req, res, next) => {
   try {
     const { tone, description } = req.body;
 
-    const prompt = `You are an expert email marketer. Generate a creative campaign name and compelling goal for an email marketing campaign.
+    const prompt = `You are the head of business development at BrandMonkz, a premium technology staffing company. Generate a campaign name and goal for an outreach email campaign.
+
+Your company (BrandMonkz) provides pre-vetted technology talent to enterprise clients — AI/ML engineers, cloud architects, cybersecurity analysts, full-stack developers, data engineers, DevOps specialists, and more.
 
 Tone: ${tone || 'professional'}
-Campaign Brief: ${description || 'a general marketing campaign'}
+Campaign Brief: ${description || 'Reach out to enterprise companies about our technology staffing services'}
 
-Generate a campaign name and goal that is directly relevant to the campaign brief above.
+Generate a short, punchy campaign name and a clear business goal. The goal should focus on getting meetings/calls with hiring managers.
 
-Return ONLY valid JSON with this structure:
-{"name": "Campaign Name Here", "goal": "Detailed campaign goal describing what you want to achieve with this campaign..."}`;
+Return ONLY valid JSON:
+{"name": "Short Campaign Name", "goal": "One sentence goal focused on business outcome"}`;
 
     const message = await anthropic.messages.create({
       ...getAIMessageConfig('basic'),
@@ -305,20 +307,27 @@ router.post('/ai/generate-subject', async (req, res, next) => {
       });
     }
 
-    const prompt = `You are an expert email marketer. Generate compelling email subject lines for this campaign.
+    const prompt = `You are a staffing sales executive at BrandMonkz writing subject lines for outreach emails to hiring managers at enterprise companies.
+
 Campaign Goal: ${goal}
 Tone: ${tone}
 Campaign Name: ${campaignName}
 
-Generate 5 different subject line variants optimized for A/B testing. Each should use different psychological triggers:
-1. Curiosity-based
-2. Value-driven
-3. Urgency/scarcity
-4. Social proof
-5. Direct benefit
+Write 5 short, human subject lines (under 60 chars) that a real person would send. NOT marketing-speak. Think: what would you write to a VP of Engineering you want to grab coffee with?
 
-Return ONLY valid JSON with this structure:
-{"variants": ["variant 1", "variant 2", "variant 3", "variant 4", "variant 5"]}`;
+Use {{companyName}} where the company name should go.
+
+Examples of GOOD subject lines:
+- "Quick question about {{companyName}}'s AI team"
+- "{{companyName}} + BrandMonkz — 3 engineers ready this week"
+- "Saw {{companyName}} is hiring cloud architects"
+
+Examples of BAD subject lines (too salesy/generic):
+- "Unlock Your Hiring Potential Today!"
+- "Revolutionary Staffing Solutions Await"
+
+Return ONLY valid JSON:
+{"variants": ["line 1", "line 2", "line 3", "line 4", "line 5"]}`;
 
     const message = await anthropic.messages.create({
       ...getAIMessageConfig('subject'),
@@ -358,24 +367,39 @@ router.post('/ai/generate-content', async (req, res, next) => {
       });
     }
 
-    const prompt = `You are an expert email marketer. Generate professional HTML email content for this campaign.
+    const prompt = `You are a senior business development executive at BrandMonkz, a premium technology staffing firm. Write a professional outreach email to a hiring manager.
+
 Campaign Goal: ${goal}
 Subject Line: ${subject}
 Tone: ${tone}
-Personalization: ${personalization || 'None'}
+Personalization: Use {{firstName}} for the recipient's first name and {{companyName}} for their company name.
 
-Create a compelling email body in HTML format. Include a preview text (the first line that appears in inbox previews).
+Write an email that:
+1. Opens with "Hi {{firstName}}," — warm and personal
+2. References {{companyName}} specifically — show you know their company
+3. Gets to the point in 2-3 short paragraphs — what you offer and why they should care
+4. Includes 3-5 bullet points of specific value (e.g. "48-hour candidate delivery", "Pre-vetted engineers", specific tech roles available)
+5. Ends with a simple CTA: "Would you be open to a 15-minute call this week?"
+6. Signs off as "Best, BrandMonkz Staffing Team"
 
-IMPORTANT: Return ONLY valid JSON. Make sure all quotes inside the HTML are properly escaped.
-Use this exact structure:
-{"content": "<html>...</html>", "previewText": "..."}
+DO NOT:
+- Use marketing buzzwords like "synergy", "leverage", "revolutionize"
+- Write more than 250 words
+- Use ALL CAPS or excessive exclamation marks
+- Sound like a mass email — this should feel like a personal note
 
-The HTML should be professional, mobile-responsive, and include:
-- A clear headline
-- Engaging body copy aligned with the goal
-- A call-to-action button
-- Professional styling with inline CSS
-- Use single quotes for HTML attributes to avoid JSON escaping issues`;
+Format as clean HTML with:
+- A gradient header bar (background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)) with the campaign headline in white
+- Body on white background (#ffffff) with dark text (#333333)
+- Bullet points styled clearly
+- A centered CTA button with the gradient background
+- Professional font: 'Segoe UI', Arial, sans-serif
+- Max width 600px, centered
+- All CSS must be INLINE (no <style> tags)
+- Use SINGLE QUOTES for all HTML attributes
+
+IMPORTANT: Return ONLY valid JSON. Escape all quotes properly.
+{"content": "<div style='...'>full HTML email here</div>", "previewText": "First line preview"}`;
 
     const message = await anthropic.messages.create({
       ...getAIMessageConfig('content'),
