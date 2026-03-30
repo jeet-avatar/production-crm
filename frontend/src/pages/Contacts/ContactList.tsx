@@ -1081,56 +1081,46 @@ export function ContactList() {
 
       {/* Duplicates Modal */}
       {showDuplicates && duplicateGroups.length > 0 && (
-        <div style={{ background: "rgba(0,0,0,0.8)" }} className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-white">
-                Found {duplicateGroups.reduce((sum, group) => sum + group.length, 0)} Duplicates in {duplicateGroups.length} Group(s)
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" style={{ paddingLeft: '272px', paddingTop: '16px', paddingRight: '16px', paddingBottom: '16px' }}>
+          <div className="bg-[#161625] rounded-2xl shadow-2xl border border-[#2a2a44] max-w-3xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-6 py-5 flex items-center justify-between rounded-t-2xl">
+              <h2 className="text-xl font-bold text-white">
+                Found {duplicateGroups.reduce((sum, group) => sum + group.length, 0)} Duplicates in {duplicateGroups.length} Group{duplicateGroups.length !== 1 ? 's' : ''}
               </h2>
               <button
                 type="button"
                 onClick={() => setShowDuplicates(false)}
-                className="text-white hover:bg-black hover:bg-opacity-10 rounded-full p-2 transition-colors"
-                aria-label="Close duplicates modal"
+                className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
-              <p className="text-gray-700 mb-6">
-                Review the duplicate groups below. Select the contacts you want to keep, then delete the rest.
+            <div className="p-6 overflow-y-auto flex-1">
+              <p className="text-[#94A3B8] mb-4 text-sm">
+                Select the duplicates you want to remove. Uncheck the ones you want to keep.
               </p>
               {duplicateGroups.map((group, groupIndex) => (
-                <div key={groupIndex} className="mb-6 border border-gray-300 rounded-xl p-4 bg-gray-100">
-                  <h3 className="font-bold text-lg mb-3 text-gray-900">
-                    Duplicate Group {groupIndex + 1} ({group.length} contacts)
-                  </h3>
-                  <div className="space-y-2">
+                <div key={groupIndex} className="mb-4 border border-[#2a2a44] rounded-lg overflow-hidden">
+                  <div className="bg-[#1e1e36] px-4 py-2.5 border-b border-[#2a2a44]">
+                    <h3 className="font-semibold text-sm text-[#F1F5F9]">
+                      Group {groupIndex + 1} — {group.length} contacts
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-[#2a2a44]">
                     {group.map(contact => (
-                      <div key={contact.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-300">
-                        <div className="flex items-center gap-3 flex-1">
-                          <input
-                            type="checkbox"
-                            checked={selectedContacts.has(contact.id)}
-                            onChange={() => toggleContactSelection(contact.id)}
-                            className="w-4 h-4 rounded border-gray-300 text-indigo-400 focus:ring-indigo-500 cursor-pointer"
-                            aria-label={`Select ${contact.firstName} ${contact.lastName}`}
-                          />
-                          <div className="apple-avatar">
-                            {contact.firstName?.[0]}{contact.lastName?.[0]}
+                      <div key={contact.id} className="flex items-center gap-3 px-4 py-3 bg-[#161625] hover:bg-[#1e1e36] transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedContacts.has(contact.id)}
+                          onChange={() => toggleContactSelection(contact.id)}
+                          className="w-4 h-4 rounded border-[#3d3d5c] text-indigo-500 focus:ring-indigo-500 cursor-pointer"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-[#F1F5F9] text-sm">
+                            {contact.firstName} {contact.lastName}
                           </div>
-                          <div className="flex-1">
-                            <div className="font-medium text-gray-900">
-                              {contact.firstName} {contact.lastName}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {contact.email} {contact.phone && `• ${contact.phone}`}
-                            </div>
-                            {contact.company && (
-                              <div className="text-xs text-gray-500">
-                                {contact.company.name}
-                              </div>
-                            )}
+                          <div className="text-xs text-[#94A3B8]">
+                            {contact.email}{contact.phone && ` • ${contact.phone}`}{contact.company && ` • ${contact.company.name}`}
                           </div>
                         </div>
                       </div>
@@ -1139,15 +1129,15 @@ export function ContactList() {
                 </div>
               ))}
             </div>
-            <div className="border-t border-gray-300 p-6 bg-gray-50 flex items-center justify-between">
-              <div className="text-sm text-gray-500">
-                {selectedContacts.size} contact(s) selected
+            <div className="border-t border-[#2a2a44] px-6 py-4 bg-[#12121f] flex items-center justify-between">
+              <div className="text-sm text-[#94A3B8]">
+                {selectedContacts.size} selected for removal
               </div>
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowDuplicates(false)}
-                  className="px-6 py-2 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  className="px-5 py-2.5 border border-[#3d3d5c] rounded-lg font-medium text-[#94A3B8] hover:bg-[#1e1e36] hover:text-[#F1F5F9] transition-colors text-sm"
                 >
                   Cancel
                 </button>
@@ -1162,7 +1152,7 @@ export function ContactList() {
                     setShowDuplicates(false);
                   }}
                   disabled={selectedContacts.size === 0}
-                  className="px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-lg font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Delete Selected ({selectedContacts.size})
                 </button>
