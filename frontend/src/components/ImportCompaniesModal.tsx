@@ -290,7 +290,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
             <h2 className="text-3xl font-bold text-white">Import Companies with AI Enhancement</h2>
             <button
               onClick={handleClose}
-              className="w-10 h-10 rounded-full bg-[#161625]/20 hover:bg-[#161625]/30 flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
             >
               <XMarkIcon className="w-6 h-6 text-white" />
             </button>
@@ -519,7 +519,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
         <div className="bg-[#12121f] px-8 py-6 border-t border-[#2a2a44] flex justify-between items-center">
           <button
             onClick={handleClose}
-            className="px-6 py-3 border-2 border-gray-400 rounded-lg font-medium text-[#CBD5E1] hover:bg-[#1c1c30] transition-colors"
+            className="px-6 py-3 border border-[#3d3d5c] rounded-lg font-medium text-[#94A3B8] hover:bg-[#1e1e36] hover:text-[#F1F5F9] transition-colors"
             disabled={importing}
           >
             Cancel
@@ -528,7 +528,7 @@ export function ImportCompaniesModal({ isOpen, onClose, onImportComplete }: Impo
             {currentStep > 1 && currentStep < 3 && (
               <button
                 onClick={() => setCurrentStep(currentStep - 1)}
-                className="px-6 py-3 border-2 border-gray-400 rounded-lg font-medium text-[#CBD5E1] hover:bg-[#1c1c30] transition-colors"
+                className="px-6 py-3 border border-[#3d3d5c] rounded-lg font-medium text-[#94A3B8] hover:bg-[#1e1e36] hover:text-[#F1F5F9] transition-colors"
               >
                 Back
               </button>
