@@ -79,19 +79,28 @@ export default function CampaignAnalytics() {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('crmToken');
+
+      // Try the tracking analytics endpoint first (has full engagement data)
+      const trackingRes = await fetch(`${API_URL}/api/tracking/analytics/${campaignId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      if (trackingRes.ok) {
+        const data = await trackingRes.json();
+        setAnalytics(data);
+        setLoading(false);
+        return;
+      }
+
+      // Fallback: use campaign API if tracking endpoint fails
       if (!token) throw new Error('Not logged in');
-
       const headers: Record<string, string> = { Authorization: `Bearer ${token}` };
-
-      // Fetch campaign details (includes companies + contacts)
       const campaignRes = await fetch(`${API_URL}/api/campaigns/${campaignId}`, { headers });
       if (!campaignRes.ok) throw new Error('Campaign not found');
       const campaignData = await campaignRes.json();
       const campaign = campaignData.campaign;
-
       if (!campaign) throw new Error('Campaign not found');
 
-      // Build analytics from campaign data
       const totalSent = campaign.totalSent || campaign._count?.emailLogs || 0;
       const totalOpened = campaign.totalOpened || 0;
       const totalClicked = campaign.totalClicked || 0;
@@ -106,26 +115,12 @@ export default function CampaignAnalytics() {
             for (const contact of company.contacts) {
               emailLogs.push({
                 id: contact.id,
-                contact: {
-                  id: contact.id,
-                  firstName: contact.firstName || '',
-                  lastName: contact.lastName || '',
-                  email: contact.email || '',
-                  company: { name: company.name || '' },
-                },
+                contact: { id: contact.id, firstName: contact.firstName || '', lastName: contact.lastName || '', email: contact.email || '', company: { name: company.name || '' } },
                 status: totalSent > 0 ? 'QUEUED' : 'PENDING',
                 sentAt: campaign.sentAt || campaign.createdAt,
-                totalOpens: 0,
-                totalClicks: 0,
-                engagementScore: 0,
-                firstOpenedAt: null,
-                lastOpenedAt: null,
-                ipAddress: null,
-                deviceType: null,
-                emailClient: null,
-                browser: null,
-                location: null,
-                recentEvents: [],
+                totalOpens: 0, totalClicks: 0, engagementScore: 0,
+                firstOpenedAt: null, lastOpenedAt: null, ipAddress: null,
+                deviceType: null, emailClient: null, browser: null, location: null, recentEvents: [],
               });
             }
           }
@@ -133,21 +128,8 @@ export default function CampaignAnalytics() {
       }
 
       setAnalytics({
-        campaign: {
-          id: campaign.id,
-          name: campaign.name,
-          subject: campaign.subject || '',
-          status: campaign.status,
-          sentAt: campaign.sentAt || campaign.createdAt,
-        },
-        stats: {
-          totalSent: totalSent || emailLogs.length,
-          totalOpened,
-          totalClicked,
-          totalBounced,
-          openRate: totalSent > 0 ? ((totalOpened / totalSent) * 100).toFixed(1) : '0',
-          clickRate: totalSent > 0 ? ((totalClicked / totalSent) * 100).toFixed(1) : '0',
-        },
+        campaign: { id: campaign.id, name: campaign.name, subject: campaign.subject || '', status: campaign.status, sentAt: campaign.sentAt || campaign.createdAt },
+        stats: { totalSent: totalSent || emailLogs.length, totalOpened, totalClicked, totalBounced, openRate: totalSent > 0 ? ((totalOpened / totalSent) * 100).toFixed(1) : '0', clickRate: totalSent > 0 ? ((totalClicked / totalSent) * 100).toFixed(1) : '0' },
         topPerformers: [],
         emailLogs,
       });

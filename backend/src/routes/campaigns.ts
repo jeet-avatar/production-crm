@@ -525,10 +525,12 @@ router.post('/:id/send', async (req, res, next) => {
     const fromEmail = process.env.SMTP_USER || 'noreply@brandmonkz.com';
     const fromName = 'BrandMonkz';
 
+    const TRACKING_BASE = process.env.FRONTEND_URL || 'https://brandmonkz.com';
+
     for (const contact of contacts) {
       try {
         // Replace template variables
-        let subject = campaign.subject;
+        let subjectLine = campaign.subject;
         let html = campaign.htmlContent;
         const vars: Record<string, string> = {
           firstName: contact.firstName || '',
@@ -538,15 +540,14 @@ router.post('/:id/send', async (req, res, next) => {
         };
         for (const [key, val] of Object.entries(vars)) {
           const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-          subject = subject.replace(regex, val);
+          subjectLine = subjectLine.replace(regex, val);
           html = html.replace(regex, val);
         }
 
-        await sendEmail(contact.email, subject, html);
-
-        // Create email log
+        // Create email log FIRST to get the ID for tracking pixel
+        let emailLogId = '';
         try {
-          await prisma.emailLog.create({
+          const emailLog = await prisma.emailLog.create({
             data: {
               toEmail: contact.email,
               fromEmail,
@@ -556,10 +557,25 @@ router.post('/:id/send', async (req, res, next) => {
               contactId: contact.id,
             } as any,
           });
+          emailLogId = emailLog.id;
         } catch {
-          // Log creation failure is non-blocking
+          // Continue without tracking
         }
 
+        // Inject tracking pixel into HTML
+        if (emailLogId) {
+          const trackingPixel = `<img src="${TRACKING_BASE}/api/tracking/open/${emailLogId}" alt="" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" />`;
+          // Insert before closing </body> or </div> or append at end
+          if (html.includes('</body>')) {
+            html = html.replace('</body>', `${trackingPixel}</body>`);
+          } else if (html.includes('</div>')) {
+            html = html.replace(/<\/div>\s*$/, `${trackingPixel}</div>`);
+          } else {
+            html += trackingPixel;
+          }
+        }
+
+        await sendEmail(contact.email, subjectLine, html);
         sent++;
       } catch (err) {
         console.error(`Failed to send to ${contact.email}:`, err);
