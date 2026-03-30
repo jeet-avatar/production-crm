@@ -39,15 +39,15 @@ interface Company {
   name: string;
 }
 
-const statusColors = {
-  LEAD: 'apple-badge apple-badge-blue',
-  PROSPECT: 'apple-badge apple-badge-purple',
-  CUSTOMER: 'apple-badge apple-badge-green',
-  COLD: 'apple-badge',
-  WARM: 'apple-badge apple-badge-yellow',
-  HOT: 'apple-badge apple-badge-red',
-  CLOSED_WON: 'apple-badge apple-badge-green',
-  CLOSED_LOST: 'apple-badge',
+const statusColors: Record<string, string> = {
+  LEAD: 'px-2 py-0.5 rounded text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30',
+  PROSPECT: 'px-2 py-0.5 rounded text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30',
+  CUSTOMER: 'px-2 py-0.5 rounded text-xs font-bold bg-green-500/15 text-green-400 border border-green-500/30',
+  COLD: 'px-2 py-0.5 rounded text-xs font-bold bg-[#252540] text-[#94A3B8] border border-[#3d3d5c]',
+  WARM: 'px-2 py-0.5 rounded text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30',
+  HOT: 'px-2 py-0.5 rounded text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/30',
+  CLOSED_WON: 'px-2 py-0.5 rounded text-xs font-bold bg-green-500/15 text-green-400 border border-green-500/30',
+  CLOSED_LOST: 'px-2 py-0.5 rounded text-xs font-bold bg-[#252540] text-[#94A3B8] border border-[#3d3d5c]',
 };
 
 export function ContactList() {
@@ -465,12 +465,12 @@ export function ContactList() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Main Container with Border */}
-      <div className="apple-container">
+      <div style={{ padding: "0", background: "#0f0f1a", minHeight: "100vh" }}>
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-[#2a2a44] bg-[#12121f]">
           <div className="flex-1">
             <div className="flex items-center gap-4 mb-2">
-              <h1 className="apple-heading-1">Contacts</h1>
+              <h1 style={{ fontSize: "28px", fontWeight: 700, color: "#F1F5F9", margin: 0 }}>Contacts</h1>
               <button
                 type="button"
                 onClick={() => setShowHelpGuide(true)}
@@ -481,7 +481,7 @@ export function ContactList() {
                 <span>Help</span>
               </button>
             </div>
-            <p className="apple-caption">Manage your customer relationships and grow your business</p>
+            <p style={{ fontSize: "14px", color: "#94A3B8", margin: "4px 0 0" }}>Manage your customer relationships and grow your business</p>
           </div>
 
           {/* First-time user help banner */}
@@ -694,7 +694,7 @@ export function ContactList() {
         {/* Contacts Table */}
         <div className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="apple-table">
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
                 <th className="table-header w-12">
@@ -809,7 +809,7 @@ export function ContactList() {
                               </button>
                             )}
                             <div
-                              className="apple-avatar cursor-pointer"
+                              style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #252540, #2d2d4a)', border: '1px solid #3d3d5c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#A5B4FC', fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
                               onClick={() => navigate(`/contacts/${displayContact.id}`)}
                             >
                               {displayContact.firstName?.[0] || '?'}{displayContact.lastName?.[0] || '?'}
@@ -832,7 +832,7 @@ export function ContactList() {
                         </td>
                         <td className="table-cell">
                           {displayContact.role ? (
-                            <span className="apple-badge apple-badge-purple">
+                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
                               {displayContact.role}
                             </span>
                           ) : (
@@ -891,7 +891,7 @@ export function ContactList() {
                                 e.stopPropagation();
                                 handleEditContact(displayContact);
                               }}
-                              className="apple-button-icon"
+                              className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
                               title="Edit contact"
                             >
                               <PencilIcon className="h-4 w-4" />
@@ -901,7 +901,7 @@ export function ContactList() {
                                 e.stopPropagation();
                                 handleDeleteContact(displayContact.id);
                               }}
-                              className="apple-button-icon"
+                              className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
                               title="Delete contact"
                             >
                               <TrashIcon className="h-4 w-4" />
@@ -919,7 +919,7 @@ export function ContactList() {
                           <td className="table-cell">
                             <div className="flex items-center space-x-3 pl-12">
                               <div
-                                className="apple-avatar cursor-pointer"
+                                style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'linear-gradient(135deg, #252540, #2d2d4a)', border: '1px solid #3d3d5c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#A5B4FC', fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
                                 onClick={() => navigate(`/contacts/${contact.id}`)}
                               >
                                 {contact.firstName?.[0] || '?'}{contact.lastName?.[0] || '?'}
@@ -937,7 +937,7 @@ export function ContactList() {
                           </td>
                           <td className="table-cell">
                             {contact.role ? (
-                              <span className="apple-badge apple-badge-purple">
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
                                 {contact.role}
                               </span>
                             ) : (
@@ -993,7 +993,7 @@ export function ContactList() {
                                   e.stopPropagation();
                                   handleEditContact(contact);
                                 }}
-                                className="apple-button-icon"
+                                className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
                                 title="Edit contact"
                               >
                                 <PencilIcon className="h-4 w-4" />
@@ -1003,7 +1003,7 @@ export function ContactList() {
                                   e.stopPropagation();
                                   handleDeleteContact(contact.id);
                                 }}
-                                className="apple-button-icon"
+                                className="p-2 rounded-lg text-[#94A3B8] hover:text-[#F1F5F9] hover:bg-[#1e1e36] transition-colors"
                                 title="Delete contact"
                               >
                                 <TrashIcon className="h-4 w-4" />
