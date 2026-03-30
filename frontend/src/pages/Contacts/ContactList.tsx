@@ -76,6 +76,10 @@ export function ContactList() {
   const [contactsPerPage, setContactsPerPage] = useState(10);
   const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set());
 
+  // Group filter
+  const [groupFilter, setGroupFilter] = useState('');
+  const [availableGroups, setAvailableGroups] = useState<string[]>([]);
+
   // Bulk operations state
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
   const [showBulkActions, setShowBulkActions] = useState(false);
@@ -137,6 +141,14 @@ export function ContactList() {
       const contactsData = response.contacts || [];
       setContacts(contactsData);
       setTotalContacts(response.total || 0);
+
+      // Extract unique groups from company tags
+      const groupSet = new Set<string>();
+      contactsData.forEach((c: any) => {
+        const tags = c.company?.tags || [];
+        if (tags.length > 0 && tags[0]) groupSet.add(tags[0]);
+      });
+      setAvailableGroups(Array.from(groupSet).sort());
 
       // Dynamically detect custom field keys from all contacts
       const customFieldsSet = new Set<string>();
@@ -430,8 +442,15 @@ export function ContactList() {
     setExpandedCompanies(newExpanded);
   };
 
-  // Group contacts by company
-  const groupedContacts: GroupedContacts = contacts.reduce((acc, contact) => {
+  // Filter by group then group by company
+  const filteredByGroup = groupFilter
+    ? contacts.filter(c => {
+        const tags = (c as any).company?.tags || [];
+        return tags.includes(groupFilter);
+      })
+    : contacts;
+
+  const groupedContacts: GroupedContacts = filteredByGroup.reduce((acc, contact) => {
     const companyName = contact.company?.name || 'No Company';
     if (!acc[companyName]) {
       acc[companyName] = [];
@@ -603,12 +622,29 @@ export function ContactList() {
             />
           </div>
 
+          {/* Group Filter */}
+          {availableGroups.length > 0 && (
+            <div className="w-full md:w-auto">
+              <select
+                value={groupFilter}
+                onChange={(e) => { setGroupFilter(e.target.value); setCurrentPage(1); }}
+                style={{ background: '#252540', border: '1px solid #3d3d5c', borderRadius: '8px', color: '#F1F5F9', padding: '10px 14px', fontSize: '13px', outline: 'none' }}
+                title="Filter by group"
+              >
+                <option value="">All Groups</option>
+                {availableGroups.map(g => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Status Filter */}
           <div className="w-full md:w-auto">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[#252540] border border-[#3d3d5c] rounded-lg text-[#F1F5F9] px-4 py-2.5 text-sm outline-none focus:border-indigo-500"
+              style={{ background: '#252540', border: '1px solid #3d3d5c', borderRadius: '8px', color: '#F1F5F9', padding: '10px 14px', fontSize: '13px', outline: 'none' }}
               title="Filter by status"
             >
               <option value="">All Statuses</option>
