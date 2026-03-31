@@ -91,6 +91,7 @@ export function ContactForm({ contact, companies: companiesProp, onClose }: Cont
         status: contact.status,
         tagIds: contact.tags.map(tag => tag.id),
       });
+      setCompanySearch(contact.company?.name || '');
     } else if (contact && contact.id === 'new') {
       // New contact with pre-selected company
       setFormData({
@@ -394,7 +395,7 @@ export function ContactForm({ contact, companies: companiesProp, onClose }: Cont
                       type="text"
                       id="company"
                       placeholder="Start typing company name..."
-                      value={companySearch || (formData.companyId ? companies.find(c => c.id === formData.companyId)?.name || '' : formData.companyName)}
+                      value={companySearch}
                       onChange={(e) => {
                         const val = e.target.value;
                         setCompanySearch(val);
