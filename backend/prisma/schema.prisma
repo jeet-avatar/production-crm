@@ -1028,10 +1028,64 @@ model Contract {
   quote Quote?  @relation(fields: [quoteId], references: [id], onDelete: SetNull)
   user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Signer info
+  signerName        String?
+  signerEmail       String?
+  signerTitle       String?
+
+  // Client signature
+  signatureData     String?   @db.Text
+  signatureType     String?
+  signatureIp       String?
+  signatureAgent    String?   @db.Text
+  signerOtpId       String?
+
+  // Counter-signature
+  counterSignedBy   String?
+  counterSignedAt   DateTime?
+  counterSigData    String?   @db.Text
+  counterSigIp      String?
+  counterSigAgent   String?   @db.Text
+
+  // Document
+  documentHash      String?
+  pdfUrl            String?
+  signingToken      String?   @unique
+  tokenExpiresAt    DateTime?
+
+  // Lifecycle
+  sentAt            DateTime?
+  voidedAt          DateTime?
+  voidedReason      String?
+  remindersSent     Int       @default(0)
+  lastReminderAt    DateTime?
+
+  // Relations
+  otps              ContractOTP[]
+
   @@index([dealId])
   @@index([userId])
   @@index([status])
   @@map("contracts")
+}
+
+model ContractOTP {
+  id          String    @id @default(cuid())
+  contractId  String
+  email       String
+  code        String
+  verified    Boolean   @default(false)
+  verifiedAt  DateTime?
+  verifiedIp  String?
+  expiresAt   DateTime
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  contract    Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@index([contractId])
+  @@index([email])
+  @@map("contract_otps")
 }
 
 // ===================================
@@ -1121,8 +1175,13 @@ enum QuoteStatus {
 enum ContractStatus {
   DRAFT
   SENT_FOR_SIGNATURE
+  VIEWED
+  CLIENT_SIGNED
+  AWAITING_COUNTERSIGN
   SIGNED
   CANCELLED
+  VOIDED
+  EXPIRED
 }
 
 enum VideoCampaignStatus {
