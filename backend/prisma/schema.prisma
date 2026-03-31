@@ -177,6 +177,7 @@ model User {
   videoCampaigns     VideoCampaign[]
   quotes             Quote[]
   contracts          Contract[]
+  placements         Placement[]
 
   // Team relationships
   accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
@@ -1062,6 +1063,7 @@ model Contract {
 
   // Relations
   otps              ContractOTP[]
+  placements        Placement[]
 
   @@index([dealId])
   @@index([userId])
@@ -1378,4 +1380,108 @@ model VideoGenerationJob {
   @@index([status])
   @@index([createdAt])
   @@map("video_generation_jobs")
+}
+
+enum PlacementStage {
+  CONTRACT_SIGNED
+  RESUMES_PENDING
+  RESUMES_SENT
+  CANDIDATE_SELECTED
+  INTERVIEW_SCHEDULING
+  INTERVIEW_CONFIRMED
+  CLIENT_FEEDBACK
+  CREDENTIAL_VERIFICATION
+  PLACEMENT_COMPLETE
+  CANCELLED
+}
+
+enum CandidateStatus {
+  PENDING
+  SENT
+  SELECTED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_CONFIRMED
+  ACCEPTED
+  REJECTED
+  PLACED
+}
+
+model Placement {
+  id              String           @id @default(cuid())
+  contractId      String
+  dealId          String?
+  userId          String
+  clientName      String
+  clientEmail     String
+  clientCompany   String?
+  stage           PlacementStage   @default(CONTRACT_SIGNED)
+  accessToken     String           @unique
+  notes           String?          @db.Text
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  cancelledReason String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  contract        Contract         @relation(fields: [contractId], references: [id])
+  user            User             @relation(fields: [userId], references: [id])
+  candidates      PlacementCandidate[]
+  emails          PlacementEmail[]
+
+  @@index([contractId])
+  @@index([userId])
+  @@index([stage])
+  @@map("placements")
+}
+
+model PlacementCandidate {
+  id                    String           @id @default(cuid())
+  placementId           String
+  candidateCode         String
+  title                 String
+  experienceYears       Int
+  certifications        String[]
+  skills                Json
+  summary               String           @db.Text
+  candidateName         String?
+  candidateEmail        String?
+  candidatePhone        String?
+  resumeUrl             String?
+  resumeType            String
+  status                CandidateStatus  @default(PENDING)
+  selectedAt            DateTime?
+  interviewAt           DateTime?
+  interviewConfirmedAt  DateTime?
+  clientFeedback        String?
+  clientFeedbackReason  String?
+  clientFeedbackAt      DateTime?
+  verificationChecklist Json?
+  placedAt              DateTime?
+  startDate             DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  placement             Placement        @relation(fields: [placementId], references: [id], onDelete: Cascade)
+
+  @@index([placementId])
+  @@index([status])
+  @@map("placement_candidates")
+}
+
+model PlacementEmail {
+  id            String    @id @default(cuid())
+  placementId   String
+  candidateId   String?
+  stage         String
+  emailType     String
+  toEmail       String
+  ccEmail       String?
+  subject       String
+  sentAt        DateTime  @default(now())
+  messageId     String?
+
+  placement     Placement @relation(fields: [placementId], references: [id], onDelete: Cascade)
+
+  @@index([placementId])
+  @@map("placement_emails")
 }
