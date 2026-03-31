@@ -1,0 +1,41 @@
+<h2>How should signers authenticate before signing?</h2>
+<p class="subtitle">Enterprise staffing contracts need the right balance of security and convenience</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Email Link Only</h3>
+      <p>Recipient clicks a unique secure link in the email → views contract → signs. Simplest flow. Good for most B2B staffing agreements.</p>
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.1);border-radius:6px;font-size:13px;">
+        <strong>Security:</strong> ⭐⭐ &nbsp;|&nbsp; <strong>Friction:</strong> Low &nbsp;|&nbsp; <strong>Setup:</strong> None
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Email Link + Access Code</h3>
+      <p>You set a passcode when sending, share it separately (phone/text/Slack). Recipient enters code before viewing contract.</p>
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.1);border-radius:6px;font-size:13px;">
+        <strong>Security:</strong> ⭐⭐⭐ &nbsp;|&nbsp; <strong>Friction:</strong> Medium &nbsp;|&nbsp; <strong>Setup:</strong> Manual coordination
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)" style="border-color:rgba(99,102,241,0.5);">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Email Link + Email OTP <span style="background:#6366f1;color:white;padding:2px 8px;border-radius:4px;font-size:11px;margin-left:8px;">RECOMMENDED</span></h3>
+      <p>Recipient clicks link → enters 6-digit code sent to their email → views and signs. DocuSign standard for business contracts. No separate coordination needed.</p>
+      <div style="margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.1);border-radius:6px;font-size:13px;">
+        <strong>Security:</strong> ⭐⭐⭐⭐ &nbsp;|&nbsp; <strong>Friction:</strong> Low-Medium &nbsp;|&nbsp; <strong>Setup:</strong> Automatic
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;padding:16px;background:rgba(99,102,241,0.08);border-radius:8px;border-left:3px solid #6366f1;">
+  <strong>Why C?</strong> It's the DocuSign standard for most business contracts. No separate passcode coordination needed, and it creates an auditable verification trail (OTP sent → verified → signed) with timestamps.
+</div>

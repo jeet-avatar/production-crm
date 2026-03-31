@@ -6,12 +6,12 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://crm.brandmonkz.com';
 
 function createTransporter(): nodemailer.Transporter {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
+    host: process.env.SMTP_HOST || 'smtp.office365.com',
     port: Number.parseInt(process.env.SMTP_PORT || '587'),
     secure: false,
     auth: {
-      user: process.env.SMTP_USER || 'apikey',
-      pass: process.env.SENDGRID_API_KEY,
+      user: process.env.SMTP_USER || 'peter@techcloudpro.com',
+      pass: process.env.SMTP_PASS,
     },
   });
 }
@@ -110,9 +110,9 @@ ${primaryButton(signingUrl, 'Review & Sign Contract')}
       text: `Hi ${clientName},\n\n${senderName} has sent you a contract to sign: "${contractTitle}".\n\nReview and sign here: ${signingUrl}\n\nTechCloudPro Contract Management`,
     });
     logger.info('Contract signing request email sent', { to, contractTitle, signingToken });
-  } catch (error) {
-    logger.error('Failed to send signing request email', { error, to });
-    throw new Error('Failed to send signing request email');
+  } catch (error: any) {
+    logger.error('Failed to send signing request email', { message: error?.message, code: error?.code, response: error?.response, to });
+    throw error;
   }
 }
 

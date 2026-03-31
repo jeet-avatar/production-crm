@@ -362,47 +362,7 @@ router.post('/:id/countersign', async (req, res, next) => {
     // Save client signedAt BEFORE the update overwrites it
     const clientSignedAt = contract.signedAt ?? new Date();
 
-    // Generate final PDF with both signatures
-    const { buffer, hash } = await generateContractPdf({
-      contractId: contract.id,
-      title: contract.title,
-      contractType: 'Service Agreement',
-      content: contract.content,
-      createdAt: contract.createdAt,
-      clientSignature: {
-        name: contract.signerName || '',
-        email: contract.signerEmail || '',
-        signedAt: clientSignedAt,
-        ip: contract.signatureIp || '0.0.0.0',
-        userAgent: contract.signatureAgent || '',
-        signatureImage: contract.signatureData || undefined,
-        otpVerified: true,
-      },
-      counterSignature: {
-        name: counterSignerName,
-        email: counterSignerEmail,
-        title: signerTitle,
-        signedAt: counterSignedAt,
-        ip,
-        userAgent,
-        signatureImage: signatureImage,
-        otpVerified: false,
-      },
-    });
-
-    const s3Key = `contracts/${contract.id}/contract-signed.pdf`;
-
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: S3_BUCKET,
-        Key: s3Key,
-        Body: buffer,
-        ContentType: 'application/pdf',
-      }),
-    );
-
-    const pdfUrl = `https://${S3_BUCKET}.s3.amazonaws.com/${s3Key}`;
-
+    // Update DB first (mark as SIGNED) — PDF generation happens after
     const updated = await prisma.contract.update({
       where: { id },
       data: {
@@ -412,24 +372,60 @@ router.post('/:id/countersign', async (req, res, next) => {
         counterSigData: signatureImage || null,
         counterSigIp: ip,
         counterSigAgent: userAgent,
-        pdfUrl,
-        documentHash: hash,
         signedAt: counterSignedAt,
         signedBy: counterSignerName,
         updatedAt: new Date(),
       },
     });
 
-    // Email both parties the completed contract (non-blocking)
-    sendCompletedEmail({
-      toOwner: counterSignerEmail,
-      toClient: contract.signerEmail || '',
-      ownerName: counterSignerName,
-      clientName: contract.signerName || 'Client',
-      contractTitle: contract.title,
-      contractId: contract.id,
-      pdfBuffer: buffer,
-    }).catch((err: any) => console.error('Failed to send completed email:', err.message));
+    // Generate PDF + upload to S3 in background (don't block response)
+    (async () => {
+      try {
+        const { buffer, hash } = await generateContractPdf({
+          contractId: contract.id,
+          title: contract.title,
+          contractType: 'Service Agreement',
+          content: contract.content,
+          createdAt: contract.createdAt,
+          clientSignature: {
+            name: contract.signerName || '',
+            email: contract.signerEmail || '',
+            signedAt: clientSignedAt,
+            ip: contract.signatureIp || '0.0.0.0',
+            userAgent: contract.signatureAgent || '',
+            signatureImage: contract.signatureData || undefined,
+            otpVerified: true,
+          },
+          counterSignature: {
+            name: counterSignerName,
+            email: counterSignerEmail,
+            title: signerTitle,
+            signedAt: counterSignedAt,
+            ip,
+            userAgent,
+            signatureImage: signatureImage,
+            otpVerified: false,
+          },
+        });
+
+        const s3Key = `contracts/${contract.id}/contract-signed.pdf`;
+        await s3Client.send(new PutObjectCommand({ Bucket: S3_BUCKET, Key: s3Key, Body: buffer, ContentType: 'application/pdf' }));
+        const pdfUrl = `https://${S3_BUCKET}.s3.amazonaws.com/${s3Key}`;
+        await prisma.contract.update({ where: { id }, data: { pdfUrl, documentHash: hash } });
+
+        sendCompletedEmail({
+          toOwner: counterSignerEmail,
+          toClient: contract.signerEmail || '',
+          ownerName: counterSignerName,
+          clientName: contract.signerName || 'Client',
+          contractTitle: contract.title,
+          contractId: contract.id,
+          pdfBuffer: buffer,
+        }).catch((err: any) => console.error('Failed to send completed email:', err.message));
+      } catch (err: any) {
+        console.error('Failed to generate/upload PDF:', err.message);
+      }
+    })();
 
     return res.json(updated);
   } catch (error) {

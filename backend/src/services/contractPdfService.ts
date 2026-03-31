@@ -286,8 +286,16 @@ async function drawSignatureBlock(
     // Signature image or placeholder
     if (sig.signatureImage) {
       try {
-        const imgBuf = Buffer.from(sig.signatureImage.replace(/^data:image\/png;base64,/, ''), 'base64');
-        doc.image(imgBuf, x, curY, { width: blockWidth, height: 40, fit: [blockWidth, 40] });
+        const imgBuf = Buffer.from(sig.signatureImage.replace(/^data:image\/(png|jpeg);base64,/, ''), 'base64');
+        // Validate PNG magic bytes (89 50 4E 47) or JPEG (FF D8 FF) before passing to PDFKit
+        const isPng = imgBuf.length > 8 && imgBuf[0] === 0x89 && imgBuf[1] === 0x50 && imgBuf[2] === 0x4E && imgBuf[3] === 0x47;
+        const isJpeg = imgBuf.length > 3 && imgBuf[0] === 0xFF && imgBuf[1] === 0xD8 && imgBuf[2] === 0xFF;
+        if ((isPng || isJpeg) && imgBuf.length > 100) {
+          doc.image(imgBuf, x, curY, { width: blockWidth, height: 40, fit: [blockWidth, 40] });
+        } else {
+          // Invalid image data — draw placeholder line
+          drawHorizontalRule(doc, curY + 20, '#9ca3af');
+        }
       } catch {
         // Fallback: draw blank line
         drawHorizontalRule(doc, curY + 20, '#9ca3af');

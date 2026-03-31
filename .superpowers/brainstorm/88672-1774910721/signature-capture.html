@@ -1,0 +1,53 @@
+<h2>How should the signature be captured?</h2>
+<p class="subtitle">DocuSign offers multiple signature methods — which ones should we support?</p>
+
+<div class="options" data-multiselect>
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Type-to-Sign</h3>
+      <p>Signer types their full name → rendered in a script/cursive font as the signature. Fastest method.</p>
+      <div style="margin-top:12px;padding:16px;background:#1a1a2e;border-radius:8px;text-align:center;">
+        <span style="font-family:'Brush Script MT',cursive;font-size:32px;color:#6366f1;">Peter Johnson</span>
+        <div style="border-top:1px solid rgba(255,255,255,0.2);margin-top:8px;padding-top:4px;font-size:11px;color:rgba(255,255,255,0.4);">Type your full legal name above</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Draw-to-Sign</h3>
+      <p>Signer draws their signature on a canvas pad (mouse or finger on mobile). Most personal, feels "real".</p>
+      <div style="margin-top:12px;padding:16px;background:#1a1a2e;border-radius:8px;text-align:center;">
+        <div style="height:60px;border:1px dashed rgba(99,102,241,0.4);border-radius:4px;display:flex;align-items:center;justify-content:center;">
+          <svg width="200" height="40" viewBox="0 0 200 40">
+            <path d="M10,30 Q30,5 50,25 T90,20 Q110,15 130,25 T170,15 L190,20" stroke="#6366f1" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.2);margin-top:8px;padding-top:4px;font-size:11px;color:rgba(255,255,255,0.4);">Draw your signature above</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Both (Signer Chooses) <span style="background:#6366f1;color:white;padding:2px 8px;border-radius:4px;font-size:11px;margin-left:8px;">RECOMMENDED</span></h3>
+      <p>Signer picks their preferred method — type or draw. Tabs to switch between them. This is what DocuSign does.</p>
+      <div style="margin-top:12px;padding:16px;background:#1a1a2e;border-radius:8px;">
+        <div style="display:flex;gap:0;margin-bottom:12px;">
+          <div style="flex:1;padding:8px;background:rgba(99,102,241,0.3);border-radius:4px 0 0 4px;text-align:center;font-size:13px;color:white;">✍️ Type</div>
+          <div style="flex:1;padding:8px;background:rgba(255,255,255,0.05);border-radius:0 4px 4px 0;text-align:center;font-size:13px;color:rgba(255,255,255,0.5);">🖊️ Draw</div>
+        </div>
+        <div style="text-align:center;">
+          <span style="font-family:'Brush Script MT',cursive;font-size:28px;color:#6366f1;">Peter Johnson</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;padding:16px;background:rgba(99,102,241,0.08);border-radius:8px;border-left:3px solid #6366f1;">
+  <strong>All methods capture:</strong> Full name, IP address, timestamp (ISO 8601), user agent, OTP verification ID, and the signature image (PNG). Stored as a tamper-evident audit trail — exactly like DocuSign's Certificate of Completion.
+</div>

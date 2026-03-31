@@ -1,0 +1,275 @@
+<h2>Contract Signing System — Full Design</h2>
+<p class="subtitle">Review each section. Click approve if everything looks right.</p>
+
+<div class="section">
+  <h3>1. Database Schema Changes</h3>
+  <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:20px;font-size:14px;">
+    <div style="margin-bottom:16px;">
+      <div style="color:#818cf8;font-weight:600;margin-bottom:8px;">Update Contract Model</div>
+      <div style="background:#0d1117;border-radius:6px;padding:16px;font-family:monospace;font-size:13px;line-height:1.6;">
+        <div style="color:#7ee787;">+ signerName &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String?</div>
+        <div style="color:#7ee787;">+ signerEmail &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String?</div>
+        <div style="color:#7ee787;">+ signerTitle &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String?</div>
+        <div style="color:#7ee787;">+ signatureData &nbsp;&nbsp;&nbsp;String? &nbsp;@db.Text &nbsp;// PNG base64</div>
+        <div style="color:#7ee787;">+ signatureType &nbsp;&nbsp;&nbsp;String? &nbsp;// "typed" | "drawn"</div>
+        <div style="color:#7ee787;">+ signatureIp &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String?</div>
+        <div style="color:#7ee787;">+ signatureAgent &nbsp;&nbsp;String? &nbsp;@db.Text</div>
+        <div style="color:#7ee787;">+ signerOtpId &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String? &nbsp;// OTP verification ref</div>
+        <div style="color:#7ee787;">+ counterSignedBy &nbsp;String?</div>
+        <div style="color:#7ee787;">+ counterSignedAt &nbsp;DateTime?</div>
+        <div style="color:#7ee787;">+ counterSigData &nbsp;&nbsp;String? &nbsp;@db.Text</div>
+        <div style="color:#7ee787;">+ counterSigIp &nbsp;&nbsp;&nbsp;&nbsp;String?</div>
+        <div style="color:#7ee787;">+ counterSigAgent &nbsp;String? &nbsp;@db.Text</div>
+        <div style="color:#7ee787;">+ documentHash &nbsp;&nbsp;&nbsp;&nbsp;String? &nbsp;// SHA-256 of PDF</div>
+        <div style="color:#7ee787;">+ pdfUrl &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String? &nbsp;// S3 key for final PDF</div>
+        <div style="color:#7ee787;">+ signingToken &nbsp;&nbsp;&nbsp;&nbsp;String? &nbsp;@unique // secure link token</div>
+        <div style="color:#7ee787;">+ tokenExpiresAt &nbsp;&nbsp;DateTime?</div>
+        <div style="color:#7ee787;">+ sentAt &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DateTime?</div>
+        <div style="color:#7ee787;">+ expiresAt &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DateTime? // 7 days default</div>
+        <div style="color:#7ee787;">+ voidedAt &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DateTime?</div>
+        <div style="color:#7ee787;">+ voidedReason &nbsp;&nbsp;&nbsp;&nbsp;String?</div>
+        <div style="color:#7ee787;">+ remindersSent &nbsp;&nbsp;&nbsp;Int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@default(0)</div>
+        <div style="color:#7ee787;">+ lastReminderAt &nbsp;&nbsp;DateTime?</div>
+      </div>
+    </div>
+    <div>
+      <div style="color:#818cf8;font-weight:600;margin-bottom:8px;">Update ContractStatus Enum</div>
+      <div style="background:#0d1117;border-radius:6px;padding:16px;font-family:monospace;font-size:13px;line-height:1.6;">
+        <div style="color:rgba(255,255,255,0.5);">&nbsp;&nbsp;DRAFT</div>
+        <div style="color:rgba(255,255,255,0.5);">&nbsp;&nbsp;SENT_FOR_SIGNATURE</div>
+        <div style="color:#7ee787;">+ VIEWED</div>
+        <div style="color:#7ee787;">+ CLIENT_SIGNED</div>
+        <div style="color:#7ee787;">+ AWAITING_COUNTERSIGN</div>
+        <div style="color:rgba(255,255,255,0.5);">&nbsp;&nbsp;SIGNED &nbsp;// fully completed</div>
+        <div style="color:rgba(255,255,255,0.5);">&nbsp;&nbsp;CANCELLED</div>
+        <div style="color:#7ee787;">+ VOIDED</div>
+        <div style="color:#7ee787;">+ EXPIRED</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="color:#818cf8;font-weight:600;margin-bottom:8px;">New Model: ContractOTP</div>
+      <div style="background:#0d1117;border-radius:6px;padding:16px;font-family:monospace;font-size:13px;line-height:1.6;">
+        <div>id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String &nbsp;&nbsp;@id @default(cuid())</div>
+        <div>contractId &nbsp;String</div>
+        <div>email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String</div>
+        <div>code &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String &nbsp;&nbsp;// 6-digit hashed</div>
+        <div>verified &nbsp;&nbsp;&nbsp;Boolean &nbsp;@default(false)</div>
+        <div>verifiedAt &nbsp;DateTime?</div>
+        <div>verifiedIp &nbsp;String?</div>
+        <div>expiresAt &nbsp;&nbsp;DateTime // 10 min TTL</div>
+        <div>attempts &nbsp;&nbsp;&nbsp;Int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@default(0) // max 5</div>
+        <div>createdAt &nbsp;&nbsp;DateTime @default(now())</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. Backend API Endpoints</h3>
+  <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:20px;font-size:14px;">
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+          <th style="text-align:left;padding:8px;color:#818cf8;">Method</th>
+          <th style="text-align:left;padding:8px;color:#818cf8;">Endpoint</th>
+          <th style="text-align:left;padding:8px;color:#818cf8;">Auth</th>
+          <th style="text-align:left;padding:8px;color:#818cf8;">Purpose</th>
+        </tr>
+      </thead>
+      <tbody style="color:rgba(255,255,255,0.7);">
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#7ee787;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/:id/generate-pdf</td>
+          <td style="padding:8px;">JWT</td>
+          <td style="padding:8px;">Generate PDF from contract template + rate card</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#f59e0b;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/:id/send</td>
+          <td style="padding:8px;">JWT</td>
+          <td style="padding:8px;">Send signing link email to client</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#3b82f6;">GET</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/sign/:token</td>
+          <td style="padding:8px;">Public</td>
+          <td style="padding:8px;">Get contract details for signing page</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#f59e0b;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/sign/:token/request-otp</td>
+          <td style="padding:8px;">Public</td>
+          <td style="padding:8px;">Send 6-digit OTP to signer's email</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#f59e0b;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/sign/:token/verify-otp</td>
+          <td style="padding:8px;">Public</td>
+          <td style="padding:8px;">Verify OTP, return session token</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#f59e0b;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/sign/:token/submit</td>
+          <td style="padding:8px;">OTP Session</td>
+          <td style="padding:8px;">Submit signature (type/draw), capture audit data</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#f59e0b;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/:id/countersign</td>
+          <td style="padding:8px;">JWT</td>
+          <td style="padding:8px;">Peter/Rajesh counter-signs in CRM</td>
+        </tr>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+          <td style="padding:8px;"><span style="color:#f59e0b;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/:id/void</td>
+          <td style="padding:8px;">JWT</td>
+          <td style="padding:8px;">Void a sent/partially-signed contract</td>
+        </tr>
+        <tr>
+          <td style="padding:8px;"><span style="color:#f59e0b;">POST</span></td>
+          <td style="padding:8px;font-family:monospace;font-size:12px;">/api/contracts/:id/remind</td>
+          <td style="padding:8px;">JWT</td>
+          <td style="padding:8px;">Send reminder email to unsigned client</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. Frontend Pages</h3>
+  <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:20px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div style="background:rgba(99,102,241,0.08);border-radius:8px;padding:16px;">
+        <div style="color:#818cf8;font-weight:600;margin-bottom:8px;">Updated: ContractsPage.tsx</div>
+        <ul style="margin:0;padding-left:16px;color:rgba(255,255,255,0.6);font-size:13px;line-height:1.8;">
+          <li>Contract list with status badges</li>
+          <li>"Send for Signature" button on each contract</li>
+          <li>Counter-sign button (when CLIENT_SIGNED)</li>
+          <li>Status timeline view</li>
+          <li>Download signed PDF</li>
+          <li>Void / Remind actions</li>
+        </ul>
+      </div>
+      <div style="background:rgba(99,102,241,0.08);border-radius:8px;padding:16px;">
+        <div style="color:#818cf8;font-weight:600;margin-bottom:8px;">New: /contracts/sign/:token</div>
+        <ul style="margin:0;padding-left:16px;color:rgba(255,255,255,0.6);font-size:13px;line-height:1.8;">
+          <li>Public page (no CRM login)</li>
+          <li>OTP verification step</li>
+          <li>Full contract display (scrollable)</li>
+          <li>Signature pad (type/draw tabs)</li>
+          <li>"I agree to terms" checkbox</li>
+          <li>Submit signature button</li>
+          <li>Success + download signed PDF</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>4. PDF Structure</h3>
+  <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:20px;">
+    <div style="display:flex;gap:16px;">
+      <div style="flex:1;background:#0d1117;border-radius:8px;padding:16px;">
+        <div style="text-align:center;color:#818cf8;font-weight:600;margin-bottom:12px;">Page 1-N: Contract</div>
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:12px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">
+          <div style="text-align:center;color:#6366f1;font-weight:bold;margin-bottom:8px;">TECHCLOUDPRO</div>
+          <div>Contract title & type</div>
+          <div>Effective date</div>
+          <div style="margin:4px 0;">—————————</div>
+          <div>Full contract terms</div>
+          <div>Rate card table</div>
+          <div style="margin:4px 0;">—————————</div>
+          <div style="margin-top:8px;">
+            <strong style="color:#e2e8f0;">Client Signature:</strong>
+            <div style="border:1px dashed rgba(99,102,241,0.3);padding:8px;margin-top:4px;text-align:center;font-style:italic;">
+              [signature image]<br>
+              Name • Date • IP
+            </div>
+          </div>
+          <div style="margin-top:8px;">
+            <strong style="color:#e2e8f0;">TechCloudPro:</strong>
+            <div style="border:1px dashed rgba(99,102,241,0.3);padding:8px;margin-top:4px;text-align:center;font-style:italic;">
+              [counter-signature]<br>
+              Name • Date • IP
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1;background:#0d1117;border-radius:8px;padding:16px;">
+        <div style="text-align:center;color:#818cf8;font-weight:600;margin-bottom:12px;">Last Page: Audit Trail</div>
+        <div style="border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:12px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">
+          <div style="text-align:center;color:#6366f1;font-weight:bold;margin-bottom:8px;">CERTIFICATE OF COMPLETION</div>
+          <div>Contract ID: CTR-2026-00147</div>
+          <div>Document Hash: SHA-256</div>
+          <div style="margin:4px 0;">—————————</div>
+          <div><strong style="color:#e2e8f0;">Signer 1 (Client):</strong></div>
+          <div>Name, Email, Title</div>
+          <div>Signed: timestamp</div>
+          <div>IP: xxx.xxx.xxx.xxx</div>
+          <div>OTP: Verified ✓</div>
+          <div style="margin:4px 0;">—————————</div>
+          <div><strong style="color:#e2e8f0;">Signer 2 (TechCloudPro):</strong></div>
+          <div>Name, Email, Title</div>
+          <div>Counter-signed: timestamp</div>
+          <div>IP: xxx.xxx.xxx.xxx</div>
+          <div style="margin:4px 0;">—————————</div>
+          <div style="color:#10b981;">Status: COMPLETED</div>
+          <div>Completed: final timestamp</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>5. Security & Validation</h3>
+  <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:20px;font-size:14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="color:#10b981;font-weight:600;margin-bottom:8px;">✓ Included</div>
+        <ul style="margin:0;padding-left:16px;color:rgba(255,255,255,0.6);line-height:1.8;">
+          <li>Cryptographic signing token (crypto.randomBytes)</li>
+          <li>Token expires in 7 days</li>
+          <li>OTP: 6 digits, 10 min TTL, max 5 attempts</li>
+          <li>OTP codes hashed (bcrypt) in DB</li>
+          <li>Rate limit: 3 OTP requests per hour</li>
+          <li>SHA-256 document hash for tamper detection</li>
+          <li>IP + user agent captured at every step</li>
+          <li>Signed PDF stored in S3 (immutable)</li>
+          <li>All timestamps in UTC (ISO 8601)</li>
+          <li>HTTPS-only signing URLs</li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:#f59e0b;font-weight:600;margin-bottom:8px;">⚠ Not in Scope (v1)</div>
+        <ul style="margin:0;padding-left:16px;color:rgba(255,255,255,0.4);line-height:1.8;">
+          <li>Multi-signer (3+ parties)</li>
+          <li>Field-by-field placement (initials here, sign there)</li>
+          <li>Bulk send contracts</li>
+          <li>Contract versioning / redlining</li>
+          <li>Mobile app signing</li>
+          <li>UETA/ESIGN legal compliance notice (can add later)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)" style="border-color:rgba(16,185,129,0.5);">
+    <div class="letter" style="background:linear-gradient(135deg,#10b981,#059669);">✓</div>
+    <div class="content">
+      <h3>Approve Design — Ready to Write Spec</h3>
+      <p>All 5 sections look good. Proceed to writing the design doc and implementation plan.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="changes" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>Request Changes</h3>
+      <p>Something needs adjustment — I'll describe in the terminal.</p>
+    </div>
+  </div>
+</div>
