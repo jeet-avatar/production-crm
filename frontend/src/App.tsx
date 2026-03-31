@@ -38,6 +38,7 @@ import { SystemTemplates } from './pages/SuperAdmin/SystemTemplates';
 import JobLeadsPage from './pages/JobLeads/JobLeadsPage';
 import ScheduleCallPage from './pages/Landing/ScheduleCallPage';
 import TalentPage from './pages/Landing/TalentPage';
+import { ContractSigningPage } from './pages/Contracts/ContractSigningPage';
 import type { User } from './types';
 
 // Create a client
@@ -98,6 +99,7 @@ function App() {
           <Route path="/schedule" element={<ScheduleCallPage />} />
           <Route path="/talent" element={<TalentPage />} />
           <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/contracts/sign/:token" element={<ContractSigningPage />} />
           <Route path="/subscription/success" element={<SubscriptionSuccess />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/accept-invite" element={<AcceptInvitePage />} />
