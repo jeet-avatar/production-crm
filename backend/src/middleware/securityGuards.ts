@@ -182,8 +182,8 @@ export function emailValidationGuard(req: Request, res: Response, next: NextFunc
           }
         }
 
-        // Normalize email
-        req.body[field] = validator.normalizeEmail(email) || email;
+        // Store email as-is — don't normalize (normalizeEmail strips dots from Gmail, changing the user's intended value)
+        req.body[field] = email.trim().toLowerCase();
       }
     }
 

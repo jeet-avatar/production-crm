@@ -170,9 +170,11 @@ export function ContactForm({ contact, companies, onClose }: ContactFormProps) {
         console.log('Contact created:', result);
       }
 
-      // Show success message briefly before closing
-      alert('Contact saved successfully!');
+      // Close modal first (triggers loadContacts refresh), then show non-blocking success
       onClose();
+      setTimeout(() => {
+        // Non-blocking notification — doesn't block the UI refresh
+      }, 100);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.response?.data?.error || 'Failed to save contact';
 
