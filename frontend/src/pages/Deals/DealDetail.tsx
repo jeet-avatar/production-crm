@@ -134,9 +134,9 @@ export function DealDetail() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => navigate('/deals')}
+            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/deals')}
             className="p-2 rounded-lg bg-[#161625] shadow-sm border border-[#2a2a44] hover:bg-[#12121f] text-[#94A3B8] transition-colors"
-            title="Back to deals"
+            title="Go back"
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </button>

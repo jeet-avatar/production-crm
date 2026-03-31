@@ -40,7 +40,10 @@ export function QuotesPage() {
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    quotesApi.getAll().then(setQuotes).catch(console.error).finally(() => setLoading(false));
+    quotesApi.getAll()
+      .then((data: any) => setQuotes(data.quotes || data || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = quotes.filter(q =>

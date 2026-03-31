@@ -305,11 +305,11 @@ export function CompanyDetail() {
       {/* Header with back button */}
       <div className="mb-6">
         <button
-          onClick={() => navigate('/companies')}
+          onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/companies')}
           className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg border border-indigo-500/30 hover:scale-105 transition-all shadow-md mb-4"
         >
           <ArrowLeftIcon className="w-4 h-4" />
-          <span>Back to Companies</span>
+          <span>Back</span>
         </button>
 
         <div className="flex items-start justify-between">
