@@ -47,6 +47,7 @@ import leadsRoutes from './routes/leads.routes';
 import jobLeadsRoutes from './routes/job-leads.routes';
 import quotesRoutes from './routes/quotes';
 import contractsRoutes from './routes/contracts';
+import contractSigningRoutes from './routes/contractSigning';
 // DISABLED: These routes reference non-existent Prisma models
 // import tasksRoutes from './routes/tasks.routes';
 // import projectsRoutes from './routes/projects.routes';
@@ -290,6 +291,7 @@ app.use('/api/contacts', contactRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/deals', dealRoutes);
 app.use('/api/quotes', quotesRoutes);
+app.use('/api/contracts/sign', contractSigningRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/campaigns', campaignRoutes);
