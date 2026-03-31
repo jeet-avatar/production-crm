@@ -1,5 +1,11 @@
-import { useState } from 'react';
-import { DocumentTextIcon, PencilIcon, PaperAirplaneIcon, ArrowDownTrayIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import { DocumentTextIcon, ArrowDownTrayIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import SignaturePad from './SignaturePad';
+
+// ─── API HELPERS ─────────────────────────────────────────────────────────────
+const API = import.meta.env.VITE_API_URL || '';
+const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem('crmToken')}` });
 
 // ─── CONTRACT TYPES ─────────────────────────────────────────────────────────
 const CONTRACT_TYPES = [
@@ -300,8 +306,32 @@ TechCloudPro Inc.
 Contact: contracts@techcloudpro.com`,
 };
 
+// ─── STATUS BADGE COLORS ────────────────────────────────────────────────────
+const STATUS_COLORS: Record<string, string> = {
+  DRAFT: 'bg-gray-600',
+  SENT_FOR_SIGNATURE: 'bg-yellow-600',
+  VIEWED: 'bg-yellow-500',
+  AWAITING_COUNTERSIGN: 'bg-blue-600',
+  SIGNED: 'bg-green-600',
+  VOIDED: 'bg-red-600',
+  EXPIRED: 'bg-gray-500',
+  CANCELLED: 'bg-gray-500',
+};
+
+// ─── CONTRACT INTERFACE ──────────────────────────────────────────────────────
+interface Contract {
+  id: string;
+  title: string;
+  status: string;
+  client_name?: string;
+  client_email?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // ─── COMPONENT ──────────────────────────────────────────────────────────────
 export function ContractsPage() {
+  // ── Existing state ──────────────────────────────────────────────────────
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [showContract, setShowContract] = useState(false);
@@ -309,6 +339,114 @@ export function ContractsPage() {
   const [editingRate, setEditingRate] = useState<{ type: string; catIdx: number; rowIdx: number; field: string } | null>(null);
   const [rateCards, setRateCards] = useState(RATE_CARDS);
 
+  // ── New state for contracts list & modals ───────────────────────────────
+  const [contracts, setContracts] = useState<Contract[]>([]);
+  const [contractsLoading, setContractsLoading] = useState(false);
+
+  // Send for Signature modal
+  const [sendModal, setSendModal] = useState<{ open: boolean; contractId: string | null }>({ open: false, contractId: null });
+  const [sendForm, setSendForm] = useState({ signerName: '', signerEmail: '', signerTitle: '', message: '' });
+  const [sendLoading, setSendLoading] = useState(false);
+
+  // Counter-Sign modal
+  const [countersignModal, setCountersignModal] = useState<{ open: boolean; contractId: string | null }>({ open: false, contractId: null });
+  const [countersignLoading, setCountersignLoading] = useState(false);
+  const [signatureData, setSignatureData] = useState<string>('');
+  const [signatureType, setSignatureType] = useState<string>('drawn');
+
+  // Toast
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // ── Toast helper ────────────────────────────────────────────────────────
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // ── Load contracts ──────────────────────────────────────────────────────
+  const loadContracts = useCallback(async () => {
+    setContractsLoading(true);
+    try {
+      const res = await axios.get(`${API}/api/contracts`, { headers: authHeaders() });
+      setContracts(res.data?.contracts ?? res.data ?? []);
+    } catch {
+      // Silently fail — contract list is supplemental
+    } finally {
+      setContractsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadContracts();
+  }, [loadContracts]);
+
+  // ── API actions ─────────────────────────────────────────────────────────
+  const handleSendForSignature = async () => {
+    if (!sendModal.contractId) return;
+    setSendLoading(true);
+    try {
+      await axios.post(
+        `${API}/api/contracts/${sendModal.contractId}/send`,
+        {
+          signer_name: sendForm.signerName,
+          signer_email: sendForm.signerEmail,
+          signer_title: sendForm.signerTitle,
+          message: sendForm.message,
+        },
+        { headers: authHeaders() }
+      );
+      showToast('Contract sent for signature.');
+      setSendModal({ open: false, contractId: null });
+      setSendForm({ signerName: '', signerEmail: '', signerTitle: '', message: '' });
+      loadContracts();
+    } catch (err: any) {
+      showToast(err?.response?.data?.detail ?? 'Failed to send contract.', 'error');
+    } finally {
+      setSendLoading(false);
+    }
+  };
+
+  const handleCountersign = async () => {
+    if (!countersignModal.contractId || !signatureData) return;
+    setCountersignLoading(true);
+    try {
+      await axios.post(
+        `${API}/api/contracts/${countersignModal.contractId}/countersign`,
+        { signatureData, signatureType },
+        { headers: authHeaders() }
+      );
+      showToast('Contract counter-signed successfully.');
+      setCountersignModal({ open: false, contractId: null });
+      setSignatureData('');
+      loadContracts();
+    } catch (err: any) {
+      showToast(err?.response?.data?.detail ?? 'Counter-sign failed.', 'error');
+    } finally {
+      setCountersignLoading(false);
+    }
+  };
+
+  const handleVoid = async (contractId: string) => {
+    if (!window.confirm('Are you sure you want to void this contract?')) return;
+    try {
+      await axios.post(`${API}/api/contracts/${contractId}/void`, {}, { headers: authHeaders() });
+      showToast('Contract voided.');
+      loadContracts();
+    } catch (err: any) {
+      showToast(err?.response?.data?.detail ?? 'Failed to void contract.', 'error');
+    }
+  };
+
+  const handleRemind = async (contractId: string) => {
+    try {
+      await axios.post(`${API}/api/contracts/${contractId}/remind`, {}, { headers: authHeaders() });
+      showToast('Reminder sent.');
+    } catch (err: any) {
+      showToast(err?.response?.data?.detail ?? 'Failed to send reminder.', 'error');
+    }
+  };
+
+  // ── Existing handlers ────────────────────────────────────────────────────
   const handleEditRate = (type: string, catIdx: number, rowIdx: number, field: string, value: string) => {
     setRateCards(prev => {
       const next = { ...prev };
@@ -338,13 +476,108 @@ export function ContractsPage() {
 
   return (
     <div style={{ padding: '16px', minHeight: '100vh' }}>
-      {/* Header */}
+      {/* ── Toast ────────────────────────────────────────────────────────── */}
+      {toast && (
+        <div
+          className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-sm font-semibold text-white transition-all ${
+            toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+          }`}
+        >
+          {toast.message}
+        </div>
+      )}
+
+      {/* ── Header ────────────────────────────────────────────────────────── */}
       <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.05))', borderRadius: '12px', border: '1px solid #2a2a44', padding: '24px', marginBottom: '20px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#F1F5F9', margin: '0 0 4px' }}>Contracts & Rate Cards</h1>
         <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Three contract types with market-rate pricing. Rates are editable. Contracts sent from contracts@techcloudpro.com</p>
       </div>
 
-      {/* Contract Type Cards */}
+      {/* ── Contracts List ────────────────────────────────────────────────── */}
+      <div style={{ background: '#161625', border: '1px solid #2a2a44', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#F1F5F9', margin: 0 }}>Active Contracts</h2>
+          {contractsLoading && <span style={{ fontSize: '12px', color: '#64748B' }}>Loading...</span>}
+        </div>
+
+        {!contractsLoading && contracts.length === 0 && (
+          <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>No contracts found.</p>
+        )}
+
+        {contracts.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {contracts.map(contract => {
+              const statusColor = STATUS_COLORS[contract.status] ?? 'bg-gray-500';
+              return (
+                <div
+                  key={contract.id}
+                  style={{
+                    background: '#1a1a2e',
+                    border: '1px solid #2a2a44',
+                    borderRadius: '10px',
+                    padding: '14px 18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '14px',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {/* Title + client */}
+                  <div style={{ flex: 1, minWidth: '160px' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#F1F5F9' }}>{contract.title}</div>
+                    {contract.client_name && (
+                      <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>{contract.client_name}</div>
+                    )}
+                  </div>
+
+                  {/* Status badge */}
+                  <span className={`${statusColor} text-white text-xs font-semibold px-2.5 py-1 rounded-full`}>
+                    {contract.status.replace(/_/g, ' ')}
+                  </span>
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    {contract.status === 'DRAFT' && (
+                      <button
+                        onClick={() => setSendModal({ open: true, contractId: contract.id })}
+                        style={{ padding: '6px 14px', borderRadius: '7px', border: 'none', background: '#6366F1', color: '#fff', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Send for Signature
+                      </button>
+                    )}
+                    {contract.status === 'AWAITING_COUNTERSIGN' && (
+                      <button
+                        onClick={() => setCountersignModal({ open: true, contractId: contract.id })}
+                        style={{ padding: '6px 14px', borderRadius: '7px', border: 'none', background: '#2563EB', color: '#fff', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Counter-Sign
+                      </button>
+                    )}
+                    {(contract.status === 'SENT_FOR_SIGNATURE' || contract.status === 'VIEWED') && (
+                      <>
+                        <button
+                          onClick={() => handleRemind(contract.id)}
+                          style={{ padding: '6px 14px', borderRadius: '7px', border: '1px solid #3d3d5c', background: 'transparent', color: '#F1F5F9', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Remind
+                        </button>
+                        <button
+                          onClick={() => handleVoid(contract.id)}
+                          style={{ padding: '6px 14px', borderRadius: '7px', border: '1px solid #EF4444', background: 'transparent', color: '#EF4444', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          Void
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Contract Type Cards ───────────────────────────────────────────── */}
       {!selectedType && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
           {CONTRACT_TYPES.map(type => (
@@ -366,7 +599,7 @@ export function ContractsPage() {
         </div>
       )}
 
-      {/* Selected Type — Rate Card + Contract */}
+      {/* ── Selected Type — Rate Card + Contract ──────────────────────────── */}
       {selectedType && typeInfo && (
         <div>
           {/* Back + Actions */}
@@ -488,6 +721,94 @@ export function ContractsPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Send for Signature Modal ──────────────────────────────────────── */}
+      {sendModal.open && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div style={{ background: '#1a1a2e', border: '1px solid #2a2a44', borderRadius: '14px', padding: '28px', width: '100%', maxWidth: '480px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#F1F5F9', margin: '0 0 20px' }}>Send for Signature</h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {[
+                { label: 'Signer Name', key: 'signerName', placeholder: 'Full name', type: 'text' },
+                { label: 'Signer Email', key: 'signerEmail', placeholder: 'email@company.com', type: 'email' },
+                { label: 'Signer Title', key: 'signerTitle', placeholder: 'e.g. VP of Engineering', type: 'text' },
+              ].map(({ label, key, placeholder, type }) => (
+                <div key={key}>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8', display: 'block', marginBottom: '6px' }}>{label}</label>
+                  <input
+                    type={type}
+                    placeholder={placeholder}
+                    value={(sendForm as any)[key]}
+                    onChange={e => setSendForm(f => ({ ...f, [key]: e.target.value }))}
+                    style={{ width: '100%', background: '#12121f', border: '1px solid #3d3d5c', borderRadius: '8px', color: '#F1F5F9', padding: '10px 14px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+                  />
+                </div>
+              ))}
+
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: '#94A3B8', display: 'block', marginBottom: '6px' }}>Message (optional)</label>
+                <textarea
+                  placeholder="Add a personal note..."
+                  value={sendForm.message}
+                  onChange={e => setSendForm(f => ({ ...f, message: e.target.value }))}
+                  rows={3}
+                  style={{ width: '100%', background: '#12121f', border: '1px solid #3d3d5c', borderRadius: '8px', color: '#F1F5F9', padding: '10px 14px', fontSize: '13px', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '22px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setSendModal({ open: false, contractId: null })}
+                style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid #3d3d5c', background: 'transparent', color: '#94A3B8', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendForSignature}
+                disabled={sendLoading || !sendForm.signerName || !sendForm.signerEmail}
+                style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', background: '#6366F1', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: sendLoading || !sendForm.signerName || !sendForm.signerEmail ? 0.6 : 1 }}
+              >
+                {sendLoading ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Counter-Sign Modal ────────────────────────────────────────────── */}
+      {countersignModal.open && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
+          <div style={{ background: '#1a1a2e', border: '1px solid #2a2a44', borderRadius: '14px', padding: '28px', width: '100%', maxWidth: '560px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#F1F5F9', margin: '0 0 6px' }}>Counter-Sign Contract</h2>
+            <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0 0 20px' }}>Draw or type your signature below to countersign.</p>
+
+            <SignaturePad
+              onSignatureChange={(data: string | null, type: 'typed' | 'drawn') => {
+                setSignatureData(data ?? '');
+                setSignatureType(type);
+              }}
+            />
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '22px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => { setCountersignModal({ open: false, contractId: null }); setSignatureData(''); }}
+                style={{ padding: '9px 18px', borderRadius: '8px', border: '1px solid #3d3d5c', background: 'transparent', color: '#94A3B8', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCountersign}
+                disabled={countersignLoading || !signatureData}
+                style={{ padding: '9px 18px', borderRadius: '8px', border: 'none', background: '#2563EB', color: '#fff', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: countersignLoading || !signatureData ? 0.6 : 1 }}
+              >
+                {countersignLoading ? 'Signing...' : 'Counter-Sign'}
+              </button>
+            </div>
           </div>
         </div>
       )}
