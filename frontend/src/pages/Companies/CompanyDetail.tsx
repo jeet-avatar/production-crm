@@ -822,7 +822,7 @@ export function CompanyDetail() {
                   <div
                     key={contact.id}
                     className="flex items-center justify-between p-4 rounded-lg transition-colors cursor-pointer" style={{ background: 'var(--glass-bg)' }}
-                    onClick={() => navigate(`/contacts/${contact.id}`)}
+                    onClick={() => navigate(`/contacts/${contact.id}`, { state: { from: `/companies/${id}` } })}
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold flex items-center justify-center">
@@ -870,7 +870,7 @@ export function CompanyDetail() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/contacts/${contact.id}`);
+                          navigate(`/contacts/${contact.id}`, { state: { from: `/companies/${id}` } });
                         }}
                         className="inline-flex items-center gap-1.5 px-3 py-2 font-medium rounded-lg hover:border-indigo-400 transition-all text-sm border" style={{ background: 'var(--glass-bg)', color: 'var(--text-primary)', borderColor: 'var(--border-default)' }}
                         title="Edit contact"

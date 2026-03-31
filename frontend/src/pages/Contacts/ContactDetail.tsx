@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeftIcon,
   PencilIcon,
@@ -77,6 +77,7 @@ const activityIcons = {
 export function ContactDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [contact, setContact] = useState<Contact | null>(null);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
@@ -131,6 +132,20 @@ export function ContactDetail() {
   const handleEditClose = () => {
     setShowEditModal(false);
     loadContact();
+  };
+
+  // Navigate back to where the user came from (company page, contacts list, or browser history)
+  const goBack = () => {
+    // If contact has a company, and user came from that company page, go back there
+    if (contact?.company?.id && location.state?.from) {
+      navigate(location.state.from);
+    } else if (contact?.company?.id && document.referrer.includes('/companies/')) {
+      navigate(`/companies/${contact.company.id}`);
+    } else if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/contacts');
+    }
   };
 
   const handleEnrich = async () => {
@@ -308,9 +323,9 @@ export function ContactDetail() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => navigate('/contacts')}
+            onClick={goBack}
             className="apple-button-icon"
-            title="Back to contacts"
+            title="Go back"
           >
             <ArrowLeftIcon className="h-5 w-5" />
           </button>
