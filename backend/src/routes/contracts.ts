@@ -378,6 +378,25 @@ router.post('/:id/countersign', async (req, res, next) => {
       },
     });
 
+    // Auto-create placement pipeline when contract is fully signed
+    try {
+      const placementToken = crypto.randomBytes(32).toString('hex');
+      await prisma.placement.create({
+        data: {
+          contractId: contract.id,
+          dealId: contract.dealId,
+          userId: contract.userId,
+          clientName: contract.signerName || '',
+          clientEmail: contract.signerEmail || '',
+          clientCompany: (contract.variables as any)?.clientCompany || contract.title?.split(' — ')[1] || '',
+          stage: 'CONTRACT_SIGNED',
+          accessToken: placementToken,
+        },
+      });
+    } catch (err: any) {
+      console.error('Failed to auto-create placement:', err.message);
+    }
+
     // Generate PDF + upload to S3 in background (don't block response)
     (async () => {
       try {
