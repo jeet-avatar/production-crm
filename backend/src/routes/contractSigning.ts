@@ -134,13 +134,13 @@ router.post('/:token/request-otp', async (req, res, next) => {
       },
     });
 
-    await sendOtpEmail({
+    sendOtpEmail({
       to: contract.signerEmail,
       clientName: contract.signerName,
       otp: otpCode,
       contractTitle: contract.title,
       expiresInMinutes: 10,
-    });
+    }).catch((err: any) => console.error('Failed to send OTP email:', err.message));
 
     return res.json({ message: 'OTP sent to your email' });
   } catch (error) {
@@ -364,7 +364,7 @@ router.post('/:token/submit', async (req, res, next) => {
       : 'TechCloudPro';
 
     if (ownerEmail) {
-      await sendClientSignedNotification({
+      sendClientSignedNotification({
         to: ownerEmail,
         ownerName,
         clientName: signerName,
@@ -372,7 +372,7 @@ router.post('/:token/submit', async (req, res, next) => {
         contractTitle: contract.title,
         contractId: contract.id,
         signedAt,
-      });
+      }).catch((err: any) => console.error('Failed to send signed notification:', err.message));
     }
 
     return res.json({

@@ -287,15 +287,6 @@ router.post('/:id/send', async (req, res, next) => {
     const signingToken = crypto.randomBytes(32).toString('hex');
     const tokenExpiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
-    await sendSigningRequest({
-      to: clientEmail,
-      clientName,
-      contractTitle: contract.title,
-      senderName,
-      signingToken,
-      message,
-    });
-
     const updated = await prisma.contract.update({
       where: { id },
       data: {
@@ -308,6 +299,16 @@ router.post('/:id/send', async (req, res, next) => {
         updatedAt: new Date(),
       },
     });
+
+    // Send email in background (don't block on email failure)
+    sendSigningRequest({
+      to: clientEmail,
+      clientName,
+      contractTitle: contract.title,
+      senderName,
+      signingToken,
+      message,
+    }).catch((err: any) => console.error('Failed to send signing email:', err.message));
 
     return res.json(updated);
   } catch (error) {
@@ -419,8 +420,8 @@ router.post('/:id/countersign', async (req, res, next) => {
       },
     });
 
-    // Email both parties the completed contract
-    await sendCompletedEmail({
+    // Email both parties the completed contract (non-blocking)
+    sendCompletedEmail({
       toOwner: counterSignerEmail,
       toClient: contract.signerEmail || '',
       ownerName: counterSignerName,
@@ -428,7 +429,7 @@ router.post('/:id/countersign', async (req, res, next) => {
       contractTitle: contract.title,
       contractId: contract.id,
       pdfBuffer: buffer,
-    });
+    }).catch((err: any) => console.error('Failed to send completed email:', err.message));
 
     return res.json(updated);
   } catch (error) {
@@ -512,15 +513,7 @@ router.post('/:id/remind', async (req, res, next) => {
       ? Math.floor((Date.now() - contract.sentAt.getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
-    await sendReminderEmail({
-      to: contract.signerEmail,
-      clientName: contract.signerName,
-      contractTitle: contract.title,
-      senderName,
-      signingToken: contract.signingToken,
-      daysOverdue,
-    });
-
+    // Update DB first, then try email
     const updated = await prisma.contract.update({
       where: { id },
       data: {
@@ -529,6 +522,15 @@ router.post('/:id/remind', async (req, res, next) => {
         updatedAt: new Date(),
       },
     });
+
+    sendReminderEmail({
+      to: contract.signerEmail,
+      clientName: contract.signerName,
+      contractTitle: contract.title,
+      senderName,
+      signingToken: contract.signingToken,
+      daysOverdue,
+    }).catch((err: any) => console.error('Failed to send reminder email:', err.message));
 
     return res.json(updated);
   } catch (error) {

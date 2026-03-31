@@ -26,7 +26,7 @@ export function sanitizeInputGuard(req: Request, res: Response, next: NextFuncti
 
     // Sanitize body (but preserve necessary HTML in specific fields)
     if (req.body && typeof req.body === 'object') {
-      const htmlAllowedFields = ['content', 'htmlContent', 'body', 'description', 'subject', 'name', 'campaignName', 'goal', 'prompt', 'narrationScript', 'script', 'textContent', 'previewText', 'notes', 'signatureData', 'counterSigData'];
+      const htmlAllowedFields = ['content', 'htmlContent', 'body', 'description', 'subject', 'name', 'campaignName', 'goal', 'prompt', 'narrationScript', 'script', 'textContent', 'previewText', 'notes', 'signatureData', 'counterSigData', 'signatureImage'];
 
       for (const key in req.body) {
         if (typeof req.body[key] === 'string' && !htmlAllowedFields.includes(key)) {
@@ -51,7 +51,7 @@ export function sqlInjectionGuard(req: Request, res: Response, next: NextFunctio
   try {
     // Skip routes that accept natural language / HTML content — these legitimately
     // contain words like "SELECT", "CREATE", "DROP", "ALTER" in normal English
-    if (req.path.startsWith('/contracts/sign') ||
+    if (req.path.startsWith('/contracts') ||
         req.path.startsWith('/ai-chat') ||
         req.path.startsWith('/campaigns') ||
         req.path.startsWith('/email-templates') ||
