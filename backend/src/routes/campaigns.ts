@@ -4,6 +4,7 @@ import { authenticate } from '../middleware/auth';
 import Anthropic from '@anthropic-ai/sdk';
 import { AI_CONFIG, getAIMessageConfig } from '../config/ai';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import nodemailer from 'nodemailer';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -471,20 +472,92 @@ router.post('/ai/optimize-send-time', async (req, res, next) => {
   }
 });
 
-// AWS SES for sending campaign emails (verified: support@brandmonkz.com)
+// AWS SES fallback for campaign emails
 const ses = new SESClient({ region: 'us-east-1' });
-const FROM_EMAIL = process.env.SES_FROM_EMAIL || 'support@brandmonkz.com';
-const FROM_NAME = process.env.SES_FROM_NAME || 'BrandMonkz';
+const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL || 'support@brandmonkz.com';
+const SES_FROM_NAME = process.env.SES_FROM_NAME || 'BrandMonkz';
 
-async function sendEmail(to: string, subject: string, html: string) {
+// Fallback: send via SES (only works for verified recipients in sandbox)
+async function sendEmailViaSES(to: string, subject: string, html: string) {
   return ses.send(new SendEmailCommand({
-    Source: `${FROM_NAME} <${FROM_EMAIL}>`,
+    Source: `${SES_FROM_NAME} <${SES_FROM_EMAIL}>`,
     Destination: { ToAddresses: [to] },
     Message: {
       Subject: { Data: subject },
       Body: { Html: { Data: html } },
     },
   }));
+}
+
+// Primary: send via user's configured SMTP email server
+async function sendEmailViaSMTP(
+  server: { host: string; port: number; secure: boolean; username: string; password: string; fromEmail: string; fromName: string | null },
+  to: string,
+  subject: string,
+  html: string
+) {
+  const decryptedPassword = Buffer.from(server.password, 'base64').toString();
+  const transporter = nodemailer.createTransport({
+    host: server.host,
+    port: server.port,
+    secure: server.secure,
+    auth: { user: server.username, pass: decryptedPassword },
+  });
+  return transporter.sendMail({
+    from: `"${server.fromName || 'BrandMonkz'}" <${server.fromEmail}>`,
+    to,
+    subject,
+    html,
+  });
+}
+
+// Get user's verified email server, or null if none configured
+async function getUserEmailServer(userId: string) {
+  const server = await prisma.emailServerConfig.findFirst({
+    where: { userId, isActive: true, isVerified: true },
+    orderBy: { createdAt: 'desc' },
+  });
+  return server;
+}
+
+// Fallback: send via env var SMTP (peter@techcloudpro.com or whatever is configured)
+async function sendEmailViaEnvSMTP(to: string, subject: string, html: string) {
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.FROM_EMAIL || user;
+  const fromName = process.env.SMTP_FROM_NAME || 'BrandMonkz';
+
+  if (!host || !user || !pass) {
+    // No env SMTP configured, last resort SES
+    return sendEmailViaSES(to, subject, html);
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: { user, pass },
+  });
+  return transporter.sendMail({
+    from: `"${fromName}" <${fromEmail}>`,
+    to,
+    subject,
+    html,
+  });
+}
+
+// Send email: ONLY via user's verified DB email server (no env SMTP or SES fallback for campaigns)
+async function sendEmail(to: string, subject: string, html: string, userId?: string) {
+  if (!userId) {
+    throw new Error('userId is required for campaign sends');
+  }
+  const server = await getUserEmailServer(userId);
+  if (!server) {
+    throw new Error('No verified email server configured. Please add and verify an email server in Settings.');
+  }
+  return sendEmailViaSMTP(server, to, subject, html);
 }
 
 // POST /api/campaigns/:id/send - Send campaign emails to all linked contacts
@@ -536,8 +609,13 @@ router.post('/:id/send', async (req, res, next) => {
     const contacts = Array.from(contactMap.values());
     let sent = 0;
     let failed = 0;
-    const fromEmail = process.env.SMTP_USER || 'noreply@brandmonkz.com';
-    const fromName = 'BrandMonkz';
+
+    // Require user's verified email server — no env SMTP or SES fallback
+    const userServer = await getUserEmailServer(userId!);
+    if (!userServer) {
+      return res.status(400).json({ error: 'No verified email server configured. Please add and verify an email server in Settings before sending campaigns.' });
+    }
+    const fromEmail = userServer.fromEmail;
 
     const TRACKING_BASE = process.env.FRONTEND_URL || 'https://brandmonkz.com';
 
@@ -589,7 +667,7 @@ router.post('/:id/send', async (req, res, next) => {
           }
         }
 
-        await sendEmail(contact.email, subjectLine, html);
+        await sendEmail(contact.email, subjectLine, html, userId);
         sent++;
       } catch (err) {
         console.error(`Failed to send to ${contact.email}:`, err);
@@ -696,6 +774,199 @@ router.post('/:id/mock-send', async (req, res, next) => {
         name: `${c.firstName} ${c.lastName}`,
         company: c.companyName,
       })),
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// Hardcoded NetSuite-specific $2/hr staff augmentation email template
+const NETSUITE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); padding: 30px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 22px;'>NetSuite Engineers at $2/hr Staffing Fee</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Pre-Vetted NetSuite Talent</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>I noticed {{companyName}} runs on NetSuite — and finding quality NetSuite developers is brutal right now. Most staffing firms charge 15-20% markup on contractor rates. We charge a flat <strong>$2/hr</strong>.</p>
+<p style='font-size: 15px; line-height: 1.6;'><strong>What we deliver for {{companyName}}:</strong></p>
+<ul style='font-size: 14px; line-height: 1.8; color: #333; padding-left: 20px;'>
+<li>NetSuite developers, admins, and consultants — SuiteScript, SuiteFlow, SuiteAnalytics</li>
+<li>Pre-vetted through 3-stage technical screening (code + system design + culture fit)</li>
+<li>48-hour candidate delivery — profiles in your inbox within 2 business days</li>
+<li>$2/hr flat staffing fee — no percentage markups, no hidden costs</li>
+<li>30-day replacement guarantee if the fit isn't right</li>
+</ul>
+<p style='font-size: 15px; line-height: 1.6;'>Full-time placements also available at 15% of first-year salary (industry average is 20-25%).</p>
+<p style='font-size: 15px; line-height: 1.6;'>Would a 15-minute call this week work to discuss {{companyName}}'s NetSuite staffing needs?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://brandmonkz.com/schedule?stream=netsuite' style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Book a 15-Min Call</a></div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro / BrandMonkz</p>
+</div>
+</div>
+<div style='background: #1a1a2e; padding: 16px; text-align: center; border-radius: 0 0 8px 8px;'>
+<p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | BrandMonkz</p>
+</div>
+</div>`;
+
+// POST /api/campaigns/quick-send - One-click NetSuite campaign send
+router.post('/quick-send', async (req, res, next) => {
+  try {
+    const userId = req.user!.id;
+    const limit = Math.min(parseInt(req.body?.limit) || 50, 500); // Default 50, max 500
+
+    // Build team-aware user IDs (same pattern as GET /api/campaigns)
+    const teamUserIds: string[] = [userId];
+    if (req.user?.teamRole === 'MEMBER' && req.user?.accountOwnerId) {
+      teamUserIds.push(req.user.accountOwnerId);
+    }
+    if (req.user?.teamRole === 'OWNER') {
+      const members = await prisma.user.findMany({
+        where: { accountOwnerId: userId },
+        select: { id: true },
+      });
+      members.forEach((m: any) => teamUserIds.push(m.id));
+    }
+
+    // 1. Find NetSuite companies (csv_import) across the whole team
+    const companies = await prisma.company.findMany({
+      where: {
+        userId: { in: teamUserIds },
+        dataSource: 'csv_import',
+      },
+      include: {
+        contacts: {
+          where: { isActive: true, email: { not: null, contains: '@' } },
+          select: { id: true, email: true, firstName: true, lastName: true },
+        },
+      },
+    });
+
+    // Filter to only companies with emailable contacts
+    const emailableCompanies = companies.filter(c => c.contacts.length > 0);
+
+    if (emailableCompanies.length === 0) {
+      return res.status(400).json({ error: 'No NetSuite companies with valid contacts found. Import companies first.' });
+    }
+
+    // Collect all contacts, cap at limit
+    const allContacts: { contact: { id: string; email: string; firstName: string; lastName: string }; companyName: string; companyId: string }[] = [];
+    for (const company of emailableCompanies) {
+      for (const contact of company.contacts) {
+        if (allContacts.length >= limit) break;
+        allContacts.push({ contact, companyName: company.name || '', companyId: company.id });
+      }
+      if (allContacts.length >= limit) break;
+    }
+
+    const companiesUsed = [...new Set(allContacts.map(c => c.companyId))];
+
+    // 2. Create campaign with hardcoded NetSuite content
+    const campaign = await prisma.campaign.create({
+      data: {
+        name: 'NetSuite Staff Augmentation — $2/hr',
+        subject: "Scale {{companyName}}'s Team — Pre-Vetted Engineers at $2/hr",
+        status: 'SENDING',
+        htmlContent: NETSUITE_CAMPAIGN_HTML,
+        userId,
+      },
+    });
+
+    // 3. Link companies used to the campaign
+    await prisma.campaignCompany.createMany({
+      data: companiesUsed.map((companyId) => ({
+        campaignId: campaign.id,
+        companyId,
+      })),
+      skipDuplicates: true,
+    });
+
+    // 4. Send emails via user's SMTP server (falls back to SES)
+    let sent = 0;
+    let failed = 0;
+    const total = allContacts.length;
+    const TRACKING_BASE = process.env.FRONTEND_URL || 'https://brandmonkz.com';
+
+    // Require user's verified email server — no env SMTP or SES fallback
+    const bulkUserServer = await getUserEmailServer(userId!);
+    if (!bulkUserServer) {
+      return res.status(400).json({ error: 'No verified email server configured. Please add and verify an email server in Settings before sending campaigns.' });
+    }
+    const bulkFromEmail = bulkUserServer.fromEmail;
+
+    for (const { contact, companyName } of allContacts) {
+        try {
+          // Replace template variables
+          const vars: Record<string, string> = {
+            firstName: contact.firstName || '',
+            lastName: contact.lastName || '',
+            companyName: companyName,
+          };
+
+          let subjectLine = campaign.subject || '';
+          let html = NETSUITE_CAMPAIGN_HTML;
+          for (const [key, val] of Object.entries(vars)) {
+            const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+            subjectLine = subjectLine.replace(regex, val);
+            html = html.replace(regex, val);
+          }
+
+          // Create email log for tracking
+          let emailLogId = '';
+          try {
+            const emailLog = await prisma.emailLog.create({
+              data: {
+                toEmail: contact.email,
+                fromEmail: bulkFromEmail,
+                status: 'SENT',
+                sentAt: new Date(),
+                campaignId: campaign.id,
+                contactId: contact.id,
+              } as any,
+            });
+            emailLogId = emailLog.id;
+          } catch {
+            // Continue without tracking
+          }
+
+          // Inject tracking pixel
+          if (emailLogId) {
+            const trackingPixel = `<img src="${TRACKING_BASE}/api/tracking/open/${emailLogId}" alt="" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" />`;
+            if (html.includes('</div>')) {
+              html = html.replace(/<\/div>\s*$/, `${trackingPixel}</div>`);
+            } else {
+              html += trackingPixel;
+            }
+          }
+
+          await sendEmail(contact.email, subjectLine, html, userId);
+          sent++;
+        } catch (err) {
+          console.error(`Failed to send to ${contact.email}:`, err);
+          failed++;
+        }
+    }
+
+    // 5. Update campaign status
+    await prisma.campaign.update({
+      where: { id: campaign.id },
+      data: {
+        status: 'SENT',
+        sentAt: new Date(),
+        totalSent: sent,
+      },
+    });
+
+    // 6. Return results
+    return res.json({
+      success: true,
+      campaignId: campaign.id,
+      sent,
+      total,
+      failed,
+      companyCount: companiesUsed.length,
+      totalAvailable: emailableCompanies.reduce((s, c) => s + c.contacts.length, 0),
     });
   } catch (error) {
     return next(error);
