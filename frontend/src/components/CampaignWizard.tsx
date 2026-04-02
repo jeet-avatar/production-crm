@@ -29,6 +29,9 @@ interface StaffingTemplate {
   name: string;
   subject: string;
   htmlContent: string;
+  id?: string;
+  color?: string;
+  subjects?: string[];
 }
 
 interface SendResult {
@@ -729,22 +732,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                         </span>
                       </div>
 
-                      {/* Subject line picker — dynamic based on template type */}
+                      {/* Subject line picker — uses selected template's own subjects */}
                       <label style={{ fontSize: '11px', color: '#94A3B8', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Choose a subject line (A/B test different ones)</label>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
-                        {(campaignName.toLowerCase().includes('ai') || emailBody.toLowerCase().includes('ai agent') || emailBody.toLowerCase().includes('ai consulting') ? [
-                          "67% of Fortune 500 deployed AI agents this year. Has {{companyName}}?",
-                          "Quick question about {{companyName}}'s AI roadmap",
-                          "The AI skills gap is real — 91% of companies are stuck in pilot mode",
-                          "{{companyName}} + AI agents: 15-min strategy call?",
-                          "Your competitors just deployed AI agents. Here's how to catch up.",
-                        ] : [
-                          "{{companyName}}'s NetSuite team ready for 2026.1?",
-                          "NetSuite Next just launched — where's your talent?",
-                          "82% of firms can't find NetSuite talent — here's how we solve it",
-                          "Quick question about {{companyName}}'s NetSuite roadmap",
-                          "NetSuite 2026.1 + NetSuite Next — does {{companyName}} have the right engineers?",
-                        ]).map((s, idx) => (
+                        {(staffingTemplates[selectedStaffingIdx]?.subjects || [staffingTemplates[selectedStaffingIdx]?.subject]).filter(Boolean).map((s, idx) => (
                           <div
                             key={idx}
                             onClick={() => setSubject(s)}
