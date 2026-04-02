@@ -21,6 +21,7 @@ interface Contact {
 interface Company {
   id: string;
   name: string;
+  industry?: string;
   _count: { contacts: number };
   contacts?: Contact[];
 }
@@ -79,8 +80,13 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [showConfirm, setShowConfirm] = useState(false);
   const [sendCampaignId, setSendCampaignId] = useState<string>('');
   const [sendProgress, setSendProgress] = useState<{ status: string; sent: number; failed: number; total: number; remaining: number; nextSendInSeconds: number } | null>(null);
+  const [industryFilter, setIndustryFilter] = useState<string>('all');
 
   const API_URL = import.meta.env.VITE_API_URL || '';
+
+  // Email validation — only contacts with valid emails are selectable
+  const isValidEmail = (email?: string) => !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isSelectable = (contact: Contact) => isValidEmail(contact.email) && !sentContactIds.has(contact.id);
 
   // Load user email on mount
   useEffect(() => {
@@ -401,13 +407,13 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
         }
         return prev.filter(c => c !== id);
       } else {
-        // Selecting company — auto-select non-sent contacts
+        // Selecting company — auto-select contacts with valid emails, skip sent
         const company = companies.find(c => c.id === id);
         if (company?.contacts) {
           setSelectedContactIds(prevContacts => {
             const next = new Set(prevContacts);
             company.contacts!.forEach(c => {
-              if (!sentContactIds.has(c.id)) next.add(c.id);
+              if (isSelectable(c)) next.add(c.id);
             });
             return next;
           });
@@ -435,7 +441,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
   const toggleAllContactsInCompany = (company: Company) => {
     const contacts = company.contacts || [];
-    const selectableContacts = contacts.filter(c => !sentContactIds.has(c.id));
+    const selectableContacts = contacts.filter(c => isSelectable(c));
     const allSelected = selectableContacts.length > 0 && selectableContacts.every(c => selectedContactIds.has(c.id));
     setSelectedContactIds(prev => {
       const next = new Set(prev);
@@ -1126,9 +1132,14 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
           {/* ======================== STEP 2 ======================== */}
           {step === 2 && (() => {
-            const filtered = companies.filter(c =>
-              c.name.toLowerCase().includes(companySearch.toLowerCase())
-            );
+            // Get unique industries for filter tabs
+            const industries = ['all', ...Array.from(new Set(companies.map(c => c.industry || 'Other').filter(Boolean)))].slice(0, 10);
+
+            const filtered = companies.filter(c => {
+              const matchesSearch = c.name.toLowerCase().includes(companySearch.toLowerCase());
+              const matchesIndustry = industryFilter === 'all' || (c.industry || 'Other') === industryFilter;
+              return matchesSearch && matchesIndustry;
+            });
             const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedCompanyIds.includes(c.id));
 
             return (
@@ -1163,12 +1174,12 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     } else {
                       const newIds = [...new Set([...selectedCompanyIds, ...filtered.map(c => c.id)])];
                       setSelectedCompanyIds(newIds);
-                      // Auto-select non-sent contacts in newly selected companies
+                      // Auto-select contacts with valid emails, skip sent
                       setSelectedContactIds(prev => {
                         const next = new Set(prev);
                         filtered.forEach(company => {
                           (company.contacts || []).forEach(c => {
-                            if (!sentContactIds.has(c.id)) next.add(c.id);
+                            if (isSelectable(c)) next.add(c.id);
                           });
                         });
                         return next;
@@ -1190,6 +1201,27 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   {allFilteredSelected ? '✓ All Selected' : `Select All (${filtered.length})`}
                 </button>
               </div>
+
+              {/* Industry filter tabs */}
+              {industries.length > 2 && (
+                <div style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                  {industries.map(ind => (
+                    <button
+                      key={ind}
+                      onClick={() => setIndustryFilter(ind)}
+                      style={{
+                        padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 600,
+                        border: industryFilter === ind ? '1px solid #6366F1' : '1px solid #3d3d5c',
+                        background: industryFilter === ind ? 'rgba(99,102,241,0.15)' : 'transparent',
+                        color: industryFilter === ind ? '#A5B4FC' : '#64748B',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}
+                    >
+                      {ind === 'all' ? `All (${companies.length})` : `${ind} (${companies.filter(c => (c.industry || 'Other') === ind).length})`}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Stats bar + seed button */}
               <div style={{
@@ -1301,7 +1333,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                               {company.name || '(unnamed)'}
                             </span>
                             <span style={{ fontSize: '12px', color: '#64748B', marginLeft: '8px' }}>
-                              — {contactCount} {contactCount === 1 ? 'contact' : 'contacts'}
+                              — {contacts.filter(c => isValidEmail(c.email)).length}/{contactCount} with email
                               {selectedInCompany > 0 && <span style={{ color: '#A5B4FC' }}> ({selectedInCompany} selected)</span>}
                               {(() => {
                                 const sentInCompany = (company.contacts || []).filter(c => sentContactIds.has(c.id)).length;
@@ -1352,13 +1384,17 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                             </div>
                             {contacts.map(contact => {
                               const isContactSelected = selectedContactIds.has(contact.id);
+                              const hasValidEmail = isValidEmail(contact.email);
+                              const isSent = sentContactIds.has(contact.id);
                               return (
                                 <div
                                   key={contact.id}
-                                  onClick={(e) => { e.stopPropagation(); toggleContact(contact.id, company.id); }}
+                                  onClick={(e) => { e.stopPropagation(); if (hasValidEmail) toggleContact(contact.id, company.id); }}
                                   style={{
                                     display: 'flex', alignItems: 'center', gap: '10px',
-                                    padding: '8px 10px', borderRadius: '6px', cursor: 'pointer',
+                                    padding: '8px 10px', borderRadius: '6px',
+                                    cursor: hasValidEmail ? 'pointer' : 'not-allowed',
+                                    opacity: hasValidEmail ? 1 : 0.45,
                                     background: isContactSelected ? 'rgba(99,102,241,0.12)' : 'transparent',
                                     border: isContactSelected ? '1px solid rgba(99,102,241,0.3)' : '1px solid transparent',
                                     marginBottom: '4px', transition: 'all 0.1s',
@@ -1378,21 +1414,19 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ fontSize: '13px', fontWeight: 600, color: '#F1F5F9' }}>
                                       {contact.firstName} {contact.lastName}
-                                      {sentContactIds.has(contact.id) && (
+                                      {isSent && (
                                         <span style={{
-                                          display: 'inline-block',
-                                          marginLeft: '8px',
-                                          padding: '1px 7px',
-                                          borderRadius: '4px',
-                                          background: 'rgba(139, 92, 246, 0.25)',
-                                          color: '#C4B5FD',
-                                          fontSize: '10px',
-                                          fontWeight: 700,
-                                          letterSpacing: '0.03em',
-                                          verticalAlign: 'middle',
-                                        }}>
-                                          Sent
-                                        </span>
+                                          display: 'inline-block', marginLeft: '8px', padding: '1px 7px', borderRadius: '4px',
+                                          background: 'rgba(139,92,246,0.25)', color: '#C4B5FD',
+                                          fontSize: '10px', fontWeight: 700, verticalAlign: 'middle',
+                                        }}>Sent</span>
+                                      )}
+                                      {!hasValidEmail && (
+                                        <span style={{
+                                          display: 'inline-block', marginLeft: '8px', padding: '1px 7px', borderRadius: '4px',
+                                          background: 'rgba(239,68,68,0.2)', color: '#F87171',
+                                          fontSize: '10px', fontWeight: 700, verticalAlign: 'middle',
+                                        }}>No email</span>
                                       )}
                                     </div>
                                     <div style={{ fontSize: '11px', color: '#94A3B8', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
