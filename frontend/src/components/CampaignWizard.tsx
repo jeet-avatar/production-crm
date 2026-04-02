@@ -134,6 +134,25 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
     }
   }, []);
 
+  // Poll send progress every 10 seconds (Step 4)
+  useEffect(() => {
+    if (!sendCampaignId || sendProgress?.status === 'complete') return;
+    const token = localStorage.getItem('crmToken');
+    const poll = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/campaigns/${sendCampaignId}/send-progress`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSendProgress(data);
+        }
+      } catch { /* ignore */ }
+    };
+    const timer = setInterval(poll, 10000);
+    return () => clearInterval(timer);
+  }, [sendCampaignId, sendProgress?.status]);
+
   // Load companies + templates when wizard opens
   useEffect(() => {
     if (isOpen) {
@@ -1876,29 +1895,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
           {/* ======================== STEP 4: LIVE PROGRESS ======================== */}
           {step === 4 && sendResult && (() => {
-            // Poll progress every 10 seconds while sending
-            const pollRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
-            React.useEffect(() => {
-              if (!sendCampaignId || sendProgress?.status === 'complete') return;
-              const token = localStorage.getItem('crmToken');
-              const poll = async () => {
-                try {
-                  const res = await fetch(`${API_URL}/api/campaigns/${sendCampaignId}/send-progress`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                  });
-                  if (res.ok) {
-                    const data = await res.json();
-                    setSendProgress(data);
-                    if (data.status === 'complete') {
-                      if (pollRef.current) clearInterval(pollRef.current);
-                    }
-                  }
-                } catch { /* ignore */ }
-              };
-              pollRef.current = setInterval(poll, 10000);
-              return () => { if (pollRef.current) clearInterval(pollRef.current); };
-            }, [sendCampaignId, sendProgress?.status]);
-
             const p = sendProgress;
             const isComplete = p?.status === 'complete';
             const progressPct = p && p.total > 0 ? Math.round((p.sent / p.total) * 100) : 0;
