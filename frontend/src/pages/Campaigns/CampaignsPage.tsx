@@ -262,21 +262,14 @@ export function CampaignsPage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={handleNetSuiteCampaign}
-              disabled={sendingNetSuite}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-orange-400/30 disabled:opacity-60"
+              onClick={() => {
+                setWizardPreselect({ subject: "{{companyName}}'s NetSuite team ready for 2026.1?", campaignType: 'netsuite' });
+                setShowCreateModal(true);
+              }}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-orange-400/30"
             >
-              {sendingNetSuite ? (
-                <>
-                  <ArrowPathIcon className="h-5 w-5 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <PaperAirplaneIcon className="h-5 w-5" />
-                  Send NetSuite Campaign
-                </>
-              )}
+              <PaperAirplaneIcon className="h-5 w-5" />
+              Send NetSuite Campaign
             </button>
             <button
               type="button"
