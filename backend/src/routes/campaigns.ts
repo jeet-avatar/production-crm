@@ -77,6 +77,83 @@ router.post('/', async (req, res, next) => {
   }
 });
 
+// Normalize 483 messy industry values into clean verticals
+function normalizeVertical(industry: string | null | undefined): string {
+  if (!industry) return 'Uncategorized';
+  const l = industry.toLowerCase().trim();
+
+  if (/saas|software|app dev|enterprise software|productivity/i.test(l)) return 'Software & SaaS';
+  if (/cyber|security|identity|infosec/i.test(l)) return 'Cybersecurity';
+  if (/ai|ml|machine learning|data science|big data|data analytics|data eng|database/i.test(l)) return 'AI & Data';
+  if (/cloud|devops|platform|hosting|infrastructure/i.test(l)) return 'Cloud & Infrastructure';
+  if (/health|medical|pharma|biotech|hospital|wellness|diagnostics/i.test(l)) return 'Healthcare & Life Sciences';
+  if (/fintech|banking|finance|insurance|payment|lending|mortgage/i.test(l)) return 'Financial Services';
+  if (/retail|e-?commerce|consumer goods|beauty|fashion|apparel|food.*bev|restaurant|grocery/i.test(l)) return 'Retail & Consumer';
+  if (/manufactur|industrial|automotive|aerospace|construction|engineering|energy|chemical/i.test(l)) return 'Manufacturing & Industrial';
+  if (/educat|edtech|e-?learn|training|school/i.test(l)) return 'Education';
+  if (/consult|professional serv|staffing|recruit|hr |human resource/i.test(l)) return 'Consulting & Staffing';
+  if (/media|entertain|gaming|music|publish|advertis|marketing|pr\b/i.test(l)) return 'Media & Marketing';
+  if (/telecom|network|iot|semiconductor|hardware|electronics/i.test(l)) return 'Telecom & Hardware';
+  if (/logistics|transport|supply chain|shipping|warehouse/i.test(l)) return 'Logistics & Supply Chain';
+  if (/non-?profit|ngo|social|civic|charity|foundation/i.test(l)) return 'Non-Profit';
+  if (/real estate|property|housing/i.test(l)) return 'Real Estate';
+  if (/legal|law|government|public/i.test(l)) return 'Legal & Government';
+  if (/it |it$|information tech|tech serv|tech$|technology$/i.test(l)) return 'IT Services';
+  if (/travel|hospitality|hotel|tourism|airline/i.test(l)) return 'Travel & Hospitality';
+
+  return 'Other';
+}
+
+// GET /api/campaigns/company-verticals — Companies grouped by normalized vertical with email stats
+router.get('/company-verticals', async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+
+    // Team-aware access
+    const userIds = [userId];
+    if (req.user?.teamRole === 'MEMBER' && req.user?.accountOwnerId) {
+      userIds.push(req.user.accountOwnerId);
+    }
+    if (req.user?.teamRole === 'OWNER') {
+      const teamMembers = await prisma.user.findMany({
+        where: { accountOwnerId: userId },
+        select: { id: true },
+      });
+      teamMembers.forEach(m => userIds.push(m.id));
+    }
+
+    const companies = await prisma.company.findMany({
+      where: {
+        isActive: true,
+        OR: userIds.filter(Boolean).map(id => ({ userId: id as string })),
+      },
+      select: {
+        id: true,
+        industry: true,
+        _count: { select: { contacts: { where: { isActive: true } } } },
+      },
+    });
+
+    // Build vertical summary
+    const verticalMap = new Map<string, { count: number; totalContacts: number }>();
+    for (const c of companies) {
+      const v = normalizeVertical(c.industry);
+      const existing = verticalMap.get(v) || { count: 0, totalContacts: 0 };
+      existing.count++;
+      existing.totalContacts += c._count.contacts;
+      verticalMap.set(v, existing);
+    }
+
+    const verticals = Array.from(verticalMap.entries())
+      .map(([name, stats]) => ({ name, ...stats }))
+      .sort((a, b) => b.totalContacts - a.totalContacts);
+
+    return res.json({ verticals, totalCompanies: companies.length });
+  } catch (error: any) {
+    return next(error);
+  }
+});
+
 // GET /api/campaigns/sent-contact-ids — Contacts that have received any campaign email
 router.get('/sent-contact-ids', async (req, res, next) => {
   try {

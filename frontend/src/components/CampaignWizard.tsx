@@ -22,8 +22,15 @@ interface Company {
   id: string;
   name: string;
   industry?: string;
+  vertical?: string;  // normalized backend vertical
   _count: { contacts: number };
   contacts?: Contact[];
+}
+
+interface Vertical {
+  name: string;
+  count: number;
+  totalContacts: number;
 }
 
 interface StaffingTemplate {
@@ -80,13 +87,39 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [showConfirm, setShowConfirm] = useState(false);
   const [sendCampaignId, setSendCampaignId] = useState<string>('');
   const [sendProgress, setSendProgress] = useState<{ status: string; sent: number; failed: number; total: number; remaining: number; nextSendInSeconds: number } | null>(null);
-  const [industryFilter, setIndustryFilter] = useState<string>('all');
+  const [verticalFilter, setVerticalFilter] = useState<string>('all');
+  const [verticals, setVerticals] = useState<Vertical[]>([]);
 
   const API_URL = import.meta.env.VITE_API_URL || '';
 
   // Email validation — only contacts with valid emails are selectable
   const isValidEmail = (email?: string) => !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isSelectable = (contact: Contact) => isValidEmail(contact.email) && !sentContactIds.has(contact.id);
+
+  // Normalize industry to clean vertical (mirrors backend normalizeVertical)
+  const getVertical = (industry?: string | null): string => {
+    if (!industry) return 'Uncategorized';
+    const l = industry.toLowerCase().trim();
+    if (/saas|software|app dev|enterprise software|productivity/i.test(l)) return 'Software & SaaS';
+    if (/cyber|security|identity|infosec/i.test(l)) return 'Cybersecurity';
+    if (/ai|ml|machine learning|data science|big data|data analytics|data eng|database/i.test(l)) return 'AI & Data';
+    if (/cloud|devops|platform|hosting|infrastructure/i.test(l)) return 'Cloud & Infrastructure';
+    if (/health|medical|pharma|biotech|hospital|wellness|diagnostics/i.test(l)) return 'Healthcare & Life Sciences';
+    if (/fintech|banking|finance|insurance|payment|lending|mortgage/i.test(l)) return 'Financial Services';
+    if (/retail|e-?commerce|consumer goods|beauty|fashion|apparel|food.*bev|restaurant|grocery/i.test(l)) return 'Retail & Consumer';
+    if (/manufactur|industrial|automotive|aerospace|construction|engineering|energy|chemical/i.test(l)) return 'Manufacturing & Industrial';
+    if (/educat|edtech|e-?learn|training|school/i.test(l)) return 'Education';
+    if (/consult|professional serv|staffing|recruit|hr |human resource/i.test(l)) return 'Consulting & Staffing';
+    if (/media|entertain|gaming|music|publish|advertis|marketing|pr\b/i.test(l)) return 'Media & Marketing';
+    if (/telecom|network|iot|semiconductor|hardware|electronics/i.test(l)) return 'Telecom & Hardware';
+    if (/logistics|transport|supply chain|shipping|warehouse/i.test(l)) return 'Logistics & Supply Chain';
+    if (/non-?profit|ngo|social|civic|charity|foundation/i.test(l)) return 'Non-Profit';
+    if (/real estate|property|housing/i.test(l)) return 'Real Estate';
+    if (/legal|law|government|public/i.test(l)) return 'Legal & Government';
+    if (/it |it$|information tech|tech serv|tech$|technology$/i.test(l)) return 'IT Services';
+    if (/travel|hospitality|hotel|tourism|airline/i.test(l)) return 'Travel & Hospitality';
+    return 'Other';
+  };
 
   // Load user email on mount
   useEffect(() => {
@@ -198,15 +231,35 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const loadCompanies = async () => {
     try {
       const token = localStorage.getItem('crmToken');
-      const res = await fetch(`${API_URL}/api/companies?limit=200`, {
+      const res = await fetch(`${API_URL}/api/companies?limit=500`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         const list = Array.isArray(data) ? data : data.companies || data.data || [];
-        // Sort by contact count descending so most populated groups show first
-        list.sort((a: any, b: any) => (b._count?.contacts || 0) - (a._count?.contacts || 0));
+        // Tag each company with normalized vertical + sort by emailable contact count
+        list.forEach((c: any) => { c.vertical = getVertical(c.industry); });
+        list.sort((a: any, b: any) => {
+          const aEmail = (a.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
+          const bEmail = (b.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
+          return bEmail - aEmail;
+        });
         setCompanies(list);
+
+        // Build vertical summary from loaded companies
+        const vMap = new Map<string, { count: number; totalContacts: number; emailContacts: number }>();
+        list.forEach((c: any) => {
+          const v = c.vertical || 'Uncategorized';
+          const existing = vMap.get(v) || { count: 0, totalContacts: 0, emailContacts: 0 };
+          existing.count++;
+          existing.totalContacts += c._count?.contacts || 0;
+          existing.emailContacts += (c.contacts || []).filter((ct: any) => isValidEmail(ct.email)).length;
+          vMap.set(v, existing);
+        });
+        const vList = Array.from(vMap.entries())
+          .map(([name, stats]) => ({ name, ...stats }))
+          .sort((a, b) => b.emailContacts - a.emailContacts);
+        setVerticals(vList);
       }
     } catch {
       // silently fail — empty state handled below
@@ -1132,13 +1185,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
           {/* ======================== STEP 2 ======================== */}
           {step === 2 && (() => {
-            // Get unique industries for filter tabs
-            const industries = ['all', ...Array.from(new Set(companies.map(c => c.industry || 'Other').filter(Boolean)))].slice(0, 10);
-
             const filtered = companies.filter(c => {
               const matchesSearch = c.name.toLowerCase().includes(companySearch.toLowerCase());
-              const matchesIndustry = industryFilter === 'all' || (c.industry || 'Other') === industryFilter;
-              return matchesSearch && matchesIndustry;
+              const matchesVertical = verticalFilter === 'all' || c.vertical === verticalFilter;
+              return matchesSearch && matchesVertical;
             });
             const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedCompanyIds.includes(c.id));
 
@@ -1202,24 +1252,50 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 </button>
               </div>
 
-              {/* Industry filter tabs */}
-              {industries.length > 2 && (
+              {/* Vertical filter tabs */}
+              {verticals.length > 0 && (
                 <div style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  {industries.map(ind => (
+                  <button
+                    onClick={() => setVerticalFilter('all')}
+                    style={{
+                      padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 600,
+                      border: verticalFilter === 'all' ? '1px solid #6366F1' : '1px solid #3d3d5c',
+                      background: verticalFilter === 'all' ? 'rgba(99,102,241,0.15)' : 'transparent',
+                      color: verticalFilter === 'all' ? '#A5B4FC' : '#64748B',
+                      cursor: 'pointer', transition: 'all 0.15s',
+                    }}
+                  >
+                    All ({companies.length})
+                  </button>
+                  {verticals.filter(v => v.name !== 'Uncategorized').map(v => (
                     <button
-                      key={ind}
-                      onClick={() => setIndustryFilter(ind)}
+                      key={v.name}
+                      onClick={() => setVerticalFilter(v.name)}
                       style={{
                         padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 600,
-                        border: industryFilter === ind ? '1px solid #6366F1' : '1px solid #3d3d5c',
-                        background: industryFilter === ind ? 'rgba(99,102,241,0.15)' : 'transparent',
-                        color: industryFilter === ind ? '#A5B4FC' : '#64748B',
+                        border: verticalFilter === v.name ? '1px solid #6366F1' : '1px solid #3d3d5c',
+                        background: verticalFilter === v.name ? 'rgba(99,102,241,0.15)' : 'transparent',
+                        color: verticalFilter === v.name ? '#A5B4FC' : '#64748B',
                         cursor: 'pointer', transition: 'all 0.15s',
                       }}
                     >
-                      {ind === 'all' ? `All (${companies.length})` : `${ind} (${companies.filter(c => (c.industry || 'Other') === ind).length})`}
+                      {v.name} ({v.count})
                     </button>
                   ))}
+                  {verticals.some(v => v.name === 'Uncategorized') && (
+                    <button
+                      onClick={() => setVerticalFilter('Uncategorized')}
+                      style={{
+                        padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 600,
+                        border: verticalFilter === 'Uncategorized' ? '1px solid #6366F1' : '1px solid #3d3d5c',
+                        background: verticalFilter === 'Uncategorized' ? 'rgba(99,102,241,0.15)' : 'transparent',
+                        color: verticalFilter === 'Uncategorized' ? '#F59E0B' : '#64748B',
+                        cursor: 'pointer', transition: 'all 0.15s',
+                      }}
+                    >
+                      Uncategorized ({verticals.find(v => v.name === 'Uncategorized')?.count || 0})
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -1327,13 +1403,21 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                             {isSelected ? '✓' : ''}
                           </div>
 
-                          {/* Company name + contact count — simple text */}
+                          {/* Company name + vertical + contact count */}
                           <div style={{ flex: '1 1 auto', overflow: 'hidden' }}>
-                            <span style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9' }}>
-                              {company.name || '(unnamed)'}
-                            </span>
-                            <span style={{ fontSize: '12px', color: '#64748B', marginLeft: '8px' }}>
-                              — {contacts.filter(c => isValidEmail(c.email)).length}/{contactCount} with email
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontWeight: 600, fontSize: '13px', color: '#F1F5F9' }}>
+                                {company.name || '(unnamed)'}
+                              </span>
+                              {company.vertical && company.vertical !== 'Uncategorized' && (
+                                <span style={{
+                                  padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 600,
+                                  background: 'rgba(99,102,241,0.12)', color: '#818CF8', whiteSpace: 'nowrap',
+                                }}>{company.vertical}</span>
+                              )}
+                            </div>
+                            <span style={{ fontSize: '12px', color: '#64748B' }}>
+                              {contacts.filter(c => isValidEmail(c.email)).length}/{contactCount} with email
                               {selectedInCompany > 0 && <span style={{ color: '#A5B4FC' }}> ({selectedInCompany} selected)</span>}
                               {(() => {
                                 const sentInCompany = (company.contacts || []).filter(c => sentContactIds.has(c.id)).length;
