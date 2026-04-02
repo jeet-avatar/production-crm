@@ -539,7 +539,7 @@ router.post('/create-all-netsuite', async (req, res, next) => {
 
 // AI Consulting campaign email template
 const AI_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 50%, #06B6D4 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #8B5CF6; background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 50%, #06B6D4 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Your Competitors Are Deploying AI Agents. Are You?</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — AI Consulting & Implementation</p>
 </div>
@@ -559,7 +559,7 @@ const AI_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; 
 <p style='font-size: 14px; line-height: 1.6; color: #333; margin: 0;'><strong>The Reality Check:</strong> 46% of companies say integrating AI with existing systems is their #1 challenge. 60% cite legacy infrastructure as the blocker. These aren't model problems — they're engineering problems. That's exactly what we solve.</p>
 </div>
 <p style='font-size: 15px; line-height: 1.6;'>Would 15 minutes this week work to discuss where AI can create the most impact for {{companyName}}?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/ai' style='background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Talk to an AI Expert</a></div>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/ai' style='background-color: #8B5CF6; background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Talk to an AI Expert</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
 <p style='font-size: 13px; color: #666; margin: 0;'>Director of AI Consulting — TechCloudPro</p>
@@ -592,7 +592,7 @@ router.get('/ai-subjects', async (req, res) => {
 
 // 1. Cloud & Platform Engineering
 const CLOUD_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #0EA5E9; background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Kubernetes Is Now the Default. Is Your Team Ready?</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Cloud & Platform Engineering Talent</p>
 </div>
@@ -610,7 +610,7 @@ const CLOUD_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-seri
 </ul>
 <p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. Both sides see the full breakdown.</p>
 <p style='font-size: 15px; line-height: 1.6;'>Quick 15-minute call to discuss {{companyName}}'s cloud roadmap?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #0EA5E9, #2563EB); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Cloud Engineer Profiles</a></div>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background-color: #0EA5E9; background: linear-gradient(135deg, #0EA5E9, #2563EB); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Cloud Engineer Profiles</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
 <p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
@@ -627,7 +627,7 @@ const CLOUD_SUBJECTS = [
 
 // 2. Cybersecurity
 const CYBER_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #DC2626; background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>3.5 Million Cybersecurity Jobs Are Unfilled. We Fill Yours.</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Cybersecurity Talent on Demand</p>
 </div>
@@ -644,7 +644,7 @@ const CYBER_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-seri
 </ul>
 <p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The specialist keeps the rest. No hidden markups.</p>
 <p style='font-size: 15px; line-height: 1.6;'>15 minutes to discuss {{companyName}}'s security gaps?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #DC2626, #991B1B); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Security Talent Now</a></div>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background-color: #DC2626; background: linear-gradient(135deg, #DC2626, #991B1B); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Security Talent Now</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
 <p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
@@ -661,7 +661,7 @@ const CYBER_SUBJECTS = [
 
 // 3. Data Engineering
 const DATA_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #059669; background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Your Data Pipeline Is Only as Good as the Engineer Behind It</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Data Engineering & Analytics Talent</p>
 </div>
@@ -678,7 +678,7 @@ const DATA_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif
 </ul>
 <p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. Full visibility for both sides.</p>
 <p style='font-size: 15px; line-height: 1.6;'>15 minutes to discuss {{companyName}}'s data roadmap?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #059669, #047857); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Data Engineer Profiles</a></div>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background-color: #059669; background: linear-gradient(135deg, #059669, #047857); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Data Engineer Profiles</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
 <p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
@@ -695,7 +695,7 @@ const DATA_SUBJECTS = [
 
 // 4. Full-Stack Engineering
 const FULLSTACK_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #F59E0B; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Full-Stack Engineers Who Ship — Not Just Code</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Product Engineering Talent</p>
 </div>
@@ -712,7 +712,7 @@ const FULLSTACK_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-
 </ul>
 <p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. No surprises.</p>
 <p style='font-size: 15px; line-height: 1.6;'>15 minutes to talk about {{companyName}}'s engineering needs?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Full-Stack Profiles</a></div>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background-color: #F59E0B; background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Full-Stack Profiles</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
 <p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
@@ -729,7 +729,7 @@ const FULLSTACK_SUBJECTS = [
 
 // 5. Mobile Engineering
 const MOBILE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #EC4899; background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>iOS & Android Engineers Who Build Apps People Love</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Mobile Engineering Talent</p>
 </div>
@@ -746,7 +746,7 @@ const MOBILE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-ser
 </ul>
 <p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. Complete rate visibility.</p>
 <p style='font-size: 15px; line-height: 1.6;'>15 minutes to discuss {{companyName}}'s mobile roadmap?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #EC4899, #BE185D); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Mobile Engineer Profiles</a></div>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background-color: #EC4899; background: linear-gradient(135deg, #EC4899, #BE185D); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Mobile Engineer Profiles</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
 <p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
@@ -763,7 +763,7 @@ const MOBILE_SUBJECTS = [
 
 // 6. Ready to Onboard — No commitment, contract to sign, start immediately
 const ONBOARD_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #10B981; background: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 22px; line-height: 1.3;'>Ready to Hire? Skip the Sales Call. Start Now.</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Zero Commitment. Cancel Anytime. Profiles in 48hrs.</p>
 </div>
@@ -802,7 +802,7 @@ const ONBOARD_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-se
 <p style='font-size: 16px; font-weight: 700; color: #333; text-align: center; margin: 24px 0 8px;'>Choose how you want to start:</p>
 <div style='display: flex; gap: 10px; margin: 0 0 20px;'>
 <div style='flex: 1; text-align: center;'>
-<a href='https://techcloudpro.com/onboard' style='display: block; background: linear-gradient(135deg, #10B981, #059669); color: #fff; padding: 14px 8px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;'>Start Now<br><span style='font-size: 11px; font-weight: 400; opacity: 0.9;'>Sign & get profiles</span></a>
+<a href='https://techcloudpro.com/onboard' style='display: block; background-color: #10B981; background: linear-gradient(135deg, #10B981, #059669); color: #fff; padding: 14px 8px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;'>Start Now<br><span style='font-size: 11px; font-weight: 400; opacity: 0.9;'>Sign & get profiles</span></a>
 </div>
 <div style='flex: 1; text-align: center;'>
 <a href='mailto:peter@techcloudpro.com?subject=Ready to onboard — {{companyName}}&body=Hi Peter, we are ready to start. Please send over the agreement.' style='display: block; background: #1a1a2e; color: #fff; padding: 14px 8px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; border: 1px solid #333;'>Email Peter<br><span style='font-size: 11px; font-weight: 400; opacity: 0.9;'>Direct reply</span></a>
@@ -1175,7 +1175,7 @@ DO NOT:
 - Sound like a mass email — this should feel like a personal note
 
 Format as clean HTML with:
-- A gradient header bar (background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)) with the campaign headline in white
+- A gradient header bar (background-color: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%)) with the campaign headline in white
 - Body on white background (#ffffff) with dark text (#333333)
 - Bullet points styled clearly
 - A centered CTA button with the gradient background
@@ -1535,7 +1535,7 @@ router.post('/:id/mock-send', async (req, res, next) => {
 
 // NetSuite-specific $2/hr staff augmentation email template (updated for 2026.1)
 const NETSUITE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); padding: 30px 24px; text-align: center;'>
+<div style='background-color: #FF6B35; background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); padding: 30px 24px; text-align: center;'>
 <h1 style='color: #fff; margin: 0; font-size: 22px; line-height: 1.3;'>NetSuite + NetSuite Next Engineers at $2/hr</h1>
 <p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>2026.1 Ready — AI Canvas, Agentic Workflows, SuiteScript 2.1, Solution Architects</p>
 </div>
@@ -1553,7 +1553,7 @@ const NETSUITE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-s
 </ul>
 <p style='font-size: 15px; line-height: 1.6;'>Full-time placements at a transparent 15% — industry averages 20-25% with hidden fees on top.</p>
 <p style='font-size: 15px; line-height: 1.6;'>Would a 15-minute call this week work to discuss {{companyName}}'s NetSuite talent needs?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/netsuite' style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Book a 15-Min Call</a></div>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/netsuite' style='background-color: #FF6B35; background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Book a 15-Min Call</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
 <p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
