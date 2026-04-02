@@ -55,6 +55,9 @@ export function CampaignsPage() {
   const [showHelpGuide, setShowHelpGuide] = useState(false);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
   const [sendResult, setSendResult] = useState<{ id: string; sent: number; total: number } | null>(null);
+  const [sendingNetSuite, setSendingNetSuite] = useState(false);
+  const [netSuiteResult, setNetSuiteResult] = useState<{ sent: number; total: number; failed: number; companyCount: number } | null>(null);
+  const [wizardPreselect, setWizardPreselect] = useState<{ subject: string; campaignType: string } | null>(null);
 
   useEffect(() => {
     loadCampaigns();
@@ -146,6 +149,31 @@ export function CampaignsPage() {
     }
   };
 
+  const handleNetSuiteCampaign = async () => {
+    if (!window.confirm('Send the $2/hr staff augmentation campaign to ALL NetSuite companies now?\n\nThis will send real emails via AWS SES.')) return;
+    setSendingNetSuite(true);
+    setNetSuiteResult(null);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(`${apiUrl}/api/campaigns/quick-send`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setNetSuiteResult({ sent: data.sent, total: data.total, failed: data.failed, companyCount: data.companyCount });
+        loadCampaigns();
+      } else {
+        alert(data.error || 'Failed to send NetSuite campaign');
+      }
+    } catch {
+      alert('Failed to send NetSuite campaign');
+    } finally {
+      setSendingNetSuite(false);
+    }
+  };
+
   const filteredCampaigns = filterStatus === 'all'
     ? campaigns
     : campaigns.filter(c => c.status === filterStatus);
@@ -234,6 +262,24 @@ export function CampaignsPage() {
           <div className="flex items-center gap-3">
             <button
               type="button"
+              onClick={handleNetSuiteCampaign}
+              disabled={sendingNetSuite}
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-orange-400/30 disabled:opacity-60"
+            >
+              {sendingNetSuite ? (
+                <>
+                  <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <PaperAirplaneIcon className="h-5 w-5" />
+                  Send NetSuite Campaign
+                </>
+              )}
+            </button>
+            <button
+              type="button"
               onClick={() => setShowHelpGuide(true)}
               className={`flex items-center gap-2 px-4 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-indigo-500/30`}
               title="Open Campaigns Help Guide"
@@ -297,6 +343,119 @@ export function CampaignsPage() {
           <span className="text-3xl font-bold text-white">{totalCompanies}</span>
         </div>
       </div>
+
+      {/* NetSuite Campaign Success Banner */}
+      {netSuiteResult && (
+        <div className="mb-6 bg-green-500/10 border border-green-500/30 rounded-xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <PaperAirplaneIcon className="h-6 w-6 text-green-400" />
+            <span className="text-green-400 font-bold">
+              NetSuite Campaign Sent! {netSuiteResult.sent}/{netSuiteResult.total} emails delivered to {netSuiteResult.companyCount} companies.
+              {netSuiteResult.failed > 0 && ` (${netSuiteResult.failed} failed)`}
+            </span>
+          </div>
+          <button onClick={() => setNetSuiteResult(null)} className="text-green-400 hover:text-green-300">
+            <XMarkIcon className="h-5 w-5" />
+          </button>
+        </div>
+      )}
+
+      {/* All Campaign Templates — Dynamic from data */}
+      {[
+        { id: 'netsuite', title: 'NETSUITE + NETSUITE NEXT', icon: '🔥', color: '#FF6B35', desc: 'Pick one, send to a batch, compare open rates', subjects: [
+          { subject: "{{companyName}}'s NetSuite team ready for 2026.1?", tag: 'Personal' },
+          { subject: "NetSuite Next just launched — where's your talent?", tag: 'Urgency' },
+          { subject: "82% of firms can't find NetSuite talent — here's how we solve it", tag: 'Data hook' },
+          { subject: "Quick question about {{companyName}}'s NetSuite roadmap", tag: 'Top pick' },
+          { subject: "NetSuite 2026.1 + NetSuite Next — does {{companyName}} have the right engineers?", tag: 'News' },
+        ]},
+        { id: 'ai', title: 'AI CONSULTING — Get AI Projects', icon: '🤖', color: '#8B5CF6', desc: 'Target: companies stuck in AI pilot mode', subjects: [
+          { subject: "67% of Fortune 500 deployed AI agents this year. Has {{companyName}}?", tag: 'FOMO' },
+          { subject: "Quick question about {{companyName}}'s AI roadmap", tag: 'Top pick' },
+          { subject: "The AI skills gap is real — 91% of companies are stuck in pilot mode", tag: 'Data hook' },
+          { subject: "{{companyName}} + AI agents: 15-min strategy call?", tag: 'Direct' },
+          { subject: "Your competitors just deployed AI agents. Here's how to catch up.", tag: 'Urgency' },
+        ]},
+        { id: 'cloud', title: 'CLOUD & PLATFORM ENGINEERING', icon: '☁️', color: '#0EA5E9', desc: 'Kubernetes, IDP, DevOps, SRE talent', subjects: [
+          { subject: "Platform Engineering is the #1 growing role — does {{companyName}} have one?", tag: 'Top pick' },
+          { subject: "90% of orgs face cloud skills gaps. Here's the fastest fix.", tag: 'Data hook' },
+          { subject: "Quick question about {{companyName}}'s Kubernetes strategy", tag: 'Personal' },
+          { subject: "Cloud engineers take 89 days to hire. We deliver in 48 hours.", tag: 'Contrast' },
+          { subject: "{{companyName}}'s DevOps team ready for platform engineering?", tag: 'Direct' },
+        ]},
+        { id: 'cyber', title: 'CYBERSECURITY', icon: '🔒', color: '#DC2626', desc: 'Zero Trust, SOC, pen testing, compliance', subjects: [
+          { subject: "$4.88M per breach. Is {{companyName}}'s security team big enough?", tag: 'FOMO' },
+          { subject: "3.5 million cybersecurity jobs unfilled — we fill yours in 48hrs", tag: 'Data hook' },
+          { subject: "Quick question about {{companyName}}'s security posture", tag: 'Top pick' },
+          { subject: "OSCP-certified pen testers, SOC analysts, Zero Trust architects — ready now", tag: 'Direct' },
+          { subject: "{{companyName}}'s security gaps won't wait. Neither should you.", tag: 'Urgency' },
+        ]},
+        { id: 'data', title: 'DATA ENGINEERING', icon: '📊', color: '#059669', desc: 'Spark, Snowflake, real-time pipelines', subjects: [
+          { subject: "Every AI project starts with data. Does {{companyName}} have the engineers?", tag: 'Top pick' },
+          { subject: "Data engineers take 85 days to hire. We deliver in 48 hours.", tag: 'Contrast' },
+          { subject: "Quick question about {{companyName}}'s data platform", tag: 'Personal' },
+          { subject: "Spark, Snowflake, real-time pipelines — pre-vetted talent ready now", tag: 'Direct' },
+          { subject: "{{companyName}}'s data pipeline is the bottleneck. Let's fix it.", tag: 'Urgency' },
+        ]},
+        { id: 'fullstack', title: 'FULL-STACK ENGINEERING', icon: '⚡', color: '#F59E0B', desc: 'React, Next.js, AI-augmented development', subjects: [
+          { subject: "Full-stack engineers who use AI to ship 2-3x faster — ready for {{companyName}}", tag: 'Top pick' },
+          { subject: "React + Next.js + AI-augmented dev: the 2026 full-stack stack", tag: 'News' },
+          { subject: "Quick question about {{companyName}}'s product engineering team", tag: 'Personal' },
+          { subject: "Your next full-stack hire should ship product, not just code", tag: 'Direct' },
+          { subject: "{{companyName}} needs engineers who build — we have them ready in 48hrs", tag: 'Urgency' },
+        ]},
+        { id: 'mobile', title: 'MOBILE ENGINEERING', icon: '📱', color: '#EC4899', desc: 'iOS Swift, Android Kotlin, React Native, Flutter', subjects: [
+          { subject: "SwiftUI + Jetpack Compose engineers — ready for {{companyName}} in 48hrs", tag: 'Direct' },
+          { subject: "Quick question about {{companyName}}'s mobile app team", tag: 'Top pick' },
+          { subject: "On-device AI is the new baseline. Does your mobile team know it?", tag: 'News' },
+          { subject: "iOS & Android engineers who build apps people actually love", tag: 'Emotional' },
+          { subject: "{{companyName}}'s next mobile hire should know on-device ML. We have them.", tag: 'Urgency' },
+        ]},
+        { id: 'onboard', title: 'READY TO ONBOARD — Sign & Start', icon: '⚡', color: '#10B981', desc: 'Signing flow + verification email needs fixing', wip: true, subjects: [
+          { subject: "Skip the sales call. Sign and get profiles in 48 hours.", tag: 'Direct' },
+          { subject: "No commitment. No minimum. Cancel anytime. Ready to start?", tag: 'Top pick' },
+          { subject: "{{companyName}}: ready to onboard? Profiles in 48 hours, zero lock-in.", tag: 'Personal' },
+          { subject: "2-page agreement, 48-hour profiles, $2/hr. That's it.", tag: 'Simple' },
+          { subject: "Most firms need 3 calls to start. We need 1 signature.", tag: 'Contrast' },
+        ]},
+      ].map((template) => (
+        <div key={template.id} className="mb-4 rounded-xl overflow-hidden" style={{ background: `linear-gradient(135deg, ${template.color}12, ${template.color}06)`, border: `1px solid ${template.color}33` }}>
+          <div className="px-5 py-3 flex items-center gap-2" style={{ borderBottom: `1px solid ${template.color}25` }}>
+            <span style={{ fontSize: '16px' }}>{template.icon}</span>
+            <span className="text-sm font-bold tracking-wide" style={{ color: template.color }}>{template.title}</span>
+            {template.wip && <span className="text-xs px-2 py-1 rounded-full font-semibold ml-1" style={{ background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.3)' }}>WIP</span>}
+            <span className="text-xs ml-auto" style={{ color: '#8A8F98' }}>{template.desc}</span>
+          </div>
+          <div className="p-3 flex flex-col gap-1.5">
+            {template.subjects.map((c, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-3 rounded-lg px-4 py-2.5 cursor-pointer transition-all hover:scale-[1.005]"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                onClick={() => {
+                  if (template.wip) return;
+                  setWizardPreselect({ subject: c.subject, campaignType: template.id });
+                  setShowCreateModal(true);
+                }}
+              >
+                <div className="flex items-center justify-center rounded-full font-bold text-xs" style={{ width: '24px', height: '24px', background: `linear-gradient(135deg, ${template.color}, ${template.color}CC)`, color: '#fff', flexShrink: 0 }}>
+                  {idx + 1}
+                </div>
+                <span className="text-sm flex-1" style={{ color: template.wip ? 'var(--text-muted)' : 'var(--text-primary)' }}>
+                  {c.subject.replace(/\{\{companyName\}\}/g, '[Company]')}
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{
+                  background: c.tag === 'Top pick' ? 'rgba(16,185,129,0.15)' : `${template.color}18`,
+                  color: c.tag === 'Top pick' ? '#10B981' : template.color,
+                  border: c.tag === 'Top pick' ? '1px solid rgba(16,185,129,0.3)' : `1px solid ${template.color}30`,
+                }}>
+                  {c.tag}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
 
       {/* Filters with gradient when selected */}
       <div className="mb-6 flex gap-2 flex-wrap">
@@ -503,10 +662,11 @@ export function CampaignsPage() {
       {showCreateModal && (
         <CampaignWizard
           isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
+          onClose={() => { setShowCreateModal(false); setWizardPreselect(null); }}
           onSuccess={() => {
             loadCampaigns();
           }}
+          preselect={wizardPreselect}
         />
       )}
 

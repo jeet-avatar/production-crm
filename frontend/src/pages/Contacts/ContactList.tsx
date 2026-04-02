@@ -814,7 +814,7 @@ export function ContactList() {
                   return (
                     <React.Fragment key={companyName}>
                       {/* Company header row with first contact */}
-                      <tr style={{ background: '#161625' }} style={{ background: "#161625", cursor: "pointer" }}>
+                      <tr style={{ background: '#161625', cursor: 'pointer' }}>
                         <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", width: "48px" }}>
                           <input
                             type="checkbox"
