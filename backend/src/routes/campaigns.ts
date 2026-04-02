@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
 import Anthropic from '@anthropic-ai/sdk';
 import { AI_CONFIG, getAIMessageConfig } from '../config/ai';
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import nodemailer from 'nodemailer';
 
 const router = Router();
@@ -76,6 +75,701 @@ router.post('/', async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
+});
+
+// GET /api/campaigns/sent-contact-ids — Contacts that have received any campaign email
+router.get('/sent-contact-ids', async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    const { campaignType } = req.query;
+
+    const where: any = {
+      campaign: { userId },
+      status: { in: ['SENT', 'DELIVERED', 'OPENED', 'CLICKED'] },
+    };
+    if (campaignType) {
+      where.campaign.type = campaignType as string;
+    }
+
+    const logs = await prisma.emailLog.findMany({
+      where,
+      select: { contactId: true },
+      distinct: ['contactId'],
+    });
+
+    return res.json({ sentContactIds: logs.map(l => l.contactId) });
+  } catch (error: any) {
+    return next(error);
+  }
+});
+
+// ============================================================
+// THROTTLED SEND SYSTEM — 1 email per N minutes, background queue
+// ============================================================
+
+interface SendJob {
+  timer: ReturnType<typeof setInterval>;
+  queue: { contact: { id: string; email: string; firstName: string; lastName: string }; companyName: string }[];
+  sent: number;
+  failed: number;
+  total: number;
+  status: 'sending' | 'complete' | 'error';
+  startedAt: Date;
+  campaignId: string;
+  userId: string;
+  intervalMs: number;
+  lastSentAt: Date | null;
+  skippedInvalid: number;
+}
+
+const activeSendJobs = new Map<string, SendJob>();
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Wrap all <a href="..."> links with click tracking redirect
+function wrapLinksWithTracking(html: string, emailLogId: string, trackingBase: string): string {
+  if (!emailLogId) return html;
+  return html.replace(
+    /href=['"]([^'"]+)['"]/gi,
+    (match, url) => {
+      // Skip mailto:, tel:, #anchor, and tracking pixel URLs
+      if (url.startsWith('mailto:') || url.startsWith('tel:') || url.startsWith('#') || url.includes('/api/tracking/')) {
+        return match;
+      }
+      const trackUrl = `${trackingBase}/api/tracking/click/${emailLogId}?url=${encodeURIComponent(url)}`;
+      return `href='${trackUrl}'`;
+    }
+  );
+}
+
+// Reusable: start throttled send for a campaign
+async function startThrottledSend(
+  campaignId: string,
+  userId: string,
+  contacts: { contact: { id: string; email: string; firstName: string; lastName: string }; companyName: string }[],
+  campaignSubject: string,
+  campaignHtml: string,
+  intervalMinutes: number
+) {
+  const intervalMs = intervalMinutes * 60 * 1000;
+
+  // Get user's email server upfront (fail fast)
+  const server = await getUserEmailServer(userId);
+  if (!server) {
+    throw new Error('No verified email server configured. Add one in Settings.');
+  }
+
+  const job: SendJob = {
+    timer: null as any,
+    queue: [...contacts],
+    sent: 0,
+    failed: 0,
+    total: contacts.length,
+    status: 'sending',
+    startedAt: new Date(),
+    campaignId,
+    userId,
+    intervalMs,
+    lastSentAt: null,
+    skippedInvalid: 0,
+  };
+
+  const TRACKING_BASE = process.env.FRONTEND_URL || 'https://brandmonkz.com';
+
+  const sendNext = async () => {
+    if (job.queue.length === 0) {
+      // Done — clean up
+      clearInterval(job.timer);
+      job.status = 'complete';
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: { status: 'SENT', sentAt: new Date(), totalSent: job.sent },
+      });
+      // Keep in map for 1 hour for progress checks, then remove
+      setTimeout(() => activeSendJobs.delete(campaignId), 60 * 60 * 1000);
+      return;
+    }
+
+    const { contact, companyName } = job.queue.shift()!;
+    try {
+      // Replace template variables
+      const vars: Record<string, string> = {
+        firstName: contact.firstName || '',
+        lastName: contact.lastName || '',
+        companyName: companyName,
+      };
+      let subjectLine = campaignSubject;
+      let html = campaignHtml;
+      for (const [key, val] of Object.entries(vars)) {
+        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        subjectLine = subjectLine.replace(regex, val);
+        html = html.replace(regex, val);
+      }
+
+      // Create email log
+      let emailLogId = '';
+      try {
+        const emailLog = await prisma.emailLog.create({
+          data: {
+            toEmail: contact.email,
+            fromEmail: server.fromEmail,
+            status: 'SENT',
+            sentAt: new Date(),
+            campaignId,
+            contactId: contact.id,
+          } as any,
+        });
+        emailLogId = emailLog.id;
+      } catch { /* continue */ }
+
+      // Inject tracking pixel + wrap links for click tracking
+      if (emailLogId) {
+        const pixel = `<img src="${TRACKING_BASE}/api/tracking/open/${emailLogId}" alt="" width="1" height="1" style="display:none;" />`;
+        if (html.includes('</div>')) {
+          html = html.replace(/<\/div>\s*$/, `${pixel}</div>`);
+        } else {
+          html += pixel;
+        }
+        html = wrapLinksWithTracking(html, emailLogId, TRACKING_BASE);
+      }
+
+      await sendEmailViaSMTP(server, contact.email, subjectLine, html);
+      job.sent++;
+      job.lastSentAt = new Date();
+    } catch (err: any) {
+      console.error(`Throttled send failed for ${contact.email}:`, err?.message);
+      job.failed++;
+    }
+
+    // Update DB every 5 sends
+    if ((job.sent + job.failed) % 5 === 0 || job.queue.length === 0) {
+      await prisma.campaign.update({
+        where: { id: campaignId },
+        data: { totalSent: job.sent },
+      }).catch(() => {});
+    }
+  };
+
+  // Send first email immediately, then every N minutes
+  await sendNext();
+  if (job.queue.length > 0) {
+    job.timer = setInterval(sendNext, intervalMs);
+  } else {
+    job.status = 'complete';
+    await prisma.campaign.update({
+      where: { id: campaignId },
+      data: { status: 'SENT', sentAt: new Date(), totalSent: job.sent },
+    });
+    setTimeout(() => activeSendJobs.delete(campaignId), 60 * 60 * 1000);
+  }
+
+  activeSendJobs.set(campaignId, job);
+  return job;
+}
+
+// POST /api/campaigns/:id/send-throttled — Queue emails, send 1 per N minutes
+router.post('/:id/send-throttled', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+    const intervalMinutes = Math.min(Math.max(parseInt(req.body?.intervalMinutes) || 5, 1), 30);
+
+    // Check if already sending
+    if (activeSendJobs.has(id)) {
+      const job = activeSendJobs.get(id)!;
+      return res.status(409).json({ error: 'Campaign is already sending', sent: job.sent, total: job.total });
+    }
+
+    const campaign = await prisma.campaign.findFirst({
+      where: { id, userId },
+      include: {
+        companies: {
+          include: {
+            company: {
+              include: {
+                contacts: {
+                  where: { isActive: true },
+                  select: { id: true, email: true, firstName: true, lastName: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
+    if (!campaign.subject || !campaign.htmlContent) return res.status(400).json({ error: 'Campaign needs subject and content' });
+
+    // Collect and validate contacts
+    const validContacts: { contact: any; companyName: string }[] = [];
+    let invalidCount = 0;
+    for (const cc of campaign.companies) {
+      for (const contact of cc.company.contacts) {
+        if (contact.email && isValidEmail(contact.email)) {
+          validContacts.push({ contact, companyName: cc.company.name || '' });
+        } else {
+          invalidCount++;
+        }
+      }
+    }
+
+    // Dedup: remove contacts already sent for THIS campaign
+    const alreadySent = await prisma.emailLog.findMany({
+      where: {
+        campaignId: id,
+        status: { in: ['SENT', 'DELIVERED', 'OPENED', 'CLICKED'] },
+      },
+      select: { contactId: true },
+    });
+    const alreadySentIds = new Set(alreadySent.map(l => l.contactId));
+    const dedupedContacts = validContacts.filter(vc => !alreadySentIds.has(vc.contact.id));
+    const dupCount = validContacts.length - dedupedContacts.length;
+
+    if (dedupedContacts.length === 0) {
+      return res.status(400).json({ error: `No new contacts to send to (${dupCount} already sent, ${invalidCount} invalid emails)`, invalidCount, duplicatesSkipped: dupCount });
+    }
+
+    // Set campaign to SENDING
+    await prisma.campaign.update({ where: { id }, data: { status: 'SENDING' } });
+
+    // Start throttled send
+    const job = await startThrottledSend(id, userId!, dedupedContacts, campaign.subject, campaign.htmlContent, intervalMinutes);
+
+    const estimatedMinutes = (dedupedContacts.length - 1) * intervalMinutes;
+    return res.json({
+      success: true,
+      campaignId: id,
+      total: dedupedContacts.length,
+      invalidSkipped: invalidCount,
+      duplicatesSkipped: dupCount,
+      intervalMinutes,
+      estimatedCompletion: `~${estimatedMinutes} minutes`,
+      message: `Sending ${dedupedContacts.length} emails, 1 every ${intervalMinutes} min. First email sent immediately.${dupCount > 0 ? ` (${dupCount} duplicates skipped)` : ''}`,
+    });
+  } catch (error: any) {
+    return next(error);
+  }
+});
+
+// GET /api/campaigns/:id/send-progress — Live send status
+router.get('/:id/send-progress', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    // Check live job first
+    const job = activeSendJobs.get(id);
+    if (job) {
+      const nextSendIn = job.lastSentAt
+        ? Math.max(0, job.intervalMs - (Date.now() - job.lastSentAt.getTime()))
+        : 0;
+      return res.json({
+        status: job.status,
+        sent: job.sent,
+        failed: job.failed,
+        total: job.total,
+        remaining: job.queue.length,
+        nextSendInSeconds: Math.round(nextSendIn / 1000),
+        startedAt: job.startedAt,
+        intervalMinutes: job.intervalMs / 60000,
+      });
+    }
+
+    // No live job — check DB
+    const campaign = await prisma.campaign.findFirst({
+      where: { id, userId },
+      select: { status: true, totalSent: true, totalOpened: true, totalClicked: true, totalBounced: true, sentAt: true },
+    });
+
+    if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
+
+    const emailLogs = await prisma.emailLog.groupBy({
+      by: ['status'],
+      where: { campaignId: id },
+      _count: true,
+    });
+
+    const counts: Record<string, number> = {};
+    emailLogs.forEach((l: any) => { counts[l.status] = l._count; });
+
+    return res.json({
+      status: campaign.status === 'SENT' ? 'complete' : campaign.status.toLowerCase(),
+      sent: counts['SENT'] || 0,
+      failed: counts['BOUNCED'] || 0,
+      total: campaign.totalSent || 0,
+      remaining: 0,
+      nextSendInSeconds: 0,
+      sentAt: campaign.sentAt,
+      opened: counts['OPENED'] || campaign.totalOpened || 0,
+      clicked: counts['CLICKED'] || campaign.totalClicked || 0,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// 5 NetSuite campaign subject line variants
+const NETSUITE_SUBJECTS = [
+  "{{companyName}}'s NetSuite team ready for 2026.1?",
+  "NetSuite Next just launched — where's your talent?",
+  "82% of firms can't find NetSuite talent — here's how we solve it",
+  "Quick question about {{companyName}}'s NetSuite roadmap",
+  "NetSuite 2026.1 + NetSuite Next — does {{companyName}} have the right engineers?",
+];
+
+// GET /api/campaigns/netsuite-subjects — List all subject line variants
+router.get('/netsuite-subjects', async (req, res) => {
+  return res.json({
+    subjects: NETSUITE_SUBJECTS.map((s, i) => ({ id: i, subject: s })),
+  });
+});
+
+// POST /api/campaigns/create-all-netsuite — Create 5 draft campaigns (one per subject line)
+router.post('/create-all-netsuite', async (req, res, next) => {
+  try {
+    const userId = req.user!.id;
+    const campaigns = [];
+    for (let i = 0; i < NETSUITE_SUBJECTS.length; i++) {
+      const campaign = await prisma.campaign.create({
+        data: {
+          name: `NetSuite Campaign #${i + 1}`,
+          subject: NETSUITE_SUBJECTS[i],
+          status: 'DRAFT',
+          htmlContent: NETSUITE_CAMPAIGN_HTML,
+          userId,
+        },
+      });
+      campaigns.push({
+        id: campaign.id,
+        name: campaign.name,
+        subject: NETSUITE_SUBJECTS[i],
+        status: 'DRAFT',
+      });
+    }
+    return res.json({
+      success: true,
+      created: campaigns.length,
+      campaigns,
+      message: `${campaigns.length} NetSuite campaigns created as DRAFT. Link companies and send-throttled each one.`,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// AI Consulting campaign email template
+const AI_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 50%, #06B6D4 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Your Competitors Are Deploying AI Agents. Are You?</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — AI Consulting & Implementation</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>Here is a number that should concern every CTO: <strong>only 8.6% of companies have AI agents in production</strong>. The other 91%? Still in pilots, POCs, or haven't started. Meanwhile, 67% of Fortune 500 companies deployed at least one AI agent this year.</p>
+<p style='font-size: 15px; line-height: 1.6;'>The gap between AI leaders and everyone else is widening fast. The challenge isn't the technology — it's finding engineers who can take AI from a demo to a production system that handles real traffic, real data, and real edge cases.</p>
+<p style='font-size: 15px; line-height: 1.6;'><strong>What TechCloudPro delivers for {{companyName}}:</strong></p>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>AI Agents & Agentic Workflows</strong> — MCP integrations, LangChain, multi-step autonomous systems that actually work in production</li>
+<li><strong>GenAI & LLM Implementation</strong> — RAG systems, fine-tuning, Claude/GPT integration, prompt engineering at scale</li>
+<li><strong>ML Pipelines & MLOps</strong> — PyTorch, MLflow, Kubeflow, model serving, A/B testing, drift detection</li>
+<li><strong>AI Strategy & Roadmap</strong> — Cut through the noise. We help {{companyName}} identify the 2-3 AI use cases that will actually move the needle</li>
+<li><strong>Transparent pricing</strong> — $2/hr staffing fee for contract engineers. Full rate breakdown visible to both sides.</li>
+</ul>
+<div style='background: #f8f9ff; border-left: 4px solid #8B5CF6; padding: 16px; margin: 20px 0; border-radius: 0 8px 8px 0;'>
+<p style='font-size: 14px; line-height: 1.6; color: #333; margin: 0;'><strong>The Reality Check:</strong> 46% of companies say integrating AI with existing systems is their #1 challenge. 60% cite legacy infrastructure as the blocker. These aren't model problems — they're engineering problems. That's exactly what we solve.</p>
+</div>
+<p style='font-size: 15px; line-height: 1.6;'>Would 15 minutes this week work to discuss where AI can create the most impact for {{companyName}}?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/ai' style='background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Talk to an AI Expert</a></div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of AI Consulting — TechCloudPro</p>
+</div>
+</div>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'>
+<p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | peter@techcloudpro.com</p>
+</div>
+</div>`;
+
+// 5 AI Consulting campaign subject line variants
+const AI_SUBJECTS = [
+  "67% of Fortune 500 deployed AI agents this year. Has {{companyName}}?",
+  "Quick question about {{companyName}}'s AI roadmap",
+  "The AI skills gap is real — 91% of companies are stuck in pilot mode",
+  "{{companyName}} + AI agents: 15-min strategy call?",
+  "Your competitors just deployed AI agents. Here's how to catch up.",
+];
+
+// GET /api/campaigns/ai-subjects — List AI campaign subject variants
+router.get('/ai-subjects', async (req, res) => {
+  return res.json({
+    subjects: AI_SUBJECTS.map((s, i) => ({ id: i, subject: s })),
+  });
+});
+
+// ============================================================
+// 5 TECH HIRING CAMPAIGN TEMPLATES
+// ============================================================
+
+// 1. Cloud & Platform Engineering
+const CLOUD_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Kubernetes Is Now the Default. Is Your Team Ready?</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Cloud & Platform Engineering Talent</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>In 2026, <strong>Platform Engineering is the fastest-growing category</strong> in DevOps. Companies are building Internal Developer Platforms that make developers self-service — and they need engineers who can build and maintain them. Over <strong>90% of organizations face IT skills gaps</strong> in cloud and security roles.</p>
+<p style='font-size: 15px; line-height: 1.6;'>Cloud/DevOps engineers take <strong>89+ days to fill</strong> on average. We deliver in 48 hours.</p>
+<p style='font-size: 15px; line-height: 1.6;'><strong>Engineers we deliver for {{companyName}}:</strong></p>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>Platform Engineers</strong> — Internal Developer Platforms, Backstage, self-service infra</li>
+<li><strong>Kubernetes Experts</strong> — EKS/AKS/GKE, Helm, service mesh, scaling, rollbacks</li>
+<li><strong>Cloud Architects</strong> — AWS/Azure/GCP certified, multi-cloud, cost optimization</li>
+<li><strong>SRE / Observability</strong> — Datadog, Grafana, incident response, SLOs, chaos engineering</li>
+<li><strong>IaC Specialists</strong> — Terraform, Pulumi, CDK, GitOps with ArgoCD/Flux</li>
+</ul>
+<p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. Both sides see the full breakdown.</p>
+<p style='font-size: 15px; line-height: 1.6;'>Quick 15-minute call to discuss {{companyName}}'s cloud roadmap?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #0EA5E9, #2563EB); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Cloud Engineer Profiles</a></div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
+</div></div>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'><p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | peter@techcloudpro.com</p></div></div>`;
+
+const CLOUD_SUBJECTS = [
+  "Platform Engineering is the #1 growing role in 2026 — does {{companyName}} have one?",
+  "90% of orgs face cloud skills gaps. Here's the fastest fix.",
+  "Quick question about {{companyName}}'s Kubernetes strategy",
+  "Cloud engineers take 89 days to hire. We deliver in 48 hours.",
+  "{{companyName}}'s DevOps team ready for platform engineering?",
+];
+
+// 2. Cybersecurity
+const CYBER_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>3.5 Million Cybersecurity Jobs Are Unfilled. We Fill Yours.</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Cybersecurity Talent on Demand</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>The average cost of a data breach hit <strong>$4.88M in 2025</strong>. Meanwhile, <strong>3.5 million cybersecurity positions remain unfilled globally</strong>. Threat surfaces are expanding faster than security teams can grow.</p>
+<p style='font-size: 15px; line-height: 1.6;'>If {{companyName}} is scaling security, we have pre-vetted specialists ready in 48 hours:</p>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>Cloud Security Architects</strong> — AWS/Azure/GCP security, IAM, Zero Trust implementation</li>
+<li><strong>Penetration Testers</strong> — OSCP/OSCE certified, web app, API, and infrastructure pentesting</li>
+<li><strong>SOC Analysts & Threat Hunters</strong> — SIEM, EDR, incident response, threat intelligence</li>
+<li><strong>Security Engineers</strong> — DevSecOps, SAST/DAST, container security, supply chain security</li>
+<li><strong>Compliance Specialists</strong> — SOC2, HIPAA, PCI-DSS, ISO 27001, EU AI Act</li>
+</ul>
+<p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The specialist keeps the rest. No hidden markups.</p>
+<p style='font-size: 15px; line-height: 1.6;'>15 minutes to discuss {{companyName}}'s security gaps?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #DC2626, #991B1B); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Security Talent Now</a></div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
+</div></div>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'><p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | peter@techcloudpro.com</p></div></div>`;
+
+const CYBER_SUBJECTS = [
+  "$4.88M per breach. Is {{companyName}}'s security team big enough?",
+  "3.5 million cybersecurity jobs unfilled — we fill yours in 48hrs",
+  "Quick question about {{companyName}}'s security posture",
+  "OSCP-certified pen testers, SOC analysts, Zero Trust architects — ready now",
+  "{{companyName}}'s security gaps won't wait. Neither should you.",
+];
+
+// 3. Data Engineering
+const DATA_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Your Data Pipeline Is Only as Good as the Engineer Behind It</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Data Engineering & Analytics Talent</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>Every AI initiative starts with data. But <strong>data engineering roles take 85+ days to fill</strong> — and the demand is only growing as companies race to build real-time pipelines, lakehouse architectures, and AI-ready data platforms.</p>
+<p style='font-size: 15px; line-height: 1.6;'>We deliver pre-vetted data engineers to {{companyName}} in 48 hours:</p>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>Spark & Databricks Engineers</strong> — Large-scale ETL, streaming, Delta Lake, Unity Catalog</li>
+<li><strong>Snowflake & BigQuery Architects</strong> — Data modeling, cost optimization, performance tuning</li>
+<li><strong>Real-Time Pipeline Builders</strong> — Kafka, Flink, Kinesis, event-driven architectures</li>
+<li><strong>dbt + Airflow Specialists</strong> — Modern data stack, data quality, lineage, testing</li>
+<li><strong>Analytics Engineers</strong> — Power BI, Tableau, Looker, semantic layers, metric stores</li>
+</ul>
+<p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. Full visibility for both sides.</p>
+<p style='font-size: 15px; line-height: 1.6;'>15 minutes to discuss {{companyName}}'s data roadmap?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #059669, #047857); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Data Engineer Profiles</a></div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
+</div></div>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'><p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | peter@techcloudpro.com</p></div></div>`;
+
+const DATA_SUBJECTS = [
+  "Every AI project starts with data. Does {{companyName}} have the engineers?",
+  "Data engineers take 85 days to hire. We deliver in 48 hours.",
+  "Quick question about {{companyName}}'s data platform",
+  "Spark, Snowflake, real-time pipelines — pre-vetted talent ready now",
+  "{{companyName}}'s data pipeline is the bottleneck. Let's fix it.",
+];
+
+// 4. Full-Stack Engineering
+const FULLSTACK_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>Full-Stack Engineers Who Ship — Not Just Code</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Product Engineering Talent</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>The bar for full-stack engineers keeps rising. In 2026, companies need engineers who understand <strong>AI-assisted development, edge computing, server components, and real-time collaboration</strong> — not just React and Node. Finding them takes months.</p>
+<p style='font-size: 15px; line-height: 1.6;'>We deliver full-stack engineers who ship product, not just code:</p>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>React + Next.js</strong> — Server components, App Router, streaming SSR, edge functions</li>
+<li><strong>Node.js + Python Backend</strong> — REST/GraphQL APIs, microservices, event-driven</li>
+<li><strong>TypeScript Everywhere</strong> — Type-safe full-stack with tRPC, Prisma, Zod</li>
+<li><strong>AI-Augmented Development</strong> — Engineers who use Copilot, Claude, Cursor productively — 2-3x velocity</li>
+<li><strong>Modern Deployment</strong> — Vercel, AWS, Docker, CI/CD, feature flags, A/B testing</li>
+</ul>
+<p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. No surprises.</p>
+<p style='font-size: 15px; line-height: 1.6;'>15 minutes to talk about {{companyName}}'s engineering needs?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #F59E0B, #D97706); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Full-Stack Profiles</a></div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
+</div></div>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'><p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | peter@techcloudpro.com</p></div></div>`;
+
+const FULLSTACK_SUBJECTS = [
+  "Full-stack engineers who use AI to ship 2-3x faster — ready for {{companyName}}",
+  "React + Next.js + AI-augmented dev: the 2026 full-stack stack",
+  "Quick question about {{companyName}}'s product engineering team",
+  "Your next full-stack hire should ship product, not just code",
+  "{{companyName}} needs engineers who build — we have them ready in 48hrs",
+];
+
+// 5. Mobile Engineering
+const MOBILE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 21px; line-height: 1.3;'>iOS & Android Engineers Who Build Apps People Love</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Mobile Engineering Talent</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>Mobile is no longer just an app — it's the primary interface for most businesses. In 2026, users expect <strong>on-device AI, haptic feedback, spatial computing readiness, and sub-second performance</strong>. The engineers who can deliver this are rare and expensive.</p>
+<p style='font-size: 15px; line-height: 1.6;'>We deliver mobile engineers who build apps people love:</p>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>iOS / Swift</strong> — SwiftUI, Core ML on-device AI, WidgetKit, VisionOS-ready</li>
+<li><strong>Android / Kotlin</strong> — Jetpack Compose, ML Kit, Material 3, Wear OS</li>
+<li><strong>Cross-Platform</strong> — React Native (Expo), Flutter, KMP (Kotlin Multiplatform)</li>
+<li><strong>Mobile Architecture</strong> — Modular architecture, offline-first, CI/CD with Fastlane/Bitrise</li>
+<li><strong>App Performance</strong> — Launch time optimization, memory profiling, battery efficiency</li>
+</ul>
+<p style='font-size: 15px; line-height: 1.6;'>Transparent pricing: <strong>$2/hr</strong> is our fee. The engineer keeps the rest. Complete rate visibility.</p>
+<p style='font-size: 15px; line-height: 1.6;'>15 minutes to discuss {{companyName}}'s mobile roadmap?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/staffing' style='background: linear-gradient(135deg, #EC4899, #BE185D); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Get Mobile Engineer Profiles</a></div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
+</div></div>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'><p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | peter@techcloudpro.com</p></div></div>`;
+
+const MOBILE_SUBJECTS = [
+  "SwiftUI + Jetpack Compose engineers — ready for {{companyName}} in 48hrs",
+  "Quick question about {{companyName}}'s mobile app team",
+  "On-device AI is the new baseline. Does your mobile team know it?",
+  "iOS & Android engineers who build apps people actually love",
+  "{{companyName}}'s next mobile hire should know on-device ML. We have them.",
+];
+
+// 6. Ready to Onboard — No commitment, contract to sign, start immediately
+const ONBOARD_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+<div style='background: linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 22px; line-height: 1.3;'>Ready to Hire? Skip the Sales Call. Start Now.</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Zero Commitment. Cancel Anytime. Profiles in 48hrs.</p>
+</div>
+<div style='padding: 24px; background: #ffffff; color: #333;'>
+<p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
+<p style='font-size: 15px; line-height: 1.6;'>Most staffing firms make you sit through 3 calls, an NDA review, and a contract negotiation before you see a single resume. <strong>We skip all that.</strong></p>
+<p style='font-size: 15px; line-height: 1.6;'>Here is how onboarding works at TechCloudPro:</p>
+<table style='width: 100%; border-collapse: collapse; margin: 16px 0;'>
+<tr>
+<td style='padding: 14px; background: #f0fdf4; border-radius: 8px 8px 0 0; border: 1px solid #bbf7d0;'>
+<strong style='color: #059669; font-size: 18px;'>Step 1</strong><br>
+<span style='font-size: 14px; color: #333;'>Sign our simple agreement — no commitment, no minimum term, cancel anytime</span>
+</td>
+</tr>
+<tr>
+<td style='padding: 14px; background: #ecfdf5; border: 1px solid #bbf7d0; border-top: none;'>
+<strong style='color: #059669; font-size: 18px;'>Step 2</strong><br>
+<span style='font-size: 14px; color: #333;'>Tell us what you need — role, skills, seniority, start date</span>
+</td>
+</tr>
+<tr>
+<td style='padding: 14px; background: #f0fdf4; border-radius: 0 0 8px 8px; border: 1px solid #bbf7d0; border-top: none;'>
+<strong style='color: #059669; font-size: 18px;'>Step 3</strong><br>
+<span style='font-size: 14px; color: #333;'>Receive 2-3 pre-vetted profiles in your inbox within 48 hours</span>
+</td>
+</tr>
+</table>
+<p style='font-size: 15px; line-height: 1.6;'><strong>Our terms:</strong></p>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>$2/hr transparent fee</strong> — you see our fee, engineer sees their rate</li>
+<li><strong>No minimum contract</strong> — hire for 1 week or 1 year</li>
+<li><strong>30-day replacement guarantee</strong> — wrong fit? Free replacement</li>
+<li><strong>Cancel anytime</strong> — no lock-in, no penalties, no exit fees</li>
+<li><strong>15% for full-time conversions</strong> — love them? Hire them permanently</li>
+</ul>
+<p style='font-size: 16px; font-weight: 700; color: #333; text-align: center; margin: 24px 0 8px;'>Choose how you want to start:</p>
+<div style='display: flex; gap: 10px; margin: 0 0 20px;'>
+<div style='flex: 1; text-align: center;'>
+<a href='https://techcloudpro.com/onboard' style='display: block; background: linear-gradient(135deg, #10B981, #059669); color: #fff; padding: 14px 8px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px;'>Start Now<br><span style='font-size: 11px; font-weight: 400; opacity: 0.9;'>Sign & get profiles</span></a>
+</div>
+<div style='flex: 1; text-align: center;'>
+<a href='mailto:peter@techcloudpro.com?subject=Ready to onboard — {{companyName}}&body=Hi Peter, we are ready to start. Please send over the agreement.' style='display: block; background: #1a1a2e; color: #fff; padding: 14px 8px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; border: 1px solid #333;'>Email Peter<br><span style='font-size: 11px; font-weight: 400; opacity: 0.9;'>Direct reply</span></a>
+</div>
+<div style='flex: 1; text-align: center;'>
+<a href='tel:+1-555-0123' style='display: block; background: #fff; color: #059669; padding: 14px 8px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 14px; border: 2px solid #10B981;'>Call Now<br><span style='font-size: 11px; font-weight: 400; color: #666;'>Talk to Peter</span></a>
+</div>
+</div>
+<div style='background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 16px; margin: 16px 0;'>
+<p style='font-size: 13px; color: #333; margin: 0; line-height: 1.5;'><strong>No commitment means no commitment.</strong> Our agreement is 2 pages. No exclusivity, no minimum hours, no hidden clauses. If you don't like what you see, walk away. We earn your business every day.</p>
+</div>
+<div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 20px;'>
+<p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
+<p style='font-size: 12px; color: #999; margin: 4px 0 0;'>peter@techcloudpro.com | Direct line available on request</p>
+</div>
+</div>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'>
+<p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | No commitment staffing | peter@techcloudpro.com</p>
+</div>
+</div>`;
+
+const ONBOARD_SUBJECTS = [
+  "Skip the sales call. Sign and get profiles in 48 hours.",
+  "No commitment. No minimum. Cancel anytime. Ready to start?",
+  "{{companyName}}: ready to onboard? Profiles in 48 hours, zero lock-in.",
+  "2-page agreement, 48-hour profiles, $2/hr. That's it.",
+  "Most firms need 3 calls to start. We need 1 signature.",
+];
+
+// GET /api/campaigns/all-templates — List all campaign templates with HTML content
+router.get('/all-templates', async (req, res) => {
+  const includeHtml = req.query.html === 'true';
+  const templates = [
+    { id: 'netsuite', name: 'NetSuite + NetSuite Next', color: '#FF6B35', subjects: NETSUITE_SUBJECTS, ...(includeHtml && { htmlContent: NETSUITE_CAMPAIGN_HTML }) },
+    { id: 'ai', name: 'AI Consulting', color: '#8B5CF6', subjects: AI_SUBJECTS, ...(includeHtml && { htmlContent: AI_CAMPAIGN_HTML }) },
+    { id: 'cloud', name: 'Cloud & Platform Engineering', color: '#0EA5E9', subjects: CLOUD_SUBJECTS, ...(includeHtml && { htmlContent: CLOUD_CAMPAIGN_HTML }) },
+    { id: 'cyber', name: 'Cybersecurity', color: '#DC2626', subjects: CYBER_SUBJECTS, ...(includeHtml && { htmlContent: CYBER_CAMPAIGN_HTML }) },
+    { id: 'data', name: 'Data Engineering', color: '#059669', subjects: DATA_SUBJECTS, ...(includeHtml && { htmlContent: DATA_CAMPAIGN_HTML }) },
+    { id: 'fullstack', name: 'Full-Stack Engineering', color: '#F59E0B', subjects: FULLSTACK_SUBJECTS, ...(includeHtml && { htmlContent: FULLSTACK_CAMPAIGN_HTML }) },
+    { id: 'mobile', name: 'Mobile Engineering', color: '#EC4899', subjects: MOBILE_SUBJECTS, ...(includeHtml && { htmlContent: MOBILE_CAMPAIGN_HTML }) },
+    { id: 'onboard', name: 'Ready to Onboard — No Commitment', color: '#10B981', subjects: ONBOARD_SUBJECTS, wip: true, ...(includeHtml && { htmlContent: ONBOARD_CAMPAIGN_HTML }) },
+  ];
+  return res.json({ templates });
 });
 
 // GET /api/campaigns/:id - Get single campaign
@@ -472,24 +1166,7 @@ router.post('/ai/optimize-send-time', async (req, res, next) => {
   }
 });
 
-// AWS SES fallback for campaign emails
-const ses = new SESClient({ region: 'us-east-1' });
-const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL || 'support@brandmonkz.com';
-const SES_FROM_NAME = process.env.SES_FROM_NAME || 'BrandMonkz';
-
-// Fallback: send via SES (only works for verified recipients in sandbox)
-async function sendEmailViaSES(to: string, subject: string, html: string) {
-  return ses.send(new SendEmailCommand({
-    Source: `${SES_FROM_NAME} <${SES_FROM_EMAIL}>`,
-    Destination: { ToAddresses: [to] },
-    Message: {
-      Subject: { Data: subject },
-      Body: { Html: { Data: html } },
-    },
-  }));
-}
-
-// Primary: send via user's configured SMTP email server
+// Send via user's configured SMTP email server
 async function sendEmailViaSMTP(
   server: { host: string; port: number; secure: boolean; username: string; password: string; fromEmail: string; fromName: string | null },
   to: string,
@@ -530,8 +1207,7 @@ async function sendEmailViaEnvSMTP(to: string, subject: string, html: string) {
   const fromName = process.env.SMTP_FROM_NAME || 'BrandMonkz';
 
   if (!host || !user || !pass) {
-    // No env SMTP configured, last resort SES
-    return sendEmailViaSES(to, subject, html);
+    throw new Error('No SMTP configuration found. Configure an email server in Settings.');
   }
 
   const transporter = nodemailer.createTransport({
@@ -548,7 +1224,7 @@ async function sendEmailViaEnvSMTP(to: string, subject: string, html: string) {
   });
 }
 
-// Send email: ONLY via user's verified DB email server (no env SMTP or SES fallback for campaigns)
+// Send email via user's verified DB email server
 async function sendEmail(to: string, subject: string, html: string, userId?: string) {
   if (!userId) {
     throw new Error('userId is required for campaign sends');
@@ -610,7 +1286,7 @@ router.post('/:id/send', async (req, res, next) => {
     let sent = 0;
     let failed = 0;
 
-    // Require user's verified email server — no env SMTP or SES fallback
+    // Require user's verified email server
     const userServer = await getUserEmailServer(userId!);
     if (!userServer) {
       return res.status(400).json({ error: 'No verified email server configured. Please add and verify an email server in Settings before sending campaigns.' });
@@ -654,10 +1330,9 @@ router.post('/:id/send', async (req, res, next) => {
           // Continue without tracking
         }
 
-        // Inject tracking pixel into HTML
+        // Inject tracking pixel + wrap links for click tracking
         if (emailLogId) {
           const trackingPixel = `<img src="${TRACKING_BASE}/api/tracking/open/${emailLogId}" alt="" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" />`;
-          // Insert before closing </body> or </div> or append at end
           if (html.includes('</body>')) {
             html = html.replace('</body>', `${trackingPixel}</body>`);
           } else if (html.includes('</div>')) {
@@ -665,6 +1340,7 @@ router.post('/:id/send', async (req, res, next) => {
           } else {
             html += trackingPixel;
           }
+          html = wrapLinksWithTracking(html, emailLogId, TRACKING_BASE);
         }
 
         await sendEmail(contact.email, subjectLine, html, userId);
@@ -691,7 +1367,7 @@ router.post('/:id/send', async (req, res, next) => {
   }
 });
 
-// POST /api/campaigns/:id/mock-send - Queue campaign without sending (SES sandbox mode)
+// POST /api/campaigns/:id/mock-send - Queue campaign without sending (preview mode)
 router.post('/:id/mock-send', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -741,7 +1417,7 @@ router.post('/:id/mock-send', async (req, res, next) => {
         await prisma.emailLog.create({
           data: {
             toEmail: contact.email,
-            fromEmail: process.env.SES_FROM_EMAIL || 'campaigns@brandmonkz.com',
+            fromEmail: process.env.SMTP_FROM_EMAIL || 'campaigns@brandmonkz.com',
             status: 'QUEUED',
             campaignId: campaign.id,
             contactId: contact.id,
@@ -768,7 +1444,7 @@ router.post('/:id/mock-send', async (req, res, next) => {
       total: contacts.length,
       failed: 0,
       mode: 'queued',
-      message: `Campaign queued for ${contacts.length} contacts. Emails will be delivered when SES production access is active.`,
+      message: `Campaign queued for ${contacts.length} contacts. Emails will be sent when you click Send on the campaign.`,
       recipients: contacts.map((c: any) => ({
         email: c.email,
         name: `${c.firstName} ${c.lastName}`,
@@ -780,41 +1456,45 @@ router.post('/:id/mock-send', async (req, res, next) => {
   }
 });
 
-// Hardcoded NetSuite-specific $2/hr staff augmentation email template
+// NetSuite-specific $2/hr staff augmentation email template (updated for 2026.1)
 const NETSUITE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-<div style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); padding: 30px; text-align: center;'>
-<h1 style='color: #fff; margin: 0; font-size: 22px;'>NetSuite Engineers at $2/hr Staffing Fee</h1>
-<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>TechCloudPro — Pre-Vetted NetSuite Talent</p>
+<div style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); padding: 30px 24px; text-align: center;'>
+<h1 style='color: #fff; margin: 0; font-size: 22px; line-height: 1.3;'>NetSuite + NetSuite Next Engineers at $2/hr</h1>
+<p style='color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 13px;'>2026.1 Ready — AI Canvas, Agentic Workflows, SuiteScript 2.1, Solution Architects</p>
 </div>
 <div style='padding: 24px; background: #ffffff; color: #333;'>
 <p style='font-size: 15px; line-height: 1.6;'>Hi {{firstName}},</p>
-<p style='font-size: 15px; line-height: 1.6;'>I noticed {{companyName}} runs on NetSuite — and finding quality NetSuite developers is brutal right now. Most staffing firms charge 15-20% markup on contractor rates. We charge a flat <strong>$2/hr</strong>.</p>
+<p style='font-size: 15px; line-height: 1.6;'>Oracle just launched <strong>NetSuite Next</strong> — AI Canvas, Agentic Workflows, Ask Oracle — plus 2026.1 with MCP integrations and REST API replacing SOAP. Finding engineers who know this is near impossible. <strong>82% of firms cite NetSuite talent shortage as their #1 challenge.</strong></p>
+<p style='font-size: 15px; line-height: 1.6;'>Traditional staffing firms charge 15-20% markup — and neither the company nor the engineer knows who gets what. We believe in <strong>full transparency</strong>: our fee is a flat <strong>$2/hr</strong>. The candidate keeps the rest. Both sides see the complete picture — no guessing, no hidden margins.</p>
 <p style='font-size: 15px; line-height: 1.6;'><strong>What we deliver for {{companyName}}:</strong></p>
-<ul style='font-size: 14px; line-height: 1.8; color: #333; padding-left: 20px;'>
-<li>NetSuite developers, admins, and consultants — SuiteScript, SuiteFlow, SuiteAnalytics</li>
-<li>Pre-vetted through 3-stage technical screening (code + system design + culture fit)</li>
-<li>48-hour candidate delivery — profiles in your inbox within 2 business days</li>
-<li>$2/hr flat staffing fee — no percentage markups, no hidden costs</li>
-<li>30-day replacement guarantee if the fit isn't right</li>
+<ul style='font-size: 14px; line-height: 1.9; color: #333; padding-left: 20px;'>
+<li><strong>NetSuite Next + 2026.1 Ready</strong> — AI Canvas, Agentic Workflows, SuiteScript 2.1, MCP/AI Connector specialists</li>
+<li><strong>Solution Architects + Full Stack</strong> — NetSuite Solution Architects, SuiteFlow, SuiteAnalytics, admins, implementation consultants</li>
+<li><strong>48-hour delivery</strong> — 2-3 pre-vetted profiles in your inbox within 2 business days</li>
+<li><strong>Transparent $2/hr</strong> — you see our fee, the engineer sees their rate. No hidden costs on either side.</li>
+<li><strong>30-day guarantee</strong> — wrong fit? Free replacement, zero risk</li>
 </ul>
-<p style='font-size: 15px; line-height: 1.6;'>Full-time placements also available at 15% of first-year salary (industry average is 20-25%).</p>
-<p style='font-size: 15px; line-height: 1.6;'>Would a 15-minute call this week work to discuss {{companyName}}'s NetSuite staffing needs?</p>
-<div style='text-align: center; margin: 24px 0;'><a href='https://brandmonkz.com/schedule?stream=netsuite' style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Book a 15-Min Call</a></div>
+<p style='font-size: 15px; line-height: 1.6;'>Full-time placements at a transparent 15% — industry averages 20-25% with hidden fees on top.</p>
+<p style='font-size: 15px; line-height: 1.6;'>Would a 15-minute call this week work to discuss {{companyName}}'s NetSuite talent needs?</p>
+<div style='text-align: center; margin: 24px 0;'><a href='https://techcloudpro.com/netsuite' style='background: linear-gradient(135deg, #FF6B35 0%, #e85d26 100%); color: #fff; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block;'>Book a 15-Min Call</a></div>
 <div style='border-top: 1px solid #eee; padding-top: 16px; margin-top: 24px;'>
 <p style='font-size: 14px; color: #333; margin: 0 0 4px;'><strong>Peter Samuel</strong></p>
-<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro / BrandMonkz</p>
+<p style='font-size: 13px; color: #666; margin: 0;'>Director of Staffing — TechCloudPro</p>
 </div>
 </div>
-<div style='background: #1a1a2e; padding: 16px; text-align: center; border-radius: 0 0 8px 8px;'>
-<p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | BrandMonkz</p>
+<div style='background: #1a1a2e; padding: 14px; text-align: center; border-radius: 0 0 8px 8px;'>
+<p style='font-size: 11px; color: #b0b0c3; margin: 0;'>TechCloudPro | peter@techcloudpro.com</p>
 </div>
 </div>`;
+
+// NetSuite campaign template and quick-send below
 
 // POST /api/campaigns/quick-send - One-click NetSuite campaign send
 router.post('/quick-send', async (req, res, next) => {
   try {
     const userId = req.user!.id;
     const limit = Math.min(parseInt(req.body?.limit) || 50, 500); // Default 50, max 500
+    const subjectVariant = Math.min(Math.max(parseInt(req.body?.subjectVariant) || 0, 0), NETSUITE_SUBJECTS.length - 1);
 
     // Build team-aware user IDs (same pattern as GET /api/campaigns)
     const teamUserIds: string[] = [userId];
@@ -862,11 +1542,12 @@ router.post('/quick-send', async (req, res, next) => {
 
     const companiesUsed = [...new Set(allContacts.map(c => c.companyId))];
 
-    // 2. Create campaign with hardcoded NetSuite content
+    // 2. Create campaign with selected subject variant
+    const selectedSubject = NETSUITE_SUBJECTS[subjectVariant];
     const campaign = await prisma.campaign.create({
       data: {
-        name: 'NetSuite Staff Augmentation — $2/hr',
-        subject: "Scale {{companyName}}'s Team — Pre-Vetted Engineers at $2/hr",
+        name: `NetSuite Campaign — Subject #${subjectVariant + 1}`,
+        subject: selectedSubject,
         status: 'SENDING',
         htmlContent: NETSUITE_CAMPAIGN_HTML,
         userId,
@@ -882,91 +1563,31 @@ router.post('/quick-send', async (req, res, next) => {
       skipDuplicates: true,
     });
 
-    // 4. Send emails via user's SMTP server (falls back to SES)
-    let sent = 0;
-    let failed = 0;
-    const total = allContacts.length;
-    const TRACKING_BASE = process.env.FRONTEND_URL || 'https://brandmonkz.com';
+    // 4. Validate emails and start throttled send
+    const intervalMinutes = Math.min(Math.max(parseInt(req.body?.intervalMinutes) || 5, 1), 30);
+    const validContacts = allContacts.filter(c => isValidEmail(c.contact.email));
+    const invalidCount = allContacts.length - validContacts.length;
 
-    // Require user's verified email server — no env SMTP or SES fallback
-    const bulkUserServer = await getUserEmailServer(userId!);
-    if (!bulkUserServer) {
-      return res.status(400).json({ error: 'No verified email server configured. Please add and verify an email server in Settings before sending campaigns.' });
-    }
-    const bulkFromEmail = bulkUserServer.fromEmail;
-
-    for (const { contact, companyName } of allContacts) {
-        try {
-          // Replace template variables
-          const vars: Record<string, string> = {
-            firstName: contact.firstName || '',
-            lastName: contact.lastName || '',
-            companyName: companyName,
-          };
-
-          let subjectLine = campaign.subject || '';
-          let html = NETSUITE_CAMPAIGN_HTML;
-          for (const [key, val] of Object.entries(vars)) {
-            const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
-            subjectLine = subjectLine.replace(regex, val);
-            html = html.replace(regex, val);
-          }
-
-          // Create email log for tracking
-          let emailLogId = '';
-          try {
-            const emailLog = await prisma.emailLog.create({
-              data: {
-                toEmail: contact.email,
-                fromEmail: bulkFromEmail,
-                status: 'SENT',
-                sentAt: new Date(),
-                campaignId: campaign.id,
-                contactId: contact.id,
-              } as any,
-            });
-            emailLogId = emailLog.id;
-          } catch {
-            // Continue without tracking
-          }
-
-          // Inject tracking pixel
-          if (emailLogId) {
-            const trackingPixel = `<img src="${TRACKING_BASE}/api/tracking/open/${emailLogId}" alt="" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" />`;
-            if (html.includes('</div>')) {
-              html = html.replace(/<\/div>\s*$/, `${trackingPixel}</div>`);
-            } else {
-              html += trackingPixel;
-            }
-          }
-
-          await sendEmail(contact.email, subjectLine, html, userId);
-          sent++;
-        } catch (err) {
-          console.error(`Failed to send to ${contact.email}:`, err);
-          failed++;
-        }
+    if (validContacts.length === 0) {
+      return res.status(400).json({ error: 'No valid email addresses found', invalidCount });
     }
 
-    // 5. Update campaign status
-    await prisma.campaign.update({
-      where: { id: campaign.id },
-      data: {
-        status: 'SENT',
-        sentAt: new Date(),
-        totalSent: sent,
-      },
-    });
+    // Set campaign to SENDING
+    await prisma.campaign.update({ where: { id: campaign.id }, data: { status: 'SENDING' } });
 
-    // 6. Return results
+    // Start throttled background send (returns immediately)
+    await startThrottledSend(campaign.id, userId, validContacts, campaign.subject!, NETSUITE_CAMPAIGN_HTML, intervalMinutes);
+
+    const estimatedMinutes = (validContacts.length - 1) * intervalMinutes;
     return res.json({
       success: true,
       campaignId: campaign.id,
-      sent,
-      total,
-      failed,
+      total: validContacts.length,
+      invalidSkipped: invalidCount,
       companyCount: companiesUsed.length,
-      totalAvailable: emailableCompanies.reduce((s, c) => s + c.contacts.length, 0),
+      intervalMinutes,
+      estimatedCompletion: `~${estimatedMinutes} minutes`,
+      message: `Sending ${validContacts.length} emails, 1 every ${intervalMinutes} min. First sent immediately.`,
     });
   } catch (error) {
     return next(error);
