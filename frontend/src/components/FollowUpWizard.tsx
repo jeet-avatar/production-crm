@@ -10,6 +10,10 @@ import {
 } from '@heroicons/react/24/outline';
 import DOMPurify from 'dompurify';
 
+const CALENDLY_URL = 'https://calendly.com/peter-techcloudpro';
+const SENDER_NAME = 'Peter Varghese';
+const COMPANY_NAME = 'TechCloudPro · Technology Staffing';
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -79,7 +83,7 @@ function buildClickersTemplate(campaignTopic: string): string {
   return `<div style="font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); padding: 32px; text-align: center;">
     <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700;">Following up on ${campaignTopic}</h1>
-    <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 13px;">TechCloudPro · Technology Staffing</p>
+    <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0; font-size: 13px;">${COMPANY_NAME}</p>
   </div>
   <div style="padding: 28px; background: #ffffff; color: #1e293b;">
     <p style="font-size: 15px; line-height: 1.7; margin: 0 0 16px;">Hi {{firstName}},</p>
@@ -87,9 +91,9 @@ function buildClickersTemplate(campaignTopic: string): string {
     <p style="font-size: 15px; line-height: 1.7; margin: 0 0 16px;">We work with companies who need <strong>pre-vetted engineers fast</strong> — without the 15-20% markup most staffing firms charge. Our flat $2/hr model means you get senior talent at contractor rates, with full flexibility to scale up or down.</p>
     <p style="font-size: 15px; line-height: 1.7; margin: 0 0 24px;">Would a quick 15-minute call this week work? I can walk you through how we have placed engineers at similar companies in your space.</p>
     <div style="text-align: center; margin: 28px 0;">
-      <a href="https://calendly.com/peter-techcloudpro" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; letter-spacing: 0.3px;">Schedule a 15-Min Call</a>
+      <a href="${CALENDLY_URL}" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 15px; display: inline-block; letter-spacing: 0.3px;">Schedule a 15-Min Call</a>
     </div>
-    <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 0;">Best regards,<br/><strong style="color: #1e293b;">Peter Varghese</strong><br/>TechCloudPro · Technology Staffing</p>
+    <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 0;">Best regards,<br/><strong style="color: #1e293b;">${SENDER_NAME}</strong><br/>${COMPANY_NAME}</p>
   </div>
 </div>`;
 }
@@ -98,16 +102,25 @@ function buildOpenersTemplate(campaignTopic: string): string {
   return `<div style="font-family: Segoe UI, Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); padding: 32px; text-align: center;">
     <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700;">One thought on ${campaignTopic}</h1>
-    <p style="color: rgba(255,255,255,0.7); margin: 8px 0 0; font-size: 13px;">TechCloudPro · Technology Staffing</p>
+    <p style="color: rgba(255,255,255,0.7); margin: 8px 0 0; font-size: 13px;">${COMPANY_NAME}</p>
   </div>
   <div style="padding: 28px; background: #ffffff; color: #1e293b;">
     <p style="font-size: 15px; line-height: 1.7; margin: 0 0 16px;">Hi {{firstName}},</p>
     <p style="font-size: 15px; line-height: 1.7; margin: 0 0 16px;">I will keep this brief — one question for <strong>{{companyName}}</strong>:</p>
     <p style="font-size: 15px; line-height: 1.7; margin: 0 0 16px; padding: 16px 20px; background: #f8fafc; border-left: 4px solid #4f46e5; border-radius: 0 6px 6px 0;"><em>If you needed a senior engineer in the next 30 days — would you rather pay a 15% placement fee, or $2/hr above contractor rate with no long-term commitment?</em></p>
     <p style="font-size: 15px; line-height: 1.7; margin: 0 0 24px;">Most companies we talk to have not done the math. Happy to share a quick comparison if useful — just reply to this email.</p>
-    <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 0;">Best,<br/><strong style="color: #1e293b;">Peter Varghese</strong><br/>TechCloudPro · Technology Staffing</p>
+    <p style="font-size: 14px; line-height: 1.6; color: #64748b; margin: 0;">Best,<br/><strong style="color: #1e293b;">${SENDER_NAME}</strong><br/>${COMPANY_NAME}</p>
   </div>
 </div>`;
+}
+
+function dedupeByContactId(contacts: ContactRecord[]): ContactRecord[] {
+  const seen = new Set<string>();
+  return contacts.filter(c => {
+    if (seen.has(c.contactId)) return false;
+    seen.add(c.contactId);
+    return true;
+  });
 }
 
 export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
@@ -140,6 +153,8 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
     setLoadingIntel(false);
     setIntelError(false);
 
+    setSource(null);
+    setCampaignName('');
     try {
       const raw = sessionStorage.getItem('followUpSource');
       if (raw) {
@@ -163,15 +178,7 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
         ? source.segments.clicked
         : segment === 'OPENED'
         ? source.segments.opened
-        : (() => {
-            const merged = [...source.segments.clicked, ...source.segments.opened];
-            const seen = new Set<string>();
-            return merged.filter(c => {
-              if (seen.has(c.contactId)) return false;
-              seen.add(c.contactId);
-              return true;
-            });
-          })();
+        : dedupeByContactId([...source.segments.clicked, ...source.segments.opened]);
 
     const companiesWithData = contacts
       .filter((c) => c.company !== null)
@@ -220,13 +227,7 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
     if (!source || !selectedSegment) return [];
     if (selectedSegment === 'CLICKED') return source.segments.clicked;
     if (selectedSegment === 'OPENED') return source.segments.opened;
-    const merged = [...source.segments.clicked, ...source.segments.opened];
-    const seen = new Set<string>();
-    return merged.filter(c => {
-      if (seen.has(c.contactId)) return false;
-      seen.add(c.contactId);
-      return true;
-    });
+    return dedupeByContactId([...source.segments.clicked, ...source.segments.opened]);
   };
 
   const getGroupedContacts = () => {
@@ -274,11 +275,20 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
       const companyIds = [
         ...new Set(contacts.filter((c) => c.company).map((c) => c.company!.id)),
       ];
+      let linkSuccessCount = 0;
       for (const companyId of companyIds) {
-        await fetch(`${API_URL}/api/campaigns/${newCampaignId}/companies/${companyId}`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => {});
+        try {
+          const linkRes = await fetch(`${API_URL}/api/campaigns/${newCampaignId}/companies/${companyId}`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (linkRes.ok) linkSuccessCount++;
+        } catch {
+          // non-blocking — count failures
+        }
+      }
+      if (companyIds.length > 0 && linkSuccessCount === 0) {
+        throw new Error('Could not link any companies to the campaign. Please try again.');
       }
 
       const sendRes = await fetch(`${API_URL}/api/campaigns/${newCampaignId}/send`, {
@@ -567,6 +577,11 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
                     {individuals.length > 0 && (
                       <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '8px', color: '#fbbf24', fontSize: '12px', marginBottom: '16px' }}>
                         ⚠ {individuals.length} contact{individuals.length !== 1 ? 's' : ''} without a linked company will not receive this email.
+                      </div>
+                    )}
+                    {byCompany.length === 0 && (
+                      <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', color: '#fca5a5', fontSize: '12px', marginBottom: '16px' }}>
+                        No contacts in this segment have a linked company. Switch segments or return to the Campaigns page.
                       </div>
                     )}
                   </>
