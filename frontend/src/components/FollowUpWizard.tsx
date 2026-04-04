@@ -137,6 +137,8 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
     setError('');
     setSendResult(null);
     setShowPreview(false);
+    setLoadingIntel(false);
+    setIntelError(false);
 
     try {
       const raw = sessionStorage.getItem('followUpSource');
@@ -161,7 +163,15 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
         ? source.segments.clicked
         : segment === 'OPENED'
         ? source.segments.opened
-        : [...source.segments.clicked, ...source.segments.opened];
+        : (() => {
+            const merged = [...source.segments.clicked, ...source.segments.opened];
+            const seen = new Set<string>();
+            return merged.filter(c => {
+              if (seen.has(c.contactId)) return false;
+              seen.add(c.contactId);
+              return true;
+            });
+          })();
 
     const companiesWithData = contacts
       .filter((c) => c.company !== null)
@@ -210,7 +220,13 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
     if (!source || !selectedSegment) return [];
     if (selectedSegment === 'CLICKED') return source.segments.clicked;
     if (selectedSegment === 'OPENED') return source.segments.opened;
-    return [...source.segments.clicked, ...source.segments.opened];
+    const merged = [...source.segments.clicked, ...source.segments.opened];
+    const seen = new Set<string>();
+    return merged.filter(c => {
+      if (seen.has(c.contactId)) return false;
+      seen.add(c.contactId);
+      return true;
+    });
   };
 
   const getGroupedContacts = () => {
@@ -283,6 +299,14 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
   };
 
   if (!isOpen) return null;
+  if (!source && isOpen) return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#0f172a', borderRadius: '16px', padding: '32px', maxWidth: '400px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <p style={{ color: '#fca5a5', fontSize: '14px', marginBottom: '16px' }}>Could not load engagement data. Please close and try again.</p>
+        <button onClick={onClose} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '8px', color: '#94a3b8', cursor: 'pointer', fontSize: '14px' }}>Close</button>
+      </div>
+    </div>
+  );
 
   const contacts = getSegmentContacts();
   const { byCompany, individuals } = getGroupedContacts();
@@ -561,7 +585,7 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
                 </button>
                 <button
                   onClick={handleSend}
-                  disabled={sending || !campaignName || !subject}
+                  disabled={sending || !campaignName || !subject || byCompany.length === 0}
                   style={{
                     padding: '10px 28px', borderRadius: '8px', fontWeight: 700, fontSize: '14px',
                     cursor: sending ? 'not-allowed' : 'pointer',
