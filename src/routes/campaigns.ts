@@ -86,6 +86,7 @@ router.get('/:id/engaged-contacts', async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
     // Verify campaign belongs to this user (mirrors pattern of all other /:id routes)
     const campaign = await prisma.campaign.findFirst({
