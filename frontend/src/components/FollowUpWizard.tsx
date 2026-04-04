@@ -129,6 +129,7 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
   const [selectedSegment, setSelectedSegment] = useState<Segment | null>(null);
   const [intel, setIntel] = useState<IntelBrief[]>([]);
   const [loadingIntel, setLoadingIntel] = useState(false);
+  const [loadingEmail, setLoadingEmail] = useState(false);
   const [intelError, setIntelError] = useState(false);
 
   const [campaignName, setCampaignName] = useState('');
@@ -212,7 +213,29 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
       });
       if (res.ok) {
         const data = await res.json();
-        setIntel(data.intel || []);
+        const intelBriefs: IntelBrief[] = data.intel || [];
+        setIntel(intelBriefs);
+
+        // Generate AI-written email body using the intel
+        if (intelBriefs.length > 0) {
+          setLoadingEmail(true);
+          try {
+            const emailRes = await fetch(`${API_URL}/api/campaigns/${source.campaignId}/generate-followup-email`, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ segment, intel: intelBriefs, campaignName: source.campaignName }),
+            });
+            if (emailRes.ok) {
+              const emailData = await emailRes.json();
+              if (emailData.subject) setSubject(emailData.subject);
+              if (emailData.htmlBody) setEmailBody(emailData.htmlBody);
+            }
+          } catch {
+            // Keep fallback template already set above
+          } finally {
+            setLoadingEmail(false);
+          }
+        }
       } else {
         setIntelError(true);
       }
@@ -220,6 +243,28 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
       setIntelError(true);
     } finally {
       setLoadingIntel(false);
+    }
+  };
+
+  const handleRegenerateEmail = async () => {
+    if (!source || !selectedSegment || intel.length === 0) return;
+    const token = localStorage.getItem('crmToken');
+    setLoadingEmail(true);
+    try {
+      const res = await fetch(`${API_URL}/api/campaigns/${source.campaignId}/generate-followup-email`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ segment: selectedSegment, intel, campaignName: source.campaignName }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.subject) setSubject(data.subject);
+        if (data.htmlBody) setEmailBody(data.htmlBody);
+      }
+    } catch {
+      // keep existing
+    } finally {
+      setLoadingEmail(false);
     }
   };
 
@@ -524,6 +569,12 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
 
           {step === 3 && (
             <div>
+              {loadingEmail && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', background: 'rgba(99,102,241,0.08)', borderRadius: '8px', border: '1px solid rgba(99,102,241,0.2)', marginBottom: '16px' }}>
+                  <SparklesIcon style={{ width: 16, height: 16, color: '#818cf8', flexShrink: 0 }} />
+                  <span style={{ color: '#a5b4fc', fontSize: '13px' }}>Generating personalized follow-up email from AI intelligence…</span>
+                </div>
+              )}
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 600, display: 'block', marginBottom: '6px' }}>CAMPAIGN NAME</label>
                 <input
@@ -545,12 +596,24 @@ export function FollowUpWizard({ isOpen, onClose, onSuccess }: Props) {
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                   <label style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>EMAIL BODY</label>
-                  <button
-                    onClick={() => setShowPreview(!showPreview)}
-                    style={{ background: 'none', border: 'none', color: '#6366f1', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
-                  >
-                    {showPreview ? 'Edit HTML' : 'Preview'}
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {intel.length > 0 && (
+                      <button
+                        onClick={handleRegenerateEmail}
+                        disabled={loadingEmail}
+                        style={{ background: 'none', border: '1px solid rgba(99,102,241,0.4)', borderRadius: '6px', color: '#818cf8', fontSize: '11px', cursor: loadingEmail ? 'not-allowed' : 'pointer', fontWeight: 600, padding: '3px 8px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <SparklesIcon style={{ width: 12, height: 12 }} />
+                        {loadingEmail ? 'Generating…' : 'Regenerate AI Email'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setShowPreview(!showPreview)}
+                      style={{ background: 'none', border: 'none', color: '#6366f1', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
+                    >
+                      {showPreview ? 'Edit HTML' : 'Preview'}
+                    </button>
+                  </div>
                 </div>
                 {showPreview ? (
                   <div

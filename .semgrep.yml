@@ -1,0 +1,123 @@
+rules:
+  # Security Rules
+  - id: detect-eval
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: Function(...)
+      - pattern: new Function(...)
+    message: Use of eval() is dangerous and should be avoided
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  - id: weak-crypto
+    pattern-either:
+      - pattern: crypto.createHash('md5')
+      - pattern: crypto.createHash('sha1')
+    message: MD5 and SHA1 are cryptographically weak - use SHA256 or better
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  - id: jwt-no-verify
+    pattern: jwt.decode($TOKEN, ...)
+    message: JWT token decoded without verification - use jwt.verify() instead
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  - id: unsafe-redirect
+    pattern: res.redirect($INPUT)
+    message: Unvalidated redirect can lead to phishing attacks
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  - id: sql-injection-template
+    pattern: |
+      prisma.$raw`... ${$VAR} ...`
+    message: Potential SQL injection vulnerability - avoid string interpolation in raw SQL
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  # Code Quality Rules
+  - id: console-log-found
+    pattern-either:
+      - pattern: console.log(...)
+      - pattern: console.debug(...)
+      - pattern: console.info(...)
+    message: Remove console.log statements before production
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  - id: empty-catch-block
+    pattern: |
+      try { ... } catch ($E) { }
+    message: Empty catch block - handle errors appropriately
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  # Express.js Security
+  - id: cors-allow-all
+    pattern: |
+      cors({ origin: '*' })
+    message: CORS configured to allow all origins - restrict in production
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  - id: missing-input-validation
+    pattern: |
+      $MODEL.create(req.body)
+    message: Direct use of req.body without validation - use express-validator
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  # TypeScript Specific
+  - id: any-type-usage
+    pattern-either:
+      - pattern: |
+          const $VAR: any = ...
+      - pattern: |
+          let $VAR: any = ...
+      - pattern: |
+          function $FUNC(..., $PARAM: any, ...) { ... }
+    message: Avoid using 'any' type - use proper types or 'unknown'
+    severity: INFO
+    languages: [typescript]
+
+  - id: non-null-assertion
+    pattern: $VAR!.$PROP
+    message: Non-null assertion operator (!) bypasses type safety
+    severity: INFO
+    languages: [typescript]
+
+  # AWS SDK Security
+  - id: aws-hardcoded-credentials
+    pattern-either:
+      - pattern: |
+          new AWS.S3({ accessKeyId: '...', ... })
+      - pattern: |
+          new S3Client({ credentials: { accessKeyId: '...', ... } })
+    message: Hardcoded AWS credentials detected - use IAM roles or environment variables
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  # Prisma ORM Security
+  - id: prisma-raw-query
+    pattern-either:
+      - pattern: prisma.$executeRaw(...)
+      - pattern: prisma.$queryRaw(...)
+    message: Raw Prisma queries can be vulnerable - ensure input is sanitized
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  # Authentication & Session
+  - id: weak-jwt-secret
+    pattern-either:
+      - pattern: jwt.sign(..., 'secret', ...)
+      - pattern: jwt.sign(..., "secret", ...)
+    message: Weak JWT secret detected - use strong random secret from environment
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  - id: bcrypt-low-rounds
+    pattern: bcrypt.hash($DATA, $ROUNDS)
+    message: Ensure bcrypt rounds are at least 10 for security
+    severity: WARNING
+    languages: [typescript, javascript]

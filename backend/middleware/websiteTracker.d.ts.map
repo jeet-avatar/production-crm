@@ -1,0 +1,1 @@
+{"version":3,"file":"websiteTracker.d.ts","sourceRoot":"","sources":["../../src/middleware/websiteTracker.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AA+B1D,eAAO,MAAM,iBAAiB,GAC5B,KAAK,OAAO,EACZ,KAAK,QAAQ,EACb,MAAM,YAAY,kBAiEnB,CAAC;AAGF,eAAO,MAAM,kBAAkB,GAAU,KAAK,OAAO,EAAE,KAAK,QAAQ,gDAsBnE,CAAC"}

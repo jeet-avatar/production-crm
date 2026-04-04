@@ -319,6 +319,102 @@ Return ONLY the JSON array. No markdown, no explanation.`;
 });
 
 
+
+// POST /api/campaigns/:id/generate-followup-email - AI-generate a personalized follow-up email
+router.post('/:id/generate-followup-email', async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { segment, intel, campaignName } = req.body as {
+      segment: 'CLICKED' | 'OPENED' | 'ALL';
+      intel: Array<{
+        companyId: string;
+        whyFollowUp: string;
+        suggestedAngle: string;
+        suggestedSubject: string;
+        urgencySignal: string;
+      }>;
+      campaignName: string;
+    };
+
+    if (!campaignName) {
+      return res.status(400).json({ error: 'campaignName is required' });
+    }
+
+    const isHighIntent = segment === 'CLICKED' || segment === 'ALL';
+    const calendlyUrl = 'https://calendly.com/peter-techcloudpro';
+    const senderName = 'Peter Varghese';
+    const companySignature = 'TechCloudPro · Technology Staffing';
+
+    // Build context from intel briefs
+    const intelSummary = intel && intel.length > 0
+      ? intel.map((b, i) => `Company ${i + 1}: ${b.suggestedAngle} — ${b.whyFollowUp}`).join('\n')
+      : 'General technology staffing opportunity.';
+
+    const topSubject = intel && intel.length > 0 ? intel[0].suggestedSubject : null;
+
+    const prompt = `You are writing a follow-up email for ${senderName} at TechCloudPro, a technology staffing firm.
+
+Context:
+- Original campaign: "${campaignName}"
+- Segment: ${isHighIntent ? 'CLICKED — high intent leads who clicked the email CTA' : 'OPENED — contacts who opened the email but did not click'}
+- Engagement angles from these companies: ${intelSummary}
+
+Write ONE warm, targeted follow-up email that:
+1. Feels personal — references their prior engagement without saying "I saw you clicked/opened"
+2. Leads with the most common angle from the intel: ${intel && intel.length > 0 ? intel[0].suggestedAngle : 'contract flexibility vs full-time hiring cost'}
+3. Is brief — 4-5 sentences max in the body
+4. Uses {{firstName}} and {{companyName}} merge tags (exactly as written — the send system replaces them)
+5. ${isHighIntent ? `Ends with a Calendly CTA button: Schedule a 15-min call at ${calendlyUrl}` : 'Ends with a soft ask — "just reply to this email" — no button'}
+6. Sign-off: ${senderName}, ${companySignature}
+7. Is written in HTML with inline styles — clean, professional, max-width 600px
+8. Header: dark gradient background (#0f172a to #1e3a5f), white title text
+9. Body: white background, #1e293b text, 15px font, 1.7 line-height, 28px padding
+
+Return ONLY a JSON object with exactly two fields:
+- "subject": string (personalized subject line, max 70 chars, use {{companyName}} if helpful)
+- "htmlBody": string (the full HTML email, properly escaped for JSON)
+
+No markdown, no explanation. Return the raw JSON object only.`;
+
+    try {
+      const message = await anthropic.messages.create({
+        ...getAIMessageConfig('content'),
+        messages: [{ role: 'user', content: prompt }],
+        system: 'You are an expert B2B email copywriter. Return only valid JSON objects. Never add markdown fences.',
+      });
+
+      const textContent = message.content[0];
+      if (textContent.type !== 'text') throw new Error('No text content');
+
+      const raw = textContent.text
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/```\s*$/i, '')
+        .trim();
+
+      let parsed: { subject: string; htmlBody: string };
+      try {
+        parsed = JSON.parse(raw);
+        if (!parsed.subject || !parsed.htmlBody) throw new Error('Missing fields');
+      } catch {
+        return res.json({ subject: null, htmlBody: null });
+      }
+
+      return res.json({
+        subject: topSubject || parsed.subject,
+        htmlBody: parsed.htmlBody,
+      });
+    } catch (aiError) {
+      console.error('generate-followup-email AI call failed:', aiError);
+      return res.json({ subject: topSubject, htmlBody: null });
+    }
+  } catch (error) {
+    return next(error);
+  }
+});
+
 // GET /api/campaigns/:id - Get single campaign
 router.get('/:id', async (req, res, next) => {
   try {
@@ -1215,3 +1311,4 @@ router.post('/quick-send', async (req, res, next) => {
 });
 
 export default router;
+INSERTED
