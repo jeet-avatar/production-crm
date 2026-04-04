@@ -127,7 +127,7 @@ export function CampaignsPage() {
   };
 
   const handleFollowUp = async (campaign: Campaign) => {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
     const token = localStorage.getItem('crmToken');
     setFollowUpLoading(campaign.id);
     try {
