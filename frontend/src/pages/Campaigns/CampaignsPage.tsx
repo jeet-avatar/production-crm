@@ -15,10 +15,13 @@ import {
   QuestionMarkCircleIcon,
   PaperAirplaneIcon,
   ArrowPathIcon,
+  ArrowUturnRightIcon,
 } from '@heroicons/react/24/outline';
 import CampaignWizard from '../../components/CampaignWizard';
+import { FollowUpWizard } from '../../components/FollowUpWizard';
 import { EditCampaignModal } from '../../components/EditCampaignModal';
 import { CampaignsHelpGuide } from '../../components/CampaignsHelpGuide';
+import { CampaignEmailReport } from '../../components/CampaignEmailReport';
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface Campaign {
@@ -55,6 +58,9 @@ export function CampaignsPage() {
   const [showHelpGuide, setShowHelpGuide] = useState(false);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
   const [sendResult, setSendResult] = useState<{ id: string; sent: number; total: number } | null>(null);
+  const [reportCampaign, setReportCampaign] = useState<Campaign | null>(null);
+  const [showFollowUpWizard, setShowFollowUpWizard] = useState(false);
+  const [followUpLoading, setFollowUpLoading] = useState<string | null>(null);
 
   useEffect(() => {
     loadCampaigns();
@@ -102,7 +108,7 @@ export function CampaignsPage() {
         type: c.type || 'email',
         status: c.status ? c.status.toLowerCase() : 'draft',
         subject: c.subject,
-        sentCount: c.totalSent || c._count?.emailLogs || 0,
+        sentCount: c.totalSent || 0,
         openedCount: c.totalOpened || 0,
         clickedCount: c.totalClicked || 0,
         convertedCount: 0,
@@ -117,6 +123,26 @@ export function CampaignsPage() {
       console.error('Error loading campaigns:', error);
       setCampaigns([]);
       setIsLoading(false);
+    }
+  };
+
+  const handleFollowUp = async (campaign: Campaign) => {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const token = localStorage.getItem('crmToken');
+    setFollowUpLoading(campaign.id);
+    try {
+      const res = await fetch(`${apiUrl}/api/campaigns/${campaign.id}/engaged-contacts`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch engaged contacts');
+      const data = await res.json();
+      sessionStorage.setItem('followUpSource', JSON.stringify(data));
+      setShowFollowUpWizard(true);
+    } catch (err) {
+      console.error('Follow-up fetch failed:', err);
+      alert('Could not load engagement data. Please try again.');
+    } finally {
+      setFollowUpLoading(null);
     }
   };
 
@@ -479,6 +505,24 @@ export function CampaignsPage() {
                         </div>
                       </div>
                     </div>
+                    <div className="mt-3 flex justify-end items-center gap-4">
+                      {(campaign.openedCount > 0 || campaign.clickedCount > 0) && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleFollowUp(campaign); }}
+                          disabled={followUpLoading === campaign.id}
+                          className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors disabled:opacity-50"
+                        >
+                          <ArrowUturnRightIcon className="w-3.5 h-3.5" />
+                          {followUpLoading === campaign.id ? 'Loading...' : 'Send Follow-up'}
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setReportCampaign(campaign); }}
+                        className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
+                      >
+                        View Full Report
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -529,6 +573,28 @@ export function CampaignsPage() {
       {/* Help Guide */}
       {showHelpGuide && (
         <CampaignsHelpGuide onClose={() => setShowHelpGuide(false)} />
+      )}
+
+      {/* Campaign Email Report */}
+      {reportCampaign && (
+        <CampaignEmailReport
+          campaignId={reportCampaign.id}
+          campaignName={reportCampaign.name}
+          isOpen={!!reportCampaign}
+          onClose={() => setReportCampaign(null)}
+        />
+      )}
+
+      {/* Follow-up Wizard */}
+      {showFollowUpWizard && (
+        <FollowUpWizard
+          isOpen={showFollowUpWizard}
+          onClose={() => setShowFollowUpWizard(false)}
+          onSuccess={() => {
+            loadCampaigns();
+            setShowFollowUpWizard(false);
+          }}
+        />
       )}
     </div>
   );
