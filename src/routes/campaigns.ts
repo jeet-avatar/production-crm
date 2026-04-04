@@ -189,6 +189,120 @@ router.get('/:id/engaged-contacts', async (req, res, next) => {
   }
 });
 
+// POST /api/campaigns/:id/ai-intel - Generate per-company follow-up intelligence
+router.post('/:id/ai-intel', async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { segment, companies } = req.body as {
+      segment: 'CLICKED' | 'OPENED' | 'ALL';
+      companies: Array<{
+        id: string;
+        name: string;
+        industry?: string | null;
+        size?: string | null;
+        intent?: string | null;
+        hiringInfo?: string | null;
+        pitch?: string | null;
+        description?: string | null;
+        engagementSignal: {
+          status: string;
+          totalOpens: number;
+          engagementScore: number;
+          openedAt?: string | null;
+          clickedAt?: string | null;
+        };
+      }>;
+    };
+
+    if (!companies || companies.length === 0) {
+      return res.json({ intel: [] });
+    }
+
+    // Cap batch size to prevent token overflow — 1024 tokens fits ~10 companies
+    const batchedCompanies = companies.slice(0, 10);
+
+    const companyBriefs = batchedCompanies.map((c, i) => {
+      const signal =
+        c.engagementSignal.status === 'CLICKED'
+          ? `Clicked your email CTA (engagement score: ${c.engagementSignal.engagementScore}/100)`
+          : `Opened your email ${c.engagementSignal.totalOpens}x (engagement score: ${c.engagementSignal.engagementScore}/100)`;
+      const daysAgo =
+        c.engagementSignal.clickedAt || c.engagementSignal.openedAt
+          ? Math.floor(
+              (Date.now() -
+                new Date(
+                  c.engagementSignal.clickedAt || c.engagementSignal.openedAt!
+                ).getTime()) /
+                (1000 * 60 * 60 * 24)
+            )
+          : null;
+
+      return `Company ${i + 1}:
+Name: ${c.name}
+Industry: ${c.industry || 'Unknown'}
+Size: ${c.size || 'Unknown'}
+Intent/Context: ${c.intent || c.description || 'Not available'}
+Hiring Info: ${c.hiringInfo || 'Not available'}
+Our Pitch for Them: ${c.pitch || 'Not available'}
+Engagement: ${signal}${daysAgo !== null ? ` — ${daysAgo} day(s) ago` : ''}`;
+    });
+
+    const prompt = `You are an outbound sales intelligence engine for TechCloudPro, a NetSuite and technology staffing firm. We charge a flat $2/hr markup on contractor rates — far below the 15-20% industry standard.
+
+For each company below, generate a concise follow-up brief. Return ONLY a valid JSON array with one object per company, in the same order. Each object must have exactly these fields:
+- "companyId": string (copy from input)
+- "whyFollowUp": string (1-2 sentences — why this company is worth following up with RIGHT NOW)
+- "suggestedAngle": string (the specific messaging angle, e.g. "contract flexibility", "cost vs full-time hire")
+- "suggestedSubject": string (personalized subject line for this company, max 60 chars)
+- "urgencySignal": string (short phrase about timing, e.g. "Clicked 2 days ago — optimal follow-up window")
+
+Companies:
+${companyBriefs.join('\n\n')}
+
+Return ONLY the JSON array. No markdown, no explanation.`;
+
+    let intel: Array<{
+      companyId: string;
+      whyFollowUp: string;
+      suggestedAngle: string;
+      suggestedSubject: string;
+      urgencySignal: string;
+    }> = [];
+
+    try {
+      const message = await anthropic.messages.create({
+        ...getAIMessageConfig('enrichment'),
+        messages: [{ role: 'user', content: prompt }],
+        system:
+          'You are a B2B sales intelligence engine. Return only valid JSON arrays with no markdown wrapping.',
+      });
+
+      const content = message.content[0];
+      if (content.type === 'text') {
+        const raw = content.text
+          .replace(/```json\n?/g, '')
+          .replace(/```\n?/g, '')
+          .trim();
+        try {
+          intel = JSON.parse(raw);
+          if (!Array.isArray(intel)) intel = [];
+        } catch {
+          intel = [];
+        }
+      }
+    } catch (aiError) {
+      console.error('AI intel generation failed:', aiError);
+    }
+
+    return res.json({ intel });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+
 // GET /api/campaigns/:id - Get single campaign
 router.get('/:id', async (req, res, next) => {
   try {
