@@ -220,8 +220,8 @@ router.post('/:id/ai-intel', async (req, res, next) => {
       return res.json({ intel: [] });
     }
 
-    // Cap batch size to prevent token overflow — 1024 tokens fits ~10 companies
-    const batchedCompanies = companies.slice(0, 10);
+    // Cap batch size to prevent token overflow — 1024 tokens fits ~5 companies
+    const batchedCompanies = companies.slice(0, 5);
 
     const companyBriefs = batchedCompanies.map((c, i) => {
       const signal =
@@ -240,6 +240,7 @@ router.post('/:id/ai-intel', async (req, res, next) => {
           : null;
 
       return `Company ${i + 1}:
+ID: ${c.id}
 Name: ${c.name}
 Industry: ${c.industry || 'Unknown'}
 Size: ${c.size || 'Unknown'}
@@ -254,7 +255,7 @@ Engagement: ${signal}${daysAgo !== null ? ` — ${daysAgo} day(s) ago` : ''}`;
 Follow-up context: ${segment === 'CLICKED' ? 'These contacts CLICKED your email CTA — they are high-intent leads.' : segment === 'OPENED' ? 'These contacts OPENED your email but did not click — they showed mild interest.' : 'These contacts either opened or clicked your email.'}
 
 For each company below, generate a concise follow-up brief. Return ONLY a valid JSON array with one object per company, in the same order. Each object must have exactly these fields:
-- "companyId": string (copy from input)
+- "companyId": string (copy the exact value from the "ID:" field for this company — do not modify it)
 - "whyFollowUp": string (1-2 sentences — why this company is worth following up with RIGHT NOW)
 - "suggestedAngle": string (the specific messaging angle, e.g. "contract flexibility", "cost vs full-time hire")
 - "suggestedSubject": string (personalized subject line for this company, max 60 chars)
