@@ -206,7 +206,7 @@ router.post('/:id/ai-intel', async (req, res, next) => {
         hiringInfo?: string | null;
         pitch?: string | null;
         description?: string | null;
-        engagementSignal: {
+        engagementSignal?: {
           status: string;
           totalOpens: number;
           engagementScore: number;
@@ -218,6 +218,10 @@ router.post('/:id/ai-intel', async (req, res, next) => {
 
     if (!companies || companies.length === 0) {
       return res.json({ intel: [] });
+    }
+
+    if (!["CLICKED", "OPENED", "ALL"].includes(segment)) {
+      return res.status(400).json({ error: "Invalid segment" });
     }
 
     // Cap batch size to prevent token overflow — 1024 tokens fits ~5 companies
@@ -239,6 +243,8 @@ router.post('/:id/ai-intel', async (req, res, next) => {
             )
           : null;
 
+      const safeDaysAgo = typeof daysAgo === "number" && !isNaN(daysAgo) ? daysAgo : null;
+
       return `Company ${i + 1}:
 ID: ${c.id}
 Name: ${c.name}
@@ -247,7 +253,7 @@ Size: ${c.size || 'Unknown'}
 Intent/Context: ${c.intent || c.description || 'Not available'}
 Hiring Info: ${c.hiringInfo || 'Not available'}
 Our Pitch for Them: ${c.pitch || 'Not available'}
-Engagement: ${signal}${daysAgo !== null ? ` — ${daysAgo} day(s) ago` : ''}`;
+Engagement: ${signal}${safeDaysAgo !== null ? ` — ${safeDaysAgo} day(s) ago` : ''}`;
     });
 
     const prompt = `You are an outbound sales intelligence engine for TechCloudPro, a NetSuite and technology staffing firm. We charge a flat $2/hr markup on contractor rates — far below the 15-20% industry standard.
@@ -293,6 +299,11 @@ Return ONLY the JSON array. No markdown, no explanation.`;
         try {
           intel = JSON.parse(raw);
           if (!Array.isArray(intel)) intel = [];
+          intel = intel.filter((item: unknown) =>
+            typeof item === "object" && item !== null &&
+            typeof (item as { companyId?: unknown }).companyId === "string" &&
+            (item as { companyId: string }).companyId.length > 0
+          );
         } catch {
           intel = [];
         }
