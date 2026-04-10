@@ -138,26 +138,40 @@ model User {
 
   // Calendar OAuth Fields (for enterprise-level calendar sync)
   // Google Calendar
-  googleCalendarAccessToken   String?
-  googleCalendarRefreshToken  String?
-  googleCalendarTokenExpiry   DateTime?
-  googleCalendarConnected     Boolean   @default(false)
-  googleCalendarEmail         String? // Which Google account is connected
+  googleCalendarAccessToken  String?
+  googleCalendarRefreshToken String?
+  googleCalendarTokenExpiry  DateTime?
+  googleCalendarConnected    Boolean   @default(false)
+  googleCalendarEmail        String? // Which Google account is connected
 
   // Zoom
-  zoomAccessToken    String?
-  zoomRefreshToken   String?
-  zoomTokenExpiry    DateTime?
-  zoomConnected      Boolean   @default(false)
-  zoomUserId         String? // Zoom user ID
-  zoomUserEmail      String? // Zoom account email
+  zoomAccessToken  String?
+  zoomRefreshToken String?
+  zoomTokenExpiry  DateTime?
+  zoomConnected    Boolean   @default(false)
+  zoomUserId       String? // Zoom user ID
+  zoomUserEmail    String? // Zoom account email
 
   // Microsoft Outlook/Teams
-  outlookAccessToken   String?
-  outlookRefreshToken  String?
-  outlookTokenExpiry   DateTime?
-  outlookConnected     Boolean   @default(false)
-  outlookEmail         String? // Which Outlook account is connected
+  outlookAccessToken  String?
+  outlookRefreshToken String?
+  outlookTokenExpiry  DateTime?
+  outlookConnected    Boolean   @default(false)
+  outlookEmail        String? // Which Outlook account is connected
+
+  // User Preferences - Notification Settings
+  emailNotifications Boolean? @default(true) @map("email_notifications")
+  dealUpdates        Boolean? @default(true) @map("deal_updates")
+  newContacts        Boolean? @default(false) @map("new_contacts")
+  weeklyReport       Boolean? @default(true) @map("weekly_report")
+  marketingEmails    Boolean? @default(false) @map("marketing_emails")
+
+  // User Preferences - Display Settings
+  language    String?  @default("en")
+  dateFormat  String?  @default("MM/DD/YYYY") @map("date_format")
+  timeFormat  String?  @default("12h") @map("time_format")
+  theme       String?  @default("light")
+  compactView Boolean? @default(false) @map("compact_view")
 
   // Relationships
   contacts           Contact[]
@@ -175,8 +189,16 @@ model User {
   leads              Lead[]
   videoTemplates     VideoTemplate[]     @relation("VideoTemplates")
   videoCampaigns     VideoCampaign[]
-  quotes             Quote[]
-  contracts          Contract[]
+  websiteVisits      WebsiteVisit[]
+  sessions           UserSession[]
+  userActivities     UserActivity[]
+  emailFooterConfigs EmailFooterConfig[]
+  standaloneEmailLogs StandaloneEmailLog[]
+
+  // API Management relationships
+  apiKeys         ApiKey[]
+  apiSubscription ApiSubscription?
+  apiWebhooks     ApiWebhook[]
 
   // Team relationships
   accountOwner   User?  @relation("AccountOwner", fields: [accountOwnerId], references: [id], onDelete: SetNull)
@@ -193,6 +215,19 @@ model User {
   // Assigned data relationships
   assignedContacts  Contact[] @relation("AssignedContacts")
   assignedCompanies Company[] @relation("AssignedCompanies")
+
+  // P0 Phase 2 relationships
+  auditLogs        AuditLog[]       @relation("AuditLogs")
+  idempotencyKeys  IdempotencyKey[] @relation("IdempotencyKeys")
+
+  // Partner Program relationships
+  partnerApplicationsReviewed PartnerApplication[] @relation("PartnerApplicationReviewer")
+
+  // Contact Sales relationships
+  contactSubmissionsAssigned ContactSubmission[] @relation("ContactSubmissionAssignee")
+
+  // GTM Strategy Bot
+  gtmPlan String? // Stores JSON of most recently generated GTM plan
 
   @@index([accountOwnerId])
   @@index([invitedById])
@@ -225,6 +260,15 @@ model Contact {
   enriched   Boolean   @default(false)
   enrichedAt DateTime?
 
+  // Email Verification fields
+  emailVerified      Boolean   @default(false) // Whether email has been verified
+  emailVerifiedAt    DateTime? // When email was verified
+  emailPattern       String? // Pattern used to generate email (e.g., "firstname.lastname")
+  emailVerificationMethod String? // "api_provided", "pattern_generated", "manual", "smtp_verified", "hunter", "zerobounce", "abstractapi", "basic"
+  emailVerificationScore Int? // 0-100 confidence score from verification service
+  emailVerificationStatus String? // "valid", "invalid", "risky", "unknown", "catch-all"
+  emailVerificationDetails Json? // Full verification details from provider
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -240,13 +284,15 @@ model Contact {
   company       Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
   user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   assignedTo    User?           @relation("AssignedContacts", fields: [assignedToId], references: [id], onDelete: SetNull)
-  deals         Deal[]
-  activities    Activity[]
-  tags          ContactTag[]
-  emailLogs     EmailLog[]
-  emailComposer EmailComposer[]
-  positions     Position[] // Positions this contact is decision maker for
-  shares        ContactShare[] // Team members this contact is shared with
+  deals          Deal[]
+  activities     Activity[]
+  tags           ContactTag[]
+  emailLogs      EmailLog[]
+  emailComposer  EmailComposer[]
+  positions      Position[] // Positions this contact is decision maker for
+  shares         ContactShare[] // Team members this contact is shared with
+  mediaAccesses  MediaAccess[] // Media (videos/images) accessed by this contact
+  videoCampaigns VideoCampaign[] // Personalized videos for this contact
 
   @@index([email])
   @@index([userId])
@@ -292,6 +338,11 @@ model Company {
   socialFlowEnriched   Boolean   @default(false)
   socialFlowEnrichedAt DateTime?
   socialFlowData       Json? // Stores credit rating, social media, technographics, revenue, funding
+
+  // 📧 Contact Email Enrichment Fields (Live Leads API)
+  contactsEnriched     Boolean   @default(false)
+  contactsEnrichedAt   DateTime?
+
   revenue              String?
   ticker               String?
   phone                String?
@@ -359,6 +410,8 @@ model Deal {
   actualCloseDate   DateTime?
   description       String?
   customFields      Json?
+  notes             String?   // CRM notes; meeting summaries are appended here
+  lastMeetingAt     DateTime? // Updated when a Zietra Meet session ends
   isActive          Boolean   @default(true)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -374,8 +427,6 @@ model Deal {
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   activities Activity[]
   shares     DealShare[] // Team members this deal is shared with
-  quotes     Quote[]
-  contracts  Contract[]
 
   @@index([userId])
   @@index([contactId])
@@ -485,24 +536,48 @@ model Activity {
 }
 
 model EmailTemplate {
-  id          String   @id @default(cuid())
-  name        String
-  subject     String
-  htmlContent String
-  textContent String?
-  variables   Json? // Array of variable names like ["firstName", "companyName"]
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String   @id @default(cuid())
+  name              String
+  description       String?  @db.Text
+  subject           String
+  htmlContent       String
+  textContent       String?
+  variables         Json? // Array of variable names like ["firstName", "companyName"]
+  variableValues    Json? // Object with variable values like {"firstName": "John", "companyName": "Acme"}
+
+  // Visibility & Organization
+  isActive          Boolean  @default(true)
+  isShared          Boolean  @default(false) // When true, template is visible to all users
+  category          String   @default("General") // Business, Marketing, Sales, etc.
+  tags              String[] @default([]) // Searchable keywords
+  isFavorite        Boolean  @default(false)
+
+  // Video Integration
+  videoTemplateId   String? // ID of video template used (if created from video campaign)
+  videoTemplateName String? // Name of video template for easy display
+
+  // Analytics & Usage Tracking
+  usageCount        Int      @default(0) // Times template was used
+  viewCount         Int      @default(0) // Times template was viewed
+
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   // Foreign keys
   userId String
 
   // Relationships
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  campaigns Campaign[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaigns      Campaign[]
+  videoCampaigns VideoCampaign[]
 
   @@index([userId])
+  @@index([isActive])
+  @@index([isShared])
+  @@index([category])
+  @@index([isFavorite])
+  @@index([videoTemplateId])
   @@map("email_templates")
 }
 
@@ -539,18 +614,24 @@ model Campaign {
   totalOpened  Int            @default(0)
   totalClicked Int            @default(0)
   totalBounced Int            @default(0)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  createdAt    DateTime       @default(now()) // Auto-set on creation, NOT NULL enforced
+  updatedAt    DateTime       @updatedAt      // Auto-updated via trigger, NOT NULL enforced
+
+  // Video generation fields (LaunchOS integration)
+  videoJobId  String?
+  videoStatus String?  @default("none")
+  videoUrl    String?
 
   // Foreign keys
   templateId String?
   userId     String
 
   // Relationships
-  template  EmailTemplate?    @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  emailLogs EmailLog[]
-  companies CampaignCompany[]
+  template       EmailTemplate?    @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailLogs      EmailLog[]
+  companies      CampaignCompany[]
+  videoCampaigns VideoCampaign[] // Videos linked to this campaign
 
   @@index([userId])
   @@index([status])
@@ -611,6 +692,13 @@ model EmailLog {
 
   // Engagement Score (0-100)
   engagementScore Int @default(0)
+
+  // Forwarding Detection
+  wasForwarded          Boolean   @default(false) // Detected multiple unique IPs/user agents
+  suspectedForwards     Int       @default(0) // Number of suspected forward events
+  uniqueIPs             Int       @default(0) // Count of unique IP addresses detected
+  uniqueUserAgents      Int       @default(0) // Count of unique user agents detected
+  lastForwardDetectedAt DateTime? // When last forward was detected
 
   createdAt DateTime @default(now())
 
@@ -694,6 +782,63 @@ model EmailLink {
   @@index([campaignId])
   @@index([trackingUrl])
   @@map("email_links")
+}
+
+// Standalone Email Log - Track emails sent outside campaigns
+model StandaloneEmailLog {
+  id           String   @id @default(cuid())
+
+  // Sender info
+  fromEmail    String
+  fromName     String?
+
+  // Recipient info
+  toEmail      String
+  toName       String?
+  ccEmails     String[] @default([])
+  bccEmails    String[] @default([])
+
+  // Email content
+  subject      String
+  htmlContent  String   @db.Text
+  textContent  String?  @db.Text
+
+  // Video info (if applicable)
+  videoUrl     String?
+  videoName    String?
+  videoCampaignId String? // Link to video campaign if exists
+
+  // Tracking
+  status       EmailStatus @default(PENDING)
+  sentAt       DateTime?
+  openedAt     DateTime?
+  clickedAt    DateTime?
+
+  // Analytics (same as email_logs)
+  totalOpens   Int @default(0)
+  totalClicks  Int @default(0)
+  uniqueOpens  Int @default(0)
+  uniqueClicks Int @default(0)
+
+  // Message info
+  messageId    String? // Email message ID for tracking
+  errorMessage String? @db.Text
+
+  // User who sent
+  userId       String
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Metadata
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([toEmail])
+  @@index([sentAt])
+  @@index([status])
+  @@index([createdAt])
+  @@map("standalone_email_logs")
 }
 
 model Automation {
@@ -980,115 +1125,6 @@ model Lead {
 }
 
 // ===================================
-// QUOTE & CONTRACT MODELS
-// ===================================
-
-model Quote {
-  id         String      @id @default(cuid())
-  dealId     String
-  userId     String
-  status     QuoteStatus @default(DRAFT)
-  title      String
-  lineItems  Json
-  subtotal   Decimal     @db.Decimal(12, 2)
-  tax        Decimal?    @db.Decimal(12, 2)
-  total      Decimal     @db.Decimal(12, 2)
-  notes      String?
-  validUntil DateTime?
-  sentAt     DateTime?
-  acceptedAt DateTime?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-
-  deal      Deal       @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contracts Contract[]
-
-  @@index([dealId])
-  @@index([userId])
-  @@index([status])
-  @@map("quotes")
-}
-
-model Contract {
-  id        String         @id @default(cuid())
-  dealId    String
-  quoteId   String?
-  userId    String
-  status    ContractStatus @default(DRAFT)
-  title     String
-  content   String         @db.Text
-  variables Json?
-  signedAt  DateTime?
-  signedBy  String?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-
-  deal  Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  quote Quote?  @relation(fields: [quoteId], references: [id], onDelete: SetNull)
-  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Signer info
-  signerName        String?
-  signerEmail       String?
-  signerTitle       String?
-
-  // Client signature
-  signatureData     String?   @db.Text
-  signatureType     String?
-  signatureIp       String?
-  signatureAgent    String?   @db.Text
-  signerOtpId       String?
-
-  // Counter-signature
-  counterSignedBy   String?
-  counterSignedAt   DateTime?
-  counterSigData    String?   @db.Text
-  counterSigIp      String?
-  counterSigAgent   String?   @db.Text
-
-  // Document
-  documentHash      String?
-  pdfUrl            String?
-  signingToken      String?   @unique
-  tokenExpiresAt    DateTime?
-
-  // Lifecycle
-  sentAt            DateTime?
-  voidedAt          DateTime?
-  voidedReason      String?
-  remindersSent     Int       @default(0)
-  lastReminderAt    DateTime?
-
-  // Relations
-  otps              ContractOTP[]
-
-  @@index([dealId])
-  @@index([userId])
-  @@index([status])
-  @@map("contracts")
-}
-
-model ContractOTP {
-  id          String    @id @default(cuid())
-  contractId  String
-  email       String
-  code        String
-  verified    Boolean   @default(false)
-  verifiedAt  DateTime?
-  verifiedIp  String?
-  expiresAt   DateTime
-  attempts    Int       @default(0)
-  createdAt   DateTime  @default(now())
-
-  contract    Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
-
-  @@index([contractId])
-  @@index([email])
-  @@map("contract_otps")
-}
-
-// ===================================
 // TEAM COLLABORATION & SHARING MODELS
 // ===================================
 
@@ -1164,26 +1200,6 @@ model ActivityShare {
 // VIDEO CAMPAIGN MODELS
 // ===================================
 
-enum QuoteStatus {
-  DRAFT
-  SENT
-  ACCEPTED
-  REJECTED
-  EXPIRED
-}
-
-enum ContractStatus {
-  DRAFT
-  SENT_FOR_SIGNATURE
-  VIEWED
-  CLIENT_SIGNED
-  AWAITING_COUNTERSIGN
-  SIGNED
-  CANCELLED
-  VOIDED
-  EXPIRED
-}
-
 enum VideoCampaignStatus {
   DRAFT
   GENERATING
@@ -1216,10 +1232,13 @@ model VideoTemplate {
   isSystem Boolean @default(false) // System template vs user-uploaded
   userId   String? // null for system templates
 
-  // User preferences
+  // User preferences & Visibility
+  isActive   Boolean @default(true)  // Can disable without deletion
   isFavorite Boolean @default(false)
-  isPublic   Boolean @default(false) // Share with team
+  isShared   Boolean @default(false) // Shared with team members
+  isPublic   Boolean @default(false) // Public template library
   usageCount Int     @default(0) // Track popularity
+  viewCount  Int     @default(0) // Times template was viewed
 
   // Free template integration (Mixkit, Pexels, etc.)
   sourceProvider String? // Mixkit, Pexels, Custom
@@ -1243,6 +1262,9 @@ model VideoTemplate {
   @@index([userId])
   @@index([category])
   @@index([isSystem])
+  @@index([isActive])
+  @@index([isShared])
+  @@index([isPublic])
   @@index([isFavorite])
   @@index([usageCount])
   @@index([isFree])
@@ -1252,9 +1274,18 @@ model VideoTemplate {
 
 // Video Campaign
 model VideoCampaign {
-  id     String              @id @default(cuid())
-  name   String
-  status VideoCampaignStatus @default(DRAFT)
+  id          String              @id @default(cuid())
+  name        String
+  description String?             @db.Text
+  status      VideoCampaignStatus @default(DRAFT)
+
+  // Organization & Visibility
+  category   String  @default("General") // Business, Marketing, Sales, etc.
+  tags       String[] @default([])       // Searchable keywords
+  isActive   Boolean @default(true)      // Can disable without deletion
+  isShared   Boolean @default(false)     // Shared with team members
+  isPublic   Boolean @default(false)     // Public campaign
+  isFavorite Boolean @default(false)     // User favorites
 
   // Video Source
   videoSource    VideoSourceType @default(TEMPLATE)
@@ -1291,28 +1322,43 @@ model VideoCampaign {
   progressPercent     Int?      @default(0) // Progress percentage (0-100)
   estimatedCompletion DateTime? // Estimated completion time
 
-  // Analytics
-  views     Int @default(0)
-  clicks    Int @default(0)
-  shares    Int @default(0)
-  downloads Int @default(0)
+  // Analytics & Usage Tracking
+  usageCount Int @default(0) // Times campaign was used/sent
+  views      Int @default(0)
+  clicks     Int @default(0)
+  shares     Int @default(0)
+  downloads  Int @default(0)
 
   // Timestamps
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Foreign Keys
-  userId String
+  userId          String
+  emailTemplateId String? // Link to email template to update with video
+  campaignId      String? @map("campaign_id") // Link to email campaign (for one-click automation)
+  contactId       String? @map("contact_id") // Link to contact recipient (for personalization)
 
   // Relationships
-  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  template  VideoTemplate?         @relation(fields: [templateId], references: [id], onDelete: SetNull)
-  companies VideoCampaignCompany[]
-  jobs      VideoGenerationJob[]
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template      VideoTemplate?         @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  emailTemplate EmailTemplate?         @relation(fields: [emailTemplateId], references: [id], onDelete: SetNull)
+  campaign      Campaign?              @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  contact       Contact?               @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  companies     VideoCampaignCompany[]
+  jobs          VideoGenerationJob[]
 
   @@index([userId])
   @@index([status])
+  @@index([category])
+  @@index([isActive])
+  @@index([isShared])
+  @@index([isPublic])
+  @@index([isFavorite])
   @@index([templateId])
+  @@index([emailTemplateId])
+  @@index([campaignId])
+  @@index([contactId])
   @@index([createdAt])
   @@index([videoSource])
   @@map("video_campaigns")
@@ -1378,4 +1424,761 @@ model VideoGenerationJob {
   @@index([status])
   @@index([createdAt])
   @@map("video_generation_jobs")
+}
+
+// ===================================
+// EMAIL UNSUBSCRIBE MODEL
+// ===================================
+
+model EmailUnsubscribe {
+  id    String @id @default(cuid())
+  email String @unique
+
+  // Unsubscribe Details
+  reason   String? // Why they unsubscribed (dropdown selection)
+  feedback String? // Additional feedback from user
+
+  // Tracking
+  campaignId String? // Which campaign triggered the unsubscribe
+  contactId  String? // Contact who unsubscribed
+
+  // Metadata
+  unsubscribedAt DateTime @default(now())
+  ipAddress      String?
+  userAgent      String?
+
+  // Confirmation (two-step unsubscribe)
+  confirmed   Boolean  @default(false)
+  token       String   @unique // Secure token for confirmation
+  tokenExpiry DateTime // Token expires after 24 hours
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([campaignId])
+  @@index([contactId])
+  @@index([confirmed])
+  @@map("email_unsubscribes")
+}
+
+// Media Access Tracking
+model MediaAccess {
+  id        String   @id @default(cuid())
+  mediaKey  String // e.g., "video/netsuite-demo", "img/netsuite-preview"
+  source    String   @default("unknown") // e.g., "email", "landing", "direct"
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  // Client info
+  ipAddress String @default("unknown")
+  userAgent String @default("unknown")
+
+  // Timestamps
+  accessedAt DateTime @default(now())
+
+  @@index([mediaKey])
+  @@index([source])
+  @@index([contactId])
+  @@index([accessedAt])
+  @@map("media_accesses")
+}
+
+// Website Visitor Tracking - Track all visits to brandmonkz.com
+model WebsiteVisit {
+  id String @id @default(cuid())
+
+  // URL Information
+  fullUrl     String // Complete URL with protocol, domain, path, query
+  protocol    String // http or https
+  domain      String // brandmonkz.com or www.brandmonkz.com
+  path        String  @default("/") // e.g., "/dashboard", "/login"
+  queryParams String? // JSON string of query parameters
+  referrer    String? // Where the visitor came from
+
+  // User Information
+  userId    String? // If logged in
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sessionId String? // Browser session identifier
+
+  // Device & Browser Information
+  ipAddress      String
+  userAgent      String  @db.Text
+  browser        String? // Chrome, Firefox, Safari, etc.
+  browserVersion String?
+  os             String? // Windows, MacOS, Linux, iOS, Android
+  osVersion      String?
+  device         String? // Desktop, Mobile, Tablet
+  deviceVendor   String? // Apple, Samsung, etc.
+
+  // Geographic Information
+  country String?
+
+  // Engagement Metrics
+  pageLoadTime Int? // Milliseconds
+  timeOnPage   Int? // Seconds (updated if tracked)
+  scrollDepth  Int? // Percentage of page scrolled
+
+  // Visit Metadata
+  isAuthenticated Boolean @default(false)
+  isNewVisitor    Boolean @default(true)
+  visitCount      Int     @default(1) // How many times this session visited
+
+  // Timestamps
+  visitedAt DateTime  @default(now())
+  leftAt    DateTime? // When user left the page (if tracked)
+
+  @@index([domain])
+  @@index([path])
+  @@index([userId])
+  @@index([sessionId])
+  @@index([ipAddress])
+  @@index([visitedAt])
+  @@index([isAuthenticated])
+  @@index([country])
+  @@map("website_visits")
+}
+
+// User Login Session Tracking
+model UserSession {
+  id String @id @default(cuid())
+
+  // User Information
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Session Details
+  sessionToken String  @unique // JWT token or session identifier
+  refreshToken String? // For refresh token rotation
+
+  // Login Information
+  loginAt   DateTime  @default(now())
+  logoutAt  DateTime? // When user explicitly logged out
+  expiresAt DateTime // Session expiration time
+
+  // Connection Details
+  ipAddress      String
+  userAgent      String  @db.Text
+  browser        String?
+  browserVersion String?
+  os             String?
+  osVersion      String?
+  device         String? // Desktop, Mobile, Tablet
+
+  // Location Information
+  country String?
+  region  String?
+  city    String?
+
+  // Session Metrics
+  lastActivityAt DateTime @default(now()) // Last API call or activity
+  totalDuration  Int      @default(0) // Total time in seconds
+  pageViews      Int      @default(0) // Number of pages viewed
+  actionsCount   Int      @default(0) // Number of actions performed
+
+  // Session Status
+  isActive    Boolean @default(true)
+  endedReason String? // "logout", "timeout", "expired", "forced"
+
+  // Relationships
+  activities UserActivity[]
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([loginAt])
+  @@index([isActive])
+  @@index([lastActivityAt])
+  @@map("user_sessions")
+}
+
+// User Activity Tracking - What users do during their sessions
+model UserActivity {
+  id String @id @default(cuid())
+
+  // User and Session
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId String
+  session   UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Activity Details
+  action     String // "view", "create", "update", "delete", "export", "import", "send_email", etc.
+  resource   String // "contact", "campaign", "deal", "email", "dashboard", etc.
+  resourceId String? // ID of the specific resource if applicable
+
+  // Activity Context
+  method     String @default("GET") // HTTP method
+  endpoint   String // API endpoint called
+  statusCode Int? // Response status code
+
+  // Performance Metrics
+  duration Int? // Time taken in milliseconds
+
+  // Additional Data
+  metadata  Json? // Additional context (filters used, search terms, etc.)
+  ipAddress String
+
+  // Timestamps
+  performedAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([action])
+  @@index([resource])
+  @@index([performedAt])
+  @@map("user_activities")
+}
+
+// Security - Blocked IP Addresses
+model BlockedIP {
+  id        String    @id @default(cuid())
+  ipAddress String    @unique
+  reason    String?   @db.Text
+  blockedBy String? // User ID or email who blocked this IP
+  blockedAt DateTime  @default(now())
+  expiresAt DateTime? // Optional: Auto-unblock after certain time
+  isActive  Boolean   @default(true)
+
+  // Threat Information
+  threatLevel String? // critical, high, medium, low
+  attackType  String? // Type of attack detected
+  attempts    Int     @default(0) // Number of attack attempts
+
+  // Geographic Information
+  country String?
+  region  String?
+  city    String?
+
+  // Additional Context
+  metadata Json? // Store additional context (user agent, attack patterns, etc.)
+
+  @@index([ipAddress])
+  @@index([isActive])
+  @@index([blockedAt])
+  @@map("blocked_ips")
+}
+
+// Email Footer Configuration - Centralized footer management
+model EmailFooterConfig {
+  id String @id @default(cuid())
+
+  // Owner
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Footer Identity
+  companyName String  @default("BrandMonkz")
+  tagline     String? // Optional company tagline
+
+  // Mission Statement
+  missionStatement String? @db.Text
+
+  // Contact Information
+  supportEmail String?
+  supportPhone String?
+  address      String? // Physical address (required by CAN-SPAM)
+  website      String? // Company website
+
+  // Social Media Links
+  linkedinUrl  String?
+  twitterUrl   String?
+  facebookUrl  String?
+  instagramUrl String?
+  youtubeUrl   String?
+
+  // Legal & Compliance Links
+  privacyPolicyUrl  String?
+  termsOfServiceUrl String?
+  gdprUrl           String?
+  cookiePolicyUrl   String?
+  dpaUrl            String? // Data Processing Agreement
+
+  // Quick Links (stored as JSON for flexibility)
+  productLinks  Json? // { "Features": "https://...", "Pricing": "..." }
+  resourceLinks Json? // { "Blog": "https://...", "Help Center": "..." }
+  companyLinks  Json? // { "About": "https://...", "Careers": "..." }
+
+  // Customization Options
+  showSocialMedia Boolean @default(true)
+  showMission     Boolean @default(true)
+  showQuickLinks  Boolean @default(true)
+  showContactInfo Boolean @default(true)
+  showLegalLinks  Boolean @default(true)
+  showGdprNotice  Boolean @default(true)
+  showWebVersion  Boolean @default(true)
+
+  // Brand Colors (for footer styling)
+  primaryColor   String @default("#FB923C") // Orange
+  secondaryColor String @default("#F43F5E") // Rose
+
+  // Footer Text Customization
+  gdprNoticeText       String? @db.Text // Custom GDPR notice
+  copyrightText        String? // Custom copyright text
+  additionalFooterText String? @db.Text // Any additional text
+
+  // Status
+  isActive  Boolean @default(true)
+  isDefault Boolean @default(false) // Is this the default footer for the user?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+  @@index([isDefault])
+  @@map("email_footer_configs")
+}
+
+// ============================================
+// API Key Management Models
+// ============================================
+
+enum ApiKeyType {
+  LIVE // Production keys (bmz_live_*)
+  TEST // Test/sandbox keys (bmz_test_*)
+  SECRET // Secret keys (bmz_secret_*)
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+  SUSPENDED
+}
+
+enum ApiProduct {
+  LEAD_DISCOVERY
+  AI_CONTENT
+  VIDEO_CAMPAIGN
+  EMAIL_INTELLIGENCE
+  ENRICHMENT
+  CRM_OPERATIONS
+  INTEGRATION
+  ALL_PRODUCTS
+}
+
+model ApiKey {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Key Details
+  name      String // User-friendly name: "Production Key", "Development Key"
+  keyPrefix String       @unique // First 8 chars: bmz_live_abc1
+  keyHash   String       @unique // SHA-256 hash of full key
+  keyType   ApiKeyType   @default(LIVE)
+  status    ApiKeyStatus @default(ACTIVE)
+
+  // Permissions & Scopes
+  scopes   Json // Array of scopes: ["leads:read", "leads:write", "campaigns:read"]
+  products Json // Array of ApiProduct enums
+
+  // Rate Limiting
+  rateLimit  Int @default(20) // Requests per second
+  burstLimit Int @default(50) // Burst allowance
+  dailyLimit Int @default(10000) // Daily request limit
+
+  // Security
+  ipWhitelist Json? // Array of allowed IPs (null = all IPs allowed)
+  expiresAt   DateTime? // Optional expiration date
+  lastUsedAt  DateTime? // Last time key was used
+  lastUsedIp  String? // Last IP that used this key
+
+  // Usage Tracking
+  totalRequests Int           @default(0)
+  usage         ApiKeyUsage[]
+
+  // Metadata
+  description String? @db.Text
+  environment String? // "production", "staging", "development"
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  revokedAt DateTime?
+  revokedBy String? // User ID who revoked the key
+
+  @@index([userId])
+  @@index([keyPrefix])
+  @@index([status])
+  @@index([keyType])
+  @@index([createdAt])
+  @@map("api_keys")
+}
+
+model ApiKeyUsage {
+  id       String @id @default(cuid())
+  apiKeyId String
+  apiKey   ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  // Request Details
+  endpoint     String // "/api/leads/discover"
+  method       String // "POST"
+  statusCode   Int // 200, 400, 429, etc.
+  responseTime Int // Milliseconds
+
+  // Product & Credits
+  product     ApiProduct
+  creditsUsed Int        @default(0) // API-specific credits consumed
+
+  // Request Metadata
+  ipAddress String?
+  userAgent String? @db.Text
+  requestId String? @unique
+
+  // Error Information
+  errorCode    String?
+  errorMessage String? @db.Text
+
+  // Timestamp
+  timestamp DateTime @default(now())
+  date      DateTime @default(now()) @db.Date // For daily aggregation
+
+  @@index([apiKeyId])
+  @@index([timestamp])
+  @@index([date])
+  @@index([product])
+  @@index([statusCode])
+  @@map("api_key_usage")
+}
+
+model ApiSubscription {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Plan Details
+  planName     String // "API Starter Bundle", "API Professional Bundle"
+  planTier     String // "free", "starter", "professional", "business", "enterprise"
+  monthlyPrice Int // In cents: 49900 = $499
+
+  // Product Limits
+  leadCredits       Int @default(0) // Monthly lead discovery credits
+  aiRequests        Int @default(0) // Monthly AI generation requests
+  videoCredits      Int @default(0) // Monthly video generations
+  emailCredits      Int @default(0) // Monthly email tracking
+  enrichmentCredits Int @default(0) // Monthly enrichment credits
+  crmApiCalls       Int @default(0) // Monthly CRM API calls
+  integrationCalls  Int @default(0) // Monthly integration API calls
+
+  // Usage This Month
+  usedLeadCredits       Int @default(0)
+  usedAiRequests        Int @default(0)
+  usedVideoCredits      Int @default(0)
+  usedEmailCredits      Int @default(0)
+  usedEnrichmentCredits Int @default(0)
+  usedCrmApiCalls       Int @default(0)
+  usedIntegrationCalls  Int @default(0)
+
+  // Billing
+  billingCycle       String // "monthly", "annual"
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean  @default(false)
+
+  // Status
+  status      String    @default("active") // "active", "cancelled", "past_due", "trialing"
+  trialEndsAt DateTime?
+
+  // Stripe Integration
+  stripeCustomerId     String? @unique
+  stripeSubscriptionId String? @unique
+  stripePriceId        String?
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  cancelledAt DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@map("api_subscriptions")
+}
+
+model ApiWebhook {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Webhook Details
+  name   String // "Lead Discovery Webhook"
+  url    String // "https://yourapp.com/webhooks/brandmonkz"
+  secret String // HMAC secret for signature verification
+
+  // Events to Subscribe
+  events Json // ["lead.discovered", "video.generated", "email.sent"]
+
+  // Status
+  isActive Boolean @default(true)
+
+  // Retry Configuration
+  maxRetries Int @default(3)
+  retryDelay Int @default(60) // Seconds between retries
+
+  // Statistics
+  totalDeliveries      Int       @default(0)
+  successfulDeliveries Int       @default(0)
+  failedDeliveries     Int       @default(0)
+  lastDeliveryAt       DateTime?
+  lastDeliveryStatus   String? // "success", "failed"
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deliveries ApiWebhookDelivery[]
+
+  @@index([userId])
+  @@index([isActive])
+  @@map("api_webhooks")
+}
+
+model ApiWebhookDelivery {
+  id        String     @id @default(cuid())
+  webhookId String
+  webhook   ApiWebhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  // Event Details
+  event   String // "lead.discovered"
+  payload Json // Full event payload
+
+  // Delivery Details
+  statusCode   Int? // HTTP status code
+  responseBody String? @db.Text
+  responseTime Int? // Milliseconds
+
+  // Retry Information
+  attempt     Int @default(1)
+  maxAttempts Int @default(3)
+
+  // Status
+  status       String // "pending", "delivered", "failed"
+  errorMessage String? @db.Text
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  deliveredAt DateTime?
+  nextRetryAt DateTime?
+
+  @@index([webhookId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([nextRetryAt])
+  @@map("api_webhook_deliveries")
+}
+
+// ═════════════════════════════════════════════════════════════════
+// SUPER ADMIN DASHBOARD - PHASE 2 ENHANCEMENTS
+// ═════════════════════════════════════════════════════════════════
+
+// UI Theme Configuration
+model UITheme {
+  id             String   @id @default(cuid())
+  name           String
+  primaryColor   String
+  secondaryColor String
+  accentColor    String
+  isActive       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("ui_themes")
+}
+
+// Branding Configuration
+model BrandingConfig {
+  id             String   @id @default(cuid())
+  companyName    String
+  logoUrl        String?
+  primaryColor   String
+  secondaryColor String
+  tagline        String?
+  isActive       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("branding_configs")
+}
+
+// System Credentials (Encrypted)
+model SystemCredential {
+  id             String    @id @default(cuid())
+  name           String
+  type           String    // API_KEY, OAUTH_TOKEN, SMTP, DATABASE
+  service        String    // RESEND, GOOGLE, TWILIO, etc.
+  encryptedValue String    @db.Text
+  lastUsed       DateTime?
+  expiresAt      DateTime?
+  isActive       Boolean   @default(true)
+  metadata       Json?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  createdBy      String
+
+  @@index([type])
+  @@index([service])
+  @@index([isActive])
+  @@map("system_credentials")
+}
+
+// ═════════════════════════════════════════════════════════════════
+// P0 PHASE 2: AUDIT LOG & IDEMPOTENCY MODELS
+// ═════════════════════════════════════════════════════════════════
+
+// P0-02: Audit Log for Transaction Tracking
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // "COMPANY_ENRICHED", "CONTACT_CREATED", etc.
+  entityType String   // "Company", "Contact", "Deal"
+  entityId   String   // ID of the entity affected
+  metadata   Json?    // { professionalsCreated, confidence, etc. }
+
+  // Timestamps
+  createdAt  DateTime @default(now())
+
+  // Relationships
+  user       User?    @relation("AuditLogs", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// P0-07: Idempotency Key for Duplicate Prevention
+model IdempotencyKey {
+  id        String   @id @default(cuid())
+  key       String   @unique  // SHA-256 hash of request parameters
+  userId    String
+  response  Json?    // Cached response for completed requests
+  status    String   // "processing", "completed", "failed"
+  expiresAt DateTime // Auto-cleanup after 24 hours
+  createdAt DateTime @default(now())
+
+  // Relationships
+  user      User     @relation("IdempotencyKeys", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([key])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([createdAt])
+  @@map("idempotency_keys")
+}
+
+// ============================================================================
+// PARTNER PROGRAM MODELS
+// ============================================================================
+
+// Partner Program Types
+model PartnerProgram {
+  id              String   @id @default(cuid())
+  name            String   // "Reseller", "Agency Partner", "Referral Partner"
+  slug            String   @unique  // "reseller", "agency", "referral"
+  commissionRate  Int      // Percentage (e.g., 20 = 20%)
+  minPayment      Int      // Minimum payout threshold in cents
+  description     String   @db.Text
+  benefits        Json     // Array of benefit strings
+  requirements    Json     // Array of requirement strings
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relationships
+  applications    PartnerApplication[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("partner_programs")
+}
+
+// Partner Application Submissions
+model PartnerApplication {
+  id              String   @id @default(cuid())
+  programId       String
+
+  // Contact Information
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  company         String?
+  website         String?
+
+  // Business Information
+  businessType    String   // "Agency", "Consultant", "Reseller", "Freelancer", "Other"
+  customersCount  String?  // "1-10", "11-50", "51-100", "100+"
+  industry        String?
+  yearsInBusiness String?  // "Less than 1", "1-3", "3-5", "5+"
+  message         String?  @db.Text
+
+  // Application Status
+  status          String   @default("pending") // "pending", "approved", "rejected"
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  reviewNotes     String?  @db.Text
+
+  // Metadata
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relationships
+  program         PartnerProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  reviewer        User?          @relation("PartnerApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([programId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("partner_applications")
+}
+
+// Contact Sales Submissions
+model ContactSubmission {
+  id              String   @id @default(cuid())
+
+  // Contact Information
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  company         String
+  companySize     String?  // "1-10", "11-50", "51-200", "201-500", "500+"
+
+  // Inquiry Details
+  inquiryType     String   // "demo", "pricing", "enterprise", "partnership", "support", "other"
+  message         String   @db.Text
+
+  // Status Tracking
+  status          String   @default("new") // "new", "contacted", "qualified", "closed"
+  assignedTo      String?
+  followUpDate    DateTime?
+  notes           String?  @db.Text
+
+  // Metadata
+  ipAddress       String?
+  userAgent       String?
+  source          String?  @default("website")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relationships
+  assignedUser    User?    @relation("ContactSubmissionAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([inquiryType])
+  @@index([createdAt])
+  @@map("contact_submissions")
 }
