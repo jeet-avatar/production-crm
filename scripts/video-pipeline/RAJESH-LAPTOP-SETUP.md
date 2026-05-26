@@ -4,6 +4,7 @@
 **Goal:** Get your Mac to the same working state as JM's so you can run the full TCP v6 retargeting pipeline (Apollo import → Anthropic research → ElevenLabs narration → FFmpeg render → S3 upload → EC2 mapping deploy).
 **Time:** ~45 min if you already have Homebrew + Chrome; ~90 min from a clean Mac.
 **Final test:** `./setup-rajesh.sh` exits with `✓ All checks passed.`
+**Note:** My computer is same as Jithesh's computer.
 
 ---
 
