@@ -76,8 +76,15 @@ def load_existing(path: Path) -> set[str]:
 def apollo_search(api_key: str, titles: list[str], keywords: list[str],
                   min_emp: int, max_emp: int, countries: list[str],
                   page: int, per_page: int) -> dict:
-    """Run a single page of Apollo mixed_people/search."""
-    url = f"{APOLLO_BASE}/mixed_people/search"
+    """Run a single page of Apollo mixed_people/api_search.
+
+    NOTE: the legacy /mixed_people/search endpoint was deprecated for API
+    callers in mid-2025. The new endpoint is /mixed_people/api_search.
+    Search results return names + titles + company + LinkedIn but EMAILS
+    ARE LOCKED on most Apollo plans. To unlock, call enrich_person() per
+    result (costs Apollo credits — typically 1 credit per email reveal).
+    """
+    url = f"{APOLLO_BASE}/mixed_people/api_search"
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
@@ -90,6 +97,8 @@ def apollo_search(api_key: str, titles: list[str], keywords: list[str],
         "person_locations": countries,
         "page": page,
         "per_page": per_page,
+        # contact_email_status filter only applies to people who have UNLOCKED
+        # emails. The /api_search endpoint returns most people as locked.
         "contact_email_status": ["verified"],
     }
     resp = requests.post(url, headers=headers, json=payload, timeout=60)
@@ -107,10 +116,53 @@ def apollo_search(api_key: str, titles: list[str], keywords: list[str],
         sys.exit(4)
 
 
-def normalize_person(p: dict, rank_base: int) -> dict | None:
-    """Convert Apollo person record into our prospects-raw.json schema."""
+def enrich_person(api_key: str, person_id: str) -> dict | None:
+    """Reveal email for one person via Apollo's people/match enrichment.
+
+    Costs 1 Apollo credit per call on most plans. Returns None on failure
+    (e.g., out of credits, locked status, person not found).
+
+    Apollo docs: https://docs.apollo.io/reference/people-enrichment
+    """
+    if not person_id:
+        return None
+    url = f"{APOLLO_BASE}/people/match"
+    headers = {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "X-Api-Key": api_key,
+    }
+    payload = {"id": person_id, "reveal_personal_emails": False}
+    try:
+        resp = requests.post(url, headers=headers, json=payload, timeout=30)
+        if resp.status_code != 200:
+            print(f"  [enrich]   {person_id} → HTTP {resp.status_code}: {resp.text[:120]}", file=sys.stderr)
+            return None
+        body = resp.json()
+        return body.get("person") or body
+    except Exception as e:
+        print(f"  [enrich]   {person_id} → error: {e}", file=sys.stderr)
+        return None
+
+
+def normalize_person(p: dict, rank_base: int, api_key: str = None, enrich: bool = False) -> dict | None:
+    """Convert Apollo person record into our prospects-raw.json schema.
+
+    If `enrich=True` and the email is locked, calls /people/match to reveal
+    it (costs 1 Apollo credit). If still locked after enrich, returns None.
+    """
     email = (p.get("email") or "").strip().lower()
-    if not email or "@" not in email or email.startswith("email_not_unlocked"):
+    locked = (not email) or ("@" not in email) or email.startswith("email_not_unlocked")
+    if locked and enrich and api_key and p.get("id"):
+        enriched = enrich_person(api_key, p["id"])
+        if enriched:
+            email = (enriched.get("email") or "").strip().lower()
+            locked = (not email) or ("@" not in email) or email.startswith("email_not_unlocked")
+            # Merge enriched fields back (last_name often only on enriched)
+            for k in ("first_name", "last_name", "title", "linkedin_url", "organization"):
+                if not p.get(k) and enriched.get(k):
+                    p[k] = enriched[k]
+    if locked:
         return None
     org = p.get("organization") or {}
     domain = org.get("website_url", "") or org.get("primary_domain", "") or ""
@@ -119,6 +171,10 @@ def normalize_person(p: dict, rank_base: int) -> dict | None:
         domain = domain.split("://", 1)[1].split("/", 1)[0]
     if domain.startswith("www."):
         domain = domain[4:]
+    domain = domain.rstrip("/")
+    # Fallback: derive domain from email if Apollo didn't surface it
+    if not domain and "@" in email:
+        domain = email.split("@", 1)[1]
     return {
         "rank": rank_base,
         "firstName": p.get("first_name", "").strip() or "",
@@ -152,6 +208,8 @@ def main():
                         help=f"existing prospects to dedup against (default: {DEFAULT_EXISTING})")
     parser.add_argument("--dry-run", action="store_true",
                         help="show what would be imported, don't write file")
+    parser.add_argument("--enrich", action="store_true",
+                        help="reveal locked emails via /people/match enrichment (costs ~1 Apollo credit per locked email)")
     args = parser.parse_args()
 
     api_key = os.environ.get("APOLLO_API_KEY")
@@ -188,8 +246,10 @@ def main():
             print(f"  no more results from Apollo")
             break
         for p in people:
-            normalized = normalize_person(p, rank)
+            normalized = normalize_person(p, rank, api_key=api_key, enrich=args.enrich)
             if not normalized:
+                if not args.enrich:
+                    print(f"  [skip-locked] {p.get('first_name','?')} at {p.get('organization',{}).get('name','?')} (rerun with --enrich to reveal)")
                 continue
             if normalized["email"] in existing_emails:
                 print(f"  [skip-dup] {normalized['email']}")
