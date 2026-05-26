@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - main
+      - production
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
@@ -58,19 +58,19 @@ jobs:
 
           echo "🚀 Starting deployment..."
 
-          # Backend deployment
+          # Backend deployment (Wave 3: deploy to pm2-served path, not backend/dist)
           echo "📦 Deploying backend..."
-          sudo rm -rf /var/www/crm-backend/backend/dist
-          sudo cp -r backend-dist /var/www/crm-backend/backend/dist
-          sudo cp -r backend-node_modules /var/www/crm-backend/backend/node_modules
-          sudo cp package.json /var/www/crm-backend/backend/
-          sudo cp -r prisma /var/www/crm-backend/backend/
+          sudo rm -rf /var/www/crm-backend/dist
+          sudo cp -r backend-dist /var/www/crm-backend/dist
+          sudo cp -r backend-node_modules /var/www/crm-backend/node_modules
+          sudo cp package.json /var/www/crm-backend/
+          sudo cp -r prisma /var/www/crm-backend/
 
           # Set permissions
-          sudo chown -R ec2-user:ec2-user /var/www/crm-backend/backend
+          sudo chown -R ec2-user:ec2-user /var/www/crm-backend/dist /var/www/crm-backend/node_modules /var/www/crm-backend/prisma /var/www/crm-backend/package.json
 
           # Restart backend
-          cd /var/www/crm-backend/backend
+          cd /var/www/crm-backend
           pm2 restart crm-backend
 
           echo "✅ Backend deployed and restarted"
