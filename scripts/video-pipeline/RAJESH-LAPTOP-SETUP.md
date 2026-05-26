@@ -5,6 +5,7 @@
 **Time:** ~45 min if you already have Homebrew + Chrome; ~90 min from a clean Mac.
 **Final test:** `./setup-rajesh.sh` exits with `✓ All checks passed.`
 **Note:** My computer is same as Jithesh's computer.
+**Consolidated reference:** See [INDEX.md](https://github.com/jeet-avatar/production-crm/blob/production/docs/tcp-retargeting/INDEX.md) — this is the consolidated doc confirming Rajesh has the same working style and setup as Jithesh.
 
 ---
 
