@@ -1,0 +1,30 @@
+# Video Generation Service - Python Dependencies
+# Install with: pip install -r requirements-video.txt
+
+# Core video processing
+moviepy==1.0.3
+pillow>=10.0.0
+
+# Audio generation
+elevenlabs>=1.0.0
+gTTS>=2.5.0
+
+# Speech-to-text for subtitles
+openai-whisper>=20231117
+
+# AWS SDK
+boto3>=1.34.0
+botocore>=1.34.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Scientific computing (required by whisper)
+numpy>=1.24.0,<2.0.0
+
+# Optional: GPU support for Whisper (uncomment if you have CUDA)
+# torch>=2.0.0
+# torchaudio>=2.0.0

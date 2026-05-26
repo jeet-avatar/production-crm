@@ -1,0 +1,3 @@
+-- Dummy migration file to satisfy Prisma
+-- This migration was manually applied and can be safely ignored
+-- The actual schema changes were applied via direct SQL

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Database Cleanup Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .warning-box strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .warning-box p {
+            color: #856404;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Database Cleanup Tool</h1>
+        <p class="subtitle">Manage your CRM database data</p>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; color: #333;">Login</h3>
+            <input type="email" id="email" placeholder="Your Email" value="">
+            <input type="password" id="password" placeholder="Your Password" value="">
+            <button class="btn-primary" onclick="login()">
+                <span id="loginText">Login</span>
+            </button>
+        </div>
+
+        <div id="statsCard" class="card" style="display: none;">
+            <h3 style="margin-bottom: 15px; color: #333;">Current Database Status</h3>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Contacts</div>
+                    <div class="stat-value" id="contactsCount">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Companies</div>
+                    <div class="stat-value" id="companiesCount">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Deals</div>
+                    <div class="stat-value" id="dealsCount">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Campaigns</div>
+                    <div class="stat-value" id="campaignsCount">-</div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="getStats()">
+                <span id="refreshText">🔄 Refresh Stats</span>
+            </button>
+        </div>
+
+        <div id="cleanupCard" class="card" style="display: none;">
+            <div class="warning-box">
+                <strong>⚠️ Warning</strong>
+                <p>This will permanently delete ALL your contacts, companies, deals, campaigns, and tags. This action cannot be undone!</p>
+            </div>
+            <button class="btn-danger" onclick="cleanup()">
+                <span id="cleanupText">🗑️ Delete All My Data</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://sandbox.brandmonkz.com/api';
+        let token = localStorage.getItem('crmToken');
+
+        if (token) {
+            document.getElementById('statsCard').style.display = 'block';
+            document.getElementById('cleanupCard').style.display = 'block';
+            getStats();
+        }
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.className = `alert alert-${type} show`;
+            alert.textContent = message;
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                showAlert('Please enter email and password', 'error');
+                return;
+            }
+
+            const loginBtn = document.getElementById('loginText');
+            loginBtn.innerHTML = '<span class="loading"></span>Logging in...';
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    token = data.token;
+                    localStorage.setItem('crmToken', token);
+                    showAlert('✅ Login successful!', 'success');
+                    document.getElementById('statsCard').style.display = 'block';
+                    document.getElementById('cleanupCard').style.display = 'block';
+                    getStats();
+                } else {
+                    showAlert(`❌ Login failed: ${data.error || 'Invalid credentials'}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                loginBtn.innerHTML = 'Login';
+            }
+        }
+
+        async function getStats() {
+            const refreshBtn = document.getElementById('refreshText');
+            refreshBtn.innerHTML = '<span class="loading"></span>Loading...';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401) {
+                    showAlert('❌ Session expired. Please login again.', 'error');
+                    localStorage.removeItem('crmToken');
+                    location.reload();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('contactsCount').textContent = data.stats.contacts;
+                    document.getElementById('companiesCount').textContent = data.stats.companies;
+                    document.getElementById('dealsCount').textContent = data.stats.deals;
+                    document.getElementById('campaignsCount').textContent = data.stats.campaigns;
+                    showAlert('✅ Stats refreshed', 'success');
+                } else {
+                    showAlert(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                refreshBtn.innerHTML = '🔄 Refresh Stats';
+            }
+        }
+
+        async function cleanup() {
+            if (!confirm('⚠️ WARNING: This will permanently delete ALL your data!\n\nAre you absolutely sure you want to continue?')) {
+                return;
+            }
+
+            if (!confirm('🚨 FINAL CONFIRMATION: This action CANNOT be undone!\n\nType OK in the next prompt to confirm.')) {
+                return;
+            }
+
+            const confirmation = prompt('Type "DELETE" to confirm:');
+            if (confirmation !== 'DELETE') {
+                showAlert('❌ Cleanup cancelled', 'info');
+                return;
+            }
+
+            const cleanupBtn = document.getElementById('cleanupText');
+            cleanupBtn.innerHTML = '<span class="loading"></span>Deleting...';
+
+            try {
+                const response = await fetch(`${API_URL}/admin/cleanup`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.status === 401) {
+                    showAlert('❌ Session expired. Please login again.', 'error');
+                    localStorage.removeItem('crmToken');
+                    location.reload();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert(`✅ Success! Deleted ${data.deleted.contacts} contacts, ${data.deleted.companies} companies, ${data.deleted.deals} deals, ${data.deleted.campaigns} campaigns, ${data.deleted.tags} tags`, 'success');
+                    getStats();
+                } else {
+                    showAlert(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                cleanupBtn.innerHTML = '🗑️ Delete All My Data';
+            }
+        }
+    </script>
+</body>
+</html>

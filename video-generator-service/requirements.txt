@@ -1,0 +1,26 @@
+# Video Generation Service - Flask API
+# Install with: pip install -r requirements.txt
+
+# Web framework
+Flask>=3.0.0
+flask-cors>=4.0.0
+
+# Core video processing
+moviepy==1.0.3
+pillow>=10.0.0
+
+# AWS SDK
+boto3>=1.34.0
+botocore>=1.34.0
+
+# HTTP requests
+requests>=2.31.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Scientific computing (required by moviepy)
+numpy>=1.24.0,<2.0.0
+
+# Production server
+gunicorn>=21.0.0

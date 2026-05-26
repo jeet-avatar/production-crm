@@ -1,0 +1,3152 @@
+import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { authenticate } from '../middleware/auth';
+import Anthropic from '@anthropic-ai/sdk';
+import { AI_CONFIG, getAIMessageConfig } from '../config/ai';
+import multer from 'multer';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { logger } from '../utils/logger';
+import { validateUrl } from '../middleware/urlValidator';
+
+const router = Router();
+const prisma = new PrismaClient();
+const anthropic = new Anthropic({ apiKey: AI_CONFIG.apiKey });
+
+// Configure S3 client - credentials loaded from process.env (populated by dotenv)
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION || 'us-east-1',
+  credentials: process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY ? {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  } : undefined, // Falls back to IAM role if no explicit credentials
+});
+
+const S3_BUCKET = process.env.S3_BUCKET_NAME || 'suiteflow-demo';
+const CLOUDFRONT_DOMAIN = process.env.CLOUDFRONT_DOMAIN || 'd26e2s8btupe4a.cloudfront.net';
+
+// Security: HTML escape function to prevent XSS in email templates
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// Configure multer for video uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 500 * 1024 * 1024, // 500MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only MP4, MOV, AVI, and WEBM are allowed.'));
+    }
+  },
+});
+
+// Configure multer for audio uploads (voice files)
+const audioUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/x-m4a', 'audio/mp4'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only MP3, WAV, OGG, WEBM, and M4A audio files are allowed.'));
+    }
+  },
+});
+
+// Configure multer for image uploads (logos)
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPG, PNG, GIF, and WEBP images are allowed.'));
+    }
+  },
+});
+
+// ===================================
+// VOICE SYNTHESIS (No auth - for internal service calls)
+// ===================================
+
+// POST /api/video-campaigns/synthesize-voice - Generate speech from text with cloned voice or ElevenLabs
+// Note: This endpoint is called by the video generator service (internal), so it doesn't require auth
+router.post('/synthesize-voice', async (req, res, next) => {
+  try {
+    const { text, voice_id, language = 'en' } = req.body;
+
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    if (!voice_id) {
+      return res.status(400).json({ error: 'Voice ID is required' });
+    }
+
+    // Allow internal service calls from localhost
+    const isInternalCall = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
+
+    // Normalize voice_id - if it doesn't have elevenlabs: prefix and looks like an ElevenLabs voice ID, add it
+    // ElevenLabs voice IDs are typically alphanumeric strings without special characters
+    let normalizedVoiceId = voice_id;
+    if (!voice_id.includes(':') && !voice_id.includes('/')) {
+      // Assume it's an ElevenLabs voice ID if it doesn't have a prefix
+      normalizedVoiceId = `elevenlabs:${voice_id}`;
+      logger.info(`Normalized voice ID from "${voice_id}" to "${normalizedVoiceId}"`);
+    }
+
+    logger.info('Synthesizing speech:', {
+      textLength: text.length,
+      voice_id: normalizedVoiceId,
+      language,
+      isInternalCall,
+      ip: req.ip,
+    });
+
+    // Check if this is an ElevenLabs voice (format: elevenlabs:voice_id)
+    if (normalizedVoiceId.startsWith('elevenlabs:')) {
+      const elevenLabsVoiceId = normalizedVoiceId.replace('elevenlabs:', '');
+      const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+
+      if (!ELEVENLABS_API_KEY) {
+        return res.status(500).json({
+          error: 'ElevenLabs API not configured',
+          details: 'Please add ELEVENLABS_API_KEY to environment variables'
+        });
+      }
+
+      logger.info('Using ElevenLabs TTS:', { elevenLabsVoiceId });
+
+      // Call ElevenLabs TTS API
+      const elevenLabsResponse = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${elevenLabsVoiceId}`,
+        {
+          method: 'POST',
+          headers: {
+            'xi-api-key': ELEVENLABS_API_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text,
+            model_id: 'eleven_monolingual_v1',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75,
+            },
+          }),
+        }
+      );
+
+      if (!elevenLabsResponse.ok) {
+        const errorText = await elevenLabsResponse.text();
+        logger.error('ElevenLabs TTS error:', { status: elevenLabsResponse.status, error: errorText });
+        return res.status(elevenLabsResponse.status).json({
+          error: 'ElevenLabs TTS failed',
+          details: errorText
+        });
+      }
+
+      // Get audio data as buffer
+      const audioBuffer = await elevenLabsResponse.arrayBuffer();
+      const audioData = Buffer.from(audioBuffer);
+
+      // Upload to S3
+      const timestamp = Date.now();
+      const s3Key = `synthesized-voices/elevenlabs/${elevenLabsVoiceId}_${timestamp}.mp3`;
+
+      const uploadCommand = new PutObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: s3Key,
+        Body: audioData,
+        ContentType: 'audio/mpeg',
+      });
+
+      await s3Client.send(uploadCommand);
+
+      const audio_url = `https://${S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${s3Key}`;
+
+      logger.info('ElevenLabs TTS successful, uploaded to S3:', { audio_url });
+
+      return res.json({
+        success: true,
+        audio_url,
+        text_length: text.length,
+        voice_id,
+        method: 'elevenlabs',
+        message: 'Successfully synthesized speech with ElevenLabs!',
+      });
+    }
+
+    // Custom voice cloning has been removed - only ElevenLabs voices are supported
+    logger.error('Invalid voice_id format. Only ElevenLabs voices are supported:', { voice_id, normalizedVoiceId });
+    return res.status(400).json({
+      error: 'Invalid voice selection',
+      details: 'Only ElevenLabs professional voices are supported. Please select a voice from the ElevenLabs voice selector.',
+      voice_id: normalizedVoiceId,
+    });
+
+  } catch (error: any) {
+    logger.error('Speech synthesis error:', error);
+
+    if (error.response) {
+      return res.status(error.response.status).json({
+        error: error.response.data?.error || 'Speech synthesis failed'
+      });
+    }
+
+    // Return generic error for unexpected failures
+    return res.status(500).json({
+      error: 'Speech synthesis failed',
+      details: error.message || 'An unexpected error occurred during voice synthesis'
+    });
+  }
+});
+
+// Enable authentication for all routes below this point
+router.use(authenticate);
+
+// ===================================
+// VIDEO TEMPLATES
+// ===================================
+
+// GET /api/video-campaigns/templates - List all templates
+// NOTE: Made public temporarily for debugging - TODO: add authenticate back after fixing token issue
+router.get('/templates', async (req, res, next) => {
+  try {
+    logger.info('📹 [TEMPLATES] Starting templates request');
+    const { category, search, system } = req.query;
+
+    // If user is authenticated, show their templates + system templates
+    // If not authenticated, show only system templates
+    const userId = req.user?.id;
+    logger.info(`📹 [TEMPLATES] User ID: ${userId || 'none (unauthenticated)'}`);
+
+    const where: any = userId ? {
+      OR: [
+        { isSystem: true },
+        { userId: userId },
+      ],
+    } : {
+      isSystem: true
+    };
+
+    if (category && category !== 'all') {
+      where.category = category;
+    }
+
+    if (search) {
+      where.name = {
+        contains: String(search),
+        mode: 'insensitive',
+      };
+    }
+
+    if (system === 'true') {
+      where.isSystem = true;
+      delete where.OR;
+    } else if (system === 'false' && userId) {
+      where.isSystem = false;
+      where.userId = userId;
+      delete where.OR;
+    }
+
+    logger.info(`📹 [TEMPLATES] Query where clause: ${JSON.stringify(where)}`);
+
+    const templates = await prisma.videoTemplate.findMany({
+      where,
+      orderBy: [
+        { isFavorite: 'desc' },
+        { usageCount: 'desc' },
+        { createdAt: 'desc' },
+      ],
+    });
+
+    logger.info(`📹 [TEMPLATES] Found ${templates.length} templates, sending response`);
+
+    const response = { templates };
+    logger.info(`📹 [TEMPLATES] Response JSON size: ${JSON.stringify(response).length} chars`);
+
+    res.json(response);
+    logger.info('📹 [TEMPLATES] Response sent successfully');
+    return;
+  } catch (error) {
+    logger.error('❌ [TEMPLATES] Templates endpoint error:', error);
+    logger.error('❌ [TEMPLATES] Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    return next(error);
+  }
+});
+
+// GET /api/video-campaigns/templates/:id - Get single template
+router.get('/templates/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const template = await prisma.videoTemplate.findFirst({
+      where: {
+        id,
+        OR: [
+          { isSystem: true },
+          { userId: req.user!.id },
+        ],
+      },
+    });
+
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    return res.json({ template });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// POST /api/video-campaigns/templates - Create custom template
+router.post('/templates', async (req, res, next) => {
+  try {
+    const { name, description, videoUrl, category, tags } = req.body;
+
+    if (!name || !videoUrl) {
+      return res.status(400).json({ error: 'Name and video URL are required' });
+    }
+
+    const template = await prisma.videoTemplate.create({
+      data: {
+        name,
+        description,
+        videoUrl,
+        category: category || 'Business',
+        tags: tags || [],
+        userId: req.user!.id,
+        isSystem: false,
+      },
+    });
+
+    return res.status(201).json({ template });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// POST /api/video-campaigns/templates/upload - Upload video file
+router.post('/templates/upload', authenticate, upload.single('video'), async (req, res, next) => {
+  try {
+    logger.info('📹 [UPLOAD] Template upload request received');
+    logger.info('📹 [UPLOAD] User:', req.user?.email);
+    logger.info('📹 [UPLOAD] File present:', !!req.file);
+
+    if (!req.file) {
+      logger.error('❌ [UPLOAD] No file in request');
+      return res.status(400).json({ error: 'No video file uploaded' });
+    }
+
+    const { name, description, category } = req.body;
+    const file = req.file;
+
+    logger.info('📹 [UPLOAD] File details:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      fieldname: file.fieldname
+    });
+
+    // Generate unique filename
+    const timestamp = Date.now();
+    const fileExtension = file.originalname.split('.').pop();
+    const s3Key = `video-templates/${req.user!.id}/${timestamp}.${fileExtension}`;
+
+    logger.info('📹 [UPLOAD] S3 details:', {
+      bucket: S3_BUCKET,
+      key: s3Key,
+      cloudfront: CLOUDFRONT_DOMAIN
+    });
+
+    // Upload to S3
+    logger.info('📹 [UPLOAD] Starting S3 upload...');
+    const uploadCommand = new PutObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: s3Key,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
+
+    await s3Client.send(uploadCommand);
+    logger.info('✅ [UPLOAD] S3 upload successful');
+
+    const videoUrl = `https://${CLOUDFRONT_DOMAIN}/${s3Key}`;
+
+    // Create template
+    logger.info('📹 [UPLOAD] Creating database entry...');
+    const template = await prisma.videoTemplate.create({
+      data: {
+        name: name || file.originalname,
+        description,
+        videoUrl,
+        category: category || 'Business',
+        fileSize: file.size,
+        userId: req.user!.id,
+        isSystem: false,
+      },
+    });
+
+    logger.info('✅ [UPLOAD] Template created:', template.id);
+    return res.status(201).json({ template, videoUrl });
+  } catch (error) {
+    logger.error('❌ [UPLOAD] Template upload error:', error);
+    logger.error('❌ [UPLOAD] Error stack:', error instanceof Error ? error.stack : 'No stack');
+    return next(error);
+  }
+});
+
+// PUT /api/video-campaigns/templates/:id - Update template
+router.put('/templates/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, description, category, tags, isFavorite } = req.body;
+
+    const template = await prisma.videoTemplate.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    const updated = await prisma.videoTemplate.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        category,
+        tags,
+        isFavorite,
+      },
+    });
+
+    return res.json({ template: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// POST /api/video-campaigns/templates/generate-from-prompt - Generate video from AI prompt
+router.post('/templates/generate-from-prompt', async (req, res, next) => {
+  try {
+    const { prompt } = req.body;
+
+    if (!prompt || !prompt.trim()) {
+      return res.status(400).json({
+        error: 'Prompt is required',
+        details: 'Please provide a description for the video you want to create'
+      });
+    }
+
+    logger.info('Generating video from prompt:', { prompt: prompt.substring(0, 100), user: req.user?.email });
+
+    // Step 1: Use AI to extract keywords and generate video script
+    const aiPrompt = `You are an expert video content creator specializing in tech videos.
+
+User wants to create a 30-second tech video with this description: "${prompt}"
+
+Your task:
+1. Extract 3-5 relevant keywords for finding stock footage (focus on: technology, cloud, data, software, coding, AI, etc.)
+2. Generate a compelling 30-second narration script
+3. Suggest video structure (intro, main, outro timing)
+
+Respond in JSON format:
+{
+  "keywords": ["keyword1", "keyword2", "keyword3"],
+  "script": "Full narration script here...",
+  "title": "Short title for the video",
+  "structure": {
+    "intro": "0-5s",
+    "main": "5-25s",
+    "outro": "25-30s"
+  }
+}`;
+
+    const aiResponse = await anthropic.messages.create({
+      model: AI_CONFIG.model,
+      max_tokens: AI_CONFIG.maxTokens,
+      messages: [{ role: 'user', content: aiPrompt }],
+      ...getAIMessageConfig(),
+    });
+
+    const aiContent = aiResponse.content[0].type === 'text' ? aiResponse.content[0].text : '';
+
+    // Parse AI response
+    let videoData;
+    try {
+      // Extract JSON from AI response (might be wrapped in markdown)
+      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in AI response');
+      }
+      videoData = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      logger.error('Failed to parse AI response:', parseError);
+      return res.status(500).json({
+        error: 'Failed to generate video structure',
+        details: 'AI response could not be parsed'
+      });
+    }
+
+    // Step 2: Fetch stock videos from Pexels API
+    const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'YOUR_PEXELS_API_KEY';
+    const searchQuery = videoData.keywords.join(' ');
+
+    let stockVideos: any[] = [];
+    try {
+      const pexelsResponse = await fetch(
+        `https://api.pexels.com/videos/search?query=${encodeURIComponent(searchQuery)}&per_page=5&orientation=landscape`,
+        {
+          headers: {
+            Authorization: PEXELS_API_KEY,
+          },
+        }
+      );
+
+      if (pexelsResponse.ok) {
+        const pexelsData: any = await pexelsResponse.json();
+        stockVideos = pexelsData.videos || [];
+        logger.info('Fetched stock videos:', { count: stockVideos.length, query: searchQuery });
+      } else {
+        logger.warn('Pexels API failed, using fallback');
+      }
+    } catch (pexelsError) {
+      logger.error('Pexels API error:', pexelsError);
+    }
+
+    // Step 3: Select best quality video clips
+    const selectedClips = stockVideos
+      .filter((v: any) => v.video_files && v.video_files.length > 0)
+      .slice(0, 3)
+      .map((v: any) => {
+        // Find HD quality video file
+        const hdFile = v.video_files.find((f: any) => f.quality === 'hd' || f.quality === 'sd') || v.video_files[0];
+        return {
+          url: hdFile.link,
+          duration: v.duration,
+          width: hdFile.width,
+          height: hdFile.height,
+        };
+      });
+
+    if (selectedClips.length === 0) {
+      return res.status(500).json({
+        error: 'No suitable video clips found',
+        details: 'Try using different keywords or check Pexels API configuration'
+      });
+    }
+
+    // Step 4: Create video template record
+    const template = await prisma.videoTemplate.create({
+      data: {
+        name: videoData.title || `AI Generated: ${prompt.substring(0, 30)}...`,
+        description: `Generated from prompt: ${prompt}`,
+        category: 'Tech',
+        tags: videoData.keywords,
+        userId: req.user!.id,
+        isSystem: false,
+        isFavorite: false,
+        // Store video data for generation
+        videoUrl: selectedClips[0].url, // Primary clip
+        metadata: {
+          aiGenerated: true,
+          prompt,
+          script: videoData.script,
+          structure: videoData.structure,
+          clips: selectedClips,
+          keywords: videoData.keywords,
+        } as any,
+      },
+    });
+
+    logger.info('Created AI-generated template:', { templateId: template.id, name: template.name });
+
+    return res.status(201).json({
+      template,
+      videoData: {
+        script: videoData.script,
+        keywords: videoData.keywords,
+        clips: selectedClips,
+        message: 'Video template generated! You can now use this to create a campaign.',
+      },
+    });
+
+  } catch (error: any) {
+    logger.error('Prompt-to-video generation error:', error);
+    return res.status(500).json({
+      error: 'Failed to generate video from prompt',
+      details: error.message,
+    });
+  }
+});
+
+// GET /api/video-campaigns/pexels/search - Search Pexels videos
+router.get('/pexels/search', authenticate, async (req, res, next) => {
+  try {
+    const { query, page = '1', per_page = '12' } = req.query;
+
+    if (!query || typeof query !== 'string') {
+      return res.status(400).json({
+        error: 'Search query is required',
+        details: 'Please provide a search query parameter'
+      });
+    }
+
+    const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
+    if (!PEXELS_API_KEY) {
+      return res.status(500).json({
+        error: 'Pexels API not configured',
+        details: 'Please add PEXELS_API_KEY to environment variables'
+      });
+    }
+
+    // Call Pexels API
+    const pexelsResponse = await fetch(
+      `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=${per_page}&page=${page}&orientation=landscape`,
+      {
+        headers: {
+          Authorization: PEXELS_API_KEY,
+        },
+      }
+    );
+
+    if (!pexelsResponse.ok) {
+      const errorText = await pexelsResponse.text();
+      logger.error('Pexels API error:', { status: pexelsResponse.status, error: errorText });
+      return res.status(pexelsResponse.status).json({
+        error: 'Pexels API request failed',
+        details: errorText
+      });
+    }
+
+    const data: any = await pexelsResponse.json();
+
+    logger.info('Pexels search successful:', {
+      query,
+      page,
+      resultsCount: data.videos?.length || 0,
+      totalResults: data.total_results
+    });
+
+    return res.status(200).json({
+      videos: data.videos || [],
+      page: data.page || 1,
+      per_page: data.per_page || 12,
+      total_results: data.total_results || 0,
+      next_page: data.next_page,
+    });
+
+  } catch (error: any) {
+    logger.error('Pexels search error:', error);
+    return res.status(500).json({
+      error: 'Failed to search Pexels videos',
+      details: error.message,
+    });
+  }
+});
+
+// GET /api/video-campaigns/elevenlabs/voices - Get ElevenLabs voices
+router.get('/elevenlabs/voices', authenticate, async (req, res, next) => {
+  try {
+    const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
+    if (!ELEVENLABS_API_KEY) {
+      return res.status(500).json({
+        error: 'ElevenLabs API not configured',
+        details: 'Please add ELEVENLABS_API_KEY to environment variables'
+      });
+    }
+
+    // Call ElevenLabs API to get available voices
+    const elevenLabsResponse = await fetch(
+      'https://api.elevenlabs.io/v1/voices',
+      {
+        headers: {
+          'xi-api-key': ELEVENLABS_API_KEY,
+        },
+      }
+    );
+
+    if (!elevenLabsResponse.ok) {
+      const errorText = await elevenLabsResponse.text();
+      logger.error('ElevenLabs API error:', { status: elevenLabsResponse.status, error: errorText });
+      return res.status(elevenLabsResponse.status).json({
+        error: 'ElevenLabs API request failed',
+        details: errorText
+      });
+    }
+
+    const data: any = await elevenLabsResponse.json();
+
+    // Format voices with elevenlabs: prefix for consistent identification
+    const formattedVoices = (data.voices || []).map((voice: any) => ({
+      voice_id: `elevenlabs:${voice.voice_id}`, // Add prefix for backend validation
+      name: voice.name,
+      preview_url: voice.preview_url,
+      category: voice.category || 'generated',
+      labels: voice.labels || {},
+      description: voice.description || '',
+    }));
+
+    logger.info('ElevenLabs voices fetched successfully:', {
+      voicesCount: formattedVoices.length
+    });
+
+    return res.status(200).json({
+      voices: formattedVoices,
+    });
+
+  } catch (error: any) {
+    logger.error('ElevenLabs voices error:', error);
+    return res.status(500).json({
+      error: 'Failed to fetch ElevenLabs voices',
+      details: error.message,
+    });
+  }
+});
+
+// POST /api/video-campaigns/templates/:id/favorite - Toggle favorite
+router.post('/templates/:id/favorite', authenticate, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const template = await prisma.videoTemplate.findFirst({
+      where: {
+        id,
+        OR: [
+          { isSystem: true },
+          { userId: req.user!.id },
+        ],
+      },
+    });
+
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    const updated = await prisma.videoTemplate.update({
+      where: { id },
+      data: {
+        isFavorite: !template.isFavorite,
+      },
+    });
+
+    return res.json({ template: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// DELETE /api/video-campaigns/templates/:id - Delete custom template
+router.delete('/templates/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const template = await prisma.videoTemplate.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+        isSystem: false, // Can't delete system templates
+      },
+    });
+
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+
+    // Delete from S3 if it's a user-uploaded file
+    if (template.videoUrl.includes(S3_BUCKET)) {
+      const key = template.videoUrl.split(`${CLOUDFRONT_DOMAIN}/`)[1];
+      if (key) {
+        try {
+          const deleteCommand = new DeleteObjectCommand({
+            Bucket: S3_BUCKET,
+            Key: key,
+          });
+          await s3Client.send(deleteCommand);
+        } catch (s3Error) {
+          logger.error('S3 delete error:', s3Error);
+        }
+      }
+    }
+
+    await prisma.videoTemplate.delete({ where: { id } });
+
+    return res.json({ message: 'Template deleted successfully' });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// ===================================
+// FILE UPLOADS
+// ===================================
+
+// REMOVED: Voice cloning endpoints (upload-voice, clone-voice, my-voices)
+// Voice cloning has been deprecated - only ElevenLabs professional voices are supported
+
+// POST /api/video-campaigns/upload-logo - Upload logo file
+router.post('/upload-logo', imageUpload.single('logo'), async (req, res, next) => {
+  try {
+    logger.info('Logo upload request received:', {
+      hasFile: !!req.file,
+      contentType: req.headers['content-type'],
+      user: req.user?.email,
+    });
+
+    if (!req.file) {
+      logger.error('Logo upload: No file provided');
+      return res.status(400).json({
+        error: 'Logo file is required',
+        details: 'Please upload an image file (PNG, JPG, or SVG)'
+      });
+    }
+
+    const file = req.file;
+    const fileName = `logos/${req.user!.id}/${Date.now()}-${file.originalname}`;
+
+    logger.info('Uploading logo to S3:', {
+      fileName,
+      size: file.size,
+      bucket: S3_BUCKET,
+      mimetype: file.mimetype,
+    });
+
+    // Upload to S3
+    const uploadCommand = new PutObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: fileName,
+      Body: file.buffer,
+      ContentType: file.mimetype,
+    });
+
+    await s3Client.send(uploadCommand);
+
+    const logoUrl = `https://${CLOUDFRONT_DOMAIN}/${fileName}`;
+
+    logger.info('Logo file uploaded successfully:', {
+      user: req.user?.email,
+      fileName,
+      size: file.size,
+      logoUrl,
+    });
+
+    return res.json({ logoUrl });
+  } catch (error: any) {
+    logger.error('Logo upload error:', {
+      message: error.message,
+      code: error.code,
+      name: error.name,
+      stack: error.stack,
+    });
+
+    if (error.name === 'NoSuchBucket') {
+      return res.status(500).json({
+        error: 'Storage configuration error',
+        details: 'S3 bucket not found. Contact support.'
+      });
+    }
+
+    if (error.name === 'InvalidAccessKeyId' || error.name === 'SignatureDoesNotMatch') {
+      return res.status(500).json({
+        error: 'Storage authentication error',
+        details: 'Invalid AWS credentials. Contact support.'
+      });
+    }
+
+    return res.status(500).json({
+      error: 'Logo upload failed',
+      details: error.message || 'An unknown error occurred'
+    });
+  }
+});
+
+// ===================================
+// VIDEO CAMPAIGNS
+// ===================================
+
+// GET /api/video-campaigns - List all campaigns
+router.get('/', async (req, res, next) => {
+  try {
+    const { status, limit = '50', offset = '0' } = req.query;
+
+    const where: any = {
+      userId: req.user!.id,
+    };
+
+    if (status && status !== 'all') {
+      where.status = status;
+    }
+
+    const campaigns = await prisma.videoCampaign.findMany({
+      where,
+      include: {
+        template: true,
+        companies: {
+          include: {
+            company: {
+              select: {
+                id: true,
+                name: true,
+                logo: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            companies: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: Number(limit),
+      skip: Number(offset),
+    });
+
+    const total = await prisma.videoCampaign.count({ where });
+
+    return res.json({ campaigns, total });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// GET /api/video-campaigns/:id - Get single campaign
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+      include: {
+        template: true,
+        companies: {
+          include: {
+            company: true,
+          },
+        },
+        jobs: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    return res.json({ campaign });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// POST /api/video-campaigns - Create new campaign
+router.post('/', async (req, res, next) => {
+  try {
+    logger.info('Create campaign request:', {
+      user: req.user?.email,
+      body: { ...req.body, narrationScript: req.body.narrationScript?.substring(0, 50) + '...' },
+    });
+
+    const {
+      name,
+      narrationScript,
+      tone,
+      videoSource,
+      templateId,
+      customVideoUrl,
+      voiceId,
+      customVoiceUrl,
+      clientLogoUrl,
+      userLogoUrl,
+      bgmUrl,
+      bgmVolume,
+      textOverlays,
+      companyIds,
+    } = req.body;
+
+    // Detailed validation with helpful messages
+    if (!name || !name.trim()) {
+      logger.error('Campaign creation: Missing name');
+      return res.status(400).json({
+        error: 'Campaign name is required',
+        details: 'Please provide a name for your video campaign',
+        field: 'name'
+      });
+    }
+
+    if (!narrationScript || !narrationScript.trim()) {
+      logger.error('Campaign creation: Missing narration script');
+      return res.status(400).json({
+        error: 'Narration script is required',
+        details: 'Please provide a script or generate one using AI',
+        field: 'narrationScript'
+      });
+    }
+
+    // Validate video source
+    if (videoSource === 'TEMPLATE' && !templateId) {
+      logger.error('Campaign creation: Template source but no templateId');
+      return res.status(400).json({
+        error: 'Template ID is required when using template source',
+        details: 'Please select a video template',
+        field: 'templateId'
+      });
+    }
+
+    if ((videoSource === 'CUSTOM_UPLOAD' || videoSource === 'URL') && !customVideoUrl) {
+      logger.error('Campaign creation: Custom source but no URL');
+      return res.status(400).json({
+        error: 'Custom video URL is required',
+        details: 'Please upload a video or provide a URL',
+        field: 'customVideoUrl'
+      });
+    }
+
+    logger.info('Creating campaign in database...');
+
+    const campaign = await prisma.videoCampaign.create({
+      data: {
+        name,
+        narrationScript,
+        tone: tone || 'professional',
+        videoSource: videoSource || 'TEMPLATE',
+        templateId,
+        customVideoUrl,
+        voiceId,
+        customVoiceUrl,
+        clientLogoUrl,
+        userLogoUrl,
+        bgmUrl,
+        bgmVolume: bgmVolume !== undefined ? bgmVolume : 0.1,
+        textOverlays,
+        userId: req.user!.id,
+        status: 'DRAFT',
+      },
+    });
+
+    logger.info('Campaign created successfully:', { campaignId: campaign.id });
+
+    // Add companies if provided
+    if (companyIds && Array.isArray(companyIds) && companyIds.length > 0) {
+      await prisma.videoCampaignCompany.createMany({
+        data: companyIds.map((companyId: string) => ({
+          campaignId: campaign.id,
+          companyId,
+        })),
+        skipDuplicates: true,
+      });
+      logger.info('Added companies to campaign:', { count: companyIds.length });
+    }
+
+    return res.status(201).json({ campaign });
+  } catch (error: any) {
+    logger.error('Campaign creation error:', {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+    });
+
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        error: 'Campaign with this name already exists',
+        details: 'Please use a different campaign name'
+      });
+    }
+
+    if (error.code === 'P2003') {
+      return res.status(400).json({
+        error: 'Invalid reference',
+        details: 'Template or company ID not found'
+      });
+    }
+
+    return res.status(500).json({
+      error: 'Failed to create campaign',
+      details: error.message
+    });
+  }
+});
+
+// PUT /api/video-campaigns/:id - Update campaign
+router.put('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      narrationScript,
+      tone,
+      voiceId,
+      customVoiceUrl,
+      clientLogoUrl,
+      userLogoUrl,
+      bgmUrl,
+      bgmVolume,
+      textOverlays,
+    } = req.body;
+
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    const updated = await prisma.videoCampaign.update({
+      where: { id },
+      data: {
+        name,
+        narrationScript,
+        tone,
+        voiceId,
+        customVoiceUrl,
+        clientLogoUrl,
+        userLogoUrl,
+        bgmUrl,
+        bgmVolume,
+        textOverlays,
+      },
+    });
+
+    return res.json({ campaign: updated });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// DELETE /api/video-campaigns/:id - Delete campaign
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    // Delete generated video from S3 if exists
+    if (campaign.videoUrl && campaign.videoUrl.includes(S3_BUCKET)) {
+      const key = campaign.videoUrl.split(`${CLOUDFRONT_DOMAIN}/`)[1];
+      if (key) {
+        try {
+          const deleteCommand = new DeleteObjectCommand({
+            Bucket: S3_BUCKET,
+            Key: key,
+          });
+          await s3Client.send(deleteCommand);
+        } catch (s3Error) {
+          logger.error('S3 delete error:', s3Error);
+        }
+      }
+    }
+
+    await prisma.videoCampaign.delete({ where: { id } });
+
+    return res.json({ message: 'Campaign deleted successfully' });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// POST /api/video-campaigns/:id/companies/:companyId - Add company to campaign
+router.post('/:id/companies/:companyId', async (req, res, next) => {
+  try {
+    const { id, companyId } = req.params;
+
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    const company = await prisma.company.findFirst({
+      where: {
+        id: companyId,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    const existing = await prisma.videoCampaignCompany.findUnique({
+      where: {
+        campaignId_companyId: {
+          campaignId: id,
+          companyId,
+        },
+      },
+    });
+
+    if (existing) {
+      return res.json({ message: 'Company already in campaign', campaignCompany: existing });
+    }
+
+    const campaignCompany = await prisma.videoCampaignCompany.create({
+      data: {
+        campaignId: id,
+        companyId,
+      },
+      include: {
+        company: true,
+      },
+    });
+
+    return res.json({ message: 'Company added to campaign', campaignCompany });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// DELETE /api/video-campaigns/:id/companies/:companyId - Remove company from campaign
+router.delete('/:id/companies/:companyId', async (req, res, next) => {
+  try {
+    const { id, companyId } = req.params;
+
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    await prisma.videoCampaignCompany.delete({
+      where: {
+        campaignId_companyId: {
+          campaignId: id,
+          companyId,
+        },
+      },
+    });
+
+    return res.json({ message: 'Company removed from campaign' });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// ===================================
+// AI ASSISTANCE
+// ===================================
+
+// POST /api/video-campaigns/ai/generate-script - Generate AI script
+router.post('/ai/generate-script', async (req, res, next) => {
+  try {
+    const { companyName, companyIndustry, tone, goal, userCompanyName } = req.body;
+
+    // Log the request for debugging
+    logger.info('Video AI script generation request:', {
+      user: req.user?.email,
+      userId: req.user?.id,
+      companyName,
+      userCompanyName,
+      model: AI_CONFIG.model,
+      maxTokens: AI_CONFIG.maxTokens.content,
+      apiKeyConfigured: !!AI_CONFIG.apiKey,
+      apiKeyLength: AI_CONFIG.apiKey?.length,
+    });
+
+    if (!AI_CONFIG.apiKey) {
+      logger.error('Anthropic API key not configured!');
+      return res.status(500).json({
+        error: 'AI service not configured',
+        details: 'Anthropic API key is missing. Please contact administrator.',
+      });
+    }
+
+    if (!companyName) {
+      return res.status(400).json({ error: 'Company name is required' });
+    }
+
+    // Use userCompanyName if provided, otherwise use a generic fallback
+    const senderCompany = userCompanyName || 'our company';
+
+    const prompt = `You are an expert video marketing script writer. Generate a compelling 30-60 second video narration script for a business video.
+
+Target Company Name: ${companyName}
+Target Company Industry: ${companyIndustry || 'Not specified'}
+Sender Company Name: ${senderCompany}
+Tone: ${tone || 'professional'}
+Goal: ${goal || 'Welcome and introduce our company'}
+
+Generate a personalized, engaging script that:
+1. Welcomes the target company (${companyName}) by name
+2. Introduces the sender company (${senderCompany}) and its value proposition
+3. Highlights potential benefits or solutions for ${companyName}
+4. Ends with a call to action
+
+Keep it between 100-150 words (30-60 seconds when spoken).
+Use a ${tone || 'professional'} tone.
+
+IMPORTANT: Return ONLY properly escaped JSON. The script should be a single string without line breaks.
+Return in this exact format:
+{"script": "Your complete narration script in one continuous line without newlines..."}`;
+
+    // Use direct Anthropic API call (same as original working version)
+    const message = await anthropic.messages.create({
+      ...getAIMessageConfig('content'),
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const content = message.content[0];
+    if (content && content.type === 'text') {
+      let jsonText = content.text.trim();
+
+      // Remove markdown code blocks if present
+      if (jsonText.startsWith('```')) {
+        jsonText = jsonText.replace(/^```json?\s*\n/, '').replace(/\n```\s*$/, '');
+      }
+
+      // Try to parse the JSON
+      let result;
+      try {
+        result = JSON.parse(jsonText);
+      } catch (parseError: any) {
+        // If parsing fails, log the raw response for debugging
+        logger.error('JSON parse error in video AI response:', {
+          error: parseError.message,
+          rawResponse: jsonText.substring(0, 500),
+          responseLength: jsonText.length,
+        });
+
+        // Try to extract just the script content if it's malformed JSON
+        // Sometimes AI returns: {"script": "text with\nunescaped newlines"}
+        const scriptMatch = jsonText.match(/"script"\s*:\s*"([^"]*)"/s);
+        if (scriptMatch) {
+          result = { script: scriptMatch[1] };
+        } else {
+          throw new Error(`AI returned invalid JSON: ${parseError.message}. Response: ${jsonText.substring(0, 200)}...`);
+        }
+      }
+
+      logger.info('Video AI script generation SUCCESS:', {
+        user: req.user?.email,
+        model: AI_CONFIG.model,
+        scriptLength: result.script?.length || 0,
+      });
+
+      return res.json(result);
+    }
+
+    return res.status(500).json({ error: 'Unexpected response format' });
+  } catch (error: any) {
+    logger.error('AI script generation error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      statusCode: error.status || error.statusCode,
+      errorType: error.type,
+      model: AI_CONFIG.model,
+      apiKeyPresent: !!AI_CONFIG.apiKey,
+      apiKeyPrefix: AI_CONFIG.apiKey?.substring(0, 15),
+    });
+
+    // Provide helpful error messages
+    let details = error.message;
+    if (error.status === 429) {
+      details = 'AI service rate limit exceeded. Please try again in a few moments.';
+    } else if (error.status === 401) {
+      details = 'AI service authentication failed. Invalid API key.';
+    } else if (error.status === 404) {
+      details = `AI model '${AI_CONFIG.model}' not found or not available with this API key.`;
+    }
+
+    return res.status(500).json({
+      error: 'Failed to generate script',
+      details,
+      model: AI_CONFIG.model,
+      errorType: error.name,
+      statusCode: error.status || error.statusCode,
+    });
+  }
+});
+
+// POST /api/video-campaigns/ai/suggest-overlays - Suggest text overlays
+router.post('/ai/suggest-overlays', async (req, res, next) => {
+  try {
+    const { narrationScript, duration } = req.body;
+
+    if (!narrationScript) {
+      return res.status(400).json({ error: 'Narration script is required' });
+    }
+
+    const prompt = `You are an expert video editor. Based on this narration script, suggest 2-3 text overlays that should appear at key moments in the video.
+
+Narration Script:
+${narrationScript}
+
+Estimated Video Duration: ${duration || 30} seconds
+
+Suggest 2-3 short, impactful text overlays (3-5 words each) that:
+1. Emphasize key points
+2. Are timed appropriately throughout the video
+3. Add visual interest
+
+Return ONLY valid JSON with this structure:
+{
+  "overlays": [
+    {"text": "Innovation First", "startTime": 5, "duration": 3},
+    {"text": "Transform Your Business", "startTime": 15, "duration": 3}
+  ]
+}`;
+
+    // Use direct Anthropic API call (same as original working version)
+    const message = await anthropic.messages.create({
+      ...getAIMessageConfig('basic'),
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const content = message.content[0];
+    if (content && content.type === 'text') {
+      let jsonText = content.text.trim();
+      if (jsonText.startsWith('```')) {
+        jsonText = jsonText.replace(/^```json?\s*\n/, '').replace(/\n```\s*$/, '');
+      }
+      const result = JSON.parse(jsonText);
+      return res.json(result);
+    }
+
+    return res.status(500).json({ error: 'Unexpected response format' });
+  } catch (error) {
+    logger.error('AI overlay suggestion error:', error);
+    return next(error);
+  }
+});
+
+// ===================================
+// VIDEO GENERATION
+// ===================================
+
+/**
+ * Auto-create email campaign with video embedded
+ */
+async function autoCreateEmailCampaign(videoCampaign: any, videoUrl: string) {
+  try {
+    logger.info(`🎬 Auto-creating email campaign for video ${videoCampaign.id}`);
+
+    const companyName = videoCampaign.companies[0]?.company?.name || 'your company';
+    const firstName = videoCampaign.companies[0]?.company?.contacts[0]?.firstName || 'there';
+
+    // Build HTML email with video embed (email-compatible - works in Gmail, Outlook, mobile)
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 8px;">
+                    <tr>
+                        <td align="center" style="padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px 8px 0 0;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px;">BrandMonkz</h1>
+                            <p style="margin: 10px 0 0; color: #ffffff; font-size: 14px;">AI-Powered Video Marketing</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 40px;">
+                            <p style="margin: 0; color: #333; font-size: 16px;">Hi {{firstName}},</p>
+                            <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                                I made you a personalized video about how BrandMonkz can help {{companyName}} grow with AI-powered video campaigns.
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 0 40px 40px;">
+                            <div style="position: relative; max-width: 560px; margin: 0 auto;">
+                                <a href="${videoUrl}" target="_blank" style="display: block; text-decoration: none; background: linear-gradient(135deg, rgba(102,126,234,0.95), rgba(118,75,162,0.95)); padding: 60px 20px; border-radius: 8px; text-align: center;">
+                                    <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+                                        <div style="width: 0; height: 0; border-left: 25px solid #667eea; border-top: 15px solid transparent; border-bottom: 15px solid transparent; margin-left: 8px;"></div>
+                                    </div>
+                                    <div style="font-size: 24px; font-weight: bold; color: #fff; margin-bottom: 10px;">Watch Video</div>
+                                    <div style="font-size: 16px; color: #fff; opacity: 0.9;">Click to play personalized message</div>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 0 40px 40px;">
+                            <a href="{{calendlyLink}}" style="display: inline-block; padding: 16px 40px; background: #10b981; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;">
+                                📅 Schedule Demo
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 30px; background-color: #1f2937; border-radius: 0 0 8px 8px; text-align: center;">
+                            <p style="margin: 0; color: #9ca3af; font-size: 12px;">
+                                <strong style="color: #ffffff;">BrandMonkz Inc.</strong><br>
+                                AI-Powered Video Marketing Platform
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`;
+
+    // Create email campaign
+    const emailCampaign = await prisma.campaign.create({
+      data: {
+        name: `Video Email: ${videoCampaign.name}`,
+        subject: `{{firstName}}, I made you a personalized video`,
+        htmlContent,
+        textContent: `Hi {{firstName}}, I made you a personalized video about how BrandMonkz can help {{companyName}}. Watch it here: ${videoUrl}`,
+        status: 'DRAFT',
+        userId: videoCampaign.userId,
+      },
+    });
+
+    // Link companies to email campaign
+    if (videoCampaign.companies.length > 0) {
+      await prisma.campaignCompany.createMany({
+        data: videoCampaign.companies.map((cc: any) => ({
+          campaignId: emailCampaign.id,
+          companyId: cc.companyId,
+        })),
+      });
+    }
+
+    logger.info(`✅ Email campaign auto-created: ${emailCampaign.id} with video: ${videoUrl}`);
+  } catch (error: any) {
+    logger.error('Failed to auto-create email campaign:', error);
+    // Don't throw - we don't want to fail video generation if email creation fails
+  }
+}
+
+/**
+ * Poll video generation status and update database
+ */
+async function pollVideoStatus(jobId: string, externalJobId: string, campaignId: string) {
+  const videoServiceUrl = process.env.VIDEO_GENERATOR_SERVICE_URL || 'http://localhost:5002';
+  const axios = require('axios');
+  const maxAttempts = 120; // Poll for up to 20 minutes (120 * 10 seconds)
+  let attempts = 0;
+
+  const poll = async () => {
+    try {
+      logger.info(`[POLL] Checking status for job ${externalJobId}, campaign ${campaignId}`);
+      const response = await axios.get(`${videoServiceUrl}/api/video/status/${externalJobId}`);
+      const status = response.data;
+
+      logger.info(`[POLL] Received status:`, {
+        status: status.status,
+        progress: status.progress,
+        videoUrl: status.videoUrl,
+        hasVideoUrl: !!status.videoUrl,
+      });
+
+      // Update job in database
+      await prisma.videoGenerationJob.update({
+        where: { id: jobId },
+        data: {
+          status: status.status,
+          progress: status.progress || 0,
+          currentStep: status.currentStep || 'Processing...',
+          errorMessage: status.error,
+        },
+      });
+
+      // If completed, update campaign
+      if (status.status === 'completed' && status.videoUrl) {
+        logger.info(`[POLL] Updating campaign ${campaignId} to READY with URL: ${status.videoUrl}`);
+        const updatedCampaign = await prisma.videoCampaign.update({
+          where: { id: campaignId },
+          data: {
+            status: 'READY',
+            videoUrl: status.videoUrl,
+            generatedAt: new Date(),
+          },
+          include: {
+            companies: {
+              include: {
+                company: {
+                  include: {
+                    contacts: { take: 1 },
+                  },
+                },
+              },
+            },
+          },
+        });
+        logger.info(`✅ Video generation completed for campaign ${campaignId}: ${status.videoUrl}`);
+
+        // AUTO-CREATE EMAIL CAMPAIGN WITH VIDEO
+        await autoCreateEmailCampaign(updatedCampaign, status.videoUrl);
+
+        return; // Stop polling
+      }
+
+      // If failed, update campaign
+      if (status.status === 'failed') {
+        await prisma.videoCampaign.update({
+          where: { id: campaignId },
+          data: {
+            status: 'FAILED',
+            generationError: status.error || 'Video generation failed',
+          },
+        });
+        logger.error(`Video generation failed for campaign ${campaignId}: ${status.error}`);
+        return; // Stop polling
+      }
+
+      // Continue polling if still processing
+      if (status.status === 'processing' || status.status === 'pending') {
+        attempts++;
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 10000); // Poll every 10 seconds
+        } else {
+          // Timeout
+          await prisma.videoCampaign.update({
+            where: { id: campaignId },
+            data: {
+              status: 'FAILED',
+              generationError: 'Video generation timed out',
+            },
+          });
+          logger.error(`Video generation timed out for campaign ${campaignId}`);
+        }
+      }
+    } catch (error: any) {
+      logger.error('Poll video status error:', error);
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(poll, 10000); // Retry
+      } else {
+        // Mark as failed after max retries
+        await prisma.videoCampaign.update({
+          where: { id: campaignId },
+          data: {
+            status: 'FAILED',
+            generationError: 'Failed to check video generation status',
+          },
+        });
+      }
+    }
+  };
+
+  // Start polling after a short delay
+  setTimeout(poll, 5000);
+}
+
+// POST /api/video-campaigns/:id/generate - Start video generation
+router.post('/:id/generate', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+      include: {
+        template: true,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    // Update campaign status
+    await prisma.videoCampaign.update({
+      where: { id },
+      data: { status: 'GENERATING' },
+    });
+
+    // Create generation job
+    const job = await prisma.videoGenerationJob.create({
+      data: {
+        campaignId: id,
+        status: 'pending',
+        currentStep: 'Initializing',
+      },
+    });
+
+    // Call video generation service
+    const videoServiceUrl = process.env.VIDEO_GENERATOR_SERVICE_URL || 'http://localhost:5002';
+    const axios = require('axios');
+
+    try {
+      const videoGenResponse = await axios.post(`${videoServiceUrl}/api/video/generate`, {
+        campaignId: campaign.id,
+        narrationScript: campaign.narrationScript,
+        templateUrl: campaign.template?.videoUrl || campaign.customVideoUrl,
+        voiceId: campaign.voiceId,
+        customVoiceUrl: campaign.customVoiceUrl,
+        clientLogoUrl: campaign.clientLogoUrl,
+        userLogoUrl: campaign.userLogoUrl,
+        bgmUrl: campaign.bgmUrl,
+        textOverlays: campaign.textOverlays as any,
+      }, {
+        timeout: 10000, // 10 second timeout for job creation
+      });
+
+      logger.info(`Video generation job created: ${videoGenResponse.data.jobId}`);
+
+      // Update job with video service job ID
+      await prisma.videoGenerationJob.update({
+        where: { id: job.id },
+        data: {
+          queueId: videoGenResponse.data.jobId,
+          status: 'processing',
+          currentStep: 'Video generation queued',
+          startedAt: new Date(),
+        },
+      });
+
+      // Start polling for status updates (background task)
+      pollVideoStatus(job.id, videoGenResponse.data.jobId, campaign.id).catch((err) => {
+        logger.error('Poll video status error:', err);
+      });
+
+      return res.json({
+        message: 'Video generation started',
+        jobId: job.id,
+        campaign,
+      });
+    } catch (videoError: any) {
+      logger.error('Video service error:', videoError);
+
+      // Update job and campaign with error
+      await prisma.videoGenerationJob.update({
+        where: { id: job.id },
+        data: {
+          status: 'failed',
+          errorMessage: videoError.message || 'Video service unavailable',
+        },
+      });
+
+      await prisma.videoCampaign.update({
+        where: { id: campaign.id },
+        data: {
+          status: 'FAILED',
+          generationError: 'Video generation service unavailable. Please try again later.',
+        },
+      });
+
+      return res.status(503).json({
+        error: 'Video generation service unavailable',
+        details: videoError.message,
+      });
+    }
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// GET /api/video-campaigns/:id/status - Get generation status
+router.get('/:id/status', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    const latestJob = await prisma.videoGenerationJob.findFirst({
+      where: { campaignId: id },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return res.json({
+      status: campaign.status,
+      progress: latestJob?.progress || 0,
+      currentStep: latestJob?.currentStep,
+      videoUrl: campaign.videoUrl,
+      error: campaign.generationError || latestJob?.errorMessage,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+// ===================================
+// EMAIL TEMPLATE INTEGRATION
+// ===================================
+
+// POST /api/video-campaigns/:id/create-email-template - Convert video campaign to email template
+router.post('/:id/create-email-template', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { templateName, emailSubject, emailBody, ctaText, ctaLink, fromName, fromEmail } = req.body;
+
+    // Get the video campaign
+    const campaign = await prisma.videoCampaign.findFirst({
+      where: {
+        id,
+        userId: req.user!.id,
+      },
+    });
+
+    if (!campaign) {
+      return res.status(404).json({ error: 'Campaign not found' });
+    }
+
+    if (campaign.status !== 'READY' || !campaign.videoUrl) {
+      return res.status(400).json({ error: 'Video must be generated before creating email template' });
+    }
+
+    // Security: Escape user content for HTML to prevent XSS
+    const safeEmailBody = escapeHtml(emailBody || campaign.narrationScript || '');
+    const safeSubject = escapeHtml(emailSubject || '');
+    const safeVideoUrl = escapeHtml(campaign.videoUrl || '');
+    const safeThumbnailUrl = escapeHtml(campaign.thumbnailUrl || '');
+    const safeCtaText = escapeHtml(ctaText || '');
+    const safeCtaLink = escapeHtml(ctaLink || '');
+
+    // Create beautiful HTML email template with embedded video
+    // nosemgrep: javascript.express.security.injection.raw-html-format.raw-html-format
+    const htmlContent = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>' + safeSubject + '</title></head><body style="margin: 0; padding: 0; font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;"><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f5f5f5; padding: 40px 20px;"><tr><td align="center"><table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;"><tr><td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;">{{companyName}}</h1></td></tr><tr><td style="padding: 40px 30px;"><p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">Hi {{firstName}},</p><p style="margin: 0 0 30px; color: #666666; font-size: 16px; line-height: 1.6;">' + safeEmailBody + '</p><div style="margin: 30px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"><video controls width="100%" style="display: block; max-width: 100%; height: auto;" poster="' + safeThumbnailUrl + '"><source src="' + safeVideoUrl + '" type="video/mp4">Your email client doesn\'t support video playback. <a href="' + safeVideoUrl + '" style="color: #667eea;">Click here to watch the video</a>.</video></div>' + (ctaText && ctaLink ? '<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td align="center" style="padding: 30px 0;"><a href="' + safeCtaLink + '" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">' + safeCtaText + '</a></td></tr></table>' : '') + '<p style="margin: 30px 0 0; color: #666666; font-size: 14px; line-height: 1.6;">This video was created specifically for you using advanced AI technology.</p></td></tr><tr><td style="padding: 30px; text-align: center; background-color: #f8f9fa; border-top: 1px solid #e9ecef;"><p style="margin: 0 0 10px; color: #666666; font-size: 14px;">Best regards,<br><strong style="color: #333333;">{{fromName}}</strong></p><p style="margin: 10px 0 0; color: #999999; font-size: 12px;">Powered by BrandMonkz Video Marketing</p></td></tr></table></td></tr></table></body></html>';
+
+    // Create text version (fallback for email clients that don't support HTML)
+    const textContent = 'Hi {{firstName}},\n\n' + safeEmailBody + '\n\nWatch your personalized video: ' + safeVideoUrl + '\n\n' + (ctaText && ctaLink ? safeCtaText + ': ' + safeCtaLink + '\n\n' : '') + 'Best regards,\n{{fromName}}\n\n---\nPowered by BrandMonkz Video Marketing';
+
+    // Create email template
+    const emailTemplate = await prisma.emailTemplate.create({
+      data: {
+        name: templateName || `Video Campaign: ${campaign.name}`,
+        subject: emailSubject || `Personalized Video from ${fromName || '{{companyName}}'}`,
+        htmlContent,
+        textContent,
+        variables: ['firstName', 'companyName', 'fromName'],
+        isActive: true,
+        userId: req.user!.id,
+      },
+    });
+
+    logger.info(`Email template created from video campaign ${id}: ${emailTemplate.id}`);
+
+    return res.json({
+      success: true,
+      emailTemplate: {
+        id: emailTemplate.id,
+        name: emailTemplate.name,
+        subject: emailTemplate.subject,
+        videoUrl: campaign.videoUrl,
+      },
+      message: 'Email template created successfully',
+    });
+  } catch (error) {
+    logger.error('Error creating email template from video:', error);
+    return next(error);
+  }
+});
+
+// ===================================
+// AUTOMATED VIDEO GENERATION
+// ===================================
+
+// POST /api/video-campaigns/preview-script - Generate script preview without creating campaign
+router.post('/preview-script', authenticate, async (req, res, next) => {
+  try {
+    const { companyName, additionalContext } = req.body;
+
+    if (!companyName) {
+      return res.status(400).json({ error: 'Company name is required' });
+    }
+
+    logger.info(`📝 Generating script preview for company: ${companyName}`);
+
+    // Check if AI is enabled
+    if (!AI_CONFIG.enabled || !AI_CONFIG.apiKey) {
+      logger.error('❌ ANTHROPIC_API_KEY not configured');
+      return res.status(500).json({
+        error: 'AI service not configured',
+        details: 'ANTHROPIC_API_KEY environment variable is missing'
+      });
+    }
+
+    // Get configuration
+    const AI_MODEL = AI_CONFIG.model;
+    const AI_MAX_TOKENS = AI_CONFIG.maxTokens.campaign || 2048;
+    const AI_TEMPERATURE = AI_CONFIG.temperature;
+    const SCRIPT_LENGTH = process.env.AI_SCRIPT_LENGTH || '30-45 second';
+
+    // Generate script using AI
+    const prompt = `Analyze the company name "${companyName}" and any additional context provided, then generate a compelling marketing video script.
+
+${additionalContext ? `Additional Context: ${additionalContext}` : ''}
+
+Your task:
+1. Determine the most likely industry/sector for this company
+2. Create a personalized, compelling ${SCRIPT_LENGTH} marketing message
+3. Suggest 3-4 text overlays that highlight key value propositions
+
+Return ONLY valid JSON in this exact format:
+{
+  "industry": "detected industry",
+  "targetAudience": "who this company serves",
+  "narrationScript": "full script for voice narration (${SCRIPT_LENGTH} when spoken)",
+  "keyMessage": "main value proposition",
+  "overlays": [
+    {"text": "First overlay text", "timing": "00:02"},
+    {"text": "Second overlay text", "timing": "00:10"},
+    {"text": "Third overlay text", "timing": "00:18"}
+  ],
+  "callToAction": "compelling call to action"
+}`;
+
+    logger.info(`🤖 Calling Anthropic API with model: ${AI_MODEL}`);
+
+    const message = await anthropic.messages.create({
+      model: AI_MODEL,
+      max_tokens: AI_MAX_TOKENS,
+      temperature: AI_TEMPERATURE,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+
+    // Extract and parse AI response
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    logger.info(`🤖 AI Response length: ${responseText.length} characters`);
+
+    let videoData;
+    try {
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+      videoData = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      logger.error('Failed to parse AI response:', parseError);
+      return res.status(500).json({
+        error: 'Failed to parse AI response',
+        details: parseError instanceof Error ? parseError.message : 'Unknown error'
+      });
+    }
+
+    logger.info(`✅ Script preview generated for ${companyName}`);
+
+    // Return preview data (no campaign created yet)
+    return res.json({
+      success: true,
+      preview: {
+        companyName,
+        industry: videoData.industry,
+        targetAudience: videoData.targetAudience,
+        narrationScript: videoData.narrationScript,
+        keyMessage: videoData.keyMessage,
+        overlays: videoData.overlays || [],
+        callToAction: videoData.callToAction
+      }
+    });
+
+  } catch (error) {
+    logger.error('❌ Error generating script preview:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+
+    logger.error('Error details:', { message: errorMessage, stack: errorStack });
+
+    return res.status(500).json({
+      error: 'Failed to generate script preview',
+      details: errorMessage
+    });
+  }
+});
+
+// POST /api/video-campaigns/regenerate-script - Regenerate script with different variation
+router.post('/regenerate-script', authenticate, async (req, res, next) => {
+  try {
+    const { companyName, additionalContext, currentScript } = req.body;
+
+    if (!companyName) {
+      return res.status(400).json({ error: 'Company name is required' });
+    }
+
+    logger.info(`🔄 Regenerating script for company: ${companyName}`);
+
+    // Check if AI is enabled
+    if (!AI_CONFIG.enabled || !AI_CONFIG.apiKey) {
+      logger.error('❌ ANTHROPIC_API_KEY not configured');
+      return res.status(500).json({
+        error: 'AI service not configured',
+        details: 'ANTHROPIC_API_KEY environment variable is missing'
+      });
+    }
+
+    // Get configuration
+    const AI_MODEL = AI_CONFIG.model;
+    const AI_MAX_TOKENS = AI_CONFIG.maxTokens.campaign || 2048;
+    const SCRIPT_LENGTH = process.env.AI_SCRIPT_LENGTH || '30-45 second';
+
+    const prompt = `Generate a NEW and DIFFERENT marketing video script for the company "${companyName}".
+
+${additionalContext ? `Additional Context: ${additionalContext}` : ''}
+
+Previous script (create something different):
+${currentScript}
+
+Requirements:
+1. Create a completely different angle/approach than the previous script
+2. Same ${SCRIPT_LENGTH} length
+3. Focus on different value propositions
+4. Use different messaging and tone
+
+Return ONLY valid JSON in this exact format:
+{
+  "industry": "detected industry",
+  "targetAudience": "who this company serves",
+  "narrationScript": "NEW script for voice narration",
+  "keyMessage": "main value proposition",
+  "overlays": [
+    {"text": "First overlay text", "timing": "00:02"},
+    {"text": "Second overlay text", "timing": "00:10"},
+    {"text": "Third overlay text", "timing": "00:18"}
+  ],
+  "callToAction": "compelling call to action"
+}`;
+
+    logger.info(`🤖 Calling Anthropic API for regeneration with model: ${AI_MODEL}`);
+
+    const message = await anthropic.messages.create({
+      model: AI_MODEL,
+      max_tokens: AI_MAX_TOKENS,
+      temperature: 0.9, // Higher temperature for more variation
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    });
+
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+    logger.info(`🤖 AI Response length: ${responseText.length} characters`);
+
+    let videoData;
+    try {
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+      videoData = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      logger.error('Failed to parse AI response:', parseError);
+      return res.status(500).json({
+        error: 'Failed to parse AI response',
+        details: parseError instanceof Error ? parseError.message : 'Unknown error'
+      });
+    }
+
+    logger.info(`✅ Script regenerated for ${companyName}`);
+
+    return res.json({
+      success: true,
+      preview: {
+        companyName,
+        industry: videoData.industry,
+        targetAudience: videoData.targetAudience,
+        narrationScript: videoData.narrationScript,
+        keyMessage: videoData.keyMessage,
+        overlays: videoData.overlays || [],
+        callToAction: videoData.callToAction
+      }
+    });
+
+  } catch (error) {
+    logger.error('❌ Error regenerating script:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+
+    logger.error('Error details:', { message: errorMessage, stack: errorStack });
+
+    return res.status(500).json({
+      error: 'Failed to regenerate script',
+      details: errorMessage
+    });
+  }
+});
+
+// POST /api/video-campaigns/generate-script-from-intent - Generate personalized script from intent signals
+router.post('/generate-script-from-intent', authenticate, async (req, res, next) => {
+  try {
+    const { companyId } = req.body;
+
+    if (!companyId) {
+      return res.status(400).json({ error: 'Company ID is required' });
+    }
+
+    logger.info(`🎯 Generating script from intent signals for company: ${companyId}`);
+
+    // Fetch company with intent signals
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      include: {
+        contacts: { take: 1 },
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'AI service not configured' });
+    }
+
+    const anthropicClient = new Anthropic({ apiKey });
+    const AI_MODEL = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022';
+
+    // Build intent context from company data
+    const intentContext = `
+Company Name: ${company.name}
+Industry: ${company.industry || 'Unknown'}
+Website: ${company.website || 'Unknown'}
+
+INTENT SIGNALS:
+- Business Intent: ${company.intent || 'Not available'}
+- Hiring Info: ${company.hiringInfo || 'Not available'}
+- Job Postings: ${company.jobPostings || 'Not available'}
+- Recent News: ${company.aiRecentNews || 'Not available'}
+- Tech Stack: ${company.techStack || 'Not available'}
+
+Primary Contact: ${company.contacts[0]?.firstName || 'Decision Maker'} ${company.contacts[0]?.lastName || ''}
+`;
+
+    const scriptPrompt = `You are an expert marketing copywriter creating a personalized video script for a sales outreach campaign.
+
+${intentContext}
+
+Create a compelling 30-45 second video narration script that:
+1. Addresses the company's specific business intent and current focus
+2. References relevant hiring needs or job postings (shows you did research)
+3. Mentions recent news/developments (demonstrates awareness)
+4. Connects their tech stack to your solution (technical relevance)
+5. Speaks directly to the decision-maker
+6. Has a clear call-to-action
+
+The script should sound natural, conversational, and personalized - NOT generic.
+Use the contact's first name if available.
+
+Return ONLY valid JSON in this exact format:
+{
+  "industry": "the company's industry",
+  "targetAudience": "the decision-maker/role",
+  "narrationScript": "the full 30-45 second script for voice narration",
+  "keyMessage": "main value proposition",
+  "overlays": [
+    {"text": "First key point", "timing": "00:02"},
+    {"text": "Second key point", "timing": "00:15"},
+    {"text": "Third key point", "timing": "00:28"}
+  ],
+  "callToAction": "specific next step for this company"
+}`;
+
+    logger.info('🤖 Calling Claude AI to generate personalized script...');
+
+    const response = await anthropicClient.messages.create({
+      model: AI_MODEL,
+      max_tokens: 2048,
+      temperature: 0.7,
+      messages: [
+        {
+          role: 'user',
+          content: scriptPrompt,
+        },
+      ],
+    });
+
+    const rawContent = response.content[0].type === 'text' ? response.content[0].text : '';
+    logger.info(`📝 AI Response: ${rawContent.substring(0, 200)}...`);
+
+    // Parse JSON response
+    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('Failed to parse AI response');
+    }
+
+    const scriptData = JSON.parse(jsonMatch[0]);
+
+    logger.info(`✅ Generated personalized script for ${company.name}`);
+
+    return res.json({
+      script: scriptData.narrationScript,
+      scriptData,
+      company: {
+        id: company.id,
+        name: company.name,
+      },
+    });
+  } catch (error: any) {
+    logger.error('❌ Failed to generate script from intent:', error);
+    return res.status(500).json({
+      error: 'Failed to generate script',
+      details: error.message,
+    });
+  }
+});
+
+// POST /api/video-campaigns/auto-generate - Fully automated video creation from company name
+router.post('/auto-generate', authenticate, async (req, res, next) => {
+  try {
+    const {
+      companyId, // NEW: For intent-based generation
+      companyName,
+      voiceId,
+      customVoiceUrl,
+      templateId,
+      videoLibraryId, // NEW: Use uploaded video from library
+      additionalContext,
+      script, // NEW: Pre-generated script from intent
+      name, // NEW: Campaign name
+      // Optional: pre-generated script data (from preview)
+      narrationScript,
+      industry,
+      targetAudience,
+      keyMessage,
+      overlays,
+      callToAction
+    } = req.body;
+
+    // Handle both old (companyName) and new (companyId) formats
+    let finalCompanyName = companyName;
+    let finalCompanyId = companyId;
+
+    if (companyId) {
+      // New flow: Load company from database
+      const company = await prisma.company.findUnique({
+        where: { id: companyId },
+        include: { contacts: { take: 1 } },
+      });
+      if (!company) {
+        return res.status(404).json({ error: 'Company not found' });
+      }
+      finalCompanyName = company.name;
+      logger.info(`🎯 Using company from database: ${company.name}`);
+    }
+
+    if (!finalCompanyName) {
+      return res.status(400).json({ error: 'Company name or ID is required' });
+    }
+
+    // Voice is optional now - will use default if not provided
+    const defaultVoiceId = 'Matthew'; // ElevenLabs default
+    const effectiveVoiceId = voiceId || customVoiceUrl || defaultVoiceId;
+    logger.info(`🎤 Using voice: ${effectiveVoiceId}`);
+
+    // templateId is now OPTIONAL - if not provided, we'll use Pexels to auto-generate footage
+    if (templateId) {
+      logger.info(`🎨 Template selected: ${templateId}`);
+    } else {
+      logger.info(`🎬 No template selected - will use Pexels for automatic footage generation`);
+    }
+
+    logger.info(`🤖 Starting automated video generation for company: ${finalCompanyName}`);
+
+    // Check if script was provided (from intent-based generation or preview)
+    let videoData;
+    if (script) {
+      // NEW: Script provided from intent-based generation
+      logger.info('✅ Using pre-generated script from intent signals');
+      videoData = {
+        industry: industry || 'Technology',
+        targetAudience: targetAudience || 'Business Decision Makers',
+        narrationScript: script,
+        keyMessage: keyMessage || 'Personalized outreach',
+        overlays: overlays || [],
+        callToAction: callToAction || 'Schedule a demo'
+      };
+    } else if (narrationScript && industry) {
+      logger.info('✅ Using pre-generated script data from preview');
+      videoData = {
+        industry,
+        targetAudience,
+        narrationScript,
+        keyMessage,
+        overlays: overlays || [],
+        callToAction
+      };
+    } else {
+      // Generate script using AI
+      logger.info('🔍 No pre-generated script provided, generating now...');
+
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        logger.error('❌ ANTHROPIC_API_KEY not found in environment');
+        return res.status(500).json({
+          error: 'AI service not configured',
+          details: 'ANTHROPIC_API_KEY environment variable is missing',
+          message: 'Please contact support'
+        });
+      }
+
+      const anthropicClient = new Anthropic({ apiKey });
+      const AI_MODEL = process.env.ANTHROPIC_MODEL || AI_CONFIG.model || 'claude-3-5-sonnet-20241022';
+      const AI_MAX_TOKENS = parseInt(process.env.AI_MAX_TOKENS_CAMPAIGN || '2048');
+      const AI_TEMPERATURE = parseFloat(process.env.AI_TEMPERATURE || '0.7');
+      const SCRIPT_LENGTH = process.env.AI_SCRIPT_LENGTH || '30-45 second';
+
+      // Step 1: Detect company industry and generate compelling message using AI
+      const industryDetectionPrompt = `Analyze the company name "${companyName}" and any additional context provided, then generate a compelling marketing video script.
+
+${additionalContext ? `Additional Context: ${additionalContext}` : ''}
+
+Your task:
+1. Determine the most likely industry/sector for this company
+2. Create a personalized, compelling ${SCRIPT_LENGTH} marketing message
+3. Suggest 3-4 text overlays that highlight key value propositions
+
+Return ONLY valid JSON in this exact format:
+{
+  "industry": "detected industry",
+  "targetAudience": "who this company serves",
+  "narrationScript": "full script for voice narration (${SCRIPT_LENGTH} when spoken)",
+  "keyMessage": "main value proposition",
+  "overlays": [
+    {"text": "First overlay text", "timing": "00:02"},
+    {"text": "Second overlay text", "timing": "00:10"},
+    {"text": "Third overlay text", "timing": "00:20"}
+  ],
+  "callToAction": "suggested CTA"
+}`;
+
+    logger.info('🔍 Detecting industry and generating script...');
+    logger.info(`Using AI Model: ${AI_MODEL}, API Key length: ${apiKey.length}`);
+
+    let aiResponse;
+    try {
+      aiResponse = await anthropicClient.messages.create({
+        model: AI_MODEL,
+        max_tokens: AI_MAX_TOKENS,
+        temperature: AI_TEMPERATURE,
+        system: 'You are an expert marketing strategist and copywriter. Generate compelling, professional marketing content that resonates with the target audience.',
+        messages: [{
+          role: 'user',
+          content: industryDetectionPrompt
+        }]
+      });
+      logger.info('✅ AI API call successful');
+    } catch (aiError) {
+      logger.error('❌ AI API call failed:', aiError);
+      logger.error('API Key exists:', !!apiKey, 'Length:', apiKey?.length);
+      return res.status(500).json({
+        error: 'AI service unavailable',
+        details: aiError instanceof Error ? aiError.message : 'Failed to connect to AI service',
+        message: 'Please try again later or contact support'
+      });
+    }
+
+    const aiText = aiResponse.content[0].type === 'text' ? aiResponse.content[0].text : '';
+    logger.info(`✅ AI Response received (length: ${aiText.length})`);
+
+    // Parse AI response
+    let videoData;
+    try {
+      const cleanedResponse = aiText.trim();
+      const firstBrace = cleanedResponse.indexOf('{');
+      const lastBrace = cleanedResponse.lastIndexOf('}');
+
+      if (firstBrace === -1 || lastBrace === -1) {
+        throw new Error('No JSON found in AI response');
+      }
+
+      const jsonString = cleanedResponse.substring(firstBrace, lastBrace + 1);
+      videoData = JSON.parse(jsonString);
+      logger.info('✅ Parsed AI response successfully');
+    } catch (parseError) {
+      logger.error('Failed to parse AI response:', parseError);
+      return res.status(500).json({
+        error: 'Failed to parse AI response',
+        details: parseError instanceof Error ? parseError.message : 'Unknown error'
+      });
+    }
+    } // End of else block (AI generation)
+
+    // Step 2: Transform overlays to match schema format
+    // AI returns: {text, timing: "00:02"}
+    // Schema expects: {text, startTime, duration, fontSize, color, position}
+
+    // Get overlay defaults from environment or use sensible defaults
+    const OVERLAY_DURATION = parseInt(process.env.VIDEO_OVERLAY_DURATION || '3');
+    const OVERLAY_FONT_SIZE = parseInt(process.env.VIDEO_OVERLAY_FONT_SIZE || '100');
+    const OVERLAY_COLOR = process.env.VIDEO_OVERLAY_COLOR || '#FFFFFF';
+    const OVERLAY_STROKE_COLOR = process.env.VIDEO_OVERLAY_STROKE_COLOR || '#000000';
+    const OVERLAY_STROKE_WIDTH = parseInt(process.env.VIDEO_OVERLAY_STROKE_WIDTH || '3');
+    const OVERLAY_POSITION = process.env.VIDEO_OVERLAY_POSITION || 'center';
+    const OVERLAY_INTERVAL = parseInt(process.env.VIDEO_OVERLAY_INTERVAL || '10');
+
+    const transformedOverlays = (videoData.overlays || []).map((overlay: any, index: number) => {
+      // Parse timing string (e.g., "00:02" -> 2 seconds)
+      const timingMatch = overlay.timing?.match(/(\d+):(\d+)/);
+      const startTime = timingMatch
+        ? parseInt(timingMatch[1]) * 60 + parseInt(timingMatch[2])
+        : index * OVERLAY_INTERVAL;
+
+      return {
+        text: overlay.text,
+        startTime: startTime,
+        duration: OVERLAY_DURATION,
+        fontSize: OVERLAY_FONT_SIZE,
+        color: OVERLAY_COLOR,
+        strokeColor: OVERLAY_STROKE_COLOR,
+        strokeWidth: OVERLAY_STROKE_WIDTH,
+        position: OVERLAY_POSITION
+      };
+    });
+
+    // Step 2.5: Load User-Selected Template OR Auto-Generate from Pexels
+    let selectedTemplate = null;
+    let pexelsVideoUrl = null;
+
+    if (templateId) {
+      // User selected a template - use it
+      logger.info(`🎨 Loading user-selected template: ${templateId}`);
+
+      try {
+        selectedTemplate = await prisma.videoTemplate.findUnique({
+          where: { id: templateId },
+        });
+
+        if (!selectedTemplate) {
+          return res.status(400).json({ error: 'Selected template not found' });
+        }
+
+        logger.info(`✅ Using template: ${selectedTemplate.name} (Category: ${selectedTemplate.category})`);
+
+        // Update usage count
+        await prisma.videoTemplate.update({
+          where: { id: selectedTemplate.id },
+          data: { usageCount: { increment: 1 } },
+        });
+      } catch (templateError) {
+        logger.error('Error querying templates:', templateError);
+        return res.status(500).json({ error: 'Failed to load template' });
+      }
+    } else {
+      // No template selected - auto-generate using Pexels based on script/industry
+      logger.info(`🎬 Auto-generating video footage from Pexels API...`);
+
+      const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
+      if (!PEXELS_API_KEY) {
+        return res.status(500).json({
+          error: 'Pexels API not configured',
+          details: 'Please add PEXELS_API_KEY to environment variables'
+        });
+      }
+
+      try {
+        // Generate search query from industry and script keywords
+        const searchQuery = `${videoData.industry} ${videoData.targetAudience} business professional`.trim();
+        logger.info(`🔍 Searching Pexels for: "${searchQuery}"`);
+
+        const pexelsResponse = await fetch(
+          `https://api.pexels.com/videos/search?query=${encodeURIComponent(searchQuery)}&per_page=5&orientation=landscape`,
+          {
+            headers: { Authorization: PEXELS_API_KEY }
+          }
+        );
+
+        if (!pexelsResponse.ok) {
+          throw new Error(`Pexels API failed with status ${pexelsResponse.status}`);
+        }
+
+        const pexelsData: any = await pexelsResponse.json();
+
+        if (!pexelsData.videos || pexelsData.videos.length === 0) {
+          logger.warn(`No Pexels videos found for "${searchQuery}", trying generic search...`);
+
+          // Fallback to generic business search
+          const fallbackResponse = await fetch(
+            `https://api.pexels.com/videos/search?query=business%20corporate%20office&per_page=5&orientation=landscape`,
+            {
+              headers: { Authorization: PEXELS_API_KEY }
+            }
+          );
+
+          const fallbackData: any = await fallbackResponse.json();
+          if (fallbackData.videos && fallbackData.videos.length > 0) {
+            const bestVideo = fallbackData.videos[0];
+            const hdFile = bestVideo.video_files.find((f: any) => f.quality === 'hd' && f.width >= 1920) || bestVideo.video_files[0];
+            pexelsVideoUrl = hdFile.link;
+            logger.info(`✅ Using fallback Pexels video: ${pexelsVideoUrl}`);
+          } else {
+            throw new Error('No suitable video clips found from Pexels');
+          }
+        } else {
+          // Select best quality video
+          const bestVideo = pexelsData.videos[0];
+          const hdFile = bestVideo.video_files.find((f: any) => f.quality === 'hd' && f.width >= 1920) || bestVideo.video_files[0];
+          pexelsVideoUrl = hdFile.link;
+
+          logger.info(`✅ Found ${pexelsData.videos.length} Pexels videos, using: ${pexelsVideoUrl}`);
+        }
+      } catch (pexelsError) {
+        logger.error('Pexels API error:', pexelsError);
+        return res.status(500).json({
+          error: 'Failed to fetch video footage from Pexels',
+          details: pexelsError instanceof Error ? pexelsError.message : 'Unknown error',
+          message: 'Please try selecting a template manually or contact support'
+        });
+      }
+    }
+
+    // Step 2.6: Use User-Selected Voice
+    logger.info(`🎤 Using user-selected voice: ${voiceId || 'Custom Voice'}`);
+
+    // Step 2.7: Intelligent Overlay Timing based on Script Analysis
+    logger.info('📊 Analyzing script for intelligent overlay timing...');
+
+    const scriptWords = videoData.narrationScript.split(/\s+/).length;
+    const wordsPerMinute = parseInt(process.env.VIDEO_WORDS_PER_MINUTE || '150'); // Average speaking pace
+    const estimatedDurationSeconds = Math.ceil((scriptWords / wordsPerMinute) * 60);
+
+    logger.info(`📝 Script: ${scriptWords} words, estimated duration: ${estimatedDurationSeconds}s at ${wordsPerMinute} WPM`);
+
+    // Redistribute overlays evenly across the estimated duration
+    const overlayCount = transformedOverlays.length;
+    const intelligentOverlays = transformedOverlays.map((overlay: any, index: number) => {
+      // Distribute overlays evenly: appear at 20%, 40%, 60%, 80% of video duration
+      // Leave first 2 seconds and last 3 seconds without overlays
+      const usableDuration = estimatedDurationSeconds - 5; // Reserve start and end
+      const intervalPercent = usableDuration / (overlayCount + 1);
+      const startTime = Math.floor(2 + (intervalPercent * (index + 1))); // Start after 2s intro
+
+      // Calculate duration based on text length (longer text = longer display)
+      const textLength = overlay.text.length;
+      const baseDuration = parseInt(process.env.VIDEO_OVERLAY_DURATION || '3');
+      const duration = textLength > 40 ? baseDuration + 1 : baseDuration; // +1s for long text
+
+      return {
+        ...overlay,
+        startTime,
+        duration,
+      };
+    });
+
+    logger.info(`⏱️  Redistributed ${overlayCount} overlays across ${estimatedDurationSeconds}s duration`);
+
+    logger.info(`📹 Creating video campaign with user selections...`);
+
+    // NEW: Handle video library video
+    let videoLibraryVideo = null;
+    if (videoLibraryId) {
+      videoLibraryVideo = await prisma.videoTemplate.findUnique({
+        where: { id: videoLibraryId },
+      });
+      if (!videoLibraryVideo) {
+        return res.status(404).json({ error: 'Video library video not found' });
+      }
+      logger.info(`📹 Using video from library: ${videoLibraryVideo.name}`);
+    }
+
+    let campaign;
+    try {
+      campaign = await prisma.videoCampaign.create({
+        data: {
+          name: name || `${finalCompanyName} - Auto Generated`,
+          userId: req.user!.id,
+          narrationScript: videoData.narrationScript,
+          voiceId: effectiveVoiceId || undefined,
+          customVoiceUrl: customVoiceUrl || undefined,
+          status: 'DRAFT',
+          textOverlays: intelligentOverlays, // ← Intelligent overlay timing
+          templateId: selectedTemplate?.id || videoLibraryVideo?.id || undefined, // Use video library or template
+          customVideoUrl: videoLibraryVideo?.videoUrl || pexelsVideoUrl || selectedTemplate?.videoUrl || undefined,
+          videoSource: videoLibraryVideo ? 'TEMPLATE' : (pexelsVideoUrl ? 'URL' : 'TEMPLATE'),
+        },
+      });
+      logger.info(`✅ Campaign created successfully: ${campaign.id}`);
+      logger.info(`   Template: ${selectedTemplate?.name || videoLibraryVideo?.name || 'Auto-generated from Pexels'}`);
+      logger.info(`   Video URL: ${videoLibraryVideo?.videoUrl || pexelsVideoUrl || selectedTemplate?.videoUrl}`);
+      logger.info(`   Voice: ${effectiveVoiceId || 'Custom Voice'}`);
+      logger.info(`   Overlays: ${overlayCount} intelligently timed`);
+
+      // NEW: Link company to campaign if companyId provided
+      if (finalCompanyId) {
+        await prisma.videoCampaignCompany.create({
+          data: {
+            campaignId: campaign.id,
+            companyId: finalCompanyId,
+          },
+        });
+        logger.info(`✅ Linked company ${finalCompanyId} to campaign ${campaign.id}`);
+      }
+    } catch (dbError) {
+      logger.error('❌ Database creation failed:', dbError);
+      return res.status(500).json({
+        error: 'Failed to create video campaign',
+        details: dbError instanceof Error ? dbError.message : 'Database error',
+        message: 'Please check the campaign data and try again'
+      });
+    }
+
+    // Step 3: Trigger video generation
+    logger.info('🎬 Triggering video generation...');
+
+    try {
+      // Call the video generation endpoint
+      // Note: We don't pass templateId here because it's already set in the campaign
+      const baseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
+
+      const generationResponse = await fetch(`${baseUrl}/api/video-campaigns/${campaign.id}/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': req.headers.authorization || '',
+        },
+        body: JSON.stringify({}), // Empty body - campaign already has all necessary data
+      });
+
+      if (!generationResponse.ok) {
+        const errorData = await generationResponse.json() as { error?: string };
+        throw new Error(errorData.error || 'Video generation failed');
+      }
+
+      const generationResult = await generationResponse.json();
+      logger.info('✅ Video generation started:', generationResult);
+
+      // Return success response with campaign details and intelligent selections
+      return res.json({
+        success: true,
+        message: 'Automated video generation started successfully',
+        campaign: {
+          id: campaign.id,
+          name: campaign.name,
+          industry: videoData.industry,
+          targetAudience: videoData.targetAudience,
+          narrationScript: videoData.narrationScript,
+          keyMessage: videoData.keyMessage,
+          callToAction: videoData.callToAction,
+          overlays: videoData.overlays,
+          status: 'GENERATING',
+        },
+        userSelections: {
+          template: selectedTemplate ? {
+            id: selectedTemplate.id,
+            name: selectedTemplate.name,
+            category: selectedTemplate.category,
+          } : {
+            id: 'auto-generated',
+            name: 'Auto-generated from Pexels',
+            category: 'AI-Generated',
+            source: 'Pexels API',
+            query: `${videoData.industry} ${videoData.targetAudience}`,
+          },
+          voice: {
+            id: voiceId || customVoiceUrl,
+            type: voiceId ? 'ElevenLabs' : 'Custom',
+          },
+          overlayTiming: {
+            count: overlayCount,
+            estimatedDuration: `${estimatedDurationSeconds}s`,
+            method: 'Intelligently distributed based on script analysis',
+          },
+        },
+        estimatedCompletionTime: `${Math.ceil(estimatedDurationSeconds / 60)} minutes`,
+      });
+    } catch (genError) {
+      logger.error('Error triggering video generation:', genError);
+
+      // Update campaign status to failed
+      await prisma.videoCampaign.update({
+        where: { id: campaign.id },
+        data: { status: 'FAILED' },
+      });
+
+      return res.status(500).json({
+        error: 'Failed to generate video',
+        details: genError instanceof Error ? genError.message : 'Unknown error',
+        campaignId: campaign.id,
+      });
+    }
+  } catch (error) {
+    logger.error('Error in automated video generation:', error);
+
+    // Provide detailed error information
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
+
+    logger.error('Error details:', { errorMessage, errorStack });
+
+    return res.status(500).json({
+      error: 'Automated video generation failed',
+      details: errorMessage,
+      message: 'Please check the server logs for more information'
+    });
+  }
+});
+
+// ============================================
+// AI VIDEO GENERATION (Kling AI + GPT-4)
+// ============================================
+
+import { klingAIService } from '../services/klingAI.service';
+import { scriptEnhancementService } from '../services/scriptEnhancement.service';
+
+// POST /api/video-campaigns/ai/generate-complete
+// Complete AI video generation pipeline: Script enhancement → Kling AI video → ElevenLabs voice → FFmpeg composition
+router.post('/ai/generate-complete', authenticate, async (req, res, next) => {
+  try {
+    const {
+      videoDescription,
+      voiceoverScript,
+      industry,
+      targetAudience,
+      tone = 'professional',
+      style = 'professional',
+      duration = 15,
+      voiceId,
+      customVoiceUrl,
+      bgmUrl,
+      textOverlays: requestTextOverlays,
+      textLayovers, // Accept both naming conventions
+      clientLogoUrl,
+      userLogoUrl,
+      customVideoUrl, // User's uploaded video URL
+    } = req.body;
+
+    // Support both textOverlays and textLayovers (for backwards compatibility)
+    const textOverlays = requestTextOverlays || textLayovers || [];
+
+    const userId = (req.user as any)?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    if (!voiceoverScript) {
+      return res.status(400).json({
+        error: 'voiceoverScript is required',
+      });
+    }
+
+    logger.info('🎬 Starting complete AI video generation', {
+      userId,
+      industry,
+      duration,
+      hasCustomVideo: !!customVideoUrl,
+    });
+
+    // Step 1: Enhance script with GPT-4 (5 seconds)
+    logger.info('✨ Enhancing script with GPT-4...');
+    const enhancement = await scriptEnhancementService.enhanceScript({
+      script: voiceoverScript,
+      industry,
+      targetAudience,
+      tone: tone as any,
+      maxLength: duration === 15 ? 50 : duration * 3, // ~3 words per second
+    });
+
+    logger.info('✅ Script enhanced', {
+      originalWords: voiceoverScript.split(' ').length,
+      enhancedWords: enhancement.enhancedScript.split(' ').length,
+      estimatedDuration: enhancement.estimatedDuration,
+    });
+
+    // Step 2: Determine video source
+    let generatedVideoUrl: string;
+    let videoSource: string = 'kling-ai';
+
+    // If user provided their own video, skip AI generation entirely
+    if (customVideoUrl) {
+      logger.info('📹 Using user-provided custom video URL', { customVideoUrl });
+      generatedVideoUrl = customVideoUrl;
+      videoSource = 'custom-upload';
+    } else {
+      // Step 2: Generate video with Kling AI (with Stable Video Diffusion fallback)
+      logger.info('🎬 Attempting video generation with Kling AI...');
+
+    try {
+      generatedVideoUrl = await klingAIService.generateVideo({
+        prompt: enhancement.videoPrompt,
+        duration: duration === 5 ? 5 : 10, // Kling AI only supports 5 or 10 seconds
+        aspectRatio: '16:9',
+        // Note: model parameter can be used to select kling-v1, v1-6, v2-master, etc.
+      });
+
+      logger.info('✅ Kling AI video generated', { videoUrl: generatedVideoUrl });
+    } catch (klingError: any) {
+      logger.warn('⚠️  Kling AI failed, trying LongCat-Video (self-hosted)...', {
+        error: klingError.message,
+      });
+
+      // Fallback Tier 2: LongCat-Video (Self-Hosted, State-of-the-art, FREE)
+      try {
+        const { longcatVideoService } = require('../services/longcatVideo.service');
+
+        generatedVideoUrl = await longcatVideoService.generateVideo({
+          prompt: enhancement.videoPrompt,
+          duration: duration,
+          aspectRatio: '16:9',
+          guidanceScale: 7.5,
+          numInferenceSteps: 50,
+        });
+
+        videoSource = 'longcat-video';
+        logger.info('✅ LongCat-Video generated', { videoUrl: generatedVideoUrl });
+      } catch (longcatError: any) {
+        logger.warn('⚠️  LongCat-Video failed, trying Stable Video Diffusion (HuggingFace)...', {
+          error: longcatError.message,
+        });
+
+        // Fallback Tier 3: Stable Video Diffusion (Hugging Face - FREE)
+        try {
+          const { stableVideoDiffusionService } = require('../services/stableVideoDiffusion.service');
+
+          generatedVideoUrl = await stableVideoDiffusionService.generateVideo({
+            prompt: enhancement.videoPrompt,
+            duration: duration,
+            aspectRatio: '16:9',
+            numFrames: duration === 5 ? 35 : 70, // 7fps * duration
+            fps: 7,
+          });
+
+          videoSource = 'stable-video-diffusion';
+          logger.info('✅ Stable Video Diffusion video generated', { videoUrl: generatedVideoUrl });
+        } catch (svdError: any) {
+          logger.warn('⚠️  Stable Video Diffusion failed, using Pexels stock footage (final fallback)...', {
+            error: svdError.message,
+          });
+
+          // Fallback Tier 4: Pexels (Stock Footage - ALWAYS WORKS)
+          try {
+            const PEXELS_API_KEY = process.env.PEXELS_API_KEY;
+            if (!PEXELS_API_KEY) {
+              throw new Error('Pexels API not configured');
+            }
+
+            // Search Pexels for multiple clips to concatenate into full duration
+            const searchQuery = `${industry} business professional`.trim();
+            const targetDuration = duration || 15;
+            const clipsNeeded = Math.ceil(targetDuration / 5); // Assume 5sec per clip average
+
+            logger.info(`🔍 Searching Pexels for ${clipsNeeded} clips to reach ${targetDuration}s: "${searchQuery}"`);
+
+            const pexelsResponse = await fetch(
+              `https://api.pexels.com/videos/search?query=${encodeURIComponent(searchQuery)}&per_page=${clipsNeeded}&orientation=landscape`,
+              {
+                headers: { Authorization: PEXELS_API_KEY }
+              }
+            );
+
+            if (!pexelsResponse.ok) {
+              throw new Error(`Pexels API failed with status ${pexelsResponse.status}`);
+            }
+
+            const pexelsData: any = await pexelsResponse.json();
+
+            if (!pexelsData.videos || pexelsData.videos.length === 0) {
+              // Final fallback: generic business video
+              const fallbackResponse = await fetch(
+                `https://api.pexels.com/videos/search?query=business%20corporate%20office&per_page=${clipsNeeded}&orientation=landscape`,
+                { headers: { Authorization: PEXELS_API_KEY } }
+              );
+              const fallbackData: any = await fallbackResponse.json();
+              if (fallbackData.videos && fallbackData.videos.length > 0) {
+                // Get multiple clips for concatenation (comma-separated URLs)
+                const videoUrls = fallbackData.videos.slice(0, clipsNeeded).map((video: any) => {
+                  const hdFile = video.video_files.find((f: any) => f.quality === 'hd' && f.width >= 1920) || video.video_files[0];
+                  return hdFile.link;
+                });
+                generatedVideoUrl = videoUrls.join(',');
+                logger.info(`✅ Using ${videoUrls.length} fallback Pexels clips for ${targetDuration}s video`);
+              } else {
+                throw new Error('No suitable video clips found from Pexels');
+              }
+            } else {
+              // Get multiple clips for concatenation (comma-separated URLs)
+              const videoUrls = pexelsData.videos.slice(0, clipsNeeded).map((video: any) => {
+                const hdFile = video.video_files.find((f: any) => f.quality === 'hd' && f.width >= 1920) || video.video_files[0];
+                return hdFile.link;
+              });
+              generatedVideoUrl = videoUrls.join(',');
+              logger.info(`✅ Found ${videoUrls.length} Pexels clips for ${targetDuration}s video`);
+            }
+
+            videoSource = 'pexels-stock';
+            logger.info('✅ Pexels stock footage selected (final fallback successful)');
+          } catch (pexelsError: any) {
+            logger.error('❌ ALL video generation tiers failed (including Pexels)', {
+              klingError: klingError.message,
+              longcatError: longcatError.message,
+              svdError: svdError.message,
+              pexelsError: pexelsError.message,
+            });
+
+            throw new Error(
+              `Complete video generation failure: Kling (${klingError.message}), LongCat (${longcatError.message}), SVD (${svdError.message}), Pexels (${pexelsError.message})`
+            );
+          }
+        }
+      }
+    }
+    } // End of else block for AI video generation
+
+    // Step 3: Create campaign in database
+    // Normalize voice ID - ensure it has 'elevenlabs:' prefix if provided
+    const normalizedVoiceId = voiceId
+      ? (voiceId.startsWith('elevenlabs:') ? voiceId : `elevenlabs:${voiceId}`)
+      : undefined;
+
+    const campaign = await prisma.videoCampaign.create({
+      data: {
+        userId,
+        name: `AI Generated - ${industry || 'Video'} (${videoSource})`,
+        narrationScript: enhancement.enhancedScript,
+        customVideoUrl: generatedVideoUrl,
+        voiceId: normalizedVoiceId,
+        customVoiceUrl: customVoiceUrl || undefined,
+        bgmUrl: bgmUrl || undefined,
+        clientLogoUrl: clientLogoUrl || undefined,
+        userLogoUrl: userLogoUrl || undefined,
+        textOverlays: textOverlays as any,
+        status: 'GENERATING',
+      },
+    });
+
+    logger.info('📝 Campaign created in database', { campaignId: campaign.id });
+
+    // Step 4: Trigger video generation with voiceover (using existing video-generator service)
+    // Call the existing /api/video-campaigns/:id/generate endpoint
+    const VIDEO_GENERATOR_SERVICE_URL = process.env.VIDEO_GENERATOR_SERVICE_URL || 'http://localhost:5002';
+
+    try {
+      const axios = require('axios');
+      const videoGenResponse = await axios.post(
+        `${VIDEO_GENERATOR_SERVICE_URL}/api/video/generate`,
+        {
+          campaignId: campaign.id,
+          narrationScript: enhancement.enhancedScript,
+          templateUrl: generatedVideoUrl,
+          voiceId: voiceId,
+          customVoiceUrl: customVoiceUrl,
+          clientLogoUrl: clientLogoUrl,
+          userLogoUrl: userLogoUrl,
+          bgmUrl: bgmUrl,
+          textOverlays: textOverlays,
+        },
+        {
+          timeout: 10000,
+        }
+      );
+
+      logger.info('✅ Video generation job queued', {
+        jobId: videoGenResponse.data.jobId,
+      });
+
+      return res.json({
+        success: true,
+        campaign: {
+          id: campaign.id,
+          name: campaign.name,
+          narrationScript: campaign.narrationScript,
+          customVideoUrl: campaign.customVideoUrl,
+          status: campaign.status,
+        },
+        enhancement: {
+          originalScript: voiceoverScript,
+          enhancedScript: enhancement.enhancedScript,
+          improvements: enhancement.improvements,
+          estimatedDuration: enhancement.estimatedDuration,
+        },
+        videoPrompt: enhancement.videoPrompt,
+        message: 'AI video generation started. Video will be ready in ~2-3 minutes.',
+      });
+    } catch (videoError: any) {
+      logger.error('❌ Video service error:', videoError);
+
+      // Update campaign status to FAILED
+      await prisma.videoCampaign.update({
+        where: { id: campaign.id },
+        data: {
+          status: 'FAILED',
+          generationError: 'Video composition service unavailable',
+        },
+      });
+
+      return res.status(503).json({
+        error: 'Video generation service unavailable',
+        details: videoError.message,
+        campaign: {
+          id: campaign.id,
+          customVideoUrl: generatedVideoUrl, // User can still see the base AI-generated video
+        },
+      });
+    }
+  } catch (error: any) {
+    console.error('❌❌❌ COMPLETE AI VIDEO GENERATION FAILED ❌❌❌');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Full error:', JSON.stringify(error, null, 2));
+    logger.error('❌ Complete AI video generation failed:', error);
+
+    return res.status(500).json({
+      error: 'AI video generation failed',
+      details: error.message,
+      stack: error.stack,
+      message: 'Please try again or contact support if the issue persists',
+    });
+  }
+});
+
+// POST /api/video-campaigns/ai/kling-video-only
+// Generate video using Kling AI only (no script enhancement, no campaign creation)
+router.post('/ai/kling-video-only', authenticate, async (req, res, next) => {
+  try {
+    const { prompt, duration = 10, aspectRatio = '16:9', mode = 'standard' } = req.body;
+
+    const userId = (req.user as any)?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'User not authenticated' });
+    }
+
+    if (!prompt) {
+      return res.status(400).json({
+        error: 'prompt is required',
+      });
+    }
+
+    logger.info('🎬 Starting Kling AI video generation (video-only mode)', {
+      userId,
+      promptLength: prompt.length,
+      duration,
+    });
+
+    // Generate video with Kling AI
+    const videoUrl = await klingAIService.generateVideo({
+      prompt,
+      duration: duration === 5 ? 5 : 10, // Kling AI only supports 5 or 10 seconds
+      aspectRatio: aspectRatio as any,
+      // Note: model parameter can be used to select kling-v1, v1-6, v2-master, etc.
+    });
+
+    logger.info('✅ Kling AI video generated successfully', { videoUrl });
+
+    return res.json({
+      success: true,
+      videoUrl,
+      duration,
+      message: 'Video generated successfully with Kling AI',
+    });
+  } catch (error: any) {
+    console.error('❌❌❌ KLING AI VIDEO-ONLY GENERATION FAILED ❌❌❌');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    logger.error('❌ Kling AI video-only generation failed:', error);
+
+    return res.status(500).json({
+      error: 'Kling AI video generation failed',
+      details: error.message,
+      message: 'Please try again or contact support if the issue persists',
+    });
+  }
+});
+
+// POST /api/video-campaigns/ai/enhance-script
+// Standalone script enhancement endpoint (for testing or preview)
+router.post('/ai/enhance-script', authenticate, async (req, res, next) => {
+  try {
+    const { script, industry, targetAudience, tone, maxLength } = req.body;
+
+    if (!script) {
+      return res.status(400).json({ error: 'script is required' });
+    }
+
+    logger.info('✨ Enhancing script...', { scriptLength: script.length });
+
+    const enhancement = await scriptEnhancementService.enhanceScript({
+      script,
+      industry,
+      targetAudience,
+      tone,
+      maxLength,
+    });
+
+    return res.json({
+      success: true,
+      original: script,
+      enhanced: enhancement.enhancedScript,
+      improvements: enhancement.improvements,
+      estimatedDuration: enhancement.estimatedDuration,
+      videoPrompt: enhancement.videoPrompt,
+    });
+  } catch (error: any) {
+    logger.error('❌ Script enhancement failed:', error);
+    return res.status(500).json({
+      error: 'Script enhancement failed',
+      details: error.message,
+    });
+  }
+});
+
+// GET /api/video-campaigns/ai/status
+// Check if AI services are configured and available
+router.get('/ai/status', authenticate, async (req, res) => {
+  return res.json({
+    klingAI: {
+      configured: klingAIService.isConfigured(),
+      available: klingAIService.isConfigured(),
+    },
+    scriptEnhancement: {
+      configured: scriptEnhancementService.isConfigured(),
+      available: scriptEnhancementService.isConfigured(),
+    },
+    message: klingAIService.isConfigured() && scriptEnhancementService.isConfigured()
+      ? 'All AI services are ready'
+      : 'Some AI services are not configured. Please check environment variables.',
+  });
+});
+
+export default router;

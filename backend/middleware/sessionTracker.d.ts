@@ -1,0 +1,30 @@
+import { Request, Response, NextFunction } from 'express';
+export declare const trackSessionActivity: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare function createUserSession(userId: string, token: string, req: Request): Promise<{
+    id: string;
+    isActive: boolean;
+    userId: string;
+    ipAddress: string;
+    userAgent: string;
+    browser: string | null;
+    browserVersion: string | null;
+    os: string | null;
+    osVersion: string | null;
+    device: string | null;
+    country: string | null;
+    sessionToken: string;
+    refreshToken: string | null;
+    loginAt: Date;
+    logoutAt: Date | null;
+    expiresAt: Date;
+    region: string | null;
+    city: string | null;
+    lastActivityAt: Date;
+    totalDuration: number;
+    pageViews: number;
+    actionsCount: number;
+    endedReason: string | null;
+}>;
+export declare function endUserSession(userId: string, token: string, reason?: 'logout' | 'timeout' | 'expired' | 'forced'): Promise<void>;
+export declare function cleanupExpiredSessions(): Promise<void>;
+//# sourceMappingURL=sessionTracker.d.ts.map
