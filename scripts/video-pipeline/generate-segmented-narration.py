@@ -111,7 +111,7 @@ def script_for(kit: dict) -> dict:
         # ~6s, ~80 chars
         "s2d": "Four service lines. NetSuite. ArthaBuild AI. Consulting. Staffing.",
         # ~7s, ~110 chars
-        "s3": f"Want a deeper read, {first}? Reply or open the link. Peter at TechCloudPro.",
+        "s3": f"Want a deeper read, {first}? Reply or open the link. Sara at TechCloudPro.",
     }
 
 
