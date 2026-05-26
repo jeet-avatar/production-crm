@@ -1,0 +1,111 @@
+<!doctype html>
+<!-- TCP v6 scene 1 - Opener (3s)
+     Placeholders substituted by render-v6.sh:
+       __COMPANYNAME__, __FIRSTNAME__, __LOGO_DATA_URL__
+     Pure inline CSS - NO Tailwind CDN (race condition in headless Chrome).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TCP v6 / __COMPANYNAME__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after { box-sizing: border-box; margin:0; padding:0; }
+  html, body { width:100%; height:100%; }
+  body {
+    background: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    color: #0F172A;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .frame {
+    width: 1080px; height: 1080px;
+    background:
+      radial-gradient(ellipse at top right, rgba(249,115,22,0.06), transparent 50%),
+      radial-gradient(ellipse at bottom left, rgba(15,23,42,0.04), transparent 50%),
+      #F8FAFC;
+    display: flex; flex-direction: column;
+    padding: 96px 88px;
+    position: relative;
+  }
+  .topbar { display:flex; align-items:center; gap:18px; }
+  .tcp-mark {
+    height: 36px; width: 36px;
+    background: linear-gradient(135deg, #F97316, #FB923C);
+    border-radius: 9px;
+    display:flex; align-items:center; justify-content:center;
+    font-size: 19px; font-weight: 800; color: #FFF;
+    letter-spacing: -0.02em;
+  }
+  .tcp-text { font-size: 17px; font-weight: 700; color: #0F172A; letter-spacing: -0.01em; }
+  .body { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .greeting {
+    font-size: 26px; font-weight: 600; color: #475569; margin-bottom: 28px;
+    letter-spacing: -0.005em;
+  }
+  .headline {
+    font-size: 84px; font-weight: 800; line-height: 1.05;
+    letter-spacing: -0.035em;
+    color: #0F172A;
+  }
+  .headline .accent { color: #F97316; }
+  .logo-tag {
+    display: flex; align-items: center; gap: 14px;
+    margin-top: 56px; padding: 14px 22px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    width: fit-content;
+    box-shadow: 0 1px 2px rgba(15,23,42,0.04);
+  }
+  .logo-tag img { height: 28px; width: 28px; object-fit: contain; border-radius: 6px; }
+  .logo-tag .label { font-size: 14px; font-weight: 600; color: #475569; letter-spacing: 0.01em; text-transform: uppercase; }
+  .logo-tag .name { font-size: 17px; font-weight: 700; color: #0F172A; letter-spacing: -0.01em; }
+  .footer-band {
+    position: absolute; left: 88px; right: 88px; bottom: 88px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; color: #94A3B8;
+  }
+  .disclaimer { max-width: 600px; font-size: 12px; color: #94A3B8; line-height: 1.5; }
+  .from-tag {
+    font-size: 13px; font-weight: 600; color: #475569;
+    letter-spacing: 0.02em; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="topbar">
+      <div class="tcp-mark">T</div>
+      <div class="tcp-text">TechCloudPro</div>
+    </div>
+
+    <div class="body">
+      <div class="greeting">Hi __FIRSTNAME__,</div>
+      <div class="headline">
+        Forty seconds<br>
+        on what we noticed about<br>
+        <span class="accent">__COMPANYNAME__</span>
+      </div>
+      <div class="logo-tag">
+        <img src="__LOGO_DATA_URL__" alt="logo">
+        <div>
+          <div class="label">From the team at</div>
+          <div class="name">techcloudpro.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-band">
+      <div class="disclaimer">
+        This message is intended for __COMPANYNAME__ leadership.
+        If received in error, please disregard.
+      </div>
+      <div class="from-tag">From Peter at TCP</div>
+    </div>
+  </div>
+</body>
+</html>

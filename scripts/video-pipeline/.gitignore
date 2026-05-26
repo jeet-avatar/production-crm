@@ -1,0 +1,15 @@
+# Local artifacts — never commit
+.env
+.env.local
+output/
+cache/
+reference/
+voice-*.mp3
+music-*.mp3
+*.tmp.html
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>TechCloudPro for {{companyName}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta property="og:title" content="TechCloudPro for {{companyName}}">
+  <meta property="og:type" content="video.other">
+  <meta property="og:video" content="{{videoUrl}}">
+  <meta property="og:description" content="A 40-second read on {{companyName}} and where TCP plugs in.">
+  <style>
+    *,*::before,*::after { box-sizing: border-box; margin:0; padding:0; }
+    html, body { width:100%; }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      color: #0F172A; background: #F8FAFC;
+      line-height: 1.55;
+    }
+    .topbar {
+      background: #FFFFFF; border-bottom: 1px solid #E2E8F0;
+      padding: 18px 24px; display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .mark {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, #F97316, #FB923C);
+      border-radius: 8px; display:flex; align-items:center; justify-content:center;
+      font-size: 16px; font-weight: 800; color: #FFF;
+    }
+    .brand { font-weight: 700; letter-spacing: -0.01em; }
+
+    .wrap { max-width: 880px; margin: 0 auto; padding: 36px 24px 72px; }
+    .greet {
+      font-size: 14px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #F97316; margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 36px; font-weight: 800; line-height: 1.1;
+      letter-spacing: -0.025em; color: #0F172A; margin-bottom: 28px;
+    }
+    .video-shell {
+      background: #000; border-radius: 18px; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(15,23,42,0.12); margin-bottom: 36px;
+    }
+    .video-shell video { width: 100%; display: block; }
+
+    .why { background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 28px 32px; margin-bottom: 36px; }
+    .why h3 { font-size: 14px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #F97316; margin-bottom: 10px; margin-top: 22px; }
+    .why h3:first-child { margin-top: 0; }
+    .why p, .why li { font-size: 16px; color: #1E293B; }
+    .why ul { margin-left: 22px; }
+    .why li { margin: 6px 0; }
+
+    .ctas { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 36px; }
+    .cta { display:flex; align-items:center; justify-content:center; gap: 10px; padding: 16px 20px; border-radius: 14px; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform 0.1s, box-shadow 0.1s; }
+    .cta:active { transform: translateY(1px); }
+    .cta.primary { background: linear-gradient(135deg, #F97316, #FB923C); color: #FFF; box-shadow: 0 2px 10px rgba(249,115,22,0.25); }
+    .cta.secondary { background: #FFFFFF; color: #0F172A; border: 1px solid #E2E8F0; }
+    @media (max-width: 560px) {
+      .ctas { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+    }
+
+    .footer { font-size: 13px; color: #94A3B8; padding-top: 24px; border-top: 1px solid #E2E8F0; line-height: 1.6; }
+    .footer a { color: #F97316; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="mark">T</div>
+    <div class="brand">TechCloudPro</div>
+  </header>
+
+  <main class="wrap">
+    <div class="greet">For {{firstName}} at {{companyName}}</div>
+    <h1>A forty-second read on {{companyName}}.</h1>
+
+    <div class="video-shell">
+      <video src="{{videoUrl}}" controls playsinline preload="metadata" autoplay muted></video>
+    </div>
+
+    <section class="why">
+      <h3>What you do</h3>
+      <p>{{industry}}</p>
+      <h3>A few things on our radar</h3>
+      <ul>
+        <li>{{painPoint1}}</li>
+        <li>{{painPoint2}}</li>
+        <li>{{painPoint3}}</li>
+      </ul>
+      <h3>Where we plug in</h3>
+      <ul>
+        <li>{{tcpFit1}}</li>
+        <li>{{tcpFit2}}</li>
+        <li>{{tcpFit3}}</li>
+      </ul>
+    </section>
+
+    <div class="ctas">
+      <a class="cta primary" href="tel:+14156966429" data-cta="call_human">Call a human &middot; +1 (415) 696-6429</a>
+      <a class="cta secondary" href="tel:+12602548829" data-cta="call_aria">Call ARIA &middot; +1 (260) 254-8829</a>
+      <a class="cta secondary" href="https://techcloudpro.com" target="_blank" rel="noopener" data-cta="visit_tcp">Visit TechCloudPro</a>
+      <a class="cta secondary" href="https://artha.build" target="_blank" rel="noopener" data-cta="visit_artha">Visit ArthaBuild</a>
+    </div>
+
+    <div class="footer">
+      Sent personally by Peter at TechCloudPro &middot; <a href="mailto:peter@techcloudpro.com">peter@techcloudpro.com</a><br>
+      You can <a href="mailto:peter@techcloudpro.com?subject=Unsubscribe%20me">reply with &quot;unsubscribe&quot;</a> any time.
+    </div>
+  </main>
+
+  <script>
+    // Visit tracking — fires once on page load, again on each CTA click.
+    (function () {
+      var SLUG = "{{slug}}";
+      var TRACKING_BASE = "https://brandmonkz.com";
+
+      function post(body) {
+        try {
+          fetch(TRACKING_BASE + "/api/track/visit", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+            keepalive: true
+          });
+        } catch (e) { /* swallow */ }
+      }
+
+      // page view
+      post({ event: "watch_page_view", slug: SLUG, ts: Date.now() });
+
+      // CTA clicks
+      document.querySelectorAll(".cta").forEach(function (el) {
+        el.addEventListener("click", function () {
+          post({ event: "cta_click", slug: SLUG, cta: el.getAttribute("data-cta"), ts: Date.now() });
+        });
+      });
+
+      // Video play / progress
+      var v = document.querySelector("video");
+      var milestones = { 0.25: false, 0.5: false, 0.75: false, 1: false };
+      if (v) {
+        v.addEventListener("play", function () { post({ event: "video_play", slug: SLUG, ts: Date.now() }); });
+        v.addEventListener("timeupdate", function () {
+          if (!v.duration) return;
+          var pct = v.currentTime / v.duration;
+          [0.25, 0.5, 0.75, 1].forEach(function (m) {
+            if (!milestones[m] && pct >= m) {
+              milestones[m] = true;
+              post({ event: "video_" + Math.round(m * 100), slug: SLUG, ts: Date.now() });
+            }
+          });
+        });
+      }
+
+      // Time-on-page (sent on unload via keepalive)
+      var t0 = Date.now();
+      window.addEventListener("beforeunload", function () {
+        post({ event: "time_on_page", slug: SLUG, seconds: Math.round((Date.now() - t0) / 1000) });
+      });
+    })();
+  </script>
+</body>
+</html>
