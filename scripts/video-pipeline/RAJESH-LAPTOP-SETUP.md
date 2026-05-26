@@ -176,7 +176,7 @@ git checkout production
 cd scripts/video-pipeline
 ```
 
-**About the operator handbook (`RAJESH-HANDBOOK.md`):** it lives in a separate **private** repo (`jeet-avatar/crm-email-marketing-platform`), so you can't clone it directly. JM will share the handbook contents with you separately (PDF, paste, or via 1Password). Don't worry about it for setup — this doc has everything you need to get to `✓ All checks passed.`
+**Operator docs (`RAJESH-HANDBOOK.md` + the rest) now live next to the code:** `production-crm/docs/tcp-retargeting/`. Start at the [INDEX](../../docs/tcp-retargeting/INDEX.md). Public — no separate clone or invite needed.
 
 ---
 
@@ -468,13 +468,16 @@ python3 batch-ship-v6.py cache/kits.json
 
 ## 12. Where to read more (in priority order)
 
+All public — no separate invite or clone needed.
+
 | # | File | Where it lives | When to read |
 |---|---|---|---|
-| 1 | **`RAJESH-LAPTOP-SETUP.md`** (this file) | `production-crm/scripts/video-pipeline/` (public) | Right now — first time setup |
-| 2 | **`README.md`** | `production-crm/scripts/video-pipeline/` (public) | Pipeline internals — scene HTMLs, FFmpeg flags, design decisions |
-| 3 | **`RAJESH-HANDBOOK.md`** | `crm-email-marketing-platform/crm-pipeline/tcp-retargeting/` (PRIVATE — ask JM) | After setup is green — full operator playbook (12 sections) |
-| 4 | **`CREDENTIALS-FOR-RAJESH.md`** | same (PRIVATE — ask JM) | Reference for what each secret is, who has it, how to share safely |
-| 5 | **`GO-LIVE-PROOF.md`** | same (PRIVATE — ask JM) | If anything looks off and you want to compare against a known-good baseline |
+| 1 | **`RAJESH-LAPTOP-SETUP.md`** (this file) | `production-crm/scripts/video-pipeline/` | Right now — first time setup |
+| 2 | **`INDEX.md`** | `production-crm/docs/tcp-retargeting/` | Landing page for all operator docs |
+| 3 | **`RAJESH-HANDBOOK.md`** | `production-crm/docs/tcp-retargeting/` | After setup is green — full operator playbook (12 sections) |
+| 4 | **`CREDENTIALS-FOR-RAJESH.md`** | `production-crm/docs/tcp-retargeting/` | Reference for what each secret is, who has it, how to share safely |
+| 5 | **`GO-LIVE-PROOF.md`** | `production-crm/docs/tcp-retargeting/` | If anything looks off and you want to compare against a known-good baseline |
+| 6 | **`README.md`** | `production-crm/scripts/video-pipeline/` | Pipeline internals — scene HTMLs, FFmpeg flags, design decisions |
 
 ---
 
