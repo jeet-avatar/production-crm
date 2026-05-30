@@ -28,9 +28,9 @@ Plans:
 - [x] 03-02-PLAN.md — MigrationWizardModal full 5-step wizard: CRM source, entity type, template download, CSV upload, column mapping, import results (Complete: 300d81e)
 - [x] 03-03-PLAN.md — SettingsPage Data Import tab + MigrationWizardModal wired (Complete: 85760bf)
 
-### Phase 03.1: Repo + Schema Reconciliation (INSERTED)
+### Phase 03.1: Repo + Schema Reconciliation (INSERTED) — COMPLETE 2026-05-30
 
-**Goal:** Reconcile local clone with EC2 prod state — backfill 17 historical migration directories from EC2 filesystem into local git, generate a single new Prisma migration for Phase 4's 6 stream/Apollo columns + indexes via `prisma migrate diff`, and fast-forward push 25 commits to origin/production. Phase 02 (Quote/Contract/ContractOTP) was verified already deployed on origin/production AND prod DB — no preservation work needed (REQ-031D no-op).
+**Goal:** Reconcile local clone with EC2 prod state — backfill 17 historical migration directories from EC2 filesystem into local git, generate a single new Prisma migration for Phase 4's 6 stream/Apollo columns + indexes via `prisma migrate diff`, and fast-forward push 29 commits to origin/production. Phase 02 (Quote/Contract/ContractOTP) was verified already deployed on origin/production AND prod DB — no preservation work needed (REQ-031D no-op).
 **Depends on:** Phase 3
 **Requirements:** REQ-031A, REQ-031B, REQ-031C, REQ-031D, REQ-031E, REQ-031F
 **Plans:** 4 plans
@@ -39,7 +39,7 @@ Plans:
 - [x] 03.1-01-PLAN.md — Backup branch + work branch + baseline verification (REQ-031A precondition + REQ-031D no-op confirmation) (Complete: 656afa0)
 - [x] 03.1-02-PLAN.md — Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) (Complete: 24a5c66)
 - [x] 03.1-03-PLAN.md — Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F) (Complete: a5872fd)
-- [ ] 03.1-04-PLAN.md — Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F)
+- [x] 03.1-04-PLAN.md — Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) (Complete: 0745cc0 push + doc commit)
 
 ### Phase 4: Apollo Import + Auto-Campaign
 **Goal:** Rajesh navigates to a dedicated /apollo page → picks keyword/title/company filter → backend pulls + enriches contacts via Apollo `/v1/mixed_people/api_search` + `/v1/people/match` → contacts saved to existing Contact table with source="apollo" and stream classification (NetSuite | AI/ML | Cloud/DevOps | Cybersecurity | Data/Analytics | Mobile | Enterprise/ERP | Staffing/HR | Other) → on import success a 4-step NetSuiteCampaignWizard launches pre-filled with imported contact IDs and a pre-seeded per-stream EmailTemplate → wizard sends via new /api/apollo/send-campaign Resend endpoint (from Sara <sara@techcloudpro.com>, techcloudpro.com domain verified in Resend). Proves the full UI → backend → Apollo → DB → wizard → send chain end-to-end with one real contact before any bulk run. Existing campaigns.ts SES path (Rajesh's BrandMonkz flow) is NOT modified. ICP filter (exclude-industries) and per-stream from-address configurability deferred to Phase 4.5.

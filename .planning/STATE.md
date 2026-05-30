@@ -1,16 +1,16 @@
 # Project State
 
-Last activity: 2026-05-30 - Phase 03.1 Plan 03 COMPLETE — Phase 4 migration `20260530120000_phase04_stream_apollo_columns/migration.sql` generated via `prisma migrate diff` (origin/production → local). Fallback path invoked: stripped redundant `ADD COLUMN "category"` (column pre-exists in prod DB per RESEARCH §2.1); kept `email_templates_category_idx`. 6 ADD COLUMN + 7 CREATE INDEX. REQ-031F gates passed (with tsc deferred to Phase 4 Wave 4 CI). Single atomic commit a5872fd. Migration tree now at 30 dirs / 30 sql files. REQ-031C and REQ-031F closed.
+Last activity: 2026-05-30 - Phase 03.1 (Repo + Schema Reconciliation) COMPLETE — 29 commits fast-forward pushed to origin/production: 23 Phase 4 commits + 17 backfilled migration dirs + 1 new 20260530120000_phase04_stream_apollo_columns migration + 5 reconciliation plan commits. Phase 02 (Quote/Contract/ContractOTP) verified already deployed (REQ-031D no-op). Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) UNBLOCKED. ROADMAP + STATE bookkeeping done in this Plan 04 commit.
 
 ## Current Phase
-Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (3/4 plans done; ONLY Wave 4 push + state update remaining)
+Phase 03.1: Repo + Schema Reconciliation — COMPLETE (4/4 plans done; 29 commits pushed to origin/production)
 
 ## Current Position
-- Phase: 03.1-repo-schema-reconciliation — IN PROGRESS
-- Plan: 03 COMPLETE (commit a5872fd); next is 03.1-04 (fast-forward push to origin/production + final ROADMAP/STATE update)
-- Active branch: `sync/03.1-reconcile-with-ec2` (work branch; 4 commits ahead of `production`)
-- Rollback target: `backup/pre-3.1-production-state` (local + origin)
-- Next: Plan 03.1-04 — checkout production, fast-forward merge sync branch, push origin production (no force), unblock Phase 4 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke)
+- Phase: 03.1-repo-schema-reconciliation — COMPLETE
+- Plan: 03.1-04 COMPLETE (fast-forward push to origin/production landed at 0745cc0; ROADMAP+STATE doc commit follows)
+- Active branch: `production` (synced with origin/production at 0745cc0, then advances by 1 doc commit)
+- Rollback target: `backup/pre-3.1-production-state` (local + origin) — keep until Phase 4 Wave 4 ships safely
+- Next: Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) — unblocked; in a separate session run `prisma migrate deploy` against prod DB (1 pending migration), seed stream templates, smoke-test 1-contact Resend send
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -119,8 +119,8 @@ Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (3/4 plans done; ONLY W
 - Phase 03.1 inserted after Phase 03: Repo + Schema Reconciliation (URGENT) — blocks Phase 04 Wave 4 (deploy + smoke). Local schema.prisma is 32 models / 1399 lines; prod is 50 models / 2184 lines. 18 prod-only models (ApiKey, AuditLog, UserSession, MediaAccess, PartnerProgram, EmailUnsubscribe, etc.) would be silently dropped by current Phase 04 deploy plan. 3 local-only models (Quote, Contract, ContractOTP from Phase 02). 14 migrations in prod _prisma_migrations table not in local backend/prisma/migrations/. Local clone is 23 commits ahead of origin/production.
 
 ## Blockers/Concerns
-- Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) BLOCKED on Phase 03.1 reconciliation. Code Waves 1-3 of Phase 04 stay locally; reconciled deploy resumes after 03.1 verified.
-- Phase 02 (Quote/Contract/ContractOTP) — RESOLVED. Verified via Plan 03.1-01 Verification 5: already deployed on origin/production AND in EC2 prod DB (`_prisma_migrations` row `20260319000000_add_quotes_contracts` applied). No preservation work needed (REQ-031D no-op).
+- Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) UNBLOCKED as of 2026-05-30 — reconciled state pushed to origin/production at SHA 0745cc0. Phase 4 CI/CD deploy can resume.
+- Phase 02 (Quote/Contract/ContractOTP) deploy: NO ACTION NEEDED — verified already deployed on origin/production AND prod DB (RESEARCH §1.3). REQ-031D closed as no-op.
 
 ## Phase 03.1 Progress
 | Plan | Name | Status | Commit |
@@ -128,7 +128,9 @@ Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (3/4 plans done; ONLY W
 | 01 | Backup branch + work branch + baseline verification (REQ-031A precondition + REQ-031D no-op confirmation) | Complete | 656afa0 |
 | 02 | Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) | Complete | 24a5c66 |
 | 03 | Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F) | Complete | a5872fd |
-| 04 | Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) | Pending | - |
+| 04 | Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) | Complete | 0745cc0 (push) + doc commit |
+
+**REQ-031D status:** NO-OP — Quote/Contract/ContractOTP models verified already on origin/production schema AND in prod DB `_prisma_migrations` table (migration `20260319000000_add_quotes_contracts` applied). Phase 02 preservation step from the original 03.1 scope is not needed.
 
 ## Phase 04 Progress
 | Plan | Name | Status | Commit |
