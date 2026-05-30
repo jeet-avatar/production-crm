@@ -230,6 +230,23 @@ export const campaignsApi = {
     const response = await apiClient.delete(`/campaigns/${id}`);
     return response.data;
   },
+
+  // AI body generation — used by NetSuiteCampaignWizard's "Let AI write it for me" button.
+  // Hits the existing /api/campaigns/ai/generate-content endpoint (content-only — does NOT send).
+  aiGenerateContent: async (goal: string, tone: string, companyName: string) => {
+    const response = await apiClient.post('/campaigns/ai/generate-content', { goal, tone, companyName });
+    return response.data;
+  },
+};
+
+// Email Templates API
+export const emailTemplatesApi = {
+  // First-match lookup by category — used by NetSuiteCampaignWizard for per-stream template pre-fill.
+  // Backend: GET /api/email-templates?category=Stream:<x> (extended in plan 04-03 Task 2).
+  findByCategory: async (category: string) => {
+    const response = await apiClient.get('/email-templates', { params: { category } });
+    return response.data?.templates?.[0] || null;
+  },
 };
 
 // Analytics API
@@ -417,6 +434,18 @@ export interface ApolloImportResponse {
   errors: Array<{ apolloPersonId: string; reason: string }>;
 }
 
+export interface ApolloSendCampaignFailure {
+  contactId: string;
+  email: string | null;
+  error: string;
+}
+
+export interface ApolloSendCampaignResponse {
+  sent: number;
+  failed: number;
+  failureDetails: ApolloSendCampaignFailure[];
+}
+
 export const apolloApi = {
   import: async (
     filters: ApolloSearchFilters,
@@ -424,6 +453,22 @@ export const apolloApi = {
   ): Promise<ApolloImportResponse> => {
     // apiClient baseURL already includes `/api`, so path here is `/apollo/import`
     const response = await apiClient.post('/apollo/import', { filters, enrich });
+    return response.data;
+  },
+
+  // Phase 4 USER-LOCKED send path: hits the Resend dispatcher built in plan 04-03 Task 3,
+  // NOT the existing campaigns.ts SES path. Server-side handles {{firstName}}/{{companyName}}
+  // variable substitution per recipient and pacing.
+  sendCampaign: async (
+    contactIds: string[],
+    templateId: string,
+    suggestedStream: string,
+  ): Promise<ApolloSendCampaignResponse> => {
+    const response = await apiClient.post('/apollo/send-campaign', {
+      contactIds,
+      templateId,
+      suggestedStream,
+    });
     return response.data;
   },
 };

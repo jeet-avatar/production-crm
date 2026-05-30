@@ -51,14 +51,16 @@ const upload = multer({
 // GET /api/contacts - Get all contacts with pagination and search
 router.get('/', async (req, res, next) => {
   try {
-    const { 
-      search, 
-      status, 
-      page = '1', 
-      limit = '10' 
+    const {
+      search,
+      status,
+      ids,
+      page = '1',
+      limit = '10'
     } = req.query as {
       search?: string;
       status?: string;
+      ids?: string;
       page?: string;
       limit?: string;
     };
@@ -107,6 +109,11 @@ router.get('/', async (req, res, next) => {
 
     if (status && status !== '') {
       where.status = status;
+    }
+
+    // ?ids=cuid1,cuid2,... — used by Apollo wizard to fetch a specific batch of imported contacts
+    if (typeof ids === 'string' && ids.trim()) {
+      where.id = { in: ids.split(',').map((s) => s.trim()).filter(Boolean) };
     }
 
     // Get contacts with relations
