@@ -5,6 +5,7 @@ import express from 'express';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
+import { classifyStream } from '../lib/streamClassifier';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -38,48 +39,9 @@ function isOpenToIndia(location: string): boolean {
     loc.includes('anywhere') || loc.includes('remote') || loc.includes('asia') || loc.includes('apac');
 }
 
-// ============================================
-// STREAM CLASSIFICATION — All major technology hiring streams
-// ============================================
-function classifyStream(title: string, description: string): string {
-  const text = `${title} ${description}`.toLowerCase();
-
-  // Enterprise / ERP
-  if (/netsuite|oracle netsuite|netsuite administrator|netsuite developer/.test(text)) return 'NetSuite';
-  if (/\berp\b|sap\b|dynamics 365|workday|oracle erp/.test(text)) return 'Enterprise/ERP';
-
-  // AI / ML / Data Science
-  if (/\bai\b|artificial intelligence|machine learning|\bml\b|deep learning|nlp|computer vision|llm|genai|generative ai|data scien|tensorflow|pytorch|hugging face/.test(text)) return 'AI/ML';
-
-  // Cloud & Infrastructure
-  if (/\baws\b|amazon web services|\bazure\b|google cloud|\bgcp\b|cloud architect|cloud engineer|devops|sre\b|site reliability|kubernetes|\bk8s\b|terraform|docker|infrastructure/.test(text)) return 'Cloud/DevOps';
-
-  // Cybersecurity
-  if (/cybersecurity|cyber security|security analyst|soc analyst|siem|penetration test|infosec|security engineer|threat|vulnerability|devsecops|compliance/.test(text)) return 'Cybersecurity';
-
-  // Full-Stack / Web Development
-  if (/full.?stack|frontend|front.?end|backend|back.?end|\breact\b|\bangular\b|\bvue\b|next\.?js|node\.?js|\.net|django|rails|laravel|spring boot/.test(text)) return 'Full-Stack';
-
-  // Data Engineering & Analytics
-  if (/data engineer|data analyst|analytics|power bi|tableau|\bsql\b|snowflake|databricks|spark|airflow|\betl\b|data warehouse|business intelligence|\bbi\b/.test(text)) return 'Data/Analytics';
-
-  // Mobile Development
-  if (/\bios\b|android|swift|kotlin|react native|flutter|mobile developer|mobile engineer/.test(text)) return 'Mobile';
-
-  // Blockchain / Web3
-  if (/blockchain|web3|solidity|smart contract|crypto|defi|nft|ethereum|solana/.test(text)) return 'Web3';
-
-  // Product / Design / UX
-  if (/product manager|product owner|ux designer|ui designer|product design|user experience|figma/.test(text)) return 'Product/Design';
-
-  // Staffing / HR
-  if (/recruiter|talent acquisition|hr manager|human resources|staffing|people operations/.test(text)) return 'Staffing/HR';
-
-  // QA / Testing
-  if (/\bqa\b|quality assurance|test engineer|automation test|selenium|cypress|playwright/.test(text)) return 'QA/Testing';
-
-  return 'Other';
-}
+// Stream classification extracted to backend/src/lib/streamClassifier.ts (Phase 4 plan 04-01).
+// Apollo route in plan 04-03 imports the same classifyStream() so behavior stays identical
+// across job-board imports and Apollo imports.
 
 // ============================================
 // In-memory cache — refreshes every 4 hours
