@@ -20,6 +20,8 @@ interface Contact {
   email: string;
   phone?: string;
   role?: string;
+  source?: string;   // Phase 4 source tracking ('apollo' | 'job_leads' | 'csv_import' | 'manual' | ...)
+  stream?: string;   // Phase 4 stream classification ('NetSuite' | 'AI/ML' | 'Cybersecurity' | ...)
   company?: {
     id: string;
     name: string;
@@ -60,6 +62,7 @@ export function ContactList() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState(searchParams.get('source') || '');
   const [showModal, setShowModal] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [showAICSVImport, setShowAICSVImport] = useState(false);
@@ -126,6 +129,11 @@ export function ContactList() {
     }
   }, [searchParams, setSearchParams]);
 
+  // Sync sourceFilter from URL — supports deep links like /contacts?source=apollo
+  useEffect(() => {
+    setSourceFilter(searchParams.get('source') || '');
+  }, [searchParams]);
+
   const loadContacts = async () => {
     try {
       setLoading(true);
@@ -134,6 +142,7 @@ export function ContactList() {
       const response = await contactsApi.getAll({
         search: searchTerm,
         status: statusFilter || undefined,
+        source: sourceFilter || undefined,
         page: 1,
         limit: 1000, // Fetch all contacts for grouping
       });
@@ -190,7 +199,7 @@ export function ContactList() {
     loadContacts();
     loadCompanies();
     setCurrentPage(1); // Reset to page 1 when filters change
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, sourceFilter]);
 
   // Smart auto-expand: Auto-expand companies with 2-5 contacts for better UX
   // 1 contact: No expand button (single contact shows inline)
@@ -607,6 +616,49 @@ export function ContactList() {
           </div>
         </div>
 
+        {/* Source filter chip (dismissible) — driven by ?source URL param */}
+        {sourceFilter && (
+          <div style={{ padding: '12px 24px', background: '#12121f', borderBottom: '1px solid #2a2a44' }}>
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 12px',
+                background: 'rgba(99, 102, 241, 0.15)',
+                border: '1px solid rgba(99, 102, 241, 0.4)',
+                borderRadius: '999px',
+                color: '#A5B4FC',
+                fontSize: '12px',
+                fontWeight: 600,
+              }}
+            >
+              Source: {sourceFilter.charAt(0).toUpperCase() + sourceFilter.slice(1)}
+              <button
+                type="button"
+                onClick={() => {
+                  searchParams.delete('source');
+                  setSearchParams(searchParams);
+                  setSourceFilter('');
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#A5B4FC',
+                  padding: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+                title="Clear source filter"
+                aria-label="Clear source filter"
+              >
+                <XMarkIcon className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          </div>
+        )}
+
         {/* Filters */}
         <div style={{ padding: '16px 24px', borderBottom: '1px solid #2a2a44', background: '#12121f' }}>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -881,9 +933,21 @@ export function ContactList() {
                           </div>
                         </td>
                         <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
-                          <span className={statusColors[displayContact.status]}>
-                            {displayContact.status.replace('_', ' ')}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={statusColors[displayContact.status]}>
+                              {displayContact.status.replace('_', ' ')}
+                            </span>
+                            {displayContact.source === 'apollo' && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                                Apollo
+                              </span>
+                            )}
+                            {displayContact.stream && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                                {displayContact.stream}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         {/* Dynamic Custom Fields */}
                         {customFieldKeys.map(key => (
@@ -983,9 +1047,21 @@ export function ContactList() {
                             <span className="text-[#64748B] text-sm">↳ Same company</span>
                           </td>
                           <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
-                            <span className={statusColors[contact.status]}>
-                              {contact.status.replace('_', ' ')}
-                            </span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className={statusColors[contact.status]}>
+                                {contact.status.replace('_', ' ')}
+                              </span>
+                              {contact.source === 'apollo' && (
+                                <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                                  Apollo
+                                </span>
+                              )}
+                              {contact.stream && (
+                                <span className="px-2 py-0.5 rounded text-xs font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                                  {contact.stream}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           {/* Dynamic Custom Fields */}
                           {customFieldKeys.map(key => (

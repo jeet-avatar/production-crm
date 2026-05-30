@@ -43,7 +43,7 @@ apiClient.interceptors.response.use(
 
 // Contacts API
 export const contactsApi = {
-  getAll: async (params?: { search?: string; status?: string; page?: number; limit?: number }) => {
+  getAll: async (params?: { search?: string; status?: string; source?: string; page?: number; limit?: number }) => {
     const response = await apiClient.get('/contacts', { params });
     return response.data;
   },
