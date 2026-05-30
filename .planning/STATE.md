@@ -1,14 +1,14 @@
 # Project State
 
-Last activity: 2026-05-30 - Plan 04-05 COMPLETE: NetSuiteCampaignWizard 4-step modal (Resend send path, 3-layer template fallback, USER-LOCKED firewall vs SES campaigns route)
+Last activity: 2026-05-30 - Plan 04-06 PARTIAL: Task 1 (handoff wiring) COMPLETE; Tasks 2-4 (deploy + seed + smoke) PAUSED pending EC2 access + DATABASE_URL availability
 
 ## Current Phase
-Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (5/6 plans done)
+Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (5/6 plans done; 04-06 Task 1 of 4 complete)
 
 ## Current Position
 - Phase: 04-apollo-import-and-auto-campaign — IN PROGRESS
-- Plan: 05 (complete) — NetSuiteCampaignWizard.tsx + api.ts helpers + backend ?ids= filter, commits 9371f7c + 2f14467
-- Next: Plan 04-06 — Handoff wiring (ApolloPage → wizard) + deploy (rsync + pm2) + 1-contact smoke
+- Plan: 06 (PARTIAL) — Task 1 (ApolloPage → NetSuiteCampaignWizard wiring) shipped in commit f7e6482; Tasks 2 (deploy), 3 (seed), 4 (smoke) PAUSED by user pending EC2 + DATABASE_URL
+- Next: Resume 04-06 Tasks 2-4 in a later session once EC2 access + RESEND_API_KEY on EC2 + DATABASE_URL are unblocked
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -59,6 +59,11 @@ Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (5/6 plans done)
 - Body preview in Step 3 runs through `DOMPurify.sanitize` (mirrors `FollowUpWizard.tsx:621` pattern) — defense in depth against hostile HTML in templates or AI output.
 - Doc comment containing literal `"campaignsApi.create/addCompany/send"` strings was rewritten before commit because it broke the negative grep firewall (returned 1 instead of 0). Reworded to convey the same intent without the literal anti-pattern strings.
 
+## Decisions Made (Phase 04 additions — Plan 04-06 PARTIAL)
+- Plan 04-06 is intentionally PARTIAL. Only Task 1 (handoff wiring on ApolloPage) executed — commit `f7e6482`. Tasks 2 (deploy: rsync + pm2 + prisma migrate deploy), 3 (seed stream templates), 4 (1-real-contact Resend smoke) are PAUSED by explicit user instruction pending EC2 access + RESEND_API_KEY on EC2 + DATABASE_URL availability. Do NOT mark Plan 06 complete and do NOT write 04-06-SUMMARY.md until those tasks finish.
+- Task 1 implementation: imported `NetSuiteCampaignWizard` named export, added `showWizard` state, replaced disabled placeholder button (with "Wizard handoff lands in plan 04-05" tooltip) with an enabled gradient button gated on `result?.contactIds.length > 0`, mounted wizard at top of result section with `importedContactIds=result.contactIds` + `suggestedStream=result.suggestedStream` + no-op `onSuccess` that keeps result panel visible. `tsc --noEmit` clean.
+- `ContactList.tsx` remains untouched per Plan 04-04/04-05 locked decision — verified `git diff frontend/src/pages/Contacts/ContactList.tsx | wc -l == 0` post-commit.
+
 ## Decisions Made
 - Prisma migration applied via `db push` (non-interactive) instead of `migrate dev` (requires TTY); manual migration SQL file created for audit trail
 - Decimal fields serialized with `Number()` helper in quotes route to prevent Prisma Decimal serialization issues
@@ -88,7 +93,7 @@ None
 | 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Complete | 764ce91, 9437281, 243354b |
 | 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Complete | 66a4737, b005169 |
 | 05 | NetSuiteCampaignWizard component (Resend send + 3-layer template fallback) | Complete | 9371f7c, 2f14467 |
-| 06 | Handoff wiring + deploy (rsync + pm2) + 1-contact smoke | Pending | - |
+| 06 | Handoff wiring + deploy (rsync + pm2) + 1-contact smoke | Partial (Task 1/4 done; 2-4 paused on EC2 + DATABASE_URL) | f7e6482 |
 
 ## Phase 03 Progress
 | Plan | Name | Status | Commit |
