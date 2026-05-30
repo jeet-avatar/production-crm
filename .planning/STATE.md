@@ -1,14 +1,14 @@
 # Project State
 
-Last activity: 2026-05-30 - Plan 04-03 COMPLETE: POST /api/apollo/import + /api/apollo/send-campaign (Resend) + stream-template seeder + category filter on email-templates list
+Last activity: 2026-05-30 - Plan 04-04 COMPLETE: dedicated /apollo page + ApolloSearchForm + apolloApi client + sidebar nav (ContactList.tsx UNTOUCHED)
 
 ## Current Phase
-Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (3/6 plans done)
+Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (4/6 plans done)
 
 ## Current Position
 - Phase: 04-apollo-import-and-auto-campaign — IN PROGRESS
-- Plan: 03 (complete) — Backend Apollo + Resend routes, commits 764ce91 + 9437281 + 243354b
-- Next: Plan 04-04 — Dedicated /apollo page + ApolloSearchForm + sidebar nav
+- Plan: 04 (complete) — Frontend /apollo route, commits 66a4737 + b005169
+- Next: Plan 04-05 — NetSuiteCampaignWizard component (Resend send + 3-layer template fallback)
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -23,6 +23,19 @@ Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (3/6 plans done)
 - `enrichPerson()` returns null on ANY failure (404, 401, network) rather than throwing — lets the import loop in 04-03 simply `continue` instead of wrapping every iteration in try/catch.
 - ICP filter (q_organization_industry_tag_ids whitelist or exclude-industries) deferred to Phase 4.5 — documented as an inline TODO in apolloClient.ts so future planners can grep for it.
 - APOLLO_API_KEY placeholder in .env.example is intentionally empty; live key lives on EC2 only per CLAUDE.md ops policy.
+
+## Decisions Made (Phase 04 additions — Plan 04-04)
+- `apiClient.baseURL` already ends in `/api` (`api.ts:3`), so `apolloApi.import` posts to bare `/apollo/import`. Matches every other `*Api` client in the file. Including `/api` in the resource path would have double-prefixed.
+- "Start campaign with these contacts →" button renders DISABLED with tooltip "Wizard handoff lands in plan 04-05". Lets `/apollo` ship in a usable state for isolated verification without coupling to wizard code that does not yet exist. Plan 04-05 just removes `disabled`/`title` and adds an `onClick` that mounts `NetSuiteCampaignWizard` with `result.contactIds` + `result.suggestedStream`.
+- "See imported contacts" deep-links to `/contacts?source=apollo` to lean on the existing ContactList source filter — zero ContactList code change required (user-locked).
+- Sidebar nav uses `RocketLaunchIcon` (existing heroicons dep) placed immediately after "Job Leads" because both are lead-generation sources. Active-state styling inherits the existing indigo-glow treatment for free.
+- ApolloSearchForm prefills sensible CFO/Finance ICP defaults (CFO, Controller, VP Finance / United States / 100-500 emp / perPage=25). One-click search works without typing.
+- `perPage` is clamped to max 25 in `handleSubmit` to enforce Apollo's per-call limit at the frontend layer (defense in depth — backend also enforces).
+- Consultancy warning banner verbatim from RAJESH-HANDBOOK Section 6 / Pitfall 4 — rendered above the keyword input, not the title input (matches the actual hallucination risk surface).
+- ICP industry-include / tech_uids filter UI deliberately NOT added (same Phase 4.5 deferral as plans 04-02, 04-03).
+- ContactList.tsx fully untouched — `git diff frontend/src/pages/Contacts/ContactList.tsx | wc -l == 0`. Dead-code `ApolloImportModal` reference count unchanged at 2.
+- Page-level error handling categorizes by HTTP status: 503 → yellow warning + operator hint, 401/403 → auth-red message, other → generic red. Pattern is reusable for other backend-key-dependent features.
+- `result.contactIds` and `result.suggestedStream` are kept in component state but the IDs are NOT rendered in DOM — only the count via `result.imported`. Wizard handoff in 04-05 reads them directly from state.
 
 ## Decisions Made (Phase 04 additions — Plan 04-03)
 - Resend SDK direct (not SES) for Phase 4 send path — campaigns.ts SES path stays byte-for-byte unchanged (Rajesh's BrandMonkz flow untouched). Verified via `git diff backend/src/routes/campaigns.ts | wc -l == 0`.
@@ -63,7 +76,7 @@ None
 | 01 | Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction | Complete | 911e1e2, 79290fe |
 | 02 | Apollo TS client lib (searchPeople + enrichPerson + typed errors) | Complete | 2113f9e, 5c75d21 |
 | 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Complete | 764ce91, 9437281, 243354b |
-| 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Pending | - |
+| 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Complete | 66a4737, b005169 |
 | 05 | NetSuiteCampaignWizard component (Resend send + 3-layer template fallback) | Pending | - |
 | 06 | Handoff wiring + deploy (rsync + pm2) + 1-contact smoke | Pending | - |
 
