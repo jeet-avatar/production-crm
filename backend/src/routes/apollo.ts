@@ -286,7 +286,7 @@ router.post('/send-campaign', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Template not found or not owned by user' });
     }
     const tplSubject = template.subject || '';
-    const tplBody = (template as any).htmlBody || (template as any).body || '';
+    const tplBody = template.htmlContent || '';
     if (!tplSubject || !tplBody) {
       return res.status(400).json({ error: 'Template has no subject or body' });
     }
