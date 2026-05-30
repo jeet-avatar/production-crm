@@ -1,16 +1,16 @@
 # Project State
 
-Last activity: 2026-05-30 - Phase 03.1 Plan 01 COMPLETE — backup branch `backup/pre-3.1-production-state` + work branch `sync/03.1-reconcile-with-ec2` created at SHA 656afa0 (backup pushed to origin); baseline verification log proves linear ancestry + REQ-031D no-op (Quote/Contract/ContractOTP already on origin/production)
+Last activity: 2026-05-30 - Phase 03.1 Plan 02 COMPLETE — 17 EC2-only migration directories backfilled into local `backend/prisma/migrations/` via tarball+scp recipe (byte-for-byte preserved, 5/5 spot-check sizes match RESEARCH §1.2). Single atomic commit 24a5c66 on `sync/03.1-reconcile-with-ec2`. Total dir count now 29 (matches EC2 filesystem exactly). REQ-031B closed.
 
 ## Current Phase
-Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (1/4 plans done; baseline + branches established)
+Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (2/4 plans done; baseline + branches + migration tree backfill complete)
 
 ## Current Position
 - Phase: 03.1-repo-schema-reconciliation — IN PROGRESS
-- Plan: 01 COMPLETE (commit 656afa0); next is 03.1-02 (migration backfill)
+- Plan: 02 COMPLETE (commit 24a5c66); next is 03.1-03 (Phase 4 migration generation via `prisma migrate diff`)
 - Active branch: `sync/03.1-reconcile-with-ec2` (work branch for Waves 2-3)
 - Rollback target: `backup/pre-3.1-production-state` (local + origin)
-- Next: Plan 03.1-02 — scp 17 EC2-only migration directories from /var/www/crm-backend/backend/prisma/migrations/ → local backend/prisma/migrations/ (per RESEARCH §5.1 recipe)
+- Next: Plan 03.1-03 — generate `20260530_phase04_stream_apollo_columns/migration.sql` via `prisma migrate diff` (use `npx -y prisma@5.4.2 ...` workaround pattern from Plan 02 — local node_modules not installed; Prisma 7.x default rejects schema syntax)
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -70,6 +70,16 @@ Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (1/4 plans done; baseli
 - Remote name correction: production-crm repo pushes to `github.com/jeet-avatar/production-crm`, NOT `github.com/jeet-avatar/crm-email-marketing-platform` (the latter is the BrandMonkz repo per MEMORY)
 - No commit on work branch yet — Task 2's deliverable is the branch refs themselves; plan was designed as git-refs-only
 
+## Decisions Made (Phase 03.1 additions — Plan 03.1-02)
+- Tarball+scp recipe (RESEARCH §5.1) chosen over per-dir scp — single network round-trip, binary stream preservation guaranteed by tar, no SSH line-ending translation risk; critical for Prisma checksum validation
+- Single atomic commit for all 17 backfilled files (per RESEARCH Open Question 3) — backfill is one logical operation, not 17 independent changes
+- Tarballs cleaned on both ends as final Task 1 step BEFORE Task 2 commit — verified via `ls /tmp/phase31-migrations.tar.gz` returning "No such file" on both local and EC2
+- Force-add 17 migration.sql files via `git add -f` per established Phase 04-01 + Phase 03.1-01 precedent (`backend/.gitignore` line 49 blocks `prisma/migrations/**/*.sql`)
+- EC2 `/var/www/crm-backend/` left untouched — only `/tmp/` written then cleaned; post-task `git status` on EC2 matches RESEARCH §1.5 baseline exactly (only pre-existing stray backend/schema.prisma + 3 .env.bak files)
+- Prisma 5.4.2 fallback validate pattern: `DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy" npx -y prisma@5.4.2 validate` — works around missing local node_modules + Prisma 7.x's breaking schema-syntax change (Plan 03.1-03 will use the same pattern)
+- Pre-existing condition documented: `npx prisma validate` (without version pin) fails with Prisma 7.8.0 P1012 error regardless of backfill state — confirmed by stashing Task 1 output and re-running validate; the failure is environmental, not behavioral
+- Byte-for-byte preservation verified: 5/5 spot-check sizes match RESEARCH §1.2 expected values exactly (194 / 93 / 7898 / 1414 / 316)
+
 ## Decisions Made (Phase 04 additions — Plan 04-06 PARTIAL)
 - Plan 04-06 is intentionally PARTIAL. Only Task 1 (handoff wiring on ApolloPage) executed — commit `f7e6482`. Tasks 2 (deploy: rsync + pm2 + prisma migrate deploy), 3 (seed stream templates), 4 (1-real-contact Resend smoke) are PAUSED by explicit user instruction pending EC2 access + RESEND_API_KEY on EC2 + DATABASE_URL availability. Do NOT mark Plan 06 complete and do NOT write 04-06-SUMMARY.md until those tasks finish.
 - Task 1 implementation: imported `NetSuiteCampaignWizard` named export, added `showWizard` state, replaced disabled placeholder button (with "Wizard handoff lands in plan 04-05" tooltip) with an enabled gradient button gated on `result?.contactIds.length > 0`, mounted wizard at top of result section with `importedContactIds=result.contactIds` + `suggestedStream=result.suggestedStream` + no-op `onSuccess` that keeps result panel visible. `tsc --noEmit` clean.
@@ -106,7 +116,7 @@ Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (1/4 plans done; baseli
 | Plan | Name | Status | Commit |
 |------|------|--------|--------|
 | 01 | Backup branch + work branch + baseline verification (REQ-031A precondition + REQ-031D no-op confirmation) | Complete | 656afa0 |
-| 02 | Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) | Pending | - |
+| 02 | Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) | Complete | 24a5c66 |
 | 03 | Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F) | Pending | - |
 | 04 | Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) | Pending | - |
 

@@ -37,7 +37,7 @@ Plans:
 
 Plans:
 - [x] 03.1-01-PLAN.md — Backup branch + work branch + baseline verification (REQ-031A precondition + REQ-031D no-op confirmation) (Complete: 656afa0)
-- [ ] 03.1-02-PLAN.md — Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B)
+- [x] 03.1-02-PLAN.md — Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) (Complete: 24a5c66)
 - [ ] 03.1-03-PLAN.md — Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F)
 - [ ] 03.1-04-PLAN.md — Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F)
 
