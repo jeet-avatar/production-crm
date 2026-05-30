@@ -1,0 +1,66 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "brandmonkz_crm", schema "public" at "brandmonkz-crm-db-restored.c23qcukqe810.us-east-1.rds.amazonaws.com:5432"
+
+31 migrations found in prisma/migrations
+
+Applying migration `20251112_add_isActive_to_video_template`
+Error: P3018
+
+A migration failed to apply. New migrations cannot be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve
+
+Migration name: 20251112_add_isActive_to_video_template
+
+Database error code: 42701
+
+Database error:
+ERROR: column "isActive" of relation "video_templates" already exists
+
+DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E42701), message: "column \"isActive\" of relation \"video_templates\" already exists", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("tablecmds.c"), line: Some(7473), routine: Some("check_for_column_name_collision") }
+
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "brandmonkz_crm", schema "public" at "brandmonkz-crm-db-restored.c23qcukqe810.us-east-1.rds.amazonaws.com:5432"
+
+31 migrations found in prisma/migrations
+
+Applying migration `20251112_fix_campaign_timestamps`
+Error: P3018
+
+A migration failed to apply. New migrations cannot be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve
+
+Migration name: 20251112_fix_campaign_timestamps
+
+Database error code: 42703
+
+Database error:
+ERROR: column "created_at" does not exist
+HINT: Perhaps you meant to reference the column "campaigns.createdAt".
+
+Position:
+[1m  8[0m
+[1m  9[0m -- Fix campaigns with NULL created_at using sent_at (if available)
+[1m 10[0m UPDATE campaigns
+[1m 11[0m SET created_at = sent_at,
+[1m 12[0m     updated_at = COALESCE(updated_at, sent_at)
+[1m 13[1;31m WHERE created_at IS NULL[0m
+
+DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E42703), message: "column \"created_at\" does not exist", detail: None, hint: Some("Perhaps you meant to reference the column \"campaigns.createdAt\"."), position: Some(Original(557)), where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("parse_relation.c"), line: Some(3723), routine: Some("errorMissingColumn") }
+
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "brandmonkz_crm", schema "public" at "brandmonkz-crm-db-restored.c23qcukqe810.us-east-1.rds.amazonaws.com:5432"
+
+31 migrations found in prisma/migrations
+
+Applying migration `20260530120000_phase04_stream_apollo_columns`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20260530120000_phase04_stream_apollo_columns/
+    └─ migration.sql
+      
+All migrations have been successfully applied.
