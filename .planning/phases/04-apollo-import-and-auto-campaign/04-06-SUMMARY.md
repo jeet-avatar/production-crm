@@ -263,5 +263,42 @@ $ grep "^APOLLO_API_KEY\|^RESEND_API_KEY\|^JWT_SECRET" /var/www/crm-backend/.env
 - [x] All commits authored by `jm@techcloudpro.com` / `jeet-avatar`
 
 ---
+
+## Apollo IMPORT — LIVE on production (post-close addendum, 2026-05-30 23:30 UTC)
+
+The Apollo credential gate that blocked Task 4a at phase close was unblocked in the same session via direct EC2 ops:
+
+1. **Confirmed BrandMonkz Apollo key `erqk1R…iWEg` works** against `app.apollo.io`:
+   - `GET /api/v1/auth/health` → `{"healthy":true,"is_logged_in":true}` HTTP 200
+   - `POST /api/v1/mixed_people/api_search` (VP Finance) → 200, 120,103 matching results
+2. **Rotated EC2 `.env`**: removed both dead `APOLLO_API_KEY` lines (`TQHa…sGGA`, `aRGM…hNXw`), appended single `APOLLO_API_KEY=erqk1R…iWEg`. Backup at `/var/www/crm-backend/.env.bak-2026-05-30-apollo-rotate`.
+3. **pm2 env reload pitfall:** plain `pm2 restart --update-env` does NOT pick up `.env` changes — it reads from the shell environment when invoked. Fixed via `set -a && source .env && set +a && pm2 restart crm-backend --update-env`. Verified via `/proc/<pid>/environ` that the process now holds the `erqk…iWEg` key.
+4. **Live Apollo import smoke (Task 4a):**
+   ```
+   POST /api/apollo/import (deployed route, valid JWT)
+   Body: { filters: { personTitles: ["VP Finance"], personLocations: ["United States"], minEmployees: 100, maxEmployees: 500, perPage: 1 }, enrich: true }
+   → HTTP 200
+   → { imported:1, skipped:0, total:1, contactIds:["cmpsz0d3q000350mxrlau3sg5"], suggestedStream:"Cybersecurity", errors:[] }
+   ```
+5. **Persisted:** 1 real VP Finance contact in prod Contact table with `source='apollo'`, `apolloPersonId`, `stream='Cybersecurity'`, `apolloRawData` populated.
+
+### Cost summary (live verification)
+- Apollo credits: ~2 (1 search + 1 enrichment)
+- Resend sends: 2 (isolation test + Task 4c smoke, both to `jm@techcloudpro.com`)
+
+### Phase 4 end-to-end chain — all proven live
+```
+User opens /apollo
+  → Search form  → POST /api/apollo/import  → Apollo /v1/mixed_people/api_search + /v1/people/match
+  → Contact saved (source='apollo', stream classified)
+  → NetSuiteCampaignWizard launches
+  → Step 4 → POST /api/apollo/send-campaign  → Resend  → sara@techcloudpro.com → recipient inbox
+```
+
+### deferred-items.md item #1 — RESOLVED
+Apollo key rotation is done. Future key rotation runbook: same recipe (replace in .env → source + pm2 restart --update-env → verify via /proc/PID/environ).
+
+---
 *Phase: 04-apollo-import-and-auto-campaign*
 *Completed: 2026-05-30*
+*Live end-to-end verified: 2026-05-30 23:30 UTC (Apollo + Resend both proven on production)*

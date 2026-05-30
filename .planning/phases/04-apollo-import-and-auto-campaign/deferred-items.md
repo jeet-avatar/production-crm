@@ -28,20 +28,19 @@ These pre-existing TS errors in the backend exist on the production branch BEFOR
 
 # Phase 04 close-out items (added 2026-05-30)
 
-## 1. Apollo API key refresh on EC2 (PHASE 4.5 REOPEN TRIGGER)
+## 1. Apollo API key refresh on EC2 — RESOLVED 2026-05-30 23:30 UTC
 
-**Current state:** `/var/www/crm-backend/.env` has TWO `APOLLO_API_KEY` lines (`TQHa...sGGA` and `aRGM...hNXw`, both 22 chars). dotenv last-wins → backend sees `aRGM...hNXw`. **Both keys return HTTP 401 "Invalid access credentials" from `https://api.apollo.io`.** Verified by direct curl from EC2 during Plan 04-06 Task 4a.
+**Resolution:** BrandMonkz key `erqk1R…iWEg` (validated against `https://api.apollo.io/api/v1/auth/health` → `{"healthy":true,"is_logged_in":true}`) deployed to `/var/www/crm-backend/.env`. Both stale `TQHa…sGGA` + `aRGM…hNXw` lines removed in single rotation. Backup at `/var/www/crm-backend/.env.bak-2026-05-30-apollo-rotate`.
 
-**Impact:** Blocks the Apollo import half of the Phase 4 smoke (Plan 04-06 Task 4a). The wrapper correctly returns HTTP 503 "Apollo key invalid or expired" — the graceful-degradation path is itself verified, but a real prospect cannot be imported until the key is refreshed.
+**Pitfall captured for future rotations:** `pm2 restart --update-env` alone does NOT pick up `.env` changes — it reads from the SHELL environment at restart time. Correct recipe:
+```
+cd /var/www/crm-backend
+set -a && source .env && set +a
+pm2 restart crm-backend --update-env
+# verify: PID=$(pgrep -f 'crm-backend/dist/server.js') && sudo cat /proc/$PID/environ | tr '\0' '\n' | grep APOLLO
+```
 
-**Resolution (outside this repo):**
-1. Rajesh (or operator with Apollo account access) generates a fresh API key at `https://app.apollo.io/#/settings/credentials`
-2. Replace BOTH stale lines in `/var/www/crm-backend/.env` with a single new line: `APOLLO_API_KEY=<new>`
-3. `pm2 restart crm-backend` (env reload on next module import)
-4. Re-run Plan 04-06 Task 4a curl. Expected: HTTP 200 with `{imported:1, contactIds:[...], suggestedStream:"...", ...}`
-
-**Estimated effort:** < 5 min once the key is in hand.
-**Cost:** ~2 Apollo credits when the live import finally runs (1 search + 1 enrichment per the Plan 04-06 filter set).
+**Live verification:** Plan 04-06 Task 4a curl returned HTTP 200 with `{imported:1, contactIds:["cmpsz0d3q000350mxrlau3sg5"], suggestedStream:"Cybersecurity"}`. 1 real VP Finance contact persisted to prod DB with `source='apollo'`, `apolloPersonId`, `stream='Cybersecurity'`, `apolloRawData`. Cost: ~2 Apollo credits.
 
 ## 2. Test contact `cmtest1780181866jm6a063b2d` (jm@techcloudpro.com)
 
