@@ -1,14 +1,21 @@
 # Project State
 
-Last activity: 2026-05-30 - Plan 04-02 COMPLETE: typed Apollo.io TS client library (searchPeople + enrichPerson + isEmailLocked + sleep + ApolloAuthError) at backend/src/lib/apolloClient.ts
+Last activity: 2026-05-30 - Plan 04-01 COMPLETE: Prisma stream + Apollo dedup fields + classifyStream() extracted to backend/src/lib/streamClassifier.ts
 
 ## Current Phase
 Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (2/6 plans done)
 
 ## Current Position
 - Phase: 04-apollo-import-and-auto-campaign — IN PROGRESS
-- Plan: 02 (complete) — Apollo TS client lib, commits 2113f9e + 5c75d21
+- Plan: 01 (complete) — Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction to lib, commits 911e1e2 + 79290fe (schema edits also bundled in prior 5c75d21)
 - Next: Plan 04-03 — Backend POST /api/apollo/import + send-campaign (Resend) + stream-template seed
+
+## Decisions Made (Phase 04 additions — Plan 04-01)
+- Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
+- STREAMS[] in lib exports only the 9 canonical Phase 4 streams; classifyStream() can still return broader legacy labels (Full-Stack/Web3/Product-Design/QA-Testing) — those fall through to template-fallback in Apollo wizard
+- classifyStream() function body copied byte-for-byte (regex order preserved) into streamClassifier.ts — zero behavior drift between Job Leads and upcoming Apollo route
+- prisma db push intentionally deferred to plan 04-06 — executor env has no DATABASE_URL per execution_context env_state
+- Audit .sql file force-added (git add -f) — backend/.gitignore line 49 ignores prisma/migrations/**/*.sql; prior migration.sql files at 20251003210116_crmstartup/migration.sql were committed the same way
 
 ## Decisions Made (Phase 04 additions — Plan 04-02)
 - apolloClient.ts is library-pure: does NOT read process.env. Caller (route in 04-03) injects the key. Keeps the wrapper reusable from scripts and testable in isolation.
@@ -41,7 +48,7 @@ None
 ## Phase 04 Progress
 | Plan | Name | Status | Commit |
 |------|------|--------|--------|
-| 01 | Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction | Complete | 911e1e2 |
+| 01 | Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction | Complete | 911e1e2, 79290fe |
 | 02 | Apollo TS client lib (searchPeople + enrichPerson + typed errors) | Complete | 2113f9e, 5c75d21 |
 | 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Pending | - |
 | 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Pending | - |
