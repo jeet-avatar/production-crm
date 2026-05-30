@@ -4,6 +4,10 @@ import { authenticateToken } from '../middleware/auth';
 import Anthropic from '@anthropic-ai/sdk';
 import { AI_CONFIG } from '../config/ai';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import {
+  seedStreamTemplates,
+  STREAM_TEMPLATE_SEEDS,
+} from '../seeds/stream-templates';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -29,16 +33,20 @@ async function sendEmail(to: string, subject: string, html: string) {
 
 /**
  * GET /api/email-templates
- * Get all email templates
+ * Get all email templates (optionally filtered by ?category=Stream:<name> — Phase 4 plan 04-03).
  */
 router.get('/', async (req, res) => {
   try {
-    const { type } = req.query;
+    const { type, category } = req.query;
+
+    const where: any = { userId: req.user!.id };
+    // Phase 4 plan 04-03 — wizard filters by `Stream:<name>` category.
+    if (typeof category === 'string' && category) {
+      where.category = category;
+    }
 
     const templates = await prisma.emailTemplate.findMany({
-      where: {
-        userId: req.user!.id,
-      },
+      where,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -47,15 +55,42 @@ router.get('/', async (req, res) => {
         htmlContent: true,
         isActive: true,
         variables: true,
+        category: true,
         createdAt: true,
         updatedAt: true,
-      },
+      } as any,
     });
 
     res.json({ templates, total: templates.length });
   } catch (error: any) {
     console.error('Error fetching email templates:', error);
     res.status(500).json({ error: 'Failed to fetch email templates' });
+  }
+});
+
+/**
+ * POST /api/email-templates/seed-streams
+ * Idempotently seed the 9 canonical Stream:<name> templates for the calling user.
+ * Phase 4 plan 04-03 — backs the wizard's template-fallback chain in plan 04-05.
+ */
+router.post('/seed-streams', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'unauthenticated' });
+    }
+
+    const result = await seedStreamTemplates(prisma, userId);
+    return res.json({
+      ...result,
+      total: STREAM_TEMPLATE_SEEDS.length,
+    });
+  } catch (error: any) {
+    console.error('Error seeding stream templates:', error);
+    return res.status(500).json({
+      error: 'Failed to seed stream templates',
+      detail: error?.message,
+    });
   }
 });
 

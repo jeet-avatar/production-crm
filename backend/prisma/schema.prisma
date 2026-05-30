@@ -505,6 +505,9 @@ model EmailTemplate {
   htmlContent String
   textContent String?
   variables   Json? // Array of variable names like ["firstName", "companyName"]
+  // Phase 4 — stream-routed templates. Convention: `Stream:<name>` (e.g., `Stream:NetSuite`).
+  // Apollo wizard (plan 04-05) queries `?category=Stream:<x>` to pick a template per import batch.
+  category    String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -517,6 +520,7 @@ model EmailTemplate {
   campaigns Campaign[]
 
   @@index([userId])
+  @@index([category])
   @@map("email_templates")
 }
 
