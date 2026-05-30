@@ -67,6 +67,13 @@ export const contactsApi = {
     const response = await apiClient.delete(`/contacts/${id}`);
     return response.data;
   },
+
+  // Fetch a specific batch of contacts by ID — used by NetSuiteCampaignWizard after Apollo import
+  getByIds: async (ids: string[]) => {
+    if (ids.length === 0) return { contacts: [] };
+    const response = await apiClient.get('/contacts', { params: { ids: ids.join(',') } });
+    return response.data;
+  },
 };
 
 // Companies API
@@ -385,6 +392,38 @@ export const contractsApi = {
   },
   delete: async (id: string) => {
     const response = await apiClient.delete(`/contracts/${id}`);
+    return response.data;
+  },
+};
+
+// Apollo Prospecting API
+export interface ApolloSearchFilters {
+  personTitles?: string[];
+  personLocations?: string[];
+  organizationKeywordTags?: string[];
+  organizationDomains?: string[];
+  minEmployees?: number;
+  maxEmployees?: number;
+  page?: number;
+  perPage?: number;
+}
+
+export interface ApolloImportResponse {
+  imported: number;
+  skipped: number;
+  total: number;
+  contactIds: string[];
+  suggestedStream: string;
+  errors: Array<{ apolloPersonId: string; reason: string }>;
+}
+
+export const apolloApi = {
+  import: async (
+    filters: ApolloSearchFilters,
+    enrich = true,
+  ): Promise<ApolloImportResponse> => {
+    // apiClient baseURL already includes `/api`, so path here is `/apollo/import`
+    const response = await apiClient.post('/apollo/import', { filters, enrich });
     return response.data;
   },
 };
