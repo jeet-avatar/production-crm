@@ -52,4 +52,6 @@ Plans:
 - [x] 04-03-PLAN.md — Backend POST /api/apollo/import + POST /api/apollo/send-campaign (Resend) + stream-template seed endpoint (Complete: 764ce91, 9437281, 243354b)
 - [x] 04-04-PLAN.md — NEW dedicated /apollo page + ApolloSearchForm + sidebar nav (ContactList untouched) (Complete: 66a4737, b005169)
 - [x] 04-05-PLAN.md — NetSuiteCampaignWizard component (sends via /api/apollo/send-campaign Resend backend + 3-layer template fallback) (Complete: 9371f7c, 2f14467)
-- [ ] 04-06-PLAN.md — Handoff wiring + deploy (rsync to /var/www/crm-backend/dist + pm2) + 1-contact smoke (verifies Resend send from Sara)
+- [x] 04-06-PLAN.md — Handoff wiring + deploy (rsync to /var/www/crm-backend/dist + pm2) + 9 stream templates seeded + Resend send-campaign smoke 200 `{sent:1,failed:0}` from Sara <sara@techcloudpro.com>. htmlBody→htmlContent production-blocking field-name fix landed in a72fa4b. Apollo IMPORT 503 verified as upstream-credential-gate (both EC2 keys 401 from app.apollo.io) — deferred to Phase 4.5 reopen-trigger. (Complete 2026-05-30: f7e6482, de87ba1, f44e38a, a72fa4b)
+
+**Phase 4 COMPLETE 2026-05-30** — 6/6 plans done; Resend send-half verified end-to-end live on production; Apollo IMPORT awaits external key refresh per deferred-items.md item #1.

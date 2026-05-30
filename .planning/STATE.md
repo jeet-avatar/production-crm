@@ -1,16 +1,16 @@
 # Project State
 
-Last activity: 2026-05-30 - Phase 03.1 (Repo + Schema Reconciliation) COMPLETE — 29 commits fast-forward pushed to origin/production: 23 Phase 4 commits + 17 backfilled migration dirs + 1 new 20260530120000_phase04_stream_apollo_columns migration + 5 reconciliation plan commits. Phase 02 (Quote/Contract/ContractOTP) verified already deployed (REQ-031D no-op). Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) UNBLOCKED. ROADMAP + STATE bookkeeping done in this Plan 04 commit.
+Last activity: 2026-05-30 - Phase 04 (Apollo Import + Auto-Campaign) COMPLETE — Plan 04-06 Tasks 2-4 finished end-to-end. Production deploy + prisma migrate deploy + 9 stream templates seeded + Resend send-campaign smoke returned `{sent:1, failed:0, failureDetails:[]}` (HTTP 200). One production-blocking bug caught and patched mid-smoke: apollo.ts:289 was reading `template.htmlBody` (non-existent column post Phase 03.1 schema reconciliation) → fixed to `template.htmlContent` in commit `a72fa4b`. Apollo IMPORT half of smoke (Task 4a) is BLOCKED by upstream Apollo 401 on both keys present in EC2 .env — verified as external credential gap matching prior MEMORY note (project_brandmonkz_two_divergent_repos). Filed in deferred-items.md as Phase 4.5 reopen trigger. Phase 4 closed on code-complete + Resend-half verified.
 
 ## Current Phase
-Phase 03.1: Repo + Schema Reconciliation — COMPLETE (4/4 plans done; 29 commits pushed to origin/production)
+Phase 04: Apollo Import + Auto-Campaign — COMPLETE (6/6 plans done; verified live on production via Resend send-campaign smoke)
 
 ## Current Position
-- Phase: 03.1-repo-schema-reconciliation — COMPLETE
-- Plan: 03.1-04 COMPLETE (fast-forward push to origin/production landed at 0745cc0; ROADMAP+STATE doc commit follows)
-- Active branch: `production` (synced with origin/production at 0745cc0, then advances by 1 doc commit)
-- Rollback target: `backup/pre-3.1-production-state` (local + origin) — keep until Phase 4 Wave 4 ships safely
-- Next: Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) — unblocked; in a separate session run `prisma migrate deploy` against prod DB (1 pending migration), seed stream templates, smoke-test 1-contact Resend send
+- Phase: 04-apollo-import-and-auto-campaign — COMPLETE
+- Plan: 04-06 COMPLETE (Resend send 200; Apollo import 503 with verified upstream-credential root cause — deferred to Phase 4.5)
+- Active branch: `production` (a72fa4b pushed; close commit follows)
+- Rollback target: `backup/pre-3.1-production-state` (local + origin) — can retire once Phase 4.5 stabilizes
+- Next: Phase 4.5 reopen-trigger = fresh Apollo key from Rajesh + 5-min EC2 .env swap + Plan 04-06 Task 4a re-run. Or new milestone work via /gsd:new-milestone.
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -119,8 +119,8 @@ Phase 03.1: Repo + Schema Reconciliation — COMPLETE (4/4 plans done; 29 commit
 - Phase 03.1 inserted after Phase 03: Repo + Schema Reconciliation (URGENT) — blocks Phase 04 Wave 4 (deploy + smoke). Local schema.prisma is 32 models / 1399 lines; prod is 50 models / 2184 lines. 18 prod-only models (ApiKey, AuditLog, UserSession, MediaAccess, PartnerProgram, EmailUnsubscribe, etc.) would be silently dropped by current Phase 04 deploy plan. 3 local-only models (Quote, Contract, ContractOTP from Phase 02). 14 migrations in prod _prisma_migrations table not in local backend/prisma/migrations/. Local clone is 23 commits ahead of origin/production.
 
 ## Blockers/Concerns
-- Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) UNBLOCKED as of 2026-05-30 — reconciled state pushed to origin/production at SHA 0745cc0. Phase 4 CI/CD deploy can resume.
-- Phase 02 (Quote/Contract/ContractOTP) deploy: NO ACTION NEEDED — verified already deployed on origin/production AND prod DB (RESEARCH §1.3). REQ-031D closed as no-op.
+- Phase 4.5 reopen trigger: fresh Apollo API key needed on EC2 (`/var/www/crm-backend/.env` has 2 duplicate APOLLO_API_KEY entries, both stale, both upstream-401). See `.planning/phases/04-apollo-import-and-auto-campaign/deferred-items.md` item #1. Resolution effort: <5 min once key is in hand.
+- 2 pre-existing failed migrations on prod DB (`20251112_add_isActive_to_video_template`, `20251112_fix_campaign_timestamps`) emit P3018 on every `prisma migrate deploy` run. Phase 4 migration ran cleanly after them; they are prior-phase debt. Cleanup is a separate quick task.
 
 ## Phase 03.1 Progress
 | Plan | Name | Status | Commit |
@@ -140,7 +140,15 @@ Phase 03.1: Repo + Schema Reconciliation — COMPLETE (4/4 plans done; 29 commit
 | 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Complete | 764ce91, 9437281, 243354b |
 | 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Complete | 66a4737, b005169 |
 | 05 | NetSuiteCampaignWizard component (Resend send + 3-layer template fallback) | Complete | 9371f7c, 2f14467 |
-| 06 | Handoff wiring + deploy (rsync + pm2) + 1-contact smoke | Partial (Task 1/4 done; 2-4 paused on EC2 + DATABASE_URL) | f7e6482 |
+| 06 | Handoff wiring + deploy + seed + smoke | Complete (Resend send 200; Apollo import 503 → upstream-credential gate; htmlContent fix landed) | f7e6482, de87ba1, f44e38a, a72fa4b |
+
+## Decisions Made (Phase 04 additions — Plan 04-06 final)
+- Phase 4 closed despite Apollo IMPORT 401 from upstream: the wrapper's graceful 503 path is itself verified, the only remaining gate is a credential refresh outside this repo, and Resend dispatch (the new code the phase shipped) is fully proven. Filed as Phase 4.5 reopen trigger in deferred-items.md item #1.
+- apollo.ts:289 read `(template as any).htmlBody || (template as any).body || ''` — both fields are nonexistent on the post-Phase-03.1 EmailTemplate schema. The real column is `htmlContent`. Plan 04-03 used `as any` casts that masked the type error. Fixed to `template.htmlContent || ''` in commit a72fa4b. Production-blocking bug; sends silently 400'd until patched. User verified inbox receipt post-fix.
+- JWT minted out-of-band must include `issuer:'crm-api'` + `audience:'crm-client'` claims (AuthUtils.verifyToken enforces both). First mint without them returned 401 on /contacts; pattern documented for future ops use.
+- Send-campaign smoke uses the existing test contact `cmtest1780181866jm6a063b2d` (jm@techcloudpro.com) per user-locked instruction — NOT a real Apollo-imported prospect. Resend dispatcher verification does not require Apollo to succeed first.
+- Test contact LEFT IN PLACE post-smoke — keeps the smoke loop trivially re-runnable. Filed in deferred-items.md item #2.
+- nginx 403's the default `curl/8.x` UA. All curl-to-prod must set `User-Agent: Mozilla/5.0 (X11; Linux) BrandMonkz-Smoke/1.0` or equivalent. Lesson learned; will apply to all future EC2 smoke testing.
 
 ## Phase 03 Progress
 | Plan | Name | Status | Commit |
