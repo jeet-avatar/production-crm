@@ -1,0 +1,27 @@
+# 03.1-01 Baseline Verification Log
+# Generated: 2026-05-30T21:42:30Z
+
+## Verification 1: local HEAD
+LOCAL_HEAD=013933797338106e4d84798fe822c0545410a7b6
+OK local HEAD matches research baseline (0139337)
+
+## Verification 2: origin/production HEAD
+ORIGIN_HEAD=bc0668672fd272c8b04a40597b04478fc4cca1d7
+OK origin/production matches research baseline (bc06686)
+
+## Verification 3: linear ancestry (merge-base == origin HEAD)
+MERGE_BASE=bc0668672fd272c8b04a40597b04478fc4cca1d7
+OK fast-forward push is possible (origin/production is ancestor of local HEAD)
+
+## Verification 4: EC2 HEAD (sanity, not a blocker)
+EC2_HEAD=1e6b3f7be3fd201aa4004e06d24e2f525fab1cec
+OK EC2 HEAD matches research baseline (1e6b3f7)
+
+## Verification 5: REQ-031D no-op — Quote/Contract/ContractOTP on origin/production
+QC_COUNT=3 (expected 3)
+OK REQ-031D verified — Quote/Contract/ContractOTP already on origin/production. No preservation work needed.
+
+## Verification 6: local commits ahead of origin/production
+AHEAD=23 (research baseline was 23)
+OK ahead count matches research baseline
+
