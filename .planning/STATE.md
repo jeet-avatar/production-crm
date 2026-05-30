@@ -1,14 +1,14 @@
 # Project State
 
-Last activity: 2026-05-30 - Plan 04-04 COMPLETE: dedicated /apollo page + ApolloSearchForm + apolloApi client + sidebar nav (ContactList.tsx UNTOUCHED)
+Last activity: 2026-05-30 - Plan 04-05 COMPLETE: NetSuiteCampaignWizard 4-step modal (Resend send path, 3-layer template fallback, USER-LOCKED firewall vs SES campaigns route)
 
 ## Current Phase
-Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (4/6 plans done)
+Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (5/6 plans done)
 
 ## Current Position
 - Phase: 04-apollo-import-and-auto-campaign — IN PROGRESS
-- Plan: 04 (complete) — Frontend /apollo route, commits 66a4737 + b005169
-- Next: Plan 04-05 — NetSuiteCampaignWizard component (Resend send + 3-layer template fallback)
+- Plan: 05 (complete) — NetSuiteCampaignWizard.tsx + api.ts helpers + backend ?ids= filter, commits 9371f7c + 2f14467
+- Next: Plan 04-06 — Handoff wiring (ApolloPage → wizard) + deploy (rsync + pm2) + 1-contact smoke
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -49,6 +49,16 @@ Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (4/6 plans done)
 - @aws-sdk/client-ses import explicitly forbidden in apollo.ts — verified zero via `grep -c "@aws-sdk/client-ses" apollo.ts == 0`. This is the firewall keeping Resend and SES code paths separate.
 - Boot-time fail-fast smoke deferred to plan 04-06 deploy — executor env has no DATABASE_URL so `npm run dev` cannot reach the Resend guard locally (Prisma crashes first). The static guard code is deterministic.
 
+## Decisions Made (Phase 04 additions — Plan 04-05)
+- NetSuiteCampaignWizard send button POSTs `/api/apollo/send-campaign` (Resend), NOT `/api/campaigns/:id/send` (SES). USER-LOCKED 2026-05-30 firewall. Verified via `grep -c "campaignsApi\.send\|campaignsApi\.create\|campaignsApi\.addCompany" wizard.tsx == 0`.
+- Wizard does NOT create a Campaign DB row in Phase 4 MVP — send tracking lives only in the Resend dispatcher response `{ sent, failed, failureDetails }`. Phase 4.5 or beyond may add a `Campaign` row if Rajesh requests historical reporting.
+- 3-layer template fallback: `Stream:<suggestedStream>` → `Stream:Other` → `HARDCODED_FALLBACK` const. Layer 3 yields `templateId = null`, which Step 3 send button intercepts with a friendly "go seed templates first" error rather than letting the backend 404. Keeps the UX clean while preserving the backend invariant that `/api/apollo/send-campaign` requires a real persisted template.
+- From-address in Step 3 preview hardcoded to literal `'Sara <sara@techcloudpro.com>'` (line 52, `APOLLO_FROM_DISPLAY`). Matches backend `apollo.ts:53 APOLLO_FROM_EMAIL`. Both stay in sync — Phase 4.5 will make per-stream / configurable in one swap.
+- `campaignsApi.aiGenerateContent` IS imported and used in the wizard (Step 2 "Let AI write it for me ✨" button). That endpoint is content-generation only, NOT a send call — the firewall is on send paths, not on AI-content. Verified by counting only the send-related strings in the negative grep.
+- `contactsApi.getByIds` extends the existing `GET /api/contacts` handler with a `?ids=cuid1,cuid2,...` filter (4-line WHERE addition) instead of a new endpoint — preserves auth, tenant scoping, pagination. Acceptable per the verify block's "if file is named contact.routes.ts, edit that one" guidance (production-crm uses `contacts.ts`).
+- Body preview in Step 3 runs through `DOMPurify.sanitize` (mirrors `FollowUpWizard.tsx:621` pattern) — defense in depth against hostile HTML in templates or AI output.
+- Doc comment containing literal `"campaignsApi.create/addCompany/send"` strings was rewritten before commit because it broke the negative grep firewall (returned 1 instead of 0). Reworded to convey the same intent without the literal anti-pattern strings.
+
 ## Decisions Made
 - Prisma migration applied via `db push` (non-interactive) instead of `migrate dev` (requires TTY); manual migration SQL file created for audit trail
 - Decimal fields serialized with `Number()` helper in quotes route to prevent Prisma Decimal serialization issues
@@ -77,7 +87,7 @@ None
 | 02 | Apollo TS client lib (searchPeople + enrichPerson + typed errors) | Complete | 2113f9e, 5c75d21 |
 | 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Complete | 764ce91, 9437281, 243354b |
 | 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Complete | 66a4737, b005169 |
-| 05 | NetSuiteCampaignWizard component (Resend send + 3-layer template fallback) | Pending | - |
+| 05 | NetSuiteCampaignWizard component (Resend send + 3-layer template fallback) | Complete | 9371f7c, 2f14467 |
 | 06 | Handoff wiring + deploy (rsync + pm2) + 1-contact smoke | Pending | - |
 
 ## Phase 03 Progress
