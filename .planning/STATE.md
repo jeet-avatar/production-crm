@@ -1,14 +1,16 @@
 # Project State
 
-Last activity: 2026-05-30 - Plan 04-06 PARTIAL: Task 1 (handoff wiring) COMPLETE; Tasks 2-4 (deploy + seed + smoke) PAUSED pending EC2 access + DATABASE_URL availability
+Last activity: 2026-05-30 - Phase 03.1 Plan 01 COMPLETE — backup branch `backup/pre-3.1-production-state` + work branch `sync/03.1-reconcile-with-ec2` created at SHA 656afa0 (backup pushed to origin); baseline verification log proves linear ancestry + REQ-031D no-op (Quote/Contract/ContractOTP already on origin/production)
 
 ## Current Phase
-Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (5/6 plans done; 04-06 Task 1 of 4 complete)
+Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (1/4 plans done; baseline + branches established)
 
 ## Current Position
-- Phase: 04-apollo-import-and-auto-campaign — IN PROGRESS
-- Plan: 06 (PARTIAL) — Task 1 (ApolloPage → NetSuiteCampaignWizard wiring) shipped in commit f7e6482; Tasks 2 (deploy), 3 (seed), 4 (smoke) PAUSED by user pending EC2 + DATABASE_URL
-- Next: Resume 04-06 Tasks 2-4 in a later session once EC2 access + RESEND_API_KEY on EC2 + DATABASE_URL are unblocked
+- Phase: 03.1-repo-schema-reconciliation — IN PROGRESS
+- Plan: 01 COMPLETE (commit 656afa0); next is 03.1-02 (migration backfill)
+- Active branch: `sync/03.1-reconcile-with-ec2` (work branch for Waves 2-3)
+- Rollback target: `backup/pre-3.1-production-state` (local + origin)
+- Next: Plan 03.1-02 — scp 17 EC2-only migration directories from /var/www/crm-backend/backend/prisma/migrations/ → local backend/prisma/migrations/ (per RESEARCH §5.1 recipe)
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -59,6 +61,15 @@ Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (5/6 plans done; 04-06 T
 - Body preview in Step 3 runs through `DOMPurify.sanitize` (mirrors `FollowUpWizard.tsx:621` pattern) — defense in depth against hostile HTML in templates or AI output.
 - Doc comment containing literal `"campaignsApi.create/addCompany/send"` strings was rewritten before commit because it broke the negative grep firewall (returned 1 instead of 0). Reworded to convey the same intent without the literal anti-pattern strings.
 
+## Decisions Made (Phase 03.1 additions — Plan 03.1-01)
+- Backup branch `backup/pre-3.1-production-state` forked from `production` POST-log-commit (SHA 656afa0), not pre-log (0139337) — rollback restores log artifact AND original 23 Phase 4 commits in one shot
+- Backup pushed to origin (`origin/backup/pre-3.1-production-state`) — survives any local-only disaster
+- Work branch `sync/03.1-reconcile-with-ec2` forked from same SHA — Waves 2-3 start aligned with backup
+- Baseline verification log force-added past .gitignore (precedent: Phase 04-01 audit SQL was also force-added)
+- REQ-031D verified as a no-op: `git show origin/production:backend/prisma/schema.prisma | grep -c '^model (Quote|Contract|ContractOTP)'` returned 3 — Phase 02 models already on origin/production AND in EC2 prod DB; no preservation work needed
+- Remote name correction: production-crm repo pushes to `github.com/jeet-avatar/production-crm`, NOT `github.com/jeet-avatar/crm-email-marketing-platform` (the latter is the BrandMonkz repo per MEMORY)
+- No commit on work branch yet — Task 2's deliverable is the branch refs themselves; plan was designed as git-refs-only
+
 ## Decisions Made (Phase 04 additions — Plan 04-06 PARTIAL)
 - Plan 04-06 is intentionally PARTIAL. Only Task 1 (handoff wiring on ApolloPage) executed — commit `f7e6482`. Tasks 2 (deploy: rsync + pm2 + prisma migrate deploy), 3 (seed stream templates), 4 (1-real-contact Resend smoke) are PAUSED by explicit user instruction pending EC2 access + RESEND_API_KEY on EC2 + DATABASE_URL availability. Do NOT mark Plan 06 complete and do NOT write 04-06-SUMMARY.md until those tasks finish.
 - Task 1 implementation: imported `NetSuiteCampaignWizard` named export, added `showWizard` state, replaced disabled placeholder button (with "Wizard handoff lands in plan 04-05" tooltip) with an enabled gradient button gated on `result?.contactIds.length > 0`, mounted wizard at top of result section with `importedContactIds=result.contactIds` + `suggestedStream=result.suggestedStream` + no-op `onSuccess` that keeps result panel visible. `tsc --noEmit` clean.
@@ -82,8 +93,22 @@ Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (5/6 plans done; 04-06 T
 - Missing FK lookups result in null (deal still imports) — avoids blocking import on unresolvable contacts/companies
 - router.use(authenticate) covers bulk-import route — no per-route middleware needed
 
+## Accumulated Context
+
+### Roadmap Evolution
+- Phase 03.1 inserted after Phase 03: Repo + Schema Reconciliation (URGENT) — blocks Phase 04 Wave 4 (deploy + smoke). Local schema.prisma is 32 models / 1399 lines; prod is 50 models / 2184 lines. 18 prod-only models (ApiKey, AuditLog, UserSession, MediaAccess, PartnerProgram, EmailUnsubscribe, etc.) would be silently dropped by current Phase 04 deploy plan. 3 local-only models (Quote, Contract, ContractOTP from Phase 02). 14 migrations in prod _prisma_migrations table not in local backend/prisma/migrations/. Local clone is 23 commits ahead of origin/production.
+
 ## Blockers/Concerns
-None
+- Phase 04 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke) BLOCKED on Phase 03.1 reconciliation. Code Waves 1-3 of Phase 04 stay locally; reconciled deploy resumes after 03.1 verified.
+- Phase 02 (Quote/Contract/ContractOTP) — RESOLVED. Verified via Plan 03.1-01 Verification 5: already deployed on origin/production AND in EC2 prod DB (`_prisma_migrations` row `20260319000000_add_quotes_contracts` applied). No preservation work needed (REQ-031D no-op).
+
+## Phase 03.1 Progress
+| Plan | Name | Status | Commit |
+|------|------|--------|--------|
+| 01 | Backup branch + work branch + baseline verification (REQ-031A precondition + REQ-031D no-op confirmation) | Complete | 656afa0 |
+| 02 | Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) | Pending | - |
+| 03 | Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F) | Pending | - |
+| 04 | Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) | Pending | - |
 
 ## Phase 04 Progress
 | Plan | Name | Status | Commit |
