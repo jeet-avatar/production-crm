@@ -45,6 +45,7 @@ import teamRoutes from './routes/team';
 import sharingRoutes from './routes/sharing';
 import leadsRoutes from './routes/leads.routes';
 import jobLeadsRoutes from './routes/job-leads.routes';
+import apolloRouter from './routes/apollo';
 import quotesRoutes from './routes/quotes';
 import contractsRoutes from './routes/contracts';
 import contractSigningRoutes from './routes/contractSigning';
@@ -315,6 +316,7 @@ app.use('/api/team', teamRoutes);
 app.use('/api/sharing', sharingRoutes);
 app.use('/api/leads', leadsRoutes);
 app.use('/api/job-leads', jobLeadsRoutes);
+app.use('/api/apollo', apolloRouter);
 // DISABLED: These routes reference non-existent Prisma models
 // app.use('/api/tasks', tasksRoutes);
 // app.use('/api/projects', projectsRoutes);
