@@ -1,16 +1,16 @@
 # Project State
 
-Last activity: 2026-05-30 - Phase 03.1 Plan 02 COMPLETE — 17 EC2-only migration directories backfilled into local `backend/prisma/migrations/` via tarball+scp recipe (byte-for-byte preserved, 5/5 spot-check sizes match RESEARCH §1.2). Single atomic commit 24a5c66 on `sync/03.1-reconcile-with-ec2`. Total dir count now 29 (matches EC2 filesystem exactly). REQ-031B closed.
+Last activity: 2026-05-30 - Phase 03.1 Plan 03 COMPLETE — Phase 4 migration `20260530120000_phase04_stream_apollo_columns/migration.sql` generated via `prisma migrate diff` (origin/production → local). Fallback path invoked: stripped redundant `ADD COLUMN "category"` (column pre-exists in prod DB per RESEARCH §2.1); kept `email_templates_category_idx`. 6 ADD COLUMN + 7 CREATE INDEX. REQ-031F gates passed (with tsc deferred to Phase 4 Wave 4 CI). Single atomic commit a5872fd. Migration tree now at 30 dirs / 30 sql files. REQ-031C and REQ-031F closed.
 
 ## Current Phase
-Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (2/4 plans done; baseline + branches + migration tree backfill complete)
+Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (3/4 plans done; ONLY Wave 4 push + state update remaining)
 
 ## Current Position
 - Phase: 03.1-repo-schema-reconciliation — IN PROGRESS
-- Plan: 02 COMPLETE (commit 24a5c66); next is 03.1-03 (Phase 4 migration generation via `prisma migrate diff`)
-- Active branch: `sync/03.1-reconcile-with-ec2` (work branch for Waves 2-3)
+- Plan: 03 COMPLETE (commit a5872fd); next is 03.1-04 (fast-forward push to origin/production + final ROADMAP/STATE update)
+- Active branch: `sync/03.1-reconcile-with-ec2` (work branch; 4 commits ahead of `production`)
 - Rollback target: `backup/pre-3.1-production-state` (local + origin)
-- Next: Plan 03.1-03 — generate `20260530_phase04_stream_apollo_columns/migration.sql` via `prisma migrate diff` (use `npx -y prisma@5.4.2 ...` workaround pattern from Plan 02 — local node_modules not installed; Prisma 7.x default rejects schema syntax)
+- Next: Plan 03.1-04 — checkout production, fast-forward merge sync branch, push origin production (no force), unblock Phase 4 Wave 4 (Plan 04-06 Tasks 2-4: deploy + seed + smoke)
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -70,6 +70,16 @@ Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (2/4 plans done; baseli
 - Remote name correction: production-crm repo pushes to `github.com/jeet-avatar/production-crm`, NOT `github.com/jeet-avatar/crm-email-marketing-platform` (the latter is the BrandMonkz repo per MEMORY)
 - No commit on work branch yet — Task 2's deliverable is the branch refs themselves; plan was designed as git-refs-only
 
+## Decisions Made (Phase 03.1 additions — Plan 03.1-03)
+- Fallback INVOKED for the EmailTemplate.category ADD COLUMN trap: prisma migrate diff emitted `ALTER TABLE "email_templates" ADD COLUMN "category" TEXT;` because origin/production schema lacks the column, but RESEARCH §2.1 verified the column ALREADY EXISTS in prod DB (predates Phase 4). Stripped the redundant block via inline Python `re.sub`, preserving `CREATE INDEX email_templates_category_idx`. Without this fix, `prisma migrate deploy` would fail with `column "category" of relation "email_templates" already exists`
+- Migration directory name uses 14-digit `20260530120000` (noon UTC) per RESEARCH §4.2 — sorts last lexically, gives breathing room for same-day siblings
+- tsc --noEmit DEFERRED per critical_constraints: no local node_modules, no .ts files touched in this plan (only one .sql migration), so behavioral risk = 0. Phase 4 Wave 4 CI runs npm install + tsc as the real gate
+- Stray `backend/schema.prisma` orphan got mutated by `prisma format` because Prisma 5.4.2 prefers `./schema.prisma` over `./prisma/schema.prisma` when both exist in cwd. Reverted the orphan via `git checkout backend/schema.prisma`; canonical `prisma/schema.prisma` untouched throughout (verified via explicit `--schema=prisma/schema.prisma` validate)
+- OQ1 (RESEARCH §9) resolved: `grep -nE '\bapolloId\b' backend/prisma/schema.prisma` returns 0 hits — no apolloId collision with Phase 4's apolloPersonId/apolloOrgId
+- Cross-check against audit SQL passed: column-name counts match exactly (stream: 4=4, apolloPersonId: 3=3, apolloRawData: 2=2, apolloOrgId: 3=3)
+- Force-add migration past .gitignore (`git add -f backend/prisma/migrations/.../migration.sql`) — same pattern as Plan 02 and Phase 04-01
+- Single atomic commit `a5872fd` with author `jeet-avatar <jm@techcloudpro.com>` — one migration file → one commit
+
 ## Decisions Made (Phase 03.1 additions — Plan 03.1-02)
 - Tarball+scp recipe (RESEARCH §5.1) chosen over per-dir scp — single network round-trip, binary stream preservation guaranteed by tar, no SSH line-ending translation risk; critical for Prisma checksum validation
 - Single atomic commit for all 17 backfilled files (per RESEARCH Open Question 3) — backfill is one logical operation, not 17 independent changes
@@ -117,7 +127,7 @@ Phase 03.1: Repo + Schema Reconciliation — IN PROGRESS (2/4 plans done; baseli
 |------|------|--------|--------|
 | 01 | Backup branch + work branch + baseline verification (REQ-031A precondition + REQ-031D no-op confirmation) | Complete | 656afa0 |
 | 02 | Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) | Complete | 24a5c66 |
-| 03 | Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F) | Pending | - |
+| 03 | Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F) | Complete | a5872fd |
 | 04 | Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) | Pending | - |
 
 ## Phase 04 Progress
