@@ -32,6 +32,33 @@ import {
 } from '../lib/apolloClient';
 import { classifyStream } from '../lib/streamClassifier';
 
+// Phase 4 USER-LOCKED 2026-05-30: Resend send path.
+// We use Resend, NOT SES (campaigns.ts SES flow stays untouched for Rajesh's existing BrandMonkz campaigns).
+import { Resend } from 'resend';
+
+// Fail-fast at module load if RESEND_API_KEY missing. Pattern mirrors main_new.py JWT_SECRET guard
+// (`RuntimeError` at startup). Backend MUST NOT boot without a working send path.
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+if (!RESEND_API_KEY) {
+  // eslint-disable-next-line no-console
+  console.error('[apollo.send-campaign] FATAL: RESEND_API_KEY env var is not set. Backend cannot start.');
+  // eslint-disable-next-line no-console
+  console.error('  → Add RESEND_API_KEY=re_... to backend/.env (live key in EC2 /var/www/crm-backend/.env or Resend dashboard).');
+  process.exit(1);
+}
+const resend = new Resend(RESEND_API_KEY);
+
+// Phase 4 from-address. Per-stream / configurable deferred to Phase 4.5.
+// techcloudpro.com is domain-verified in Resend (May 26, 2026 Peter→Sara swap).
+const APOLLO_FROM_EMAIL = 'Sara <sara@techcloudpro.com>';
+
+// Canonical stream allowlist (mirrors STREAMS export from lib/streamClassifier.ts).
+// Used to validate `suggestedStream` in the send-campaign request body.
+const VALID_STREAMS = new Set([
+  'NetSuite', 'AI/ML', 'Cloud/DevOps', 'Cybersecurity',
+  'Data/Analytics', 'Mobile', 'Enterprise/ERP', 'Staffing/HR', 'Other',
+]);
+
 const router = Router();
 const prisma = new PrismaClient();
 
@@ -54,6 +81,24 @@ interface ApolloImportResponse {
   contactIds: string[];
   suggestedStream: string;
   errors: Array<{ apolloPersonId: string; reason: string }>;
+}
+
+interface ApolloSendCampaignRequestBody {
+  contactIds: string[];
+  templateId: string;
+  suggestedStream: string;
+}
+
+interface ApolloSendCampaignFailure {
+  contactId: string;
+  email: string | null;
+  error: string;
+}
+
+interface ApolloSendCampaignResponse {
+  sent: number;
+  failed: number;
+  failureDetails: ApolloSendCampaignFailure[];
 }
 
 // ---------------------------------------------------------------------------
@@ -207,7 +252,127 @@ router.post('/import', async (req: Request, res: Response) => {
 });
 
 // ---------------------------------------------------------------------------
-// POST /api/apollo/send-campaign — added in Task 3.
+// POST /api/apollo/send-campaign
 // ---------------------------------------------------------------------------
+// Phase 4 USER-LOCKED send path. Dispatches campaign emails via Resend (NOT SES).
+// Mirrors campaigns.ts:546-559 substitution logic but uses resend.emails.send instead of SESClient.
+// Returns aggregated success/failure — never fail-fast on per-contact errors.
+
+router.post('/send-campaign', async (req: Request, res: Response) => {
+  const { contactIds, templateId, suggestedStream } = (req.body || {}) as ApolloSendCampaignRequestBody;
+
+  // ===== Validation =====
+  if (!Array.isArray(contactIds) || contactIds.length === 0) {
+    return res.status(400).json({ error: 'contactIds must be a non-empty array' });
+  }
+  if (!templateId || typeof templateId !== 'string') {
+    return res.status(400).json({ error: 'templateId required' });
+  }
+  if (!suggestedStream || !VALID_STREAMS.has(suggestedStream)) {
+    return res.status(400).json({
+      error: `suggestedStream must be one of: ${[...VALID_STREAMS].join(', ')}`,
+    });
+  }
+
+  const userId = (req as any).user?.id || (req as any).user?.sub;
+  if (!userId) return res.status(401).json({ error: 'unauthenticated' });
+
+  try {
+    // ===== Lookup template (must belong to caller) =====
+    const template = await prisma.emailTemplate.findFirst({
+      where: { id: templateId, userId },
+    });
+    if (!template) {
+      return res.status(404).json({ error: 'Template not found or not owned by user' });
+    }
+    const tplSubject = template.subject || '';
+    const tplBody = (template as any).htmlBody || (template as any).body || '';
+    if (!tplSubject || !tplBody) {
+      return res.status(400).json({ error: 'Template has no subject or body' });
+    }
+
+    // ===== Lookup contacts (must belong to caller; include company for {{companyName}}) =====
+    const contacts = await prisma.contact.findMany({
+      where: { id: { in: contactIds }, userId },
+      include: { company: { select: { name: true } } },
+    });
+
+    if (contacts.length === 0) {
+      return res.status(404).json({ error: 'No matching contacts found for caller' });
+    }
+
+    // ===== Send loop (sequential with 100ms gap — Resend free tier rate limit ~2/sec) =====
+    const failureDetails: ApolloSendCampaignFailure[] = [];
+    let sent = 0;
+
+    for (const contact of contacts) {
+      // Per-contact try/catch — collect failures, never fail-fast.
+      try {
+        if (!contact.email) {
+          failureDetails.push({
+            contactId: contact.id,
+            email: null,
+            error: 'contact has no email',
+          });
+          continue;
+        }
+
+        // Variable substitution — mirror campaigns.ts:546-559 pattern exactly.
+        const vars: Record<string, string> = {
+          firstName: contact.firstName || '',
+          lastName: contact.lastName || '',
+          email: contact.email,
+          companyName: contact.company?.name || '',
+        };
+        let subject = tplSubject;
+        let html = tplBody;
+        for (const [key, val] of Object.entries(vars)) {
+          const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+          subject = subject.replace(regex, val);
+          html = html.replace(regex, val);
+        }
+
+        const result = await resend.emails.send({
+          from: APOLLO_FROM_EMAIL,
+          to: contact.email,
+          subject,
+          html,
+        });
+
+        // Resend SDK returns { data: { id }, error } — error is non-null on failure
+        if ((result as any).error) {
+          failureDetails.push({
+            contactId: contact.id,
+            email: contact.email,
+            error: String((result as any).error?.message || (result as any).error),
+          });
+          continue;
+        }
+
+        sent++;
+
+        // 100ms pacing — Resend free tier ~2/sec
+        await new Promise<void>((r) => setTimeout(r, 100));
+      } catch (err: any) {
+        failureDetails.push({
+          contactId: contact.id,
+          email: contact.email ?? null,
+          error: err?.message || 'unknown error',
+        });
+      }
+    }
+
+    const body: ApolloSendCampaignResponse = {
+      sent,
+      failed: failureDetails.length,
+      failureDetails,
+    };
+    return res.status(200).json(body);
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error('[apollo.send-campaign] unexpected error', err);
+    return res.status(500).json({ error: 'send-campaign failed', detail: err?.message });
+  }
+});
 
 export default router;
