@@ -138,26 +138,26 @@ model User {
 
   // Calendar OAuth Fields (for enterprise-level calendar sync)
   // Google Calendar
-  googleCalendarAccessToken   String?
-  googleCalendarRefreshToken  String?
-  googleCalendarTokenExpiry   DateTime?
-  googleCalendarConnected     Boolean   @default(false)
-  googleCalendarEmail         String? // Which Google account is connected
+  googleCalendarAccessToken  String?
+  googleCalendarRefreshToken String?
+  googleCalendarTokenExpiry  DateTime?
+  googleCalendarConnected    Boolean   @default(false)
+  googleCalendarEmail        String? // Which Google account is connected
 
   // Zoom
-  zoomAccessToken    String?
-  zoomRefreshToken   String?
-  zoomTokenExpiry    DateTime?
-  zoomConnected      Boolean   @default(false)
-  zoomUserId         String? // Zoom user ID
-  zoomUserEmail      String? // Zoom account email
+  zoomAccessToken  String?
+  zoomRefreshToken String?
+  zoomTokenExpiry  DateTime?
+  zoomConnected    Boolean   @default(false)
+  zoomUserId       String? // Zoom user ID
+  zoomUserEmail    String? // Zoom account email
 
   // Microsoft Outlook/Teams
-  outlookAccessToken   String?
-  outlookRefreshToken  String?
-  outlookTokenExpiry   DateTime?
-  outlookConnected     Boolean   @default(false)
-  outlookEmail         String? // Which Outlook account is connected
+  outlookAccessToken  String?
+  outlookRefreshToken String?
+  outlookTokenExpiry  DateTime?
+  outlookConnected    Boolean   @default(false)
+  outlookEmail        String? // Which Outlook account is connected
 
   // Relationships
   contacts           Contact[]
@@ -225,6 +225,11 @@ model Contact {
   enriched   Boolean   @default(false)
   enrichedAt DateTime?
 
+  // Phase 4 — Apollo + stream classification
+  stream         String? // 'NetSuite' | 'AI/ML' | 'Cloud/DevOps' | 'Cybersecurity' | 'Data/Analytics' | 'Mobile' | 'Enterprise/ERP' | 'Staffing/HR' | 'Other'
+  apolloPersonId String? @unique
+  apolloRawData  Json?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -254,6 +259,8 @@ model Contact {
   @@index([assignedToId])
   @@index([status])
   @@index([createdAt])
+  @@index([stream])
+  @@index([apolloPersonId])
   @@map("contacts")
 }
 
@@ -323,6 +330,11 @@ model Company {
   techStack    String? @db.Text // Current tech stack being used
   aiPitch      String? @db.Text // AI solution pitch/value proposition
 
+  // Phase 4 — Apollo + stream classification
+  stream        String?
+  apolloOrgId   String? @unique
+  apolloRawData Json?
+
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -346,6 +358,8 @@ model Company {
   @@index([domain])
   @@index([enriched])
   @@index([dataSource])
+  @@index([stream])
+  @@index([apolloOrgId])
   @@map("companies")
 }
 
@@ -1024,44 +1038,44 @@ model Contract {
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
 
-  deal  Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  quote Quote?  @relation(fields: [quoteId], references: [id], onDelete: SetNull)
-  user  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deal  Deal   @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  quote Quote? @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Signer info
-  signerName        String?
-  signerEmail       String?
-  signerTitle       String?
+  signerName  String?
+  signerEmail String?
+  signerTitle String?
 
   // Client signature
-  signatureData     String?   @db.Text
-  signatureType     String?
-  signatureIp       String?
-  signatureAgent    String?   @db.Text
-  signerOtpId       String?
+  signatureData  String? @db.Text
+  signatureType  String?
+  signatureIp    String?
+  signatureAgent String? @db.Text
+  signerOtpId    String?
 
   // Counter-signature
-  counterSignedBy   String?
-  counterSignedAt   DateTime?
-  counterSigData    String?   @db.Text
-  counterSigIp      String?
-  counterSigAgent   String?   @db.Text
+  counterSignedBy String?
+  counterSignedAt DateTime?
+  counterSigData  String?   @db.Text
+  counterSigIp    String?
+  counterSigAgent String?   @db.Text
 
   // Document
-  documentHash      String?
-  pdfUrl            String?
-  signingToken      String?   @unique
-  tokenExpiresAt    DateTime?
+  documentHash   String?
+  pdfUrl         String?
+  signingToken   String?   @unique
+  tokenExpiresAt DateTime?
 
   // Lifecycle
-  sentAt            DateTime?
-  voidedAt          DateTime?
-  voidedReason      String?
-  remindersSent     Int       @default(0)
-  lastReminderAt    DateTime?
+  sentAt         DateTime?
+  voidedAt       DateTime?
+  voidedReason   String?
+  remindersSent  Int       @default(0)
+  lastReminderAt DateTime?
 
   // Relations
-  otps              ContractOTP[]
+  otps ContractOTP[]
 
   @@index([dealId])
   @@index([userId])
@@ -1070,18 +1084,18 @@ model Contract {
 }
 
 model ContractOTP {
-  id          String    @id @default(cuid())
-  contractId  String
-  email       String
-  code        String
-  verified    Boolean   @default(false)
-  verifiedAt  DateTime?
-  verifiedIp  String?
-  expiresAt   DateTime
-  attempts    Int       @default(0)
-  createdAt   DateTime  @default(now())
+  id         String    @id @default(cuid())
+  contractId String
+  email      String
+  code       String
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+  verifiedIp String?
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now())
 
-  contract    Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
   @@index([contractId])
   @@index([email])
