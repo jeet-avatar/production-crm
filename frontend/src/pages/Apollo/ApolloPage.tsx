@@ -22,6 +22,7 @@
 import { useState } from 'react';
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { ApolloSearchForm } from '../../components/ApolloSearchForm';
+import { NetSuiteCampaignWizard } from '../../components/NetSuiteCampaignWizard';
 import {
   apolloApi,
   type ApolloSearchFilters,
@@ -34,6 +35,7 @@ export default function ApolloPage() {
   const [error, setError] = useState<string | null>(null);
   const [errorHint, setErrorHint] = useState<string | null>(null);
   const [errorSeverity, setErrorSeverity] = useState<'warning' | 'error'>('error');
+  const [showWizard, setShowWizard] = useState(false);
 
   async function handleSearch(filters: ApolloSearchFilters, enrich: boolean) {
     setIsLoading(true);
@@ -160,6 +162,20 @@ export default function ApolloPage() {
         </div>
       )}
 
+      {/* Wizard handoff (plan 04-06 Task 1) */}
+      {showWizard && result && (
+        <NetSuiteCampaignWizard
+          isOpen={showWizard}
+          onClose={() => setShowWizard(false)}
+          importedContactIds={result.contactIds}
+          suggestedStream={result.suggestedStream}
+          onSuccess={() => {
+            // Keep the result panel visible so user can verify counts after send.
+            // Optional toast can be added in a later plan.
+          }}
+        />
+      )}
+
       {/* Result panel */}
       {result && !isLoading && (
         <div style={{ marginTop: '24px' }}>
@@ -225,22 +241,22 @@ export default function ApolloPage() {
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {/*
-                PLACEHOLDER button — plan 04-05 wires this to launch NetSuiteCampaignWizard
-                with result.contactIds + result.suggestedStream as props.
+                Plan 04-06 Task 1 — wired to launch NetSuiteCampaignWizard with
+                result.contactIds + result.suggestedStream.
               */}
               <button
                 type="button"
-                disabled
-                title="Wizard handoff lands in plan 04-05"
+                onClick={() => setShowWizard(true)}
+                disabled={!result || result.contactIds.length === 0}
                 style={{
-                  padding: '10px 18px',
-                  background: 'rgba(99, 102, 241, 0.18)',
-                  color: 'rgba(165, 180, 252, 0.6)',
-                  border: '1px solid rgba(99, 102, 241, 0.25)',
+                  padding: '14px 24px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: '#fff',
+                  border: 'none',
                   borderRadius: '10px',
                   fontWeight: 700,
                   fontSize: '13px',
-                  cursor: 'not-allowed',
+                  cursor: result?.contactIds.length ? 'pointer' : 'not-allowed',
                 }}
               >
                 📧 Start campaign with these contacts →
