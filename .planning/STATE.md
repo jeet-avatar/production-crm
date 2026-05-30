@@ -128,7 +128,7 @@ Phase 03.1: Repo + Schema Reconciliation — COMPLETE (4/4 plans done; 29 commit
 | 01 | Backup branch + work branch + baseline verification (REQ-031A precondition + REQ-031D no-op confirmation) | Complete | 656afa0 |
 | 02 | Backfill 17 EC2-only migration directories via tarball+scp (REQ-031B) | Complete | 24a5c66 |
 | 03 | Generate Phase 4 migration via `prisma migrate diff` + REQ-031F gates (REQ-031C, REQ-031F) | Complete | a5872fd |
-| 04 | Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) | Complete | 0745cc0 (push) + doc commit |
+| 04 | Fast-forward push to origin/production + ROADMAP/STATE update (REQ-031A, REQ-031D, REQ-031E, REQ-031F) | Complete | 0745cc0 (push) + a12ff42 (doc) |
 
 **REQ-031D status:** NO-OP — Quote/Contract/ContractOTP models verified already on origin/production schema AND in prod DB `_prisma_migrations` table (migration `20260319000000_add_quotes_contracts` applied). Phase 02 preservation step from the original 03.1 scope is not needed.
 
