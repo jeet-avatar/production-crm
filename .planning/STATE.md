@@ -1,14 +1,21 @@
 # Project State
 
-Last activity: 2026-03-26 - Quick Task 03 COMPLETE: Job Leads email enhancements — domain emails (hr@), hero CTA with pulse animation, dismissible guide panel, email pill column
+Last activity: 2026-05-30 - Plan 04-02 COMPLETE: typed Apollo.io TS client library (searchPeople + enrichPerson + isEmailLocked + sleep + ApolloAuthError) at backend/src/lib/apolloClient.ts
 
 ## Current Phase
-Phase 03: CRM Migration Wizard — COMPLETE
+Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (2/6 plans done)
 
 ## Current Position
-- Phase: 03-crm-migration-wizard — COMPLETE (all 3 plans done)
-- Plan: 03 (complete) — SettingsPage Data Import tab + MigrationWizardModal wired, commit 85760bf
-- Next: Phase 04 (TBD)
+- Phase: 04-apollo-import-and-auto-campaign — IN PROGRESS
+- Plan: 02 (complete) — Apollo TS client lib, commits 2113f9e + 5c75d21
+- Next: Plan 04-03 — Backend POST /api/apollo/import + send-campaign (Resend) + stream-template seed
+
+## Decisions Made (Phase 04 additions — Plan 04-02)
+- apolloClient.ts is library-pure: does NOT read process.env. Caller (route in 04-03) injects the key. Keeps the wrapper reusable from scripts and testable in isolation.
+- Apollo auth errors (401/403) surface as a named `ApolloAuthError` class so the route in 04-03 can map → HTTP 503 "Apollo key invalid or expired" without trying to parse axios error shapes.
+- `enrichPerson()` returns null on ANY failure (404, 401, network) rather than throwing — lets the import loop in 04-03 simply `continue` instead of wrapping every iteration in try/catch.
+- ICP filter (q_organization_industry_tag_ids whitelist or exclude-industries) deferred to Phase 4.5 — documented as an inline TODO in apolloClient.ts so future planners can grep for it.
+- APOLLO_API_KEY placeholder in .env.example is intentionally empty; live key lives on EC2 only per CLAUDE.md ops policy.
 
 ## Decisions Made
 - Prisma migration applied via `db push` (non-interactive) instead of `migrate dev` (requires TTY); manual migration SQL file created for audit trail
@@ -30,6 +37,16 @@ Phase 03: CRM Migration Wizard — COMPLETE
 
 ## Blockers/Concerns
 None
+
+## Phase 04 Progress
+| Plan | Name | Status | Commit |
+|------|------|--------|--------|
+| 01 | Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction | Complete | 911e1e2 |
+| 02 | Apollo TS client lib (searchPeople + enrichPerson + typed errors) | Complete | 2113f9e, 5c75d21 |
+| 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Pending | - |
+| 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Pending | - |
+| 05 | NetSuiteCampaignWizard component (Resend send + 3-layer template fallback) | Pending | - |
+| 06 | Handoff wiring + deploy (rsync + pm2) + 1-contact smoke | Pending | - |
 
 ## Phase 03 Progress
 | Plan | Name | Status | Commit |

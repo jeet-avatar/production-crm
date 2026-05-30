@@ -34,8 +34,8 @@ Plans:
 **Plans:** 6 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction to lib
-- [ ] 04-02-PLAN.md — Apollo TS client lib (searchPeople + enrichPerson + typed errors)
+- [x] 04-01-PLAN.md — Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction to lib (Complete: 911e1e2)
+- [x] 04-02-PLAN.md — Apollo TS client lib (searchPeople + enrichPerson + typed errors) (Complete: 2113f9e, 5c75d21)
 - [ ] 04-03-PLAN.md — Backend POST /api/apollo/import + POST /api/apollo/send-campaign (Resend) + stream-template seed endpoint
 - [ ] 04-04-PLAN.md — NEW dedicated /apollo page + ApolloSearchForm + sidebar nav (ContactList untouched)
 - [ ] 04-05-PLAN.md — NetSuiteCampaignWizard component (sends via /api/apollo/send-campaign Resend backend + 3-layer template fallback)
