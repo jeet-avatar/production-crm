@@ -1,14 +1,14 @@
 # Project State
 
-Last activity: 2026-05-30 - Plan 04-01 COMPLETE: Prisma stream + Apollo dedup fields + classifyStream() extracted to backend/src/lib/streamClassifier.ts
+Last activity: 2026-05-30 - Plan 04-03 COMPLETE: POST /api/apollo/import + /api/apollo/send-campaign (Resend) + stream-template seeder + category filter on email-templates list
 
 ## Current Phase
-Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (2/6 plans done)
+Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (3/6 plans done)
 
 ## Current Position
 - Phase: 04-apollo-import-and-auto-campaign — IN PROGRESS
-- Plan: 01 (complete) — Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction to lib, commits 911e1e2 + 79290fe (schema edits also bundled in prior 5c75d21)
-- Next: Plan 04-03 — Backend POST /api/apollo/import + send-campaign (Resend) + stream-template seed
+- Plan: 03 (complete) — Backend Apollo + Resend routes, commits 764ce91 + 9437281 + 243354b
+- Next: Plan 04-04 — Dedicated /apollo page + ApolloSearchForm + sidebar nav
 
 ## Decisions Made (Phase 04 additions — Plan 04-01)
 - Manual audit SQL uses lowercase @@map() table names ("contacts", "companies") instead of plan-example PascalCase — production DB uses lowercase per every prior migration.sql; PascalCase ALTER would fail
@@ -23,6 +23,18 @@ Phase 04: Apollo Import + Auto-Campaign — IN PROGRESS (2/6 plans done)
 - `enrichPerson()` returns null on ANY failure (404, 401, network) rather than throwing — lets the import loop in 04-03 simply `continue` instead of wrapping every iteration in try/catch.
 - ICP filter (q_organization_industry_tag_ids whitelist or exclude-industries) deferred to Phase 4.5 — documented as an inline TODO in apolloClient.ts so future planners can grep for it.
 - APOLLO_API_KEY placeholder in .env.example is intentionally empty; live key lives on EC2 only per CLAUDE.md ops policy.
+
+## Decisions Made (Phase 04 additions — Plan 04-03)
+- Resend SDK direct (not SES) for Phase 4 send path — campaigns.ts SES path stays byte-for-byte unchanged (Rajesh's BrandMonkz flow untouched). Verified via `git diff backend/src/routes/campaigns.ts | wc -l == 0`.
+- From-address hardcoded to `Sara <sara@techcloudpro.com>` in apollo.ts module-level const — per-stream / configurable from-address deferred to Phase 4.5 per the locked Phase 4 scope.
+- RESEND_API_KEY missing → `process.exit(1)` at module load — backend MUST NOT boot without a working send path. Pattern mirrors main_new.py JWT_SECRET RuntimeError guard.
+- VALID_STREAMS allowlist Set inlined into apollo.ts validates suggestedStream body param — duplicates the canonical 9 streams from lib/streamClassifier.ts (acceptable duplication; both are small).
+- Variable substitution mirrors campaigns.ts:546-559 byte-for-byte (regex `\{\{key\}\}` per known var) — kept identical so Rajesh sees the same {{firstName}}/{{companyName}} behavior in both flows.
+- Per-contact try/catch with 100ms sleep — aggregated `{ sent, failed, failureDetails }` response. Never fail-fast, never bulk-throw. Resend free tier is ~2/sec, so 100ms is the natural pacing.
+- Stream-template seeder uses Prisma `createMany({ skipDuplicates: true })` on unique `(userId, name)` — idempotent by construction; second call returns `skipped:9 created:0`.
+- category filter on GET /api/email-templates extends the existing list endpoint via WHERE clause (no new GET route) — wizard in 04-05 calls `GET /api/email-templates?category=Stream:<x>` and consumes the first row.
+- @aws-sdk/client-ses import explicitly forbidden in apollo.ts — verified zero via `grep -c "@aws-sdk/client-ses" apollo.ts == 0`. This is the firewall keeping Resend and SES code paths separate.
+- Boot-time fail-fast smoke deferred to plan 04-06 deploy — executor env has no DATABASE_URL so `npm run dev` cannot reach the Resend guard locally (Prisma crashes first). The static guard code is deterministic.
 
 ## Decisions Made
 - Prisma migration applied via `db push` (non-interactive) instead of `migrate dev` (requires TTY); manual migration SQL file created for audit trail
@@ -50,7 +62,7 @@ None
 |------|------|--------|--------|
 | 01 | Prisma schema (Contact/Company stream + Apollo IDs) + classifyStream extraction | Complete | 911e1e2, 79290fe |
 | 02 | Apollo TS client lib (searchPeople + enrichPerson + typed errors) | Complete | 2113f9e, 5c75d21 |
-| 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Pending | - |
+| 03 | Backend POST /api/apollo/import + /api/apollo/send-campaign (Resend) | Complete | 764ce91, 9437281, 243354b |
 | 04 | Dedicated /apollo page + ApolloSearchForm + sidebar nav | Pending | - |
 | 05 | NetSuiteCampaignWizard component (Resend send + 3-layer template fallback) | Pending | - |
 | 06 | Handoff wiring + deploy (rsync + pm2) + 1-contact smoke | Pending | - |
