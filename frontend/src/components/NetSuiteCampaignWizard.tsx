@@ -299,24 +299,6 @@ export function NetSuiteCampaignWizard({
     }
   }
 
-  // ===== Step 3 validation =====
-  const bodyPlain = body.replace(/<[^>]+>/g, '').trim();
-  const validationWarnings: string[] = [];
-  if (!subject.trim()) {
-    validationWarnings.push('Your email has no subject — add one in Step 2.');
-  }
-  if (bodyPlain.length < 50) {
-    validationWarnings.push('Your message is very short — consider adding more detail.');
-  }
-  if (selectedIds.size === 0) {
-    validationWarnings.push("You haven't picked any contacts — go back to Step 1.");
-  }
-  const sendBlocked =
-    !subject.trim() ||
-    bodyPlain.length < 10 ||
-    selectedIds.size === 0 ||
-    sending;
-
   // ===== Render =====
   return (
     <div
@@ -1081,7 +1063,7 @@ export function NetSuiteCampaignWizard({
             </section>
           )}
 
-          {/* ===== STEP 4: Review ===== */}
+          {/* ===== STEP 4: Review & Send (Phase 05 plan 05-03 Task 2) ===== */}
           {step === 4 && (
             <section>
               <div
@@ -1094,64 +1076,73 @@ export function NetSuiteCampaignWizard({
               >
                 <EyeIcon style={{ width: 18, height: 18, color: '#6366f1' }} />
                 <h3 style={{ color: '#f1f5f9', fontSize: '15px', fontWeight: 600, margin: 0 }}>
-                  Review before sending
+                  Review &amp; Send
                 </h3>
+                <span style={{ color: '#64748b', fontSize: '12px', marginLeft: 'auto' }}>
+                  Step 4 of 5
+                </span>
               </div>
 
-              {/* Email preview card */}
               <div
                 style={{
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
+                  padding: '12px 16px',
+                  background: 'rgba(99,102,241,0.08)',
+                  border: '1px solid rgba(99,102,241,0.2)',
+                  borderRadius: '8px',
+                  color: '#a5b4fc',
+                  fontSize: '13px',
                   marginBottom: '16px',
+                  lineHeight: 1.5,
                 }}
               >
-                <div
-                  style={{
-                    padding: '12px 16px',
-                    background: 'rgba(255,255,255,0.04)',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    fontSize: '13px',
-                    color: '#94a3b8',
-                  }}
-                >
-                  <div style={{ marginBottom: 4 }}>
-                    <strong style={{ color: '#cbd5e1' }}>From:</strong> {APOLLO_FROM_DISPLAY}
-                  </div>
-                  <div>
-                    <strong style={{ color: '#cbd5e1' }}>Subject:</strong>{' '}
-                    {subject || <em style={{ color: '#64748b' }}>(no subject)</em>}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    padding: '16px',
-                    background: '#fff',
-                    color: '#1e293b',
-                    fontSize: '14px',
-                    lineHeight: 1.6,
-                  }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(body) }}
-                />
+                📊 Sending to: <strong>{selectedIds.size} contact(s)</strong> via AI-personalized
+                Resend dispatch.
+                <br />
+                🧠 First-contact preview (already approved in Step 3):
               </div>
 
-              {validationWarnings.map((w, i) => (
+              {previewResult?.audit[0] && (
                 <div
-                  key={i}
                   style={{
-                    background: 'rgba(245,158,11,0.08)',
-                    border: '1px solid rgba(245,158,11,0.2)',
-                    color: '#fbbf24',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    marginBottom: '8px',
-                    fontSize: '13px',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    marginBottom: '16px',
                   }}
                 >
-                  ⚠ {w}
+                  <div
+                    style={{
+                      padding: '12px 16px',
+                      background: 'rgba(255,255,255,0.04)',
+                      borderBottom: '1px solid rgba(255,255,255,0.06)',
+                      fontSize: '13px',
+                      color: '#94a3b8',
+                    }}
+                  >
+                    <div style={{ marginBottom: 4 }}>
+                      <strong style={{ color: '#cbd5e1' }}>From:</strong> {APOLLO_FROM_DISPLAY}
+                    </div>
+                    <div>
+                      <strong style={{ color: '#cbd5e1' }}>Subject:</strong>{' '}
+                      {previewResult.audit[0].subject || (
+                        <em style={{ color: '#64748b' }}>(no subject)</em>
+                      )}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      padding: '16px',
+                      background: '#fff',
+                      color: '#1e293b',
+                      fontSize: '14px',
+                      lineHeight: 1.6,
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(previewResult.audit[0].renderedBody || ''),
+                    }}
+                  />
                 </div>
-              ))}
+              )}
 
               {sendError && (
                 <div
@@ -1170,32 +1161,17 @@ export function NetSuiteCampaignWizard({
                 </div>
               )}
 
-              <div
-                style={{
-                  padding: '12px 16px',
-                  background: 'rgba(99,102,241,0.08)',
-                  border: '1px solid rgba(99,102,241,0.2)',
-                  borderRadius: '8px',
-                  color: '#a5b4fc',
-                  fontSize: '13px',
-                  marginBottom: '16px',
-                }}
-              >
-                Ready to send to <strong>{selectedIds.size}</strong> contact(s) via Resend.
-                Each email is personalized server-side using <code>{'{{firstName}}'}</code> /{' '}
-                <code>{'{{companyName}}'}</code>.
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px' }}>
                 <button
-                  onClick={() => setStep(2)}
+                  onClick={() => setStep(3)}
+                  disabled={sending}
                   style={{
                     padding: '10px 20px',
                     borderRadius: '8px',
                     background: 'rgba(255,255,255,0.06)',
                     color: '#94a3b8',
                     border: 'none',
-                    cursor: 'pointer',
+                    cursor: sending ? 'not-allowed' : 'pointer',
                     fontSize: '14px',
                   }}
                 >
@@ -1203,76 +1179,150 @@ export function NetSuiteCampaignWizard({
                 </button>
                 <button
                   onClick={handleSend}
-                  disabled={sendBlocked}
+                  disabled={sending || !templateId || selectedIds.size === 0}
                   style={{
                     padding: '10px 28px',
                     borderRadius: '8px',
                     fontWeight: 700,
                     fontSize: '14px',
-                    cursor: sendBlocked ? 'not-allowed' : 'pointer',
-                    background: sendBlocked
-                      ? 'rgba(255,255,255,0.06)'
-                      : 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-                    color: sendBlocked ? '#475569' : '#fff',
+                    cursor:
+                      sending || !templateId || selectedIds.size === 0
+                        ? 'not-allowed'
+                        : 'pointer',
+                    background:
+                      sending || !templateId || selectedIds.size === 0
+                        ? 'rgba(255,255,255,0.06)'
+                        : 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    color:
+                      sending || !templateId || selectedIds.size === 0 ? '#475569' : '#fff',
                     border: 'none',
                   }}
                 >
                   {sending
-                    ? 'Sending…'
-                    : `Send ${selectedIds.size} email(s) now →`}
+                    ? `Sending to ${selectedIds.size}… (can take several minutes)`
+                    : `🚀 Send to ${selectedIds.size} contact(s)`}
                 </button>
               </div>
             </section>
           )}
 
-          {/* ===== STEP 4: Done ===== */}
-          {step === 4 && (
-            <section style={{ textAlign: 'center', padding: '40px 20px' }}>
-              <CheckCircleIcon
-                style={{
-                  width: 64,
-                  height: 64,
-                  color: '#10b981',
-                  margin: '0 auto 16px',
-                }}
-              />
-              <h3
-                style={{
-                  color: '#f1f5f9',
-                  fontSize: '22px',
-                  fontWeight: 700,
-                  margin: '0 0 8px',
-                }}
-              >
-                Your emails are on their way! ✅
-              </h3>
-              <p
-                style={{
-                  color: '#64748b',
-                  fontSize: '14px',
-                  margin: '0 0 8px',
-                }}
-              >
-                Sent <strong style={{ color: '#10b981' }}>{sentCount}</strong> of{' '}
-                {sentCount + failedCount} via Resend.
-              </p>
-              {failedCount > 0 && (
-                <p
+          {/* ===== STEP 5: Done (Phase 05 plan 05-03 Task 2) ===== */}
+          {step === 5 && (
+            <section style={{ padding: '24px 8px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <CheckCircleIcon
                   style={{
-                    color: '#fbbf24',
-                    fontSize: '13px',
-                    margin: '0 0 24px',
+                    width: 64,
+                    height: 64,
+                    color: '#10b981',
+                    margin: '0 auto 16px',
+                  }}
+                />
+                <h3
+                  style={{
+                    color: '#f1f5f9',
+                    fontSize: '22px',
+                    fontWeight: 700,
+                    margin: '0 0 4px',
                   }}
                 >
-                  {failedCount} failed — see browser console for per-contact details.
+                  Your AI-personalized campaign is live! ✅
+                </h3>
+                <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>
+                  Step 5 of 5
                 </p>
+              </div>
+
+              {sendResult && (
+                <div
+                  style={{
+                    background: 'rgba(16,185,129,0.08)',
+                    border: '1px solid rgba(16,185,129,0.3)',
+                    borderRadius: '12px',
+                    padding: '20px 24px',
+                    color: '#d1fae5',
+                    fontSize: '14px',
+                    lineHeight: 1.7,
+                  }}
+                >
+                  <ul style={{ margin: 0, paddingLeft: 22 }}>
+                    <li>
+                      📨 Sent: <strong style={{ color: '#10b981' }}>{sendResult.sent}</strong>
+                    </li>
+                    <li>
+                      ❌ Failed:{' '}
+                      <strong style={{ color: sendResult.failed > 0 ? '#fbbf24' : '#10b981' }}>
+                        {sendResult.failed}
+                      </strong>
+                    </li>
+                    <li>
+                      🧠 AI personalization:{' '}
+                      <strong style={{ color: '#a5b4fc' }}>{sendResult.personalized}</strong>{' '}
+                      succeeded,{' '}
+                      <strong
+                        style={{
+                          color: sendResult.personalizeFailures > 0 ? '#fbbf24' : '#94a3b8',
+                        }}
+                      >
+                        {sendResult.personalizeFailures}
+                      </strong>{' '}
+                      used fallback
+                    </li>
+                    <li>
+                      💰 Cost:{' '}
+                      <strong style={{ color: '#fbbf24' }}>
+                        ${sendResult.cost.totalCostUSD.toFixed(4)}
+                      </strong>{' '}
+                      (Claude AI + web_search + Resend)
+                    </li>
+                    <li style={{ color: '#94a3b8', fontSize: '12px' }}>
+                      Claude input tokens: {sendResult.cost.claudeInputTokens} · output:{' '}
+                      {sendResult.cost.claudeOutputTokens} · web_search requests:{' '}
+                      {sendResult.cost.webSearchRequests} · Resend cost: $
+                      {sendResult.cost.resendCostUSD.toFixed(4)}{' '}
+                      {sendResult.cost.resendCostUSD === 0 && '(free tier)'}
+                    </li>
+                  </ul>
+
+                  {sendResult.failureDetails && sendResult.failureDetails.length > 0 && (
+                    <details style={{ marginTop: 16 }}>
+                      <summary
+                        style={{
+                          cursor: 'pointer',
+                          color: '#fbbf24',
+                          fontWeight: 600,
+                          fontSize: '13px',
+                        }}
+                      >
+                        Show {sendResult.failureDetails.length} failure(s)
+                      </summary>
+                      <ul
+                        style={{
+                          marginTop: 8,
+                          paddingLeft: 22,
+                          color: '#fde68a',
+                          fontSize: '12px',
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {sendResult.failureDetails.map((f, i) => (
+                          <li key={i}>
+                            <strong>{f.email}:</strong> {f.error}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+                </div>
               )}
+
               <div
                 style={{
                   display: 'flex',
                   gap: '12px',
                   justifyContent: 'center',
                   marginTop: 24,
+                  flexWrap: 'wrap',
                 }}
               >
                 <button
@@ -1296,9 +1346,11 @@ export function NetSuiteCampaignWizard({
                 <button
                   onClick={() => {
                     setStep(1);
-                    setSentCount(0);
-                    setFailedCount(0);
+                    setSendResult(null);
+                    setPreviewResult(null);
+                    setPreviewError(null);
                     setSendError(null);
+                    setConfirmedLargeBatch(false);
                   }}
                   style={{
                     padding: '10px 24px',
