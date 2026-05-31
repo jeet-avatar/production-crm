@@ -456,6 +456,58 @@ export interface ApolloSendCampaignResponse {
   failureDetails: ApolloSendCampaignFailure[];
 }
 
+// Phase 05 plan 05-02: per-contact AI-personalized send response shapes.
+export interface ApolloPersonalizeAITokens {
+  intentHook: string | null;
+  companyContext: string | null;
+  painPoint: string | null;
+  cta: string | null;
+}
+
+export interface ApolloPersonalizeAuditEntry {
+  contactId: string;
+  email: string;
+  auditId: string;
+  subject?: string;
+  renderedBody?: string;
+  aiTokens?: ApolloPersonalizeAITokens | null;
+  aiWarning?: string | null;
+  claudeInputTokens?: number;
+  claudeOutputTokens?: number;
+  webSearchUses?: number;
+  resendMessageId?: string | null;
+  status: 'sent' | 'preview' | 'failed';
+}
+
+export interface ApolloPersonalizedCampaignCost {
+  claudeInputTokens: number;
+  claudeOutputTokens: number;
+  webSearchRequests: number;
+  claudeCostUSD: number;
+  resendSendsCounted: number;
+  resendCostUSD: number;
+  totalCostUSD: number;
+}
+
+export interface ApolloPersonalizedCampaignResponse {
+  sent: number;
+  failed: number;
+  personalized: number;
+  personalizeFailures: number;
+  failureDetails: Array<{ contactId: string; email: string; error: string }>;
+  audit: ApolloPersonalizeAuditEntry[];
+  cost: ApolloPersonalizedCampaignCost;
+}
+
+export interface ApolloSendPersonalizedRequest {
+  contactIds: string[];
+  templateId: string;
+  suggestedStream: string;
+  testRecipient?: string;
+  previewOnly?: boolean;
+  confirmedLargeBatch?: boolean;
+}
+
 export const apolloApi = {
   import: async (
     filters: ApolloSearchFilters,
@@ -503,6 +555,18 @@ export const apolloApi = {
     );
     return response.data;
   },
+
+  // Phase 05 plan 05-02: per-contact AI-personalized send.
+  // Calls Claude once per contact (web_search_20250305) and dispatches via Resend.
+  // AI personalization + Resend serial send needs a generous per-call cap.
+  // 25 contacts × (12s Claude + 250ms pacing + send) ≈ 6 min worst case.
+  // Use 600s (10 min) to cover up to the 50-contact cap with margin.
+  sendPersonalizedCampaign: (
+    params: ApolloSendPersonalizedRequest,
+  ): Promise<{ data: ApolloPersonalizedCampaignResponse }> =>
+    apiClient.post('/apollo/send-personalized-campaign', params, {
+      timeout: 600_000,
+    }),
 };
 
 // Job Leads Pipeline API
