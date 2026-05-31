@@ -64,5 +64,5 @@ Plans:
 Plans:
 - [x] 05-01-PLAN.md — Prisma migration (personalized_email_sends table) + 9 stream templates upgraded to v2 with AI placeholders + idempotent upgrade endpoint (Complete 2026-05-31: b19feec, 820fd4a)
 - [x] 05-02-PLAN.md — Backend personalizeContactWithClaude helper (web_search_20250305, 5-fallback contract) + POST /api/apollo/send-personalized-campaign route + frontend apolloApi.sendPersonalizedCampaign client (Complete 2026-05-31: 908e631, 35bbc58)
-- [ ] 05-03-PLAN.md — NetSuiteCampaignWizard 4→5 step refactor with new AI Personalize preview gate (Step 3) + Review (Step 4 with live send) + Done (Step 5 with cost telemetry)
+- [x] 05-03-PLAN.md — NetSuiteCampaignWizard 4→5 step refactor with new AI Personalize preview gate (Step 3) + Review (Step 4 with live send) + Done (Step 5 with cost telemetry) (Complete 2026-05-31: 8344905, 46151a4)
 - [ ] 05-04-PLAN.md — Deploy backend + frontend to EC2 + apply Prisma migration + upgrade stream templates + 4-case smoke against Ricardo Deben (cmpsz0d3q000350mxrlau3sg5) + user-verify inbox + close ceremony (STATE.md + ROADMAP.md + 05-SUMMARY.md)
