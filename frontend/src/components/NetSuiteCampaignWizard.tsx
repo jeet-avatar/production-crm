@@ -13,8 +13,9 @@ import {
   contactsApi,
   emailTemplatesApi,
   apolloApi,
-  campaignsApi, // ONLY for aiGenerateContent — NOT used for sending. Send path is apolloApi.sendCampaign.
+  campaignsApi, // ONLY for aiGenerateContent — NOT used for sending. Send path is apolloApi.sendPersonalizedCampaign.
 } from '../services/api';
+import type { ApolloPersonalizedCampaignResponse } from '../services/api';
 
 // ===== Types =====
 
@@ -62,7 +63,7 @@ export function NetSuiteCampaignWizard({
 }: NetSuiteCampaignWizardProps) {
   const navigate = useNavigate();
 
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
 
   // Step 1 — audience
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -77,11 +78,21 @@ export function NetSuiteCampaignWizard({
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
 
-  // Step 3/4 — send
+  // Step 3 — AI Personalize preview (Phase 05 plan 05-03 Task 1)
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewResult, setPreviewResult] = useState<ApolloPersonalizedCampaignResponse | null>(null);
+  const [confirmedLargeBatch, setConfirmedLargeBatch] = useState(false);
+  const LARGE_BATCH_THRESHOLD = 50;
+
+  // Derived: first contact for preview (used by Step 3 fetch).
+  // Uses selectedIds (the contacts the user actually checked in Step 1), NOT importedContactIds (the superset).
+  const firstContactId = Array.from(selectedIds)[0] || null;
+
+  // Step 4/5 — send
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
-  const [sentCount, setSentCount] = useState(0);
-  const [failedCount, setFailedCount] = useState(0);
+  const [sendResult, setSendResult] = useState<ApolloPersonalizedCampaignResponse | null>(null);
 
   // ===== Mount: fetch contacts + lookup template (3-layer fallback) =====
   useEffect(() => {
@@ -92,8 +103,10 @@ export function NetSuiteCampaignWizard({
     setStep(1);
     setSendError(null);
     setAiError(null);
-    setSentCount(0);
-    setFailedCount(0);
+    setPreviewError(null);
+    setPreviewResult(null);
+    setSendResult(null);
+    setConfirmedLargeBatch(false);
 
     (async () => {
       // ---- Fetch contacts by ID ----
@@ -165,14 +178,55 @@ export function NetSuiteCampaignWizard({
     }
   }
 
-  // ===== Step 3 send — USER-LOCKED 2026-05-30 =====
-  // Calls /api/apollo/send-campaign (Resend dispatcher built in plan 04-03 Task 3).
-  // Phase 4 firewall: this wizard intentionally bypasses the existing SES campaigns route —
-  // no Campaign DB row is created here, tracking lives in the Resend response only.
-  // Backend handles {{firstName}}/{{companyName}} substitution + 100ms pacing.
+  // ===== Step 3 fetchPreview — Phase 05 plan 05-03 Task 1 =====
+  // Calls /api/apollo/send-personalized-campaign with previewOnly:true for the FIRST
+  // checked contact. Creates a new personalized_email_sends audit row server-side
+  // (status='preview'). Cached by previewResult — useEffect won't re-fire if
+  // previewResult is non-null. Only the explicit Re-generate ✨ button creates additional
+  // audit rows (user opt-in to spend another ~$0.069).
+  const fetchPreview = async () => {
+    if (!firstContactId || !templateId) {
+      setPreviewError('No contact or template available for preview.');
+      return;
+    }
+    setPreviewing(true);
+    setPreviewError(null);
+    setPreviewResult(null);
+    try {
+      const { data } = await apolloApi.sendPersonalizedCampaign({
+        contactIds: [firstContactId],
+        templateId,
+        suggestedStream,
+        previewOnly: true,
+      });
+      setPreviewResult(data);
+    } catch (err: any) {
+      setPreviewError(
+        err?.response?.data?.detail || err?.message || 'Preview failed',
+      );
+    } finally {
+      setPreviewing(false);
+    }
+  };
+
+  // Auto-fetch on entering Step 3 — cached, fires ONLY when previewResult is null.
+  // Deps include firstContactId + templateId so a user who navigates Back, changes
+  // selection or template, and returns to Step 3 will trigger a fresh fetch (because
+  // Back from Step 3 → Step 2 clears previewResult — see Step 3 JSX Back button).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (step === 3 && !previewResult && !previewing && firstContactId && templateId) {
+      fetchPreview();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, firstContactId, templateId]);
+
+  // ===== Step 4 send — Phase 05 plan 05-03 Task 2 =====
+  // Calls /api/apollo/send-personalized-campaign (live, no previewOnly).
+  // Phase 4 firewall holds: still bypasses the existing SES campaigns route — no Campaign
+  // DB row is created here, tracking lives in personalized_email_sends + the response.
+  // Backend handles per-contact Claude personalization + Resend dispatch + 250ms pacing.
   async function handleSend() {
-    // Edge case: layer-3 fallback in use → no templateId → backend will 404.
-    // Surface a clear, actionable error rather than blowing up.
     if (!templateId) {
       setSendError(
         'No saved template found for this stream. Go to Email Templates and seed templates first, ' +
@@ -181,35 +235,41 @@ export function NetSuiteCampaignWizard({
       return;
     }
 
-    const selectedContactIds = contacts
-      .filter((c) => selectedIds.has(c.id))
-      .map((c) => c.id);
-
-    if (selectedContactIds.length === 0) {
+    if (selectedIds.size === 0) {
       setSendError('Pick at least one contact in Step 1.');
+      return;
+    }
+
+    if (selectedIds.size > LARGE_BATCH_THRESHOLD && !confirmedLargeBatch) {
+      setSendError(
+        `Batch size ${selectedIds.size} exceeds ${LARGE_BATCH_THRESHOLD}. ` +
+          'Go back to Step 3 and confirm the large-batch checkbox.',
+      );
       return;
     }
 
     setSending(true);
     setSendError(null);
+    setSendResult(null);
 
     try {
-      const result = await apolloApi.sendCampaign(
-        selectedContactIds,
+      const { data } = await apolloApi.sendPersonalizedCampaign({
+        contactIds: Array.from(selectedIds),
         templateId,
         suggestedStream,
-      );
-      setSentCount(result.sent);
-      setFailedCount(result.failed);
-      if (result.failureDetails && result.failureDetails.length > 0) {
-        // Non-blocking — surface in console for the operator
+        confirmedLargeBatch:
+          selectedIds.size > LARGE_BATCH_THRESHOLD ? true : undefined,
+      });
+      setSendResult(data);
+      if (data.failureDetails && data.failureDetails.length > 0) {
         // eslint-disable-next-line no-console
-        console.warn('[NetSuiteCampaignWizard] send failures', result.failureDetails);
+        console.warn('[NetSuiteCampaignWizard] send failures', data.failureDetails);
       }
-      setStep(4);
+      setStep(5);
       onSuccess?.();
     } catch (err: any) {
       const msg =
+        err?.response?.data?.detail ||
         err?.response?.data?.error ||
         err?.message ||
         'Send failed. Check console for details.';
@@ -324,17 +384,18 @@ export function NetSuiteCampaignWizard({
           </button>
         </div>
 
-        {/* Step indicator (1.Audience 2.Email 3.Review 4.Done) */}
+        {/* Step indicator (1.Audience 2.Email 3.AI Personalize 4.Review 5.Done) */}
         <div
           style={{
             padding: '16px 28px',
             display: 'flex',
             gap: '8px',
             borderBottom: '1px solid rgba(255,255,255,0.06)',
+            flexWrap: 'wrap',
           }}
         >
-          {['Audience', 'Email', 'Review', 'Done'].map((label, i) => {
-            const s = (i + 1) as 1 | 2 | 3 | 4;
+          {['Audience', 'Email', 'AI Personalize', 'Review', 'Done'].map((label, i) => {
+            const s = (i + 1) as 1 | 2 | 3 | 4 | 5;
             const active = s === step;
             const done = s < step;
             return (
@@ -366,7 +427,7 @@ export function NetSuiteCampaignWizard({
                 <span style={{ color: active ? '#f1f5f9' : '#64748b' }}>
                   {s}. {label}
                 </span>
-                {i < 3 && <span style={{ color: '#334155', marginLeft: 4 }}>›</span>}
+                {i < 4 && <span style={{ color: '#334155', marginLeft: 4 }}>›</span>}
               </div>
             );
           })}
@@ -723,14 +784,305 @@ export function NetSuiteCampaignWizard({
                     border: 'none',
                   }}
                 >
-                  Next: Review →
+                  Next: AI Personalize →
                 </button>
               </div>
             </section>
           )}
 
-          {/* ===== STEP 3: Review ===== */}
+          {/* ===== STEP 3: AI Personalize (Phase 05 plan 05-03) ===== */}
           {step === 3 && (
+            <section>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '12px',
+                }}
+              >
+                <SparklesIcon style={{ width: 18, height: 18, color: '#a855f7' }} />
+                <h3 style={{ color: '#f1f5f9', fontSize: '15px', fontWeight: 600, margin: 0 }}>
+                  AI Personalize — review the first-contact preview
+                </h3>
+                <span style={{ color: '#64748b', fontSize: '12px', marginLeft: 'auto' }}>
+                  Step 3 of 5
+                </span>
+              </div>
+
+              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 16px', lineHeight: 1.5 }}>
+                We&apos;ll generate the AI-personalized email for the FIRST checked contact.
+                Review the tokens (intentHook / companyContext / painPoint / cta) before
+                committing the batch.
+                Estimated cost: ~$0.069 / contact × {selectedIds.size} ={' '}
+                <strong style={{ color: '#a5b4fc' }}>
+                  ~${(0.069 * selectedIds.size).toFixed(2)}
+                </strong>
+                .
+              </p>
+
+              {previewing && (
+                <div
+                  style={{
+                    background: 'rgba(99,102,241,0.1)',
+                    border: '1px solid rgba(99,102,241,0.3)',
+                    color: '#a5b4fc',
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    marginBottom: '12px',
+                    fontSize: '13px',
+                  }}
+                >
+                  🧠 Researching the first contact&apos;s company with Claude + web_search… (up to 60s)
+                </div>
+              )}
+
+              {previewError && (
+                <div
+                  style={{
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.3)',
+                    color: '#fca5a5',
+                    padding: '12px 14px',
+                    borderRadius: '8px',
+                    marginBottom: '12px',
+                    fontSize: '13px',
+                    lineHeight: 1.5,
+                  }}
+                >
+                  ❌ Preview failed: {previewError}
+                </div>
+              )}
+
+              {previewResult && previewResult.audit[0] && (
+                <>
+                  {/* Inbox-card preview */}
+                  <div
+                    style={{
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      marginBottom: '12px',
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: '12px 16px',
+                        background: 'rgba(255,255,255,0.04)',
+                        borderBottom: '1px solid rgba(255,255,255,0.06)',
+                        fontSize: '13px',
+                        color: '#94a3b8',
+                      }}
+                    >
+                      <div style={{ marginBottom: 4 }}>
+                        <strong style={{ color: '#cbd5e1' }}>From:</strong> {APOLLO_FROM_DISPLAY}
+                      </div>
+                      <div style={{ marginBottom: 4 }}>
+                        <strong style={{ color: '#cbd5e1' }}>To:</strong>{' '}
+                        {previewResult.audit[0].email}
+                      </div>
+                      <div>
+                        <strong style={{ color: '#cbd5e1' }}>Subject:</strong>{' '}
+                        {previewResult.audit[0].subject || (
+                          <em style={{ color: '#64748b' }}>(no subject)</em>
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        padding: '16px',
+                        background: '#fff',
+                        color: '#1e293b',
+                        fontSize: '14px',
+                        lineHeight: 1.6,
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(previewResult.audit[0].renderedBody || ''),
+                      }}
+                    />
+                  </div>
+
+                  {/* AI token attribution panel */}
+                  <div
+                    style={{
+                      border: '1px solid rgba(168,85,247,0.3)',
+                      background: 'rgba(168,85,247,0.08)',
+                      borderRadius: '8px',
+                      padding: '12px 14px',
+                      marginBottom: '12px',
+                      fontSize: '13px',
+                    }}
+                  >
+                    <div style={{ color: '#d8b4fe', fontWeight: 600, marginBottom: 6 }}>
+                      🤖 AI tokens used:
+                    </div>
+                    {previewResult.audit[0].aiTokens ? (
+                      <ul style={{ color: '#e2e8f0', margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
+                        <li>
+                          <strong>intentHook:</strong>{' '}
+                          {previewResult.audit[0].aiTokens.intentHook || (
+                            <em style={{ color: '#fbbf24' }}>(used stream fallback)</em>
+                          )}
+                        </li>
+                        <li>
+                          <strong>companyContext:</strong>{' '}
+                          {previewResult.audit[0].aiTokens.companyContext || (
+                            <em style={{ color: '#fbbf24' }}>(used stream fallback)</em>
+                          )}
+                        </li>
+                        <li>
+                          <strong>painPoint:</strong>{' '}
+                          {previewResult.audit[0].aiTokens.painPoint || (
+                            <em style={{ color: '#fbbf24' }}>(used stream fallback)</em>
+                          )}
+                        </li>
+                        <li>
+                          <strong>cta:</strong>{' '}
+                          {previewResult.audit[0].aiTokens.cta || (
+                            <em style={{ color: '#fbbf24' }}>(used stream fallback)</em>
+                          )}
+                        </li>
+                      </ul>
+                    ) : (
+                      <div style={{ color: '#fbbf24' }}>
+                        ⚠ Claude unavailable — stream-generic fallback tokens used. Reason:{' '}
+                        {previewResult.audit[0].aiWarning || 'unknown'}
+                      </div>
+                    )}
+                    <div style={{ color: '#94a3b8', fontSize: '11px', marginTop: 8 }}>
+                      Claude input tokens: {previewResult.audit[0].claudeInputTokens ?? 0} · output:{' '}
+                      {previewResult.audit[0].claudeOutputTokens ?? 0} · web_search uses:{' '}
+                      {previewResult.audit[0].webSearchUses ?? 0}
+                    </div>
+                  </div>
+
+                  {/* Hard-batch warning + confirmation gate (N>50) */}
+                  {selectedIds.size > LARGE_BATCH_THRESHOLD && (
+                    <div
+                      style={{
+                        border: '1px solid rgba(239,68,68,0.4)',
+                        background: 'rgba(239,68,68,0.1)',
+                        borderRadius: '8px',
+                        padding: '12px 14px',
+                        marginBottom: '12px',
+                        fontSize: '13px',
+                        color: '#fecaca',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      ⚠ Large batch: <strong>{selectedIds.size}</strong> contacts. Estimated cost:{' '}
+                      <strong>${(selectedIds.size * 0.069).toFixed(2)}</strong>.
+                      <label
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          marginTop: 8,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={confirmedLargeBatch}
+                          onChange={(e) => setConfirmedLargeBatch(e.target.checked)}
+                          style={{ width: 14, height: 14, cursor: 'pointer' }}
+                        />
+                        <span>I confirm sending to {selectedIds.size} contacts.</span>
+                      </label>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Step navigation */}
+              <div
+                style={{
+                  marginTop: '24px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setPreviewResult(null);
+                    setPreviewError(null);
+                    setStep(2);
+                  }}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.06)',
+                    color: '#94a3b8',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                  }}
+                >
+                  ← Back
+                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={fetchPreview}
+                    disabled={previewing}
+                    title="Generates a new AI personalization (creates a new audit row in personalized_email_sends; ~$0.069)"
+                    style={{
+                      padding: '10px 18px',
+                      borderRadius: '8px',
+                      background: 'rgba(168,85,247,0.12)',
+                      border: '1px solid rgba(168,85,247,0.4)',
+                      color: '#d8b4fe',
+                      cursor: previewing ? 'not-allowed' : 'pointer',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      opacity: previewing ? 0.5 : 1,
+                    }}
+                  >
+                    ✨ Re-generate
+                  </button>
+                  <button
+                    onClick={() => setStep(4)}
+                    disabled={
+                      !previewResult ||
+                      previewing ||
+                      (selectedIds.size > LARGE_BATCH_THRESHOLD && !confirmedLargeBatch)
+                    }
+                    style={{
+                      padding: '10px 24px',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '14px',
+                      cursor:
+                        !previewResult ||
+                        previewing ||
+                        (selectedIds.size > LARGE_BATCH_THRESHOLD && !confirmedLargeBatch)
+                          ? 'not-allowed'
+                          : 'pointer',
+                      background:
+                        !previewResult ||
+                        previewing ||
+                        (selectedIds.size > LARGE_BATCH_THRESHOLD && !confirmedLargeBatch)
+                          ? 'rgba(255,255,255,0.06)'
+                          : 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                      color:
+                        !previewResult ||
+                        previewing ||
+                        (selectedIds.size > LARGE_BATCH_THRESHOLD && !confirmedLargeBatch)
+                          ? '#475569'
+                          : '#fff',
+                      border: 'none',
+                    }}
+                  >
+                    Looks good — Review →
+                  </button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* ===== STEP 4: Review ===== */}
+          {step === 4 && (
             <section>
               <div
                 style={{
