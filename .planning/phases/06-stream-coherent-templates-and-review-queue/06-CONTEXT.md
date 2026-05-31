@@ -156,6 +156,46 @@ REQ-066 (in ROADMAP): after deploy, re-send to JM + Rajesh from each of the 9 st
 - Do not introduce a separate v4 endpoint without strong justification. Prefer reusing `/upgrade-streams-v3` with stream-aware body lookup.
 - Do not auto-send during live verification. Use the Pending Review queue to keep human-in-the-loop discipline — this is the whole point of Thread 2.
 
+## 🛑 DEPLOY-TO-LIVE REQUIRES EXPLICIT USER APPROVAL (locked 2026-05-31 by user)
+
+User directive: "once this task is completed — make sure without my approval [you do NOT] send this to live."
+
+**Hard rule:** No automated deployment to production EC2 (`ec2-user@100.24.213.224`) during Phase 6 execution. This overrides any default GSD auto-advance behavior, any executor convenience, any "while we're already in the SSH session" shortcut.
+
+**What this forbids without an explicit `→ Type "deploy" to proceed` user confirmation:**
+
+- `scp` / `rsync` of backend dist to `/var/www/crm-backend/dist/`
+- `scp` / `rsync` of frontend dist to `/var/www/brandmonkz/`
+- `pm2 restart crm-backend` on the EC2 host
+- `prisma migrate deploy` against the prod `DATABASE_URL`
+- `POST /api/email-templates/upgrade-streams-v3` against `https://brandmonkz.com`
+- Any live `POST /api/apollo/send-personalized-campaign` call (whether `requireReview:true` or false)
+- Any GitHub Actions workflow trigger that ends with a prod deploy (`gh workflow run` for staging or prod)
+- Any direct AWS CLI command against production-tier resources (ECS, S3 prod buckets, secrets in `production/` namespace)
+- Mutating the prod DB via psql (read-only verification SELECTs are allowed)
+
+**What this allows freely (no approval needed):**
+
+- All local code changes (Wave 1 + Wave 2 + Wave 3 backend/frontend file edits)
+- Local `npm run build`, `tsc --noEmit`, frontend Vite build
+- Local commits + push to `origin/production` (push is git-side, not deploy-side — production EC2 only changes when something pulls the dist there)
+- Reading prod state via psql SELECT, curl GETs against `https://brandmonkz.com/api/health`, `gh run list`, etc.
+- Writing planning artifacts, SUMMARYs, evidence JSONs
+- Running the planner / checker / executor agents locally
+
+**How the deploy plan (06-06 or whatever its final number is) MUST be structured:**
+
+1. `autonomous: false` in frontmatter — explicitly NOT autonomous.
+2. The first task in the deploy plan reads `→ CHECKPOINT: Deploy Approval Required` and stops; user must explicitly reply with the literal word `deploy` (or operator equivalent) before any production-facing command runs.
+3. The plan presents the user with a deploy preview BEFORE asking for approval: which files change in `/var/www/crm-backend/dist/`, which migration applies, which pm2 process restarts, what the expected diff is, what the rollback looks like. Approval is informed, not blind.
+4. After approval, the deploy executes via the locked recipes from quick-8 / Phase 5 SUMMARYs (tarball + scp + rsync + pm2 env-reload-restart + prisma migrate deploy + psql verification).
+5. Live verification (REQ-066, 9-stream send to JM + Rajesh with Rajesh approving 1) ALSO requires a separate approval gate — staging the queue is one approval, dispatching real emails to real inboxes is a second approval. Two checkpoints, not one.
+6. If a smoke step fails, do NOT auto-rollback or auto-retry. Stop, report the failure, ask the user how to proceed.
+
+**Why this rule exists:** Phase 5 + quick-8 shipped via continuous-deploy with verification baked into the plan. That worked for those phases because the surface area was narrow and the user was watching the session in real time. Phase 6 is larger (3 threads, 6 plans, real email dispatch to recipients) and the user has explicitly removed the implicit auto-deploy permission. Honor it.
+
+**Honored at:** planner output (deploy plan frontmatter + first task), executor behavior (must respect the checkpoint), and any future SUMMARY claim of "deployed to production" — that claim is only valid if it cites the user's approval message verbatim alongside the deploy commits/runIds.
+
 ## Author identity (for all commits)
 
 ```
