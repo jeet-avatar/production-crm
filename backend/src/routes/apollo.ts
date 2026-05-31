@@ -175,14 +175,15 @@ router.post('/import', async (req: Request, res: Response) => {
       const stream = classifyStream(person.title || '', classifierText);
       streamCounts[stream] = (streamCounts[stream] || 0) + 1;
 
-      // Upsert Company by apolloOrgId.
+      // Upsert Company — 3-case ladder to avoid P2002 on companies_domain_key.
       let companyId: string | null = null;
       if (org.id) {
-        const existingCo = await prisma.company.findUnique({
+        // (a) Already imported via Apollo — reuse by apolloOrgId.
+        const existingByApolloId = await prisma.company.findUnique({
           where: { apolloOrgId: org.id },
         });
-        if (existingCo) {
-          companyId = existingCo.id;
+        if (existingByApolloId) {
+          companyId = existingByApolloId.id;
         } else if (org.name) {
           // Company.employeeCount is String? (supports "51-200" ranges).
           // Apollo returns a number — coerce defensively.
@@ -190,21 +191,52 @@ router.post('/import', async (req: Request, res: Response) => {
             typeof org.estimated_num_employees === 'number'
               ? String(org.estimated_num_employees)
               : null;
-          const created = await prisma.company.create({
-            data: {
-              name: org.name,
-              website: org.website_url || null,
-              domain: org.primary_domain || null,
-              industry: org.industry || null,
-              employeeCount: empCount,
-              stream,
-              apolloOrgId: org.id,
-              apolloRawData: org as any,
-              dataSource: 'apollo',
-              userId,
-            },
-          });
-          companyId = created.id;
+          const domain = org.primary_domain || null;
+
+          // (b) Domain collision — Company.domain is @unique (schema.prisma:340).
+          // Pre-existing row may have come from a Job-Lead pull, a manual contact create,
+          // or a prior Apollo run with a different apolloOrgId. Link to it AND backfill
+          // the Apollo fields so the next Apollo run finds it via path (a).
+          let existingByDomain = null;
+          if (domain) {
+            existingByDomain = await prisma.company.findUnique({
+              where: { domain },
+            });
+          }
+          if (existingByDomain) {
+            const updated = await prisma.company.update({
+              where: { id: existingByDomain.id },
+              data: {
+                apolloOrgId: org.id,
+                apolloRawData: org as any,
+                // Only overwrite dataSource if it was unset — don't clobber a manual/job-lead origin record.
+                dataSource: existingByDomain.dataSource || 'apollo',
+                // Backfill fields the existing record may be missing.
+                industry: existingByDomain.industry || org.industry || null,
+                employeeCount: existingByDomain.employeeCount || empCount,
+                website: existingByDomain.website || org.website_url || null,
+                stream: existingByDomain.stream || stream,
+              },
+            });
+            companyId = updated.id;
+          } else {
+            // (c) Truly new — safe to create.
+            const created = await prisma.company.create({
+              data: {
+                name: org.name,
+                website: org.website_url || null,
+                domain,
+                industry: org.industry || null,
+                employeeCount: empCount,
+                stream,
+                apolloOrgId: org.id,
+                apolloRawData: org as any,
+                dataSource: 'apollo',
+                userId,
+              },
+            });
+            companyId = created.id;
+          }
         }
       }
 

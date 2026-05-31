@@ -451,24 +451,34 @@ export const apolloApi = {
     filters: ApolloSearchFilters,
     enrich = true,
   ): Promise<ApolloImportResponse> => {
-    // apiClient baseURL already includes `/api`, so path here is `/apollo/import`
-    const response = await apiClient.post('/apollo/import', { filters, enrich });
+    // apiClient baseURL already includes `/api`, so path here is `/apollo/import`.
+    // Per-call 120s timeout: Apollo search + enrichment can take 30-60s for perPage=25
+    // (each enrichPerson is ~1s + 1500ms pacing per Apollo rate-limit pitfall). Default 10s
+    // makes axios throw 'Network error' before backend responds — bug surfaced 2026-05-30
+    // when user clicked Search with NetSuite keyword. Other *Api clients keep the 10s default.
+    const response = await apiClient.post(
+      '/apollo/import',
+      { filters, enrich },
+      { timeout: 120000 },
+    );
     return response.data;
   },
 
   // Phase 4 USER-LOCKED send path: hits the Resend dispatcher built in plan 04-03 Task 3,
   // NOT the existing campaigns.ts SES path. Server-side handles {{firstName}}/{{companyName}}
   // variable substitution per recipient and pacing.
+  // Per-call 120s timeout: Resend dispatcher paces 100ms between recipients per contact;
+  // a 25-contact batch can take ~5s but 100-contact batches push past 10s. Cap at 120s.
   sendCampaign: async (
     contactIds: string[],
     templateId: string,
     suggestedStream: string,
   ): Promise<ApolloSendCampaignResponse> => {
-    const response = await apiClient.post('/apollo/send-campaign', {
-      contactIds,
-      templateId,
-      suggestedStream,
-    });
+    const response = await apiClient.post(
+      '/apollo/send-campaign',
+      { contactIds, templateId, suggestedStream },
+      { timeout: 120000 },
+    );
     return response.data;
   },
 };
