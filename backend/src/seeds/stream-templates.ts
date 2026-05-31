@@ -132,3 +132,129 @@ export async function seedStreamTemplates(
 
   return { created, skipped };
 }
+
+// ---------------------------------------------------------------------------
+// Phase 05 Plan 01: v2 body shape with AI placeholders.
+// The 9 existing Stream:* rows get their htmlContent updated in-place via
+// upgradeStreamTemplatesToV2() — idempotent (only updates rows whose body
+// lacks the {{intentHook}} marker).
+//
+// Per-token stream-generic fallback strings live HERE so the Wave 2 send-route
+// can call getStreamFallbacks(stream) when Claude returns null tokens.
+// ---------------------------------------------------------------------------
+
+export const STREAM_TEMPLATE_V2_BODY = `<p>Hi {{firstName}},</p>
+
+<p>{{intentHook}}</p>
+
+<p>{{companyContext}}</p>
+
+<p>{{painPoint}}</p>
+
+<p>{{cta}}</p>
+
+<p>— Sara, TechCloudPro</p>`;
+
+// Per-stream generic fallback tokens (used when Claude returns null for a field).
+// Keeps the body never-empty even when web_search produces nothing actionable.
+export interface StreamFallbackTokens {
+  intentHook: string;
+  companyContext: string;
+  painPoint: string;
+  cta: string;
+}
+
+const GENERIC_FALLBACK: StreamFallbackTokens = {
+  intentHook: 'Quick note from TechCloudPro.',
+  companyContext: 'We help finance and ops teams move faster.',
+  painPoint: 'Many teams in your space are wrestling with manual workflows that slow close and reporting.',
+  cta: 'Open to a 15-minute chat next week to compare notes?',
+};
+
+const STREAM_FALLBACKS: Record<string, StreamFallbackTokens> = {
+  'NetSuite': {
+    intentHook: "Quick note from TCP's NetSuite practice.",
+    companyContext: 'You scale fast — NetSuite needs to keep up.',
+    painPoint: 'Manual data entry, slow close cycles, and reporting bottlenecks are the usual suspects.',
+    cta: 'Worth a 15-minute call to compare notes on your NetSuite stack?',
+  },
+  'AI/ML': {
+    intentHook: "Quick note from TCP's AI/ML practice.",
+    companyContext: 'AI-forward teams move fast and need ops to keep up.',
+    painPoint: 'Model deployment, monitoring, and cost control rarely scale linearly.',
+    cta: 'Open to a 15-minute chat about your AI/ML ops stack?',
+  },
+  'Cloud/DevOps': {
+    intentHook: "Quick note from TCP's Cloud/DevOps practice.",
+    companyContext: 'Cloud teams move fast — costs and observability rarely keep up.',
+    painPoint: 'Multi-account sprawl and cost reporting often outpace tooling.',
+    cta: 'Open to a 15-minute call about your cloud cost or observability roadmap?',
+  },
+  'Cybersecurity': {
+    intentHook: "Quick note from TCP's Cybersecurity practice.",
+    companyContext: 'Security teams in your space are stretched thin.',
+    painPoint: 'Compliance, vendor risk, and IAM tooling rarely scale linearly with company growth.',
+    cta: 'Worth a 15-minute chat about your security ops priorities this quarter?',
+  },
+  'Data/Analytics': {
+    intentHook: "Quick note from TCP's Data/Analytics practice.",
+    companyContext: 'Data teams are the unsung backbone of fast-growing companies.',
+    painPoint: 'Pipeline reliability, governance, and reporting latency are the usual suspects.',
+    cta: 'Open to a 15-minute chat about your data platform priorities?',
+  },
+  'Mobile': {
+    intentHook: "Quick note from TCP's Mobile practice.",
+    companyContext: 'Mobile-first teams ship fast — release ops rarely keeps up.',
+    painPoint: 'Release pipelines, store ops, and observability often lag the product.',
+    cta: 'Open to a 15-minute call about your mobile release ops?',
+  },
+  'Enterprise/ERP': {
+    intentHook: "Quick note from TCP's Enterprise/ERP practice.",
+    companyContext: 'ERP transformations live or die on data quality and change management.',
+    painPoint: 'Manual reconciliations, slow month-end close, and brittle integrations are common.',
+    cta: 'Worth a 15-minute chat about your ERP roadmap?',
+  },
+  'Staffing/HR': {
+    intentHook: "Quick note from TCP's Staffing/HR practice.",
+    companyContext: 'HR tech stacks rarely scale with headcount.',
+    painPoint: 'Onboarding, payroll integrations, and reporting often outgrow the original tools.',
+    cta: 'Open to a 15-minute call about your HR tech roadmap?',
+  },
+  'Other': GENERIC_FALLBACK,
+};
+
+export function getStreamFallbacks(stream: string): StreamFallbackTokens {
+  return STREAM_FALLBACKS[stream] ?? GENERIC_FALLBACK;
+}
+
+/**
+ * Idempotent in-place upgrade of the 9 Stream:* email_templates rows for a given user.
+ * Only updates rows whose htmlContent does NOT already contain {{intentHook}}.
+ * Returns counts so callers (the upgrade endpoint, future seeders) can report status.
+ */
+export async function upgradeStreamTemplatesToV2(
+  prisma: PrismaClient,
+  userId: string,
+): Promise<{ upgraded: string[]; alreadyV2: string[]; total: number }> {
+  const rows = await prisma.emailTemplate.findMany({
+    where: { userId, category: { startsWith: 'Stream:' } },
+    select: { id: true, name: true, htmlContent: true },
+  });
+
+  const upgraded: string[] = [];
+  const alreadyV2: string[] = [];
+
+  for (const row of rows) {
+    if ((row.htmlContent || '').includes('{{intentHook}}')) {
+      alreadyV2.push(row.name);
+      continue;
+    }
+    await prisma.emailTemplate.update({
+      where: { id: row.id },
+      data: { htmlContent: STREAM_TEMPLATE_V2_BODY },
+    });
+    upgraded.push(row.name);
+  }
+
+  return { upgraded, alreadyV2, total: rows.length };
+}

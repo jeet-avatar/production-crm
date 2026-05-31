@@ -7,6 +7,7 @@ import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import {
   seedStreamTemplates,
   STREAM_TEMPLATE_SEEDS,
+  upgradeStreamTemplatesToV2,
 } from '../seeds/stream-templates';
 
 const router = Router();
@@ -89,6 +90,30 @@ router.post('/seed-streams', async (req, res) => {
     console.error('Error seeding stream templates:', error);
     return res.status(500).json({
       error: 'Failed to seed stream templates',
+      detail: error?.message,
+    });
+  }
+});
+
+/**
+ * POST /api/email-templates/upgrade-streams-v2
+ * Phase 05 Plan 01: in-place upgrade of the 9 Stream:* templates to v2
+ * (with AI placeholders {{intentHook}}/{{companyContext}}/{{painPoint}}/{{cta}}).
+ * Idempotent — second call returns upgraded:[] alreadyV2:[...9 names].
+ */
+router.post('/upgrade-streams-v2', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'unauthenticated' });
+    }
+
+    const result = await upgradeStreamTemplatesToV2(prisma, userId);
+    return res.json(result);
+  } catch (error: any) {
+    console.error('[email-templates.upgrade-streams-v2] error:', error);
+    return res.status(500).json({
+      error: 'upgrade_failed',
       detail: error?.message,
     });
   }
