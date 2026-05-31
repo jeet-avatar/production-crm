@@ -140,8 +140,12 @@ interface ApolloSendCampaignResponse {
 //
 // Fallback contract (NEVER throws):
 //   - If ANTHROPIC_API_KEY missing → return { normalized: <raw>, corrections: [], warning: 'Claude not configured' }
-//   - If Claude takes > 3s → race-timeout → return { normalized: <raw>, corrections: [], warning: 'Claude timed out — used your inputs as-is' }
+//   - If Claude takes > 8s → race-timeout → return { normalized: <raw>, corrections: [], warning: 'Claude timed out — used your inputs as-is' }
 //   - If Claude throws or returns unparseable JSON → return { normalized: <raw>, corrections: [], warning: 'Claude unavailable — used your inputs as-is' }
+//
+// quick-7 Rule-1 deviation: bumped 3s → 8s after live verify showed claude-sonnet-4-6
+// consistently takes 3.3-5s for the full 4KB system prompt + reasoning. 3s budget made
+// the feature DEAD on every real call. 8s still well within axios 120s per-call cap.
 //
 // USER-LOCKED model: claude-sonnet-4-6 (reasoning depth for field disambiguation).
 // USER-LOCKED params: temperature 0, max_tokens 1000.
@@ -231,7 +235,7 @@ async function normalizeFiltersWithClaude(
     });
 
     const timeoutPromise = new Promise<'TIMEOUT'>((resolve) =>
-      setTimeout(() => resolve('TIMEOUT'), 3000),
+      setTimeout(() => resolve('TIMEOUT'), 8000),
     );
 
     const winner = await Promise.race([claudePromise, timeoutPromise]);
