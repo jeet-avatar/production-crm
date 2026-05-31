@@ -194,30 +194,33 @@ model User {
   compactView Boolean? @default(false) @map("compact_view")
 
   // Relationships
-  contacts           Contact[]
-  companies          Company[]
-  deals              Deal[]
-  activities         Activity[]
-  campaigns          Campaign[]
-  automations        Automation[]
-  emailTemplates     EmailTemplate[]
-  emailComposer      EmailComposer[]
-  csvImports         CsvImport[]
-  emailServerConfigs EmailServerConfig[]
-  tags               Tag[]
-  positions          Position[]
-  leads              Lead[]
-  videoTemplates     VideoTemplate[]     @relation("VideoTemplates")
-  videoCampaigns     VideoCampaign[]
-  websiteVisits      WebsiteVisit[]
-  sessions           UserSession[]
-  userActivities     UserActivity[]
-  emailFooterConfigs EmailFooterConfig[]
+  contacts            Contact[]
+  companies           Company[]
+  deals               Deal[]
+  activities          Activity[]
+  campaigns           Campaign[]
+  automations         Automation[]
+  emailTemplates      EmailTemplate[]
+  emailComposer       EmailComposer[]
+  csvImports          CsvImport[]
+  emailServerConfigs  EmailServerConfig[]
+  tags                Tag[]
+  positions           Position[]
+  leads               Lead[]
+  videoTemplates      VideoTemplate[]      @relation("VideoTemplates")
+  videoCampaigns      VideoCampaign[]
+  websiteVisits       WebsiteVisit[]
+  sessions            UserSession[]
+  userActivities      UserActivity[]
+  emailFooterConfigs  EmailFooterConfig[]
   standaloneEmailLogs StandaloneEmailLog[]
 
   // Phase 02 — Quote/Contract
-  quotes             Quote[]
-  contracts          Contract[]
+  quotes    Quote[]
+  contracts Contract[]
+
+  // Phase 05 Plan 01 — AI-personalized Apollo campaign audit
+  personalizedSends PersonalizedEmailSend[]
 
   // API Management relationships
   apiKeys         ApiKey[]
@@ -241,8 +244,8 @@ model User {
   assignedCompanies Company[] @relation("AssignedCompanies")
 
   // P0 Phase 2 relationships
-  auditLogs        AuditLog[]       @relation("AuditLogs")
-  idempotencyKeys  IdempotencyKey[] @relation("IdempotencyKeys")
+  auditLogs       AuditLog[]       @relation("AuditLogs")
+  idempotencyKeys IdempotencyKey[] @relation("IdempotencyKeys")
 
   // Partner Program relationships
   partnerApplicationsReviewed PartnerApplication[] @relation("PartnerApplicationReviewer")
@@ -285,12 +288,12 @@ model Contact {
   enrichedAt DateTime?
 
   // Email Verification fields
-  emailVerified      Boolean   @default(false) // Whether email has been verified
-  emailVerifiedAt    DateTime? // When email was verified
-  emailPattern       String? // Pattern used to generate email (e.g., "firstname.lastname")
-  emailVerificationMethod String? // "api_provided", "pattern_generated", "manual", "smtp_verified", "hunter", "zerobounce", "abstractapi", "basic"
-  emailVerificationScore Int? // 0-100 confidence score from verification service
-  emailVerificationStatus String? // "valid", "invalid", "risky", "unknown", "catch-all"
+  emailVerified            Boolean   @default(false) // Whether email has been verified
+  emailVerifiedAt          DateTime? // When email was verified
+  emailPattern             String? // Pattern used to generate email (e.g., "firstname.lastname")
+  emailVerificationMethod  String? // "api_provided", "pattern_generated", "manual", "smtp_verified", "hunter", "zerobounce", "abstractapi", "basic"
+  emailVerificationScore   Int? // 0-100 confidence score from verification service
+  emailVerificationStatus  String? // "valid", "invalid", "risky", "unknown", "catch-all"
   emailVerificationDetails Json? // Full verification details from provider
 
   // Phase 4 — Apollo + stream classification
@@ -310,9 +313,9 @@ model Contact {
   assignedToId String? // Team member this contact is assigned to
 
   // Relationships
-  company       Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assignedTo    User?           @relation("AssignedContacts", fields: [assignedToId], references: [id], onDelete: SetNull)
+  company        Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedTo     User?           @relation("AssignedContacts", fields: [assignedToId], references: [id], onDelete: SetNull)
   deals          Deal[]
   activities     Activity[]
   tags           ContactTag[]
@@ -322,6 +325,9 @@ model Contact {
   shares         ContactShare[] // Team members this contact is shared with
   mediaAccesses  MediaAccess[] // Media (videos/images) accessed by this contact
   videoCampaigns VideoCampaign[] // Personalized videos for this contact
+
+  // Phase 05 Plan 01 — AI-personalized Apollo campaign audit
+  personalizedSends PersonalizedEmailSend[]
 
   @@index([email])
   @@index([userId])
@@ -371,21 +377,21 @@ model Company {
   socialFlowData       Json? // Stores credit rating, social media, technographics, revenue, funding
 
   // 📧 Contact Email Enrichment Fields (Live Leads API)
-  contactsEnriched     Boolean   @default(false)
-  contactsEnrichedAt   DateTime?
+  contactsEnriched   Boolean   @default(false)
+  contactsEnrichedAt DateTime?
 
-  revenue              String?
-  ticker               String?
-  phone                String?
-  address              String?
-  city                 String?
-  state                String?
-  country              String?
-  zipCode              String?
-  tags                 String[] // Array of tags/keywords
-  technologies         String[] // Technologies used
-  socialProfiles       Json? // Additional social media profiles
-  enrichmentData       Json? // Raw enrichment data
+  revenue        String?
+  ticker         String?
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  country        String?
+  zipCode        String?
+  tags           String[] // Array of tags/keywords
+  technologies   String[] // Technologies used
+  socialProfiles Json? // Additional social media profiles
+  enrichmentData Json? // Raw enrichment data
 
   // AI Intelligence Fields (Web Scraping + Claude AI)
   aiDescription    String?  @db.Text
@@ -448,7 +454,7 @@ model Deal {
   actualCloseDate   DateTime?
   description       String?
   customFields      Json?
-  notes             String?   // CRM notes; meeting summaries are appended here
+  notes             String? // CRM notes; meeting summaries are appended here
   lastMeetingAt     DateTime? // Updated when a Zietra Meet session ends
   isActive          Boolean   @default(true)
   createdAt         DateTime  @default(now())
@@ -576,33 +582,33 @@ model Activity {
 }
 
 model EmailTemplate {
-  id                String   @id @default(cuid())
-  name              String
-  description       String?  @db.Text
-  subject           String
-  htmlContent       String
-  textContent       String?
-  variables         Json? // Array of variable names like ["firstName", "companyName"]
-  variableValues    Json? // Object with variable values like {"firstName": "John", "companyName": "Acme"}
+  id             String  @id @default(cuid())
+  name           String
+  description    String? @db.Text
+  subject        String
+  htmlContent    String
+  textContent    String?
+  variables      Json? // Array of variable names like ["firstName", "companyName"]
+  variableValues Json? // Object with variable values like {"firstName": "John", "companyName": "Acme"}
 
   // Visibility & Organization
-  isActive          Boolean  @default(true)
-  isShared          Boolean  @default(false) // When true, template is visible to all users
-  category          String   @default("General") // Business, Marketing, Sales, etc.
-  tags              String[] @default([]) // Searchable keywords
-  isFavorite        Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  isShared   Boolean  @default(false) // When true, template is visible to all users
+  category   String   @default("General") // Business, Marketing, Sales, etc.
+  tags       String[] @default([]) // Searchable keywords
+  isFavorite Boolean  @default(false)
 
   // Video Integration
   videoTemplateId   String? // ID of video template used (if created from video campaign)
   videoTemplateName String? // Name of video template for easy display
 
   // Analytics & Usage Tracking
-  usageCount        Int      @default(0) // Times template was used
-  viewCount         Int      @default(0) // Times template was viewed
+  usageCount Int @default(0) // Times template was used
+  viewCount  Int @default(0) // Times template was viewed
 
   // Timestamps
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Foreign keys
   userId String
@@ -611,6 +617,9 @@ model EmailTemplate {
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   campaigns      Campaign[]
   videoCampaigns VideoCampaign[]
+
+  // Phase 05 Plan 01 — AI-personalized Apollo campaign audit
+  personalizedSends PersonalizedEmailSend[]
 
   @@index([userId])
   @@index([isActive])
@@ -655,11 +664,11 @@ model Campaign {
   totalClicked Int            @default(0)
   totalBounced Int            @default(0)
   createdAt    DateTime       @default(now()) // Auto-set on creation, NOT NULL enforced
-  updatedAt    DateTime       @updatedAt      // Auto-updated via trigger, NOT NULL enforced
+  updatedAt    DateTime       @updatedAt // Auto-updated via trigger, NOT NULL enforced
 
   // Video generation fields (LaunchOS integration)
   videoJobId  String?
-  videoStatus String?  @default("none")
+  videoStatus String? @default("none")
   videoUrl    String?
 
   // Foreign keys
@@ -826,33 +835,33 @@ model EmailLink {
 
 // Standalone Email Log - Track emails sent outside campaigns
 model StandaloneEmailLog {
-  id           String   @id @default(cuid())
+  id String @id @default(cuid())
 
   // Sender info
-  fromEmail    String
-  fromName     String?
+  fromEmail String
+  fromName  String?
 
   // Recipient info
-  toEmail      String
-  toName       String?
-  ccEmails     String[] @default([])
-  bccEmails    String[] @default([])
+  toEmail   String
+  toName    String?
+  ccEmails  String[] @default([])
+  bccEmails String[] @default([])
 
   // Email content
-  subject      String
-  htmlContent  String   @db.Text
-  textContent  String?  @db.Text
+  subject     String
+  htmlContent String  @db.Text
+  textContent String? @db.Text
 
   // Video info (if applicable)
-  videoUrl     String?
-  videoName    String?
+  videoUrl        String?
+  videoName       String?
   videoCampaignId String? // Link to video campaign if exists
 
   // Tracking
-  status       EmailStatus @default(PENDING)
-  sentAt       DateTime?
-  openedAt     DateTime?
-  clickedAt    DateTime?
+  status    EmailStatus @default(PENDING)
+  sentAt    DateTime?
+  openedAt  DateTime?
+  clickedAt DateTime?
 
   // Analytics (same as email_logs)
   totalOpens   Int @default(0)
@@ -865,13 +874,13 @@ model StandaloneEmailLog {
   errorMessage String? @db.Text
 
   // User who sent
-  userId       String
-  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Metadata
-  metadata     Json?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([toEmail])
@@ -1273,7 +1282,7 @@ model VideoTemplate {
   userId   String? // null for system templates
 
   // User preferences & Visibility
-  isActive   Boolean @default(true)  // Can disable without deletion
+  isActive   Boolean @default(true) // Can disable without deletion
   isFavorite Boolean @default(false)
   isShared   Boolean @default(false) // Shared with team members
   isPublic   Boolean @default(false) // Public template library
@@ -1320,12 +1329,12 @@ model VideoCampaign {
   status      VideoCampaignStatus @default(DRAFT)
 
   // Organization & Visibility
-  category   String  @default("General") // Business, Marketing, Sales, etc.
-  tags       String[] @default([])       // Searchable keywords
-  isActive   Boolean @default(true)      // Can disable without deletion
-  isShared   Boolean @default(false)     // Shared with team members
-  isPublic   Boolean @default(false)     // Public campaign
-  isFavorite Boolean @default(false)     // User favorites
+  category   String   @default("General") // Business, Marketing, Sales, etc.
+  tags       String[] @default([]) // Searchable keywords
+  isActive   Boolean  @default(true) // Can disable without deletion
+  isShared   Boolean  @default(false) // Shared with team members
+  isPublic   Boolean  @default(false) // Public campaign
+  isFavorite Boolean  @default(false) // User favorites
 
   // Video Source
   videoSource    VideoSourceType @default(TEMPLATE)
@@ -2049,8 +2058,8 @@ model BrandingConfig {
 model SystemCredential {
   id             String    @id @default(cuid())
   name           String
-  type           String    // API_KEY, OAUTH_TOKEN, SMTP, DATABASE
-  service        String    // RESEND, GOOGLE, TWILIO, etc.
+  type           String // API_KEY, OAUTH_TOKEN, SMTP, DATABASE
+  service        String // RESEND, GOOGLE, TWILIO, etc.
   encryptedValue String    @db.Text
   lastUsed       DateTime?
   expiresAt      DateTime?
@@ -2072,18 +2081,18 @@ model SystemCredential {
 
 // P0-02: Audit Log for Transaction Tracking
 model AuditLog {
-  id         String   @id @default(cuid())
+  id         String  @id @default(cuid())
   userId     String?
-  action     String   // "COMPANY_ENRICHED", "CONTACT_CREATED", etc.
-  entityType String   // "Company", "Contact", "Deal"
-  entityId   String   // ID of the entity affected
-  metadata   Json?    // { professionalsCreated, confidence, etc. }
+  action     String // "COMPANY_ENRICHED", "CONTACT_CREATED", etc.
+  entityType String // "Company", "Contact", "Deal"
+  entityId   String // ID of the entity affected
+  metadata   Json? // { professionalsCreated, confidence, etc. }
 
   // Timestamps
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   // Relationships
-  user       User?    @relation("AuditLogs", fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation("AuditLogs", fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([action])
@@ -2096,15 +2105,15 @@ model AuditLog {
 // P0-07: Idempotency Key for Duplicate Prevention
 model IdempotencyKey {
   id        String   @id @default(cuid())
-  key       String   @unique  // SHA-256 hash of request parameters
+  key       String   @unique // SHA-256 hash of request parameters
   userId    String
-  response  Json?    // Cached response for completed requests
-  status    String   // "processing", "completed", "failed"
+  response  Json? // Cached response for completed requests
+  status    String // "processing", "completed", "failed"
   expiresAt DateTime // Auto-cleanup after 24 hours
   createdAt DateTime @default(now())
 
   // Relationships
-  user      User     @relation("IdempotencyKeys", fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("IdempotencyKeys", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([key])
@@ -2120,21 +2129,21 @@ model IdempotencyKey {
 
 // Partner Program Types
 model PartnerProgram {
-  id              String   @id @default(cuid())
-  name            String   // "Reseller", "Agency Partner", "Referral Partner"
-  slug            String   @unique  // "reseller", "agency", "referral"
-  commissionRate  Int      // Percentage (e.g., 20 = 20%)
-  minPayment      Int      // Minimum payout threshold in cents
-  description     String   @db.Text
-  benefits        Json     // Array of benefit strings
-  requirements    Json     // Array of requirement strings
-  isActive        Boolean  @default(true)
-  sortOrder       Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String // "Reseller", "Agency Partner", "Referral Partner"
+  slug           String   @unique // "reseller", "agency", "referral"
+  commissionRate Int // Percentage (e.g., 20 = 20%)
+  minPayment     Int // Minimum payout threshold in cents
+  description    String   @db.Text
+  benefits       Json // Array of benefit strings
+  requirements   Json // Array of requirement strings
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   // Relationships
-  applications    PartnerApplication[]
+  applications PartnerApplication[]
 
   @@index([slug])
   @@index([isActive])
@@ -2143,39 +2152,39 @@ model PartnerProgram {
 
 // Partner Application Submissions
 model PartnerApplication {
-  id              String   @id @default(cuid())
-  programId       String
+  id        String @id @default(cuid())
+  programId String
 
   // Contact Information
-  firstName       String
-  lastName        String
-  email           String
-  phone           String?
-  company         String?
-  website         String?
+  firstName String
+  lastName  String
+  email     String
+  phone     String?
+  company   String?
+  website   String?
 
   // Business Information
-  businessType    String   // "Agency", "Consultant", "Reseller", "Freelancer", "Other"
-  customersCount  String?  // "1-10", "11-50", "51-100", "100+"
+  businessType    String // "Agency", "Consultant", "Reseller", "Freelancer", "Other"
+  customersCount  String? // "1-10", "11-50", "51-100", "100+"
   industry        String?
-  yearsInBusiness String?  // "Less than 1", "1-3", "3-5", "5+"
-  message         String?  @db.Text
+  yearsInBusiness String? // "Less than 1", "1-3", "3-5", "5+"
+  message         String? @db.Text
 
   // Application Status
-  status          String   @default("pending") // "pending", "approved", "rejected"
-  reviewedBy      String?
-  reviewedAt      DateTime?
-  reviewNotes     String?  @db.Text
+  status      String    @default("pending") // "pending", "approved", "rejected"
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  reviewNotes String?   @db.Text
 
   // Metadata
-  ipAddress       String?
-  userAgent       String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
-  program         PartnerProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
-  reviewer        User?          @relation("PartnerApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  program  PartnerProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  reviewer User?          @relation("PartnerApplicationReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
 
   @@index([email])
   @@index([programId])
@@ -2186,35 +2195,35 @@ model PartnerApplication {
 
 // Contact Sales Submissions
 model ContactSubmission {
-  id              String   @id @default(cuid())
+  id String @id @default(cuid())
 
   // Contact Information
-  firstName       String
-  lastName        String
-  email           String
-  phone           String?
-  company         String
-  companySize     String?  // "1-10", "11-50", "51-200", "201-500", "500+"
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  company     String
+  companySize String? // "1-10", "11-50", "51-200", "201-500", "500+"
 
   // Inquiry Details
-  inquiryType     String   // "demo", "pricing", "enterprise", "partnership", "support", "other"
-  message         String   @db.Text
+  inquiryType String // "demo", "pricing", "enterprise", "partnership", "support", "other"
+  message     String @db.Text
 
   // Status Tracking
-  status          String   @default("new") // "new", "contacted", "qualified", "closed"
-  assignedTo      String?
-  followUpDate    DateTime?
-  notes           String?  @db.Text
+  status       String    @default("new") // "new", "contacted", "qualified", "closed"
+  assignedTo   String?
+  followUpDate DateTime?
+  notes        String?   @db.Text
 
   // Metadata
-  ipAddress       String?
-  userAgent       String?
-  source          String?  @default("website")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  source    String?  @default("website")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relationships
-  assignedUser    User?    @relation("ContactSubmissionAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
+  assignedUser User? @relation("ContactSubmissionAssignee", fields: [assignedTo], references: [id], onDelete: SetNull)
 
   @@index([email])
   @@index([status])
@@ -2330,4 +2339,43 @@ model ContractOTP {
   @@index([contractId])
   @@index([email])
   @@map("contract_otps")
+}
+
+// Phase 05 Plan 01 — AI-personalized Apollo campaign audit table.
+// Isolated from email_logs (which has campaignId NOT NULL FK that Phase 4 doesn't populate).
+// One row per personalized send attempt (preview or live) so Rajesh can audit AI tokens,
+// cost, and Resend dispatch outcome per contact.
+model PersonalizedEmailSend {
+  id                 String    @id @default(cuid())
+  contactId          String
+  templateId         String
+  stream             String // 'NetSuite' | 'AI/ML' | etc. (denormalized for audit speed)
+  fromEmail          String // 'Sara <sara@techcloudpro.com>'
+  toEmail            String
+  testRecipient      String? // when set, send was redirected for smoke
+  subject            String
+  renderedBody       String    @db.Text // full HTML after substitution
+  aiTokens           Json? // { intentHook, companyContext, painPoint, cta } — null if fallback used
+  aiWarning          String? // 'Claude timed out' / 'Claude unavailable' / etc.
+  claudeInputTokens  Int       @default(0)
+  claudeOutputTokens Int       @default(0)
+  webSearchUses      Int       @default(0)
+  claudeCostUSD      Decimal   @default(0) @db.Decimal(10, 6)
+  resendMessageId    String?
+  resendError        String?
+  status             String    @default("pending") // 'pending' | 'sent' | 'failed' | 'preview'
+  sentAt             DateTime?
+  createdAt          DateTime  @default(now())
+  userId             String
+
+  contact  Contact       @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  template EmailTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([templateId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("personalized_email_sends")
 }
