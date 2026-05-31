@@ -26,7 +26,7 @@ But the v6 shell is **structurally NetSuite-specific**, not just NetSuite-flavor
 | ArthaBuild banner (line 231) | "Your NetSuite copilot · SuiteScript, BRDs, docs · artha.build" |
 | ARIA blurb (line 241) | "ARIA is our AI receptionist. She knows NetSuite Next 2026, SuiteCloud AI…" |
 
-Phase 5 personalizes per *Stream* — Stream:Cybersecurity, Stream:NetSuite, Stream:RPA, Stream:Web3, Stream:Data, Stream:Cloud, Stream:Mobile, Stream:AI-ML, Stream:Other. When a Cybersecurity-stream recipient (Ricardo Deben at Centella Health Tech) opens the email:
+Phase 5 personalizes per *Stream*. The 9 production streams (verified at `backend/src/routes/apollo.ts:73-76` `VALID_STREAMS` set and `backend/src/seeds/stream-templates.ts:30-81` seed list) are: **`NetSuite`, `AI/ML`, `Cloud/DevOps`, `Cybersecurity`, `Data/Analytics`, `Mobile`, `Enterprise/ERP`, `Staffing/HR`, `Other`** — corresponding `email_templates.category` values `Stream:NetSuite`, `Stream:AI/ML`, `Stream:Cloud/DevOps`, `Stream:Cybersecurity`, `Stream:Data/Analytics`, `Stream:Mobile`, `Stream:Enterprise/ERP`, `Stream:Staffing/HR`, `Stream:Other` (NO SPACE after the colon — `seed.category = \`Stream:${seed.stream}\`` at stream-templates.ts:102). When a Cybersecurity-stream recipient (Ricardo Deben at Centella Health Tech) opens the email:
 
 - Subject line: "Security engineers — bench available" *(from Stream:Cybersecurity template)*
 - Header: "TechCloudPro · 1000+ Implementations" + "Four ways we can help"
@@ -56,27 +56,36 @@ Translation: even with stream coherence, a human-in-the-loop review gate is requ
 
 **Decision:** 9 per-stream `STREAM_TEMPLATE_V3_BODY` variants, one for each `Stream:*` category. Shared visual chrome (navy `#0F172A` header, orange `#F97316` accents, metrics row layout, Sara signature footer, `mailto:sara@techcloudpro.com` unsubscribe) — different stream-coherent COPY everywhere NetSuite text currently sits.
 
-**Naming:** `STREAM_TEMPLATE_V3_BODIES` dict in `backend/src/seeds/stream-templates.ts` keyed by stream label (`{ 'Stream: Cybersecurity': '...', 'Stream: NetSuite': '...', ... }`). Existing single `STREAM_TEMPLATE_V3_BODY` const can stay as a deprecated alias OR be deleted (planner decides — preference: delete and migrate the 9 prod rows to the per-stream variants).
+**Naming:** `STREAM_TEMPLATE_V3_BODIES` dict in `backend/src/seeds/stream-templates.ts`, keyed by the exact `email_templates.category` value the seed code writes — **NO SPACE after the colon**: `{ 'Stream:NetSuite': '...', 'Stream:AI/ML': '...', 'Stream:Cloud/DevOps': '...', 'Stream:Cybersecurity': '...', 'Stream:Data/Analytics': '...', 'Stream:Mobile': '...', 'Stream:Enterprise/ERP': '...', 'Stream:Staffing/HR': '...', 'Stream:Other': '...' }`. The dict key format **MUST match** `\`Stream:${seed.stream}\`` (no space). Existing single `STREAM_TEMPLATE_V3_BODY` const can stay as a deprecated alias OR be deleted (planner decides — preference: delete and migrate the 9 prod rows to the per-stream variants).
 
-**Per-stream copy direction (planner: synthesize the actual HTML per stream, do NOT just rename NetSuite → CapabilityName):**
+**Per-stream copy direction (planner: synthesize the actual HTML per stream, do NOT just rename NetSuite → CapabilityName). The 9 streams below are the EXACT production streams — do NOT invent streams like "RPA" or "Web3" that do not exist in prod:**
 
-| Stream | Capability framing | Sample value prop pairs |
+| `email_templates.category` (no space) | Capability framing at TechCloudPro | Sample value prop pairs (replace NetSuite-specific copy) |
 |---|---|---|
-| `Stream: Cybersecurity` | Senior security architects + AI-augmented audits | "Cybersecurity Practice. Senior auditors, since 2015." / "ArthaBuild AI. Your security copilot — threat modeling, IR docs, compliance maps." |
-| `Stream: NetSuite` | *Keep current copy* — the v6 shell was designed for this stream | unchanged from current v3 |
-| `Stream: RPA` | Automation engineering + ArthaBuild AI orchestration | "Automation Practice. UiPath/BluePrism since 2015." / "ArthaBuild AI. Your bot copilot — process discovery, exception triage." |
-| `Stream: Web3` | Smart-contract auditing + on-chain infra | "Web3 Practice. Audits + integrations since 2018." / "ArthaBuild AI. Your contract copilot — Solidity reviews, gas analysis." |
-| `Stream: Data` | Data engineering + ML pipelines + warehouse modernization | "Data Practice. Senior DEs, Snowflake/Databricks." / "ArthaBuild AI. Your data copilot — dbt models, lineage, anomaly detection." |
-| `Stream: Cloud` | Cloud architecture + DevOps + cost optimization | "Cloud Practice. AWS/GCP/Azure architects." / "ArthaBuild AI. Your infra copilot — IaC, cost surfaces, drift." |
-| `Stream: Mobile` | iOS/Android + cross-platform + design ops | "Mobile Practice. Native + Flutter/RN since 2015." / "ArthaBuild AI. Your mobile copilot — UI test gen, perf baselines." |
-| `Stream: AI-ML` | LLM apps + RAG + classical ML | "AI/ML Practice. Production LLM + classical." / "ArthaBuild AI. Your AI copilot — eval harnesses, prompt versioning." |
-| `Stream: Other` | Generic TechCloudPro consulting (catch-all) | "Senior consulting team, since 2015." / "ArthaBuild AI. Your custom copilot." |
+| `Stream:NetSuite` | NetSuite implementation + optimization + NetSuite Next 2026 — *the v6 shell was designed for this stream* | *unchanged from current v3* (keeps "NetSuite Practice", "Your NetSuite copilot", "1000+ NetSuite implementations", "A note on NetSuite Next 2026") |
+| `Stream:AI/ML` | LLM apps + RAG + classical ML + ArthaBuild AI products | "AI/ML Practice. Production LLM + classical, since 2015." / "ArthaBuild AI. Your AI copilot — eval harnesses, prompt versioning, RAG pipelines." |
+| `Stream:Cloud/DevOps` | Cloud architecture (AWS/GCP/Azure) + IaC + cost optimization + DevOps | "Cloud/DevOps Practice. AWS/GCP/Azure architects, since 2015." / "ArthaBuild AI. Your infra copilot — IaC, cost surfaces, drift detection." |
+| `Stream:Cybersecurity` | Senior security architects + audits + AI-augmented compliance + IR | "Cybersecurity Practice. Senior auditors, since 2015." / "ArthaBuild AI. Your security copilot — threat modeling, IR docs, compliance maps." |
+| `Stream:Data/Analytics` | Data engineering + warehouse modernization + BI + ML pipelines | "Data/Analytics Practice. Senior DEs — Snowflake/Databricks, since 2015." / "ArthaBuild AI. Your data copilot — dbt models, lineage, anomaly detection." |
+| `Stream:Mobile` | iOS/Android native + cross-platform (Flutter/React Native) + design ops | "Mobile Practice. Native + Flutter/React Native, since 2015." / "ArthaBuild AI. Your mobile copilot — UI test gen, perf baselines, store ops." |
+| `Stream:Enterprise/ERP` | Multi-system ERP (SAP/Oracle/custom) — broader than NetSuite | "Enterprise/ERP Practice. Multi-system architects — SAP, Oracle, custom builds, since 2015." / "ArthaBuild AI. Your ERP copilot — workflow design, integration maps, migration plans." |
+| `Stream:Staffing/HR` | TCP's $1/contract staffing model + contractor placement + HR systems | "Staffing/HR Practice. $1/contract staffing, since 2015." / "ArthaBuild AI. Your HR copilot — req drafting, candidate matching, onboarding playbooks." |
+| `Stream:Other` | Generic TechCloudPro consulting catch-all | "TCP Practice. Senior consulting, since 2015." / "ArthaBuild AI. Your custom copilot." |
 
-**What stays shared across all 9:** the `1000+ Implementations` count (it's the real TechCloudPro track record — across all practices, not just NetSuite), the "Since 2015" anchor, the orange `$1/contract` callout (the $1 staffing offer is brand-wide), Sara's signature, the navy/orange visual palette.
+**What stays shared across all 9:** the `1000+` count anchor (with stream-specific label below — see sentinel section), the "Since 2015" anchor, the orange `$1/contract` callout (the $1 staffing offer is brand-wide, valid even for non-Staffing streams), Sara's signature, the navy/orange visual palette, the mailto:sara@techcloudpro.com unsubscribe footer.
 
-**What gets dropped from non-NetSuite v3 variants:** the "A note on NetSuite Next 2026" inline callout (Stream:NetSuite v3 keeps it; the other 8 either drop it entirely OR replace with stream-relevant context — planner's call but preference is DROP for simplicity).
+**What gets dropped from non-NetSuite v3 variants:** the "A note on NetSuite Next 2026" inline callout (Stream:NetSuite v3 keeps it; the other 8 drop it entirely — do NOT replace with stream-specific roadmap content unless the planner has a strong reason).
 
-**Idempotent upgrade endpoint must become stream-aware:** the existing `POST /api/email-templates/upgrade-streams-v3` either (a) stays at v3 endpoint name but now picks the right body per stream from `STREAM_TEMPLATE_V3_BODIES[row.category]`, or (b) gets renamed to `/upgrade-streams-v4` for the new per-stream behavior. Planner chooses; preference is **(a) reuse endpoint name** since v3 was never sent to a paying customer — we treat quick-8 as a draft revision. Sentinel for idempotent re-detection should now be a stream-specific string (e.g., `'1000+ Cybersecurity engagements'` for Cybersecurity, the existing `'1000+ Implementations'` for NetSuite, etc.) or a v3-marker comment baked into each body.
+**Idempotent upgrade endpoint must become stream-aware:** the existing `POST /api/email-templates/upgrade-streams-v3` stays at the v3 endpoint name but picks the right body per stream from `STREAM_TEMPLATE_V3_BODIES[row.category]`. Do NOT introduce a v4 endpoint — quick-8's v3 was never sent to a paying customer, we treat it as a draft revision and overwrite in place.
+
+**Sentinel for idempotent re-detection (per stream):** use a `<!-- STREAM_V3:<category-suffix> -->` HTML comment baked into each body as the FIRST line after `<body>`. Examples:
+- `Stream:Cybersecurity` body starts with `<!-- STREAM_V3:Cybersecurity -->`
+- `Stream:AI/ML` body starts with `<!-- STREAM_V3:AI/ML -->`
+- `Stream:Cloud/DevOps` body starts with `<!-- STREAM_V3:Cloud/DevOps -->`
+
+Detection per row: `htmlContent.includes(\`<!-- STREAM_V3:${row.category.slice('Stream:'.length)} -->\`)`. Unique per stream by construction, doesn't rely on visible copy uniqueness, survives any future copy changes within a stream. Recommended over visible-copy sentinels like "1000+ Cybersecurity engagements".
+
+**Runtime guard (CRITICAL):** Plan 06-01 MUST include a verify-block runtime assertion (e.g. `node -e "const t = require('./dist/seeds/stream-templates.js'); const seeds = require('./dist/seeds/stream-templates.js').STREAM_TEMPLATE_SEEDS; const missing = seeds.filter(s => !t.STREAM_TEMPLATE_V3_BODIES['Stream:' + s.stream]); if (missing.length) { console.error('MISSING dict keys:', missing.map(s => s.stream)); process.exit(1); } console.log('OK 9/9');"`) that proves every prod `Stream:*` category has a matching dict entry. This is the load-bearing safety check that prevents the silent-fallback-to-Other bug.
 
 ### Thread 2 — Pending Review queue (human-in-the-loop gate)
 
@@ -119,7 +128,7 @@ Translation: even with stream coherence, a human-in-the-loop review gate is requ
 |---|---|---|
 | `/api/apollo/unsent-contacts` | GET | Returns `[{ id, email, fullName, companyName, stream, suggestedStream }]` for the current user's unsent Apollo contacts. Optional `?stream=Cybersecurity` filter, `?limit=N` cap. |
 
-**Template auto-pick logic:** When `templateId: null` and `suggestedStream: null` are passed to `/send-personalized-campaign`, the backend looks up `EmailTemplate.findFirst({ where: { userId, category: 'Stream:' + contact.stream } })` per contact. This is the same per-stream lookup that NetSuiteCampaignWizard already uses (`api.ts:244` first-match-by-category pattern). Falls back to `Stream: Other` if exact match missing.
+**Template auto-pick logic:** When `templateId: null` and `suggestedStream: null` are passed to `/send-personalized-campaign`, the backend looks up `EmailTemplate.findFirst({ where: { userId, category: 'Stream:' + contact.stream } })` per contact (NO space after colon — matches `seed.category` write format exactly). This is the same per-stream lookup that NetSuiteCampaignWizard already uses (`api.ts:244` first-match-by-category pattern). Falls back to `Stream:Other` (also no space) if exact match missing.
 
 ## Firewalls that MUST hold
 
