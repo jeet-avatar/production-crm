@@ -55,3 +55,14 @@ Plans:
 - [x] 04-06-PLAN.md — Handoff wiring + deploy (rsync to /var/www/crm-backend/dist + pm2) + 9 stream templates seeded + Resend send-campaign smoke 200 `{sent:1,failed:0}` from Sara <sara@techcloudpro.com>. htmlBody→htmlContent production-blocking field-name fix landed in a72fa4b. Apollo IMPORT 503 verified as upstream-credential-gate (both EC2 keys 401 from app.apollo.io) — deferred to Phase 4.5 reopen-trigger. (Complete 2026-05-30: f7e6482, de87ba1, f44e38a, a72fa4b)
 
 **Phase 4 COMPLETE 2026-05-30** — 6/6 plans done; Resend send-half verified end-to-end live on production; Apollo IMPORT awaits external key refresh per deferred-items.md item #1.
+
+### Phase 5: AI-Personalized Campaign for Apollo Contacts (Intent-Based, Block-Template)
+**Goal:** Take Apollo-imported contacts in prod DB → for each: (1) Claude API with web_search researches the company (recent news, tech stack, pain points relevant to the contact's stream classification), (2) Claude generates 3-4 per-contact personalized tokens (intentHook, companyContext, painPoint, CTA), (3) the pre-seeded stream EmailTemplate is rendered with those AI tokens substituted in (alongside {{firstName}}/{{companyName}}/{{title}}), (4) email sent via existing Resend `/api/apollo/send-campaign` path FROM `Sara <sara@techcloudpro.com>`, (5) each rendered body persisted to Campaign / email_logs for audit. Modeled after TCP v6 video pipeline INTENT-BASED pattern but using CRM EmailTemplate "block templates" instead of video. NetSuiteCampaignWizard gets a new "AI Personalize" step between template-pick and send. NOT video (deferred indefinitely — TCP-only infra in /opt/). NO new from-address (Sara stays per Phase 4 locked decision).
+**Requirements:** REQ-050, REQ-051, REQ-052, REQ-053, REQ-054
+**Plans:** 4 plans
+
+Plans:
+- [x] 05-01-PLAN.md — Prisma migration (personalized_email_sends table) + 9 stream templates upgraded to v2 with AI placeholders + idempotent upgrade endpoint (Complete 2026-05-31: b19feec, 820fd4a)
+- [ ] 05-02-PLAN.md — Backend personalizeContactWithClaude helper (web_search_20250305, 5-fallback contract) + POST /api/apollo/send-personalized-campaign route + frontend apolloApi.sendPersonalizedCampaign client
+- [ ] 05-03-PLAN.md — NetSuiteCampaignWizard 4→5 step refactor with new AI Personalize preview gate (Step 3) + Review (Step 4 with live send) + Done (Step 5 with cost telemetry)
+- [ ] 05-04-PLAN.md — Deploy backend + frontend to EC2 + apply Prisma migration + upgrade stream templates + 4-case smoke against Ricardo Deben (cmpsz0d3q000350mxrlau3sg5) + user-verify inbox + close ceremony (STATE.md + ROADMAP.md + 05-SUMMARY.md)
