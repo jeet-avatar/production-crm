@@ -432,6 +432,16 @@ export interface ApolloImportResponse {
   contactIds: string[];
   suggestedStream: string;
   errors: Array<{ apolloPersonId: string; reason: string }>;
+  // quick-7: Claude normalization output (when autoNormalize was true on the backend, default).
+  corrections?: Array<{ field: string; from: string; to: string; reason: string }>;
+  warning?: string;   // present when Claude was unavailable / timed out / errored — search still ran with raw filters
+}
+
+// quick-7: Standalone normalization response (from POST /api/apollo/normalize-filters).
+export interface ApolloNormalizeResponse {
+  normalized: ApolloSearchFilters;
+  corrections: Array<{ field: string; from: string; to: string; reason: string }>;
+  warning?: string;
 }
 
 export interface ApolloSendCampaignFailure {
@@ -461,6 +471,18 @@ export const apolloApi = {
       { filters, enrich },
       { timeout: 120000 },
     );
+    return response.data;
+  },
+
+  // quick-7: Standalone Claude normalization preview — no Apollo search performed.
+  // Returns { normalized, corrections, warning? } so the UI can preview the corrections
+  // BEFORE clicking Search. (Optional method — current Search flow piggybacks corrections
+  // on /import's response. Kept here for future "preview" button or scripted callers.)
+  normalize: async (
+    filters: ApolloSearchFilters,
+  ): Promise<ApolloNormalizeResponse> => {
+    // Claude has its own 3s server-side budget — 10s axios default is plenty.
+    const response = await apiClient.post('/apollo/normalize-filters', { filters });
     return response.data;
   },
 

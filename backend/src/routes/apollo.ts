@@ -36,6 +36,20 @@ import { classifyStream } from '../lib/streamClassifier';
 // We use Resend, NOT SES (campaigns.ts SES flow stays untouched for Rajesh's existing BrandMonkz campaigns).
 import { Resend } from 'resend';
 
+// Phase quick-7: Claude-powered Apollo filter normalization.
+// Auto-corrects common user input mistakes (e.g., location strings in keyword-tags field,
+// industry phrases instead of discrete tags) BEFORE the Apollo HTTP call so Rajesh
+// doesn't burn Apollo credits on semantically wrong searches.
+//
+// We REUSE the existing @anthropic-ai/sdk dep (already in package.json:42) and mirror
+// the init pattern from services/ai-orchestrator.service.ts:2-9 — module-level singleton,
+// reads ANTHROPIC_API_KEY at module load. Missing key is NOT fatal: normalizeFiltersWithClaude
+// will fall back to raw inputs and emit a warning. Claude is best-effort, never blocking.
+import Anthropic from '@anthropic-ai/sdk';
+
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
+const anthropicClient = ANTHROPIC_API_KEY ? new Anthropic({ apiKey: ANTHROPIC_API_KEY }) : null;
+
 // Fail-fast at module load if RESEND_API_KEY missing. Pattern mirrors main_new.py JWT_SECRET guard
 // (`RuntimeError` at startup). Backend MUST NOT boot without a working send path.
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -72,6 +86,20 @@ router.use(authenticate);
 interface ApolloImportRequestBody {
   filters: ApolloSearchFilters;
   enrich?: boolean;
+  autoNormalize?: boolean;   // quick-7: default true; set false to skip Claude normalization
+}
+
+interface ApolloFilterCorrection {
+  field: string;          // e.g., 'organizationKeywordTags' | 'personLocations'
+  from: string;           // raw value as user typed it
+  to: string;             // normalized value Claude moved it to
+  reason: string;         // human-readable explanation Rajesh can learn from
+}
+
+interface ApolloNormalizeResult {
+  normalized: ApolloSearchFilters;
+  corrections: ApolloFilterCorrection[];
+  warning?: string;
 }
 
 interface ApolloImportResponse {
@@ -81,6 +109,8 @@ interface ApolloImportResponse {
   contactIds: string[];
   suggestedStream: string;
   errors: Array<{ apolloPersonId: string; reason: string }>;
+  corrections?: ApolloFilterCorrection[];   // quick-7: Claude's normalization explanations
+  warning?: string;                          // quick-7: Claude unavailable / timed out message
 }
 
 interface ApolloSendCampaignRequestBody {
@@ -102,6 +132,172 @@ interface ApolloSendCampaignResponse {
 }
 
 // ---------------------------------------------------------------------------
+// Claude-powered filter normalization (Phase quick-7)
+// ---------------------------------------------------------------------------
+// Given a raw ApolloSearchFilters object (user input), call Claude with a
+// strict-JSON system prompt teaching Apollo's field semantics and return:
+//   { normalized: <cleaned filters>, corrections: [...], warning?: string }
+//
+// Fallback contract (NEVER throws):
+//   - If ANTHROPIC_API_KEY missing → return { normalized: <raw>, corrections: [], warning: 'Claude not configured' }
+//   - If Claude takes > 3s → race-timeout → return { normalized: <raw>, corrections: [], warning: 'Claude timed out — used your inputs as-is' }
+//   - If Claude throws or returns unparseable JSON → return { normalized: <raw>, corrections: [], warning: 'Claude unavailable — used your inputs as-is' }
+//
+// USER-LOCKED model: claude-sonnet-4-6 (reasoning depth for field disambiguation).
+// USER-LOCKED params: temperature 0, max_tokens 1000.
+
+const APOLLO_NORMALIZE_SYSTEM_PROMPT = `You are an Apollo.io search-filter normalizer. You take a JSON object of user filters and return a CLEANED version plus a list of corrections explaining what you changed and why.
+
+APOLLO FIELD SEMANTICS (these are RULES, not suggestions):
+
+1. personTitles — array of DISCRETE job titles, OR-matched.
+   ✓ Good: ["CFO", "Controller", "VP Finance"]
+   ✗ Bad: ["Finance leaders"] (too vague, not a real title)
+   ✗ Bad: ["CFO in California"] (location belongs in personLocations, not embedded in title)
+
+2. personLocations — array of GEOGRAPHIC strings ONLY (cities, states, countries, metro areas).
+   ✓ Good: ["United States", "California", "San Francisco CA", "Irvine California"]
+   ✗ Bad: ["West Coast"] (too vague — pick states or major cities)
+   ✗ Bad: ["Big cities"] (not a geographic identifier)
+   ✗ Bad: ["SaaS companies in Irvine"] (industry phrase, not a location — extract "Irvine" only)
+
+3. organizationKeywordTags — array of DISCRETE dictionary tags (one concept per tag), NEVER free-form phrases, NEVER locations, NEVER industries-as-prose.
+   ✓ Good: ["SaaS", "FinTech", "Cybersecurity", "Manufacturing"]
+   ✗ Bad: ["SaaS companies in Irvine"] (mixes industry + location — extract "SaaS" tag, move "Irvine" to personLocations)
+   ✗ Bad: ["companies that use NetSuite"] (prose phrase — extract "NetSuite" tag only)
+   ✗ Bad: ["West Coast"] (location, not an org tag — move to personLocations)
+
+4. minEmployees / maxEmployees — integers.
+   ✓ Good: 100, 500, 1000
+   ✗ Bad: "100-500" (string range — split into min=100, max=500)
+   ✗ Bad: "medium-sized" (qualitative — leave alone, can't infer)
+
+NORMALIZATION RULES:
+- If a value in organizationKeywordTags contains a clear geographic word (city/state/country/region), EXTRACT it to personLocations and KEEP the remaining industry/tech tag in organizationKeywordTags.
+- If a value in personLocations contains a clear industry/tech phrase (SaaS, FinTech, NetSuite, ERP, etc.), EXTRACT it to organizationKeywordTags and KEEP the location.
+- If a personTitle value is a vague descriptor ("Finance leaders", "Senior management"), leave it AS-IS but emit a correction with reason explaining it's too vague (do NOT silently drop).
+- If a tag is a prose phrase like "companies that use X", extract the noun "X" as the tag.
+- If a value is already clean and Apollo-compatible, DO NOT include it in corrections.
+
+OUTPUT FORMAT (strict JSON, no markdown, no prose outside the JSON):
+{
+  "normalized": {
+    "personTitles": [...],
+    "personLocations": [...],
+    "organizationKeywordTags": [...],
+    "minEmployees": <int or null>,
+    "maxEmployees": <int or null>
+  },
+  "corrections": [
+    {
+      "field": "organizationKeywordTags",
+      "from": "Saas Companies in Irvine",
+      "to": "SaaS (moved 'Irvine' to personLocations)",
+      "reason": "Tag field expects discrete dictionary tags like 'SaaS'. 'Irvine' is a city — it belongs in personLocations."
+    }
+  ]
+}
+
+If no corrections are needed, return { "normalized": <input unchanged>, "corrections": [] }.
+
+Return ONLY the JSON object. No prose. No markdown fences.`;
+
+async function normalizeFiltersWithClaude(
+  rawFilters: ApolloSearchFilters,
+): Promise<ApolloNormalizeResult> {
+  // Fast-path 1: SDK not configured → raw passthrough.
+  if (!anthropicClient) {
+    return {
+      normalized: rawFilters,
+      corrections: [],
+      warning: 'Claude not configured — used your inputs as-is',
+    };
+  }
+
+  try {
+    // Race Claude against a 3-second budget. If Claude wins, parse + return.
+    // If timeout wins, return raw + warning. Either way, /import is unblocked.
+    const claudePromise = anthropicClient.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      temperature: 0,
+      system: APOLLO_NORMALIZE_SYSTEM_PROMPT,
+      messages: [
+        {
+          role: 'user',
+          content: `Normalize these Apollo filters:\n\n${JSON.stringify(rawFilters, null, 2)}`,
+        },
+      ],
+    });
+
+    const timeoutPromise = new Promise<'TIMEOUT'>((resolve) =>
+      setTimeout(() => resolve('TIMEOUT'), 3000),
+    );
+
+    const winner = await Promise.race([claudePromise, timeoutPromise]);
+
+    if (winner === 'TIMEOUT') {
+      return {
+        normalized: rawFilters,
+        corrections: [],
+        warning: 'Claude timed out — used your inputs as-is',
+      };
+    }
+
+    // Claude responded — extract text block.
+    const response = winner as Awaited<typeof claudePromise>;
+    const text =
+      response.content[0]?.type === 'text' ? response.content[0].text : '';
+    if (!text) {
+      return {
+        normalized: rawFilters,
+        corrections: [],
+        warning: 'Claude returned empty response — used your inputs as-is',
+      };
+    }
+
+    // Parse strict JSON. Defensive: strip markdown fences if Claude added them.
+    const cleaned = text.replace(/^```json\s*/i, '').replace(/```\s*$/g, '').trim();
+    const parsed = JSON.parse(cleaned) as {
+      normalized?: ApolloSearchFilters;
+      corrections?: ApolloFilterCorrection[];
+    };
+
+    if (!parsed || typeof parsed !== 'object' || !parsed.normalized) {
+      return {
+        normalized: rawFilters,
+        corrections: [],
+        warning: 'Claude returned malformed JSON — used your inputs as-is',
+      };
+    }
+
+    // Preserve fields Claude doesn't manage (organizationDomains, page, perPage).
+    const merged: ApolloSearchFilters = {
+      ...rawFilters,
+      personTitles: parsed.normalized.personTitles ?? rawFilters.personTitles,
+      personLocations: parsed.normalized.personLocations ?? rawFilters.personLocations,
+      organizationKeywordTags:
+        parsed.normalized.organizationKeywordTags ?? rawFilters.organizationKeywordTags,
+      minEmployees: parsed.normalized.minEmployees ?? rawFilters.minEmployees,
+      maxEmployees: parsed.normalized.maxEmployees ?? rawFilters.maxEmployees,
+    };
+
+    return {
+      normalized: merged,
+      corrections: Array.isArray(parsed.corrections) ? parsed.corrections : [],
+    };
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error('[apollo.normalize] Claude error:', err?.message || err);
+    return {
+      normalized: rawFilters,
+      corrections: [],
+      warning: 'Claude unavailable — used your inputs as-is',
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // POST /api/apollo/import
 // ---------------------------------------------------------------------------
 // Search Apollo → enrich (optional) → classify stream → dedupe by apolloPersonId/apolloOrgId
@@ -118,9 +314,21 @@ router.post('/import', async (req: Request, res: Response) => {
     });
   }
 
-  const { filters, enrich = true } = (req.body || {}) as ApolloImportRequestBody;
+  const { filters, enrich = true, autoNormalize = true } = (req.body || {}) as ApolloImportRequestBody;
   if (!filters || typeof filters !== 'object') {
     return res.status(400).json({ error: 'filters object required' });
+  }
+
+  // quick-7: Auto-normalize filters via Claude before hitting Apollo.
+  // Default ON — set autoNormalize:false in request body to opt out (e.g., scripted callers).
+  let effectiveFilters: ApolloSearchFilters = filters;
+  let corrections: ApolloFilterCorrection[] = [];
+  let normalizeWarning: string | undefined;
+  if (autoNormalize) {
+    const nr = await normalizeFiltersWithClaude(filters);
+    effectiveFilters = nr.normalized;
+    corrections = nr.corrections;
+    normalizeWarning = nr.warning;
   }
 
   const userId = (req as any).user?.id;
@@ -128,7 +336,7 @@ router.post('/import', async (req: Request, res: Response) => {
 
   try {
     // 2. Search Apollo.
-    const searchResp = await searchPeople(apiKey, filters);
+    const searchResp = await searchPeople(apiKey, effectiveFilters);
     const people = searchResp.people || [];
 
     // 3. Enrich + upsert loop.
@@ -271,6 +479,8 @@ router.post('/import', async (req: Request, res: Response) => {
       contactIds,
       suggestedStream,
       errors,
+      corrections,
+      ...(normalizeWarning ? { warning: normalizeWarning } : {}),
     };
     return res.status(200).json(body);
   } catch (err: any) {
@@ -281,6 +491,28 @@ router.post('/import', async (req: Request, res: Response) => {
     console.error('[apollo.import] unexpected error', err);
     return res.status(500).json({ error: 'Apollo import failed', detail: err?.message });
   }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/apollo/normalize-filters  (quick-7)
+// ---------------------------------------------------------------------------
+// Standalone Claude-normalization endpoint. Returns { normalized, corrections, warning? }
+// without performing an Apollo search. Useful for future client-side "preview my filters
+// before searching" UX, scripted callers, or debugging.
+//
+// Auth: shares the router-level authenticate middleware.
+
+router.post('/normalize-filters', async (req: Request, res: Response) => {
+  const { filters } = (req.body || {}) as { filters?: ApolloSearchFilters };
+  if (!filters || typeof filters !== 'object') {
+    return res.status(400).json({ error: 'filters object required' });
+  }
+
+  const userId = (req as any).user?.id;
+  if (!userId) return res.status(401).json({ error: 'unauthenticated' });
+
+  const result = await normalizeFiltersWithClaude(filters);
+  return res.status(200).json(result);
 });
 
 // ---------------------------------------------------------------------------

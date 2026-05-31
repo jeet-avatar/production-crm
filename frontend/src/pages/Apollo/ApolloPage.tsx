@@ -200,6 +200,51 @@ export default function ApolloPage() {
               Import results
             </h2>
 
+            {/* quick-7: Claude-refined-filters info block */}
+            {result.corrections && result.corrections.length > 0 && (
+              <div
+                style={{
+                  marginBottom: '14px',
+                  padding: '12px 14px',
+                  background: 'rgba(99, 102, 241, 0.10)',
+                  border: '1px solid rgba(99, 102, 241, 0.28)',
+                  borderRadius: '10px',
+                  color: '#C7D2FE',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                }}
+              >
+                <div style={{ fontWeight: 700, marginBottom: '6px', color: '#A5B4FC' }}>
+                  🤖 Claude refined your filters
+                </div>
+                <ul style={{ margin: 0, paddingLeft: '18px' }}>
+                  {result.corrections.map((c, i) => (
+                    <li key={i} style={{ marginBottom: '4px' }}>
+                      <code style={codeStyle}>{c.field}</code>: "{c.from}" → "{c.to}" — {c.reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* quick-7: Claude-unavailable warning (raw inputs were used) */}
+            {result.warning && (
+              <div
+                style={{
+                  marginBottom: '14px',
+                  padding: '10px 14px',
+                  background: 'rgba(234, 179, 8, 0.10)',
+                  border: '1px solid rgba(234, 179, 8, 0.28)',
+                  borderRadius: '10px',
+                  color: '#FCD34D',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                }}
+              >
+                ⚠ {result.warning}
+              </div>
+            )}
+
             <div
               style={{
                 display: 'grid',
