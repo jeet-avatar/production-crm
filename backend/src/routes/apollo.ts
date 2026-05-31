@@ -19,7 +19,7 @@
 //   - backend/src/routes/campaigns.ts:540-559 (SES substitution shape we mirror, NOT modify)
 
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { authenticate } from '../middleware/auth';
 import {
   searchPeople,
@@ -31,6 +31,8 @@ import {
   ApolloSearchFilters,
 } from '../lib/apolloClient';
 import { classifyStream } from '../lib/streamClassifier';
+// Phase 05 plan 05-02: v2 stream-template body + per-stream null-token fallbacks.
+import { STREAM_TEMPLATE_V2_BODY, getStreamFallbacks } from '../seeds/stream-templates';
 
 // Phase 4 USER-LOCKED 2026-05-30: Resend send path.
 // We use Resend, NOT SES (campaigns.ts SES flow stays untouched for Rajesh's existing BrandMonkz campaigns).
@@ -100,6 +102,216 @@ interface ApolloNormalizeResult {
   normalized: ApolloSearchFilters;
   corrections: ApolloFilterCorrection[];
   warning?: string;
+}
+
+// -----------------------------------------------------------------------
+// Phase 5: per-contact AI personalization types
+// -----------------------------------------------------------------------
+
+interface AITokens {
+  intentHook: string | null;
+  companyContext: string | null;
+  painPoint: string | null;
+  cta: string | null;
+}
+
+interface ClaudeUsage {
+  inputTokens: number;
+  outputTokens: number;
+  webSearchUses: number;
+  costUSD: number;
+}
+
+interface PersonalizeResult {
+  tokens: AITokens | null;
+  usage: ClaudeUsage;
+  warning?: string;
+}
+
+// Cost constants (Sonnet 4.6 + web_search) — keep in sync with RESEARCH §10
+const CLAUDE_INPUT_RATE_PER_TOKEN = 3 / 1_000_000;   // $3 / MTok
+const CLAUDE_OUTPUT_RATE_PER_TOKEN = 15 / 1_000_000; // $15 / MTok
+const CLAUDE_WEB_SEARCH_RATE = 0.010;                // $10 / 1000 = $0.01 each
+
+// Resend pricing — currently FREE TIER (3K emails/month, $0 incremental).
+// Kept as a named constant so future paid-tier moves only edit one line.
+// When/if Resend goes paid for TCP: set this to per-email $ (e.g. 0.0001 for the $20/50K plan).
+const RESEND_COST_PER_SEND = 0;
+
+const PERSONALIZE_TIMEOUT_MS = 60_000;  // web_search needs headroom (RESEARCH §6)
+const PERSONALIZE_BATCH_HARD_CAP = 50;  // cost gate (RESEARCH §7)
+const PERSONALIZE_PACING_MS = 250;      // 4 req/sec < Resend's 5/sec limit (RESEARCH §7)
+
+const PHASE5_RESEARCH_SYSTEM_PROMPT = `You are a B2B research analyst for TechCloudPro (TCP), a NetSuite + AI consultancy.
+
+Task: research one target company using web_search, then emit JSON tokens that personalize a stream-specific outreach email.
+
+Use web_search 1-3 times to ground these facts:
+- Recent news, fundraising, acquisitions, leadership changes (last 6 months)
+- Tech stack signals relevant to the given stream (e.g., for "NetSuite": ERP mentions; for "AI/ML": ML platform mentions)
+- A concrete operational pain inferable from public signals
+
+Output STRICT JSON, no markdown, no prose:
+{
+  "intentHook":     "<one sentence, 8-15 words, refers to recent SPECIFIC signal>",
+  "companyContext": "<one sentence, 8-15 words, what they do + scale>",
+  "painPoint":      "<one sentence, 8-15 words, REAL operational friction tied to stream>",
+  "cta":            "<one short question, 10-15 words, ties pain to TCP offer>"
+}
+
+Rules:
+- If no public signal supports a hook, return null for that field (NOT a fabrication).
+- Tokens MUST be plain text (no HTML, no markdown). Max 160 chars each.
+- No URLs. No company-internal jargon.
+
+Return ONLY the JSON object.`;
+
+// Strip HTML tags + URLs and cap length per token. Defense against AI hallucination.
+function sanitizeToken(s: string | null | undefined): string | null {
+  if (typeof s !== 'string') return null;
+  const stripped = s
+    .replace(/<[^>]+>/g, '')        // no HTML
+    .replace(/https?:\/\/\S+/g, '') // no URLs
+    .trim();
+  if (!stripped) return null;
+  return stripped.length > 160 ? stripped.slice(0, 159) + '…' : stripped;
+}
+
+function computeClaudeCost(inputTokens: number, outputTokens: number, webSearchUses: number): number {
+  return (
+    inputTokens * CLAUDE_INPUT_RATE_PER_TOKEN +
+    outputTokens * CLAUDE_OUTPUT_RATE_PER_TOKEN +
+    webSearchUses * CLAUDE_WEB_SEARCH_RATE
+  );
+}
+
+function zeroUsage(): ClaudeUsage {
+  return { inputTokens: 0, outputTokens: 0, webSearchUses: 0, costUSD: 0 };
+}
+
+/**
+ * Pass a curated subset of contact.apolloRawData to the AI (RESEARCH Open Question 3 + locked decision #11).
+ * First 10 fields only — token cost guard.
+ */
+function curatedApolloFields(apolloRawData: any): Record<string, any> {
+  if (!apolloRawData || typeof apolloRawData !== 'object') return {};
+  const candidates = [
+    'title', 'headline', 'seniority', 'departments', 'linkedin_url',
+    'employment_history', 'organization_industry', 'organization_size',
+    'organization_short_description', 'organization_founded_year',
+  ];
+  const out: Record<string, any> = {};
+  for (const k of candidates) {
+    if (apolloRawData[k] !== undefined && apolloRawData[k] !== null) out[k] = apolloRawData[k];
+  }
+  return out;
+}
+
+/**
+ * ONE Claude call per contact: research + token generation combined (RESEARCH §2).
+ * Mirrors normalizeFiltersWithClaude's contract — NEVER throws.
+ * EXACTLY 5 fallback paths (see plan must_haves table):
+ *   1. missing key                    → 'Claude not configured'
+ *   2. 60s Promise.race timeout       → 'Claude timed out — used per-stream fallback'
+ *   3. empty text block               → 'Claude returned empty response'
+ *   4. JSON.parse throws OR non-obj   → 'Claude returned malformed JSON'   <- folded
+ *   5. anything else (SDK throws,
+ *      network, anthropic 4xx/5xx,
+ *      web_search error)              → 'Claude unavailable'
+ */
+async function personalizeContactWithClaude(
+  contact: { firstName: string | null; lastName: string | null; title: string | null; apolloRawData: any; company: { name: string | null; industry: string | null } | null },
+  stream: string,
+): Promise<PersonalizeResult> {
+  // Fallback 1: missing key
+  if (!anthropicClient) {
+    return { tokens: null, usage: zeroUsage(), warning: 'Claude not configured' };
+  }
+
+  const userMessage = `Research company "${contact.company?.name ?? 'unknown'}" for an outreach email to ${contact.firstName ?? ''} ${contact.lastName ?? ''}, ${contact.title ?? 'a senior buyer'}.
+
+Stream classification: ${stream}
+Industry (from Apollo): ${contact.company?.industry ?? 'unknown'}
+
+Additional Apollo-enriched data (use sparingly):
+${JSON.stringify(curatedApolloFields(contact.apolloRawData), null, 2)}
+
+Use web_search to ground the tokens in REAL public signals. Return the strict JSON object.`;
+
+  try {
+    const timeoutPromise = new Promise<'TIMEOUT'>((resolve) =>
+      setTimeout(() => resolve('TIMEOUT'), PERSONALIZE_TIMEOUT_MS),
+    );
+
+    const claudePromise = anthropicClient.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 800,
+      temperature: 0,
+      system: PHASE5_RESEARCH_SYSTEM_PROMPT,
+      tools: [{
+        type: 'web_search_20250305',
+        name: 'web_search',
+        max_uses: 3,
+      } as any],
+      messages: [{ role: 'user', content: userMessage }],
+    });
+
+    const result = await Promise.race([claudePromise, timeoutPromise]);
+
+    // Fallback 2: timeout
+    if (result === 'TIMEOUT') {
+      return { tokens: null, usage: zeroUsage(), warning: 'Claude timed out — used per-stream fallback' };
+    }
+
+    // Extract usage
+    const inputTokens = (result as any).usage?.input_tokens ?? 0;
+    const outputTokens = (result as any).usage?.output_tokens ?? 0;
+    const webSearchUses = (result as any).usage?.server_tool_use?.web_search_requests ?? 0;
+    const costUSD = computeClaudeCost(inputTokens, outputTokens, webSearchUses);
+    const usage: ClaudeUsage = { inputTokens, outputTokens, webSearchUses, costUSD };
+
+    // Find the FIRST text block (web_search_tool_result blocks come before the final assistant text)
+    const blocks = (result as any).content ?? [];
+    const textBlock = blocks.find((b: any) => b.type === 'text');
+
+    // Fallback 3: empty response
+    if (!textBlock || !textBlock.text) {
+      return { tokens: null, usage, warning: 'Claude returned empty response' };
+    }
+
+    // Fence-strip then parse
+    const raw = String(textBlock.text)
+      .replace(/^```json\s*/i, '')
+      .replace(/```\s*$/g, '')
+      .trim();
+
+    // Fallback 4: malformed JSON (covers BOTH JSON.parse throw AND non-object/null parse result).
+    // The manual `throw` inside the try block routes non-object results into the same catch path,
+    // so we emit only ONE warning string ('Claude returned malformed JSON') for this branch.
+    let parsed: any;
+    try {
+      parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('non-object JSON');
+      }
+    } catch {
+      return { tokens: null, usage, warning: 'Claude returned malformed JSON' };
+    }
+
+    const tokens: AITokens = {
+      intentHook: sanitizeToken(parsed.intentHook),
+      companyContext: sanitizeToken(parsed.companyContext),
+      painPoint: sanitizeToken(parsed.painPoint),
+      cta: sanitizeToken(parsed.cta),
+    };
+
+    return { tokens, usage };
+  } catch (err: any) {
+    // Fallback 5: SDK throws (covers anthropic 4xx/5xx, network errors, web_search failures, model-access errors, etc.)
+    // eslint-disable-next-line no-console
+    console.error('[apollo.personalize] Claude error:', err?.message || err);
+    return { tokens: null, usage: zeroUsage(), warning: 'Claude unavailable' };
+  }
 }
 
 interface ApolloImportResponse {
@@ -640,6 +852,262 @@ router.post('/send-campaign', async (req: Request, res: Response) => {
     // eslint-disable-next-line no-console
     console.error('[apollo.send-campaign] unexpected error', err);
     return res.status(500).json({ error: 'send-campaign failed', detail: err?.message });
+  }
+});
+
+// -----------------------------------------------------------------------
+// Phase 5: POST /api/apollo/send-personalized-campaign
+//
+// ADJACENT to /send-campaign — does NOT replace it. Phase 4 send-campaign
+// remains byte-for-byte unchanged so the Phase 4 firewall holds.
+//
+// Per-contact flow:
+//   1. Call personalizeContactWithClaude(contact, stream) → { tokens, usage, warning }
+//   2. Render body via STREAM_TEMPLATE_V2_BODY + AI tokens (with per-stream fallback for null tokens)
+//   3. Persist audit row to personalized_email_sends BEFORE send (status='pending')
+//   4. If previewOnly: update audit row to status='preview' and continue (no Resend)
+//   5. Else: resend.emails.send(...) with testRecipient override if set
+//   6. Update audit row status='sent' + resendMessageId OR status='failed' + resendError
+//   7. Sleep 250ms (4 req/sec < Resend's 5/sec limit)
+//
+// Hard gate: contactIds.length > 50 requires confirmedLargeBatch:true (RESEARCH §9.d)
+// -----------------------------------------------------------------------
+router.post('/send-personalized-campaign', async (req: Request, res: Response) => {
+  try {
+    // Auth idiom matches existing /send-campaign route above (req.user?.id with ?.sub fallback)
+    const userId = (req as any).user?.id || (req as any).user?.sub;
+    if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+    const {
+      contactIds,
+      templateId,
+      suggestedStream,
+      testRecipient,
+      previewOnly,
+      confirmedLargeBatch,
+    } = req.body as {
+      contactIds: string[];
+      templateId: string;
+      suggestedStream: string;
+      testRecipient?: string;
+      previewOnly?: boolean;
+      confirmedLargeBatch?: boolean;
+    };
+
+    // Validation
+    if (!Array.isArray(contactIds) || contactIds.length === 0) {
+      return res.status(400).json({ error: 'contactIds must be a non-empty array' });
+    }
+    if (typeof templateId !== 'string' || !templateId) {
+      return res.status(400).json({ error: 'templateId required' });
+    }
+    if (!VALID_STREAMS.has(suggestedStream)) {
+      return res.status(400).json({ error: `suggestedStream must be one of ${[...VALID_STREAMS].join(', ')}` });
+    }
+
+    // previewOnly always caps at the FIRST contact only (locked decision #12)
+    const effectiveContactIds = previewOnly ? contactIds.slice(0, 1) : contactIds;
+
+    // Hard cost gate (skip when previewOnly because preview is 1 contact)
+    if (!previewOnly && effectiveContactIds.length > PERSONALIZE_BATCH_HARD_CAP && !confirmedLargeBatch) {
+      return res.status(400).json({
+        error: 'large_batch_requires_confirmation',
+        detail: `Batch of ${effectiveContactIds.length} contacts exceeds the ${PERSONALIZE_BATCH_HARD_CAP}-contact cost gate. Resubmit with confirmedLargeBatch:true to proceed.`,
+        estimatedCostUSD: effectiveContactIds.length * 0.069,
+      });
+    }
+
+    // Template lookup (scoped by userId — tenant isolation)
+    const template = await prisma.emailTemplate.findFirst({
+      where: { id: templateId, userId },
+    });
+    if (!template) {
+      return res.status(404).json({ error: 'template_not_found' });
+    }
+
+    // Contact lookup with company include
+    const contacts = await prisma.contact.findMany({
+      where: { id: { in: effectiveContactIds }, userId },
+      include: { company: true },
+    });
+    if (contacts.length === 0) {
+      return res.status(404).json({ error: 'no_contacts_found' });
+    }
+
+    const audit: any[] = [];
+    const failureDetails: any[] = [];
+    let sent = 0;
+    let failed = 0;
+    let personalized = 0;
+    let personalizeFailures = 0;
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let totalWebSearchRequests = 0;
+    let totalClaudeCostUSD = 0;
+
+    for (const contact of contacts) {
+      // 1. Personalize via Claude
+      const result = await personalizeContactWithClaude(
+        {
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          title: contact.title,
+          apolloRawData: (contact as any).apolloRawData,
+          company: contact.company ? { name: contact.company.name, industry: (contact.company as any).industry ?? null } : null,
+        },
+        suggestedStream,
+      );
+
+      if (result.tokens) personalized += 1;
+      else personalizeFailures += 1;
+
+      totalInputTokens += result.usage.inputTokens;
+      totalOutputTokens += result.usage.outputTokens;
+      totalWebSearchRequests += result.usage.webSearchUses;
+      totalClaudeCostUSD += result.usage.costUSD;
+
+      // 2. Render body with AI tokens (with per-stream fallback for nulls)
+      const fallbacks = getStreamFallbacks(suggestedStream);
+      const aiTokens = result.tokens ?? { intentHook: null, companyContext: null, painPoint: null, cta: null };
+
+      const vars: Record<string, string> = {
+        firstName: contact.firstName || '',
+        lastName: contact.lastName || '',
+        email: contact.email,
+        companyName: contact.company?.name || '',
+        intentHook: aiTokens.intentHook ?? fallbacks.intentHook,
+        companyContext: aiTokens.companyContext ?? fallbacks.companyContext,
+        painPoint: aiTokens.painPoint ?? fallbacks.painPoint,
+        cta: aiTokens.cta ?? fallbacks.cta,
+      };
+
+      let subject = template.subject;
+      let html = template.htmlContent || STREAM_TEMPLATE_V2_BODY;
+      for (const [key, val] of Object.entries(vars)) {
+        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        subject = subject.replace(regex, val);
+        html = html.replace(regex, val);
+      }
+
+      const toEmail = testRecipient && typeof testRecipient === 'string' && testRecipient.length > 0
+        ? testRecipient
+        : contact.email;
+
+      // 3. Persist audit row BEFORE send (status='pending'); use Prisma.InputJsonValue cast instead of `as any`.
+      const auditRow = await prisma.personalizedEmailSend.create({
+        data: {
+          contactId: contact.id,
+          templateId: template.id,
+          stream: suggestedStream,
+          fromEmail: APOLLO_FROM_EMAIL,
+          toEmail,
+          testRecipient: testRecipient || null,
+          subject,
+          renderedBody: html,
+          aiTokens: result.tokens
+            ? (result.tokens as unknown as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
+          aiWarning: result.warning || null,
+          claudeInputTokens: result.usage.inputTokens,
+          claudeOutputTokens: result.usage.outputTokens,
+          webSearchUses: result.usage.webSearchUses,
+          claudeCostUSD: result.usage.costUSD,
+          status: previewOnly ? 'preview' : 'pending',
+          userId,
+        },
+      });
+
+      // 4. previewOnly skips Resend
+      if (previewOnly) {
+        audit.push({
+          contactId: contact.id,
+          email: toEmail,
+          auditId: auditRow.id,
+          subject,
+          renderedBody: html,
+          aiTokens: result.tokens,
+          aiWarning: result.warning,
+          claudeInputTokens: result.usage.inputTokens,
+          claudeOutputTokens: result.usage.outputTokens,
+          webSearchUses: result.usage.webSearchUses,
+          status: 'preview',
+        });
+        continue;
+      }
+
+      // 5. Resend dispatch
+      try {
+        const { data, error } = await resend.emails.send({
+          from: APOLLO_FROM_EMAIL,
+          to: toEmail,
+          subject,
+          html,
+        });
+
+        if (error) {
+          failed += 1;
+          await prisma.personalizedEmailSend.update({
+            where: { id: auditRow.id },
+            data: { status: 'failed', resendError: error.message || JSON.stringify(error) },
+          });
+          failureDetails.push({ contactId: contact.id, email: toEmail, error: error.message || 'resend_error' });
+        } else {
+          sent += 1;
+          await prisma.personalizedEmailSend.update({
+            where: { id: auditRow.id },
+            data: { status: 'sent', resendMessageId: data?.id || null, sentAt: new Date() },
+          });
+          audit.push({
+            contactId: contact.id,
+            email: toEmail,
+            auditId: auditRow.id,
+            resendMessageId: data?.id || null,
+            aiTokens: result.tokens,
+            aiWarning: result.warning,
+            status: 'sent',
+          });
+        }
+      } catch (err: any) {
+        failed += 1;
+        await prisma.personalizedEmailSend.update({
+          where: { id: auditRow.id },
+          data: { status: 'failed', resendError: err?.message || 'send_threw' },
+        });
+        failureDetails.push({ contactId: contact.id, email: toEmail, error: err?.message || 'send_threw' });
+      }
+
+      // 7. Pacing (RESEARCH §7)
+      await new Promise<void>((r) => setTimeout(r, PERSONALIZE_PACING_MS));
+    }
+
+    // Cost accounting:
+    //   claudeCostUSD = sum of (inputTokens + outputTokens + webSearchUses) priced per RESEARCH §10
+    //   resendCostUSD = sends × RESEND_COST_PER_SEND (currently $0 — free tier)
+    //   totalCostUSD  = claudeCostUSD + resendCostUSD (forward-compat for paid Resend)
+    const resendCostUSD = sent * RESEND_COST_PER_SEND;
+    const totalCostUSD = totalClaudeCostUSD + resendCostUSD;
+
+    return res.json({
+      sent,
+      failed,
+      personalized,
+      personalizeFailures,
+      failureDetails,
+      audit,
+      cost: {
+        claudeInputTokens: totalInputTokens,
+        claudeOutputTokens: totalOutputTokens,
+        webSearchRequests: totalWebSearchRequests,
+        claudeCostUSD: Number(totalClaudeCostUSD.toFixed(6)),
+        resendSendsCounted: sent,
+        resendCostUSD: Number(resendCostUSD.toFixed(6)),
+        totalCostUSD: Number(totalCostUSD.toFixed(6)),
+      },
+    });
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error('[apollo.send-personalized-campaign] unexpected error:', err);
+    return res.status(500).json({ error: 'send_personalized_failed', detail: err?.message || String(err) });
   }
 });
 
