@@ -77,7 +77,7 @@ Plans:
 **Plans:** 7 plans
 
 Plans:
-- [ ] 06-01a-PLAN.md — Wave 1 — Write 06-STREAM-COPY.md (human-readable 9-stream copy drafts, NO production source changes; REQ-060 step 1/2)
+- [x] 06-01a-PLAN.md — Wave 1 — Write 06-STREAM-COPY.md (human-readable 9-stream copy drafts, NO production source changes; REQ-060 step 1/2) — commit f9c909f 2026-06-02
 - [x] 06-02-PLAN.md — Wave 1 — Prisma migration + schema.prisma comment documenting `pending_review` + `rejected` status values (REQ-061) — commit eb6dd24 2026-06-01
 - [ ] 06-01b-PLAN.md — Wave 2 — **GATED COPY APPROVAL (autonomous: false, 1 checkpoint).** Task 1 = `copy-approved` checkpoint; Task 2 mechanically synthesizes STREAM_TEMPLATE_V3_BODIES (9-entry dict, NO-SPACE keys, HTML-comment sentinels) + stream-aware /upgrade-streams-v3; runtime guard prints OK 9/9 (REQ-060 step 2/2)
 - [ ] 06-03-PLAN.md — Wave 2 — POST /send-personalized-campaign extended with optional `requireReview` body field; old callers unchanged (REQ-062)
