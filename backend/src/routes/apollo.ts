@@ -871,17 +871,6 @@ router.post('/send-campaign', async (req: Request, res: Response) => {
 //   7. Sleep 250ms (4 req/sec < Resend's 5/sec limit)
 //
 // Hard gate: contactIds.length > 50 requires confirmedLargeBatch:true (RESEARCH §9.d)
-//
-// Phase 06 additive extension:
-//   - body.requireReview?: boolean (default false). When true:
-//       * Personalize each contact via Claude (same path).
-//       * Persist audit row with status='pending_review' (NOT 'pending' or 'preview').
-//       * SKIP Resend dispatch entirely — top-level sent=0, failed=0.
-//       * Return queuedForReview + queueIds in the response.
-//     Old callers (NetSuiteCampaignWizard Step 4) keep working — they don't pass
-//     requireReview, so undefined → falsy → existing dispatch path runs unchanged.
-//   - Mutual exclusion: when requireReview AND previewOnly are both true,
-//     requireReview wins (status='pending_review', not 'preview').
 // -----------------------------------------------------------------------
 router.post('/send-personalized-campaign', async (req: Request, res: Response) => {
   try {
@@ -896,7 +885,6 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
       testRecipient,
       previewOnly,
       confirmedLargeBatch,
-      requireReview,
     } = req.body as {
       contactIds: string[];
       templateId: string;
@@ -904,7 +892,6 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
       testRecipient?: string;
       previewOnly?: boolean;
       confirmedLargeBatch?: boolean;
-      requireReview?: boolean;  // Phase 06: when true, persist with status='pending_review' and skip Resend
     };
 
     // Validation
@@ -957,9 +944,6 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
     let totalOutputTokens = 0;
     let totalWebSearchRequests = 0;
     let totalClaudeCostUSD = 0;
-    // Phase 06 plan 06-03: pending-review queue tracking (only used when requireReview:true).
-    const queueIds: string[] = [];
-    let queuedForReview = 0;
 
     for (const contact of contacts) {
       // 1. Personalize via Claude
@@ -1028,7 +1012,7 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
           claudeOutputTokens: result.usage.outputTokens,
           webSearchUses: result.usage.webSearchUses,
           claudeCostUSD: result.usage.costUSD,
-          status: requireReview ? 'pending_review' : (previewOnly ? 'preview' : 'pending'),
+          status: previewOnly ? 'preview' : 'pending',
           userId,
         },
       });
@@ -1048,29 +1032,6 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
           webSearchUses: result.usage.webSearchUses,
           status: 'preview',
         });
-        continue;
-      }
-
-      // 4b. Phase 06 plan 06-03: requireReview skips Resend — leaves status='pending_review'
-      //     so Plan 06-04's GET /api/apollo/pending-review can surface it for Rajesh's review queue.
-      if (requireReview) {
-        queueIds.push(auditRow.id);
-        queuedForReview += 1;
-        audit.push({
-          contactId: contact.id,
-          email: toEmail,
-          auditId: auditRow.id,
-          subject,
-          renderedBody: html,
-          aiTokens: result.tokens,
-          aiWarning: result.warning,
-          claudeInputTokens: result.usage.inputTokens,
-          claudeOutputTokens: result.usage.outputTokens,
-          webSearchUses: result.usage.webSearchUses,
-          status: 'pending_review',
-        });
-        // Skip Resend dispatch but still pace so Claude API doesn't get hammered if N is large.
-        await new Promise<void>((r) => setTimeout(r, PERSONALIZE_PACING_MS));
         continue;
       }
 
@@ -1133,9 +1094,6 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
       personalizeFailures,
       failureDetails,
       audit,
-      // Phase 06 plan 06-03: pending-review queue summary (additive — old callers ignore).
-      queuedForReview,
-      queueIds,
       cost: {
         claudeInputTokens: totalInputTokens,
         claudeOutputTokens: totalOutputTokens,
@@ -1150,319 +1108,6 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
     // eslint-disable-next-line no-console
     console.error('[apollo.send-personalized-campaign] unexpected error:', err);
     return res.status(500).json({ error: 'send_personalized_failed', detail: err?.message || String(err) });
-  }
-});
-
-// -----------------------------------------------------------------------
-// Phase 06 plan 06-04: GET /api/apollo/unsent-contacts
-//
-// Lists Apollo-source contacts (source='apollo') for the current user that have
-// NO row in personalized_email_sends with status='sent'. Used by Plan 06-05's
-// Apollo Campaign button to fetch the batch of contacts that still need outreach.
-//
-// Optional ?stream=Cybersecurity filter. Optional ?limit=N (1..1000, default 500).
-// -----------------------------------------------------------------------
-router.get('/unsent-contacts', async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id || (req as any).user?.sub;
-    if (!userId) return res.status(401).json({ error: 'unauthorized' });
-
-    const streamFilter = typeof req.query.stream === 'string' ? req.query.stream : undefined;
-    const limitRaw = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : 500;
-    const limit = Math.min(Math.max(limitRaw || 500, 1), 1000);
-
-    // Step 1: collect contactIds already-sent for this user (status='sent').
-    const sentRows = await prisma.personalizedEmailSend.findMany({
-      where: { userId, status: 'sent' },
-      select: { contactId: true },
-    });
-    const sentContactIds = sentRows.map((r) => r.contactId);
-
-    // Step 2: list Apollo-source contacts for this user excluding the sent set.
-    const contacts = await prisma.contact.findMany({
-      where: {
-        userId,
-        source: 'apollo',
-        id: sentContactIds.length > 0 ? { notIn: sentContactIds } : undefined,
-        ...(streamFilter ? { stream: streamFilter } : {}),
-      },
-      include: { company: true },
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    });
-
-    const items = contacts.map((c) => ({
-      id: c.id,
-      email: c.email,
-      fullName: [c.firstName, c.lastName].filter(Boolean).join(' ') || c.email,
-      companyName: c.company?.name || null,
-      stream: c.stream || null,
-      suggestedStream: c.stream || null, // alias for Plan 06-05's wizard handoff
-    }));
-    return res.json({ contacts: items, total: items.length });
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.error('[apollo.unsent-contacts] unexpected error:', err);
-    return res.status(500).json({ error: 'unsent_contacts_failed', detail: err?.message || String(err) });
-  }
-});
-
-// -----------------------------------------------------------------------
-// Phase 06 plan 06-04: GET /api/apollo/pending-review
-//
-// Lists audit rows with status='pending_review' for the current user, ordered
-// by createdAt DESC. Paginated (default 20/page, max 100/page). Includes the
-// persisted renderedBody so the Plan 06-05 Pending Review tab can render
-// inbox-card previews without a follow-up call.
-//
-// Optional ?stream=Cybersecurity filter. Optional ?page=N&pageSize=M.
-// -----------------------------------------------------------------------
-router.get('/pending-review', async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id || (req as any).user?.sub;
-    if (!userId) return res.status(401).json({ error: 'unauthorized' });
-
-    const streamFilter = typeof req.query.stream === 'string' ? req.query.stream : undefined;
-    const pageRaw = typeof req.query.page === 'string' ? parseInt(req.query.page, 10) : 1;
-    const pageSizeRaw = typeof req.query.pageSize === 'string' ? parseInt(req.query.pageSize, 10) : 20;
-    const page = Math.max(pageRaw || 1, 1);
-    const pageSize = Math.min(Math.max(pageSizeRaw || 20, 1), 100);
-    const skip = (page - 1) * pageSize;
-
-    const where: Prisma.PersonalizedEmailSendWhereInput = {
-      userId,
-      status: 'pending_review',
-      ...(streamFilter ? { stream: streamFilter } : {}),
-    };
-
-    const [rows, total] = await prisma.$transaction([
-      prisma.personalizedEmailSend.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: pageSize,
-        include: { contact: { include: { company: true } } },
-      }),
-      prisma.personalizedEmailSend.count({ where }),
-    ]);
-
-    const items = rows.map((r) => ({
-      id: r.id,
-      contactId: r.contactId,
-      contactEmail: r.toEmail,
-      contactName: [r.contact?.firstName, r.contact?.lastName].filter(Boolean).join(' ') || r.toEmail,
-      companyName: r.contact?.company?.name || null,
-      stream: r.stream,
-      subject: r.subject,
-      renderedBody: r.renderedBody,
-      aiTokens: r.aiTokens,
-      aiWarning: r.aiWarning,
-      claudeCostUSD: r.claudeCostUSD,
-      createdAt: r.createdAt,
-    }));
-    return res.json({ items, total, page, pageSize });
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.error('[apollo.pending-review.list] unexpected error:', err);
-    return res.status(500).json({ error: 'pending_review_list_failed', detail: err?.message || String(err) });
-  }
-});
-
-// -----------------------------------------------------------------------
-// Phase 06 plan 06-04: POST /api/apollo/pending-review/:id/approve
-//
-// Dispatches the persisted renderedBody via Resend (no fresh Claude call —
-// the body was generated when the row was queued in /send-personalized-campaign
-// with requireReview:true, OR re-rendered server-side by /edit after aiTokens
-// were overridden). Flips status to 'sent' on success, records resendMessageId.
-// Returns 404 if the row is missing OR not in pending_review (prevents
-// double-approval). Returns 502 on Resend failure (row stays in pending_review
-// for retry).
-// -----------------------------------------------------------------------
-router.post('/pending-review/:id/approve', async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id || (req as any).user?.sub;
-    if (!userId) return res.status(401).json({ error: 'unauthorized' });
-    const id = req.params.id;
-    if (!id) return res.status(400).json({ error: 'id_required' });
-
-    const row = await prisma.personalizedEmailSend.findFirst({
-      where: { id, userId, status: 'pending_review' },
-    });
-    if (!row) return res.status(404).json({ error: 'pending_review_row_not_found' });
-
-    try {
-      const { data, error } = await resend.emails.send({
-        from: row.fromEmail || APOLLO_FROM_EMAIL,
-        to: row.toEmail,
-        subject: row.subject,
-        html: row.renderedBody,
-      });
-      if (error) {
-        return res.status(502).json({
-          error: 'resend_dispatch_failed',
-          detail: error.message || JSON.stringify(error),
-        });
-      }
-      const updated = await prisma.personalizedEmailSend.update({
-        where: { id },
-        data: {
-          status: 'sent',
-          resendMessageId: data?.id || null,
-          sentAt: new Date(),
-        },
-      });
-      return res.json({
-        id: updated.id,
-        status: 'sent',
-        resendMessageId: updated.resendMessageId,
-      });
-    } catch (err: any) {
-      return res.status(502).json({
-        error: 'resend_dispatch_threw',
-        detail: err?.message || String(err),
-      });
-    }
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.error('[apollo.pending-review.approve] unexpected error:', err);
-    return res.status(500).json({ error: 'approve_failed', detail: err?.message || String(err) });
-  }
-});
-
-// -----------------------------------------------------------------------
-// Phase 06 plan 06-04: POST /api/apollo/pending-review/:id/reject
-//
-// Marks the row as status='rejected' with optional reason written into the
-// existing aiWarning column (re-using the column avoids a schema change —
-// CONTEXT.md route table accepts reason as optional metadata, not a primary
-// field). Returns 404 if the row is missing OR not in pending_review.
-// -----------------------------------------------------------------------
-router.post('/pending-review/:id/reject', async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id || (req as any).user?.sub;
-    if (!userId) return res.status(401).json({ error: 'unauthorized' });
-    const id = req.params.id;
-    if (!id) return res.status(400).json({ error: 'id_required' });
-
-    const { reason } = (req.body || {}) as { reason?: string };
-
-    const row = await prisma.personalizedEmailSend.findFirst({
-      where: { id, userId, status: 'pending_review' },
-    });
-    if (!row) return res.status(404).json({ error: 'pending_review_row_not_found' });
-
-    const updated = await prisma.personalizedEmailSend.update({
-      where: { id },
-      data: {
-        status: 'rejected',
-        aiWarning: reason && typeof reason === 'string' ? reason : row.aiWarning,
-      },
-    });
-    return res.json({ id: updated.id, status: 'rejected' });
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.error('[apollo.pending-review.reject] unexpected error:', err);
-    return res.status(500).json({ error: 'reject_failed', detail: err?.message || String(err) });
-  }
-});
-
-// -----------------------------------------------------------------------
-// Phase 06 plan 06-04: POST /api/apollo/pending-review/:id/edit
-//
-// Override aiTokens / renderedBody / subject on a pending_review row. WHEN
-// aiTokens is provided AND renderedBody is NOT, re-renders renderedBody
-// server-side from the row's template + new tokens (same regex loop as
-// /send-personalized-campaign apollo.ts:973-982). This prevents the
-// stale-preview bug where saved tokens didn't update the body Rajesh sees.
-// When renderedBody IS explicitly provided, that value wins — no re-render.
-// Status stays 'pending_review'. Returns 404 if row missing OR not in
-// pending_review. Returns 409 if aiTokens change requested but the row's
-// template no longer exists.
-// -----------------------------------------------------------------------
-router.post('/pending-review/:id/edit', async (req: Request, res: Response) => {
-  try {
-    const userId = (req as any).user?.id || (req as any).user?.sub;
-    if (!userId) return res.status(401).json({ error: 'unauthorized' });
-    const id = req.params.id;
-    if (!id) return res.status(400).json({ error: 'id_required' });
-
-    const { aiTokens, renderedBody, subject } = (req.body || {}) as {
-      aiTokens?: Record<string, string | null>;
-      renderedBody?: string;
-      subject?: string;
-    };
-
-    if (aiTokens === undefined && renderedBody === undefined && subject === undefined) {
-      return res.status(400).json({
-        error: 'no_fields_to_edit',
-        detail: 'Provide at least one of aiTokens, renderedBody, subject',
-      });
-    }
-
-    const row = await prisma.personalizedEmailSend.findFirst({
-      where: { id, userId, status: 'pending_review' },
-      include: { contact: { include: { company: true } } },
-    });
-    if (!row) return res.status(404).json({ error: 'pending_review_row_not_found' });
-
-    let newRenderedBody: string | undefined = renderedBody; // explicit override takes precedence
-    if (aiTokens !== undefined && renderedBody === undefined) {
-      // Re-render server-side using the row's template + merged tokens.
-      // Mirrors /send-personalized-campaign substitution loop at apollo.ts:1002-1006.
-      const template = await prisma.emailTemplate.findFirst({
-        where: { id: row.templateId, userId },
-        select: { htmlContent: true },
-      });
-      if (!template) {
-        return res.status(409).json({
-          error: 'template_missing_for_rerender',
-          detail: `EmailTemplate ${row.templateId} not found — cannot re-render renderedBody from new aiTokens. Edit the rendered body directly via the renderedBody field instead.`,
-        });
-      }
-      const mergedTokens: Record<string, string> = {
-        firstName: row.contact?.firstName || '',
-        companyName: row.contact?.company?.name || '',
-        title: row.contact?.title || '',
-        intentHook: (aiTokens.intentHook as string) || '',
-        companyContext: (aiTokens.companyContext as string) || '',
-        painPoint: (aiTokens.painPoint as string) || '',
-        cta: (aiTokens.cta as string) || '',
-      };
-      let body = template.htmlContent;
-      for (const [key, value] of Object.entries(mergedTokens)) {
-        // Same substitution semantics as /send-personalized-campaign — global regex on {{key}}.
-        const safeValue = (value ?? '').toString();
-        body = body.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), safeValue);
-      }
-      newRenderedBody = body;
-    }
-
-    const updateData: Prisma.PersonalizedEmailSendUpdateInput = {};
-    if (aiTokens !== undefined) {
-      updateData.aiTokens = aiTokens as unknown as Prisma.InputJsonValue;
-    }
-    if (newRenderedBody !== undefined) {
-      updateData.renderedBody = newRenderedBody;
-    }
-    if (subject !== undefined) {
-      updateData.subject = subject;
-    }
-    const updated = await prisma.personalizedEmailSend.update({
-      where: { id },
-      data: updateData,
-    });
-    return res.json({
-      id: updated.id,
-      status: updated.status,
-      subject: updated.subject,
-      renderedBody: updated.renderedBody,
-      aiTokens: updated.aiTokens,
-    });
-  } catch (err: any) {
-    // eslint-disable-next-line no-console
-    console.error('[apollo.pending-review.edit] unexpected error:', err);
-    return res.status(500).json({ error: 'edit_failed', detail: err?.message || String(err) });
   }
 });
 

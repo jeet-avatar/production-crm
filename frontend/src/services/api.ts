@@ -497,9 +497,6 @@ export interface ApolloPersonalizedCampaignResponse {
   failureDetails: Array<{ contactId: string; email: string; error: string }>;
   audit: ApolloPersonalizeAuditEntry[];
   cost: ApolloPersonalizedCampaignCost;
-  // Phase 06 plan 06-03: audit-row IDs queued to pending_review status when requireReview:true
-  queuedForReview?: number;
-  queueIds?: string[];
 }
 
 export interface ApolloSendPersonalizedRequest {
@@ -509,67 +506,6 @@ export interface ApolloSendPersonalizedRequest {
   testRecipient?: string;
   previewOnly?: boolean;
   confirmedLargeBatch?: boolean;
-  // Phase 06 plan 06-03: when true, persist with status='pending_review' and SKIP Resend dispatch.
-  // The Pending Review tab on /campaigns is the human-in-the-loop gate.
-  requireReview?: boolean;
-}
-
-// Phase 06 plan 06-04: pending-review queue types
-export interface ApolloUnsentContact {
-  id: string;
-  email: string;
-  fullName: string;
-  companyName: string | null;
-  stream: string | null;
-  suggestedStream: string | null;
-}
-
-export interface ApolloUnsentContactsResponse {
-  contacts: ApolloUnsentContact[];
-  total: number;
-}
-
-export interface ApolloPendingReviewItem {
-  id: string;
-  contactId: string;
-  contactEmail: string;
-  contactName: string;
-  companyName: string | null;
-  stream: string;
-  subject: string;
-  renderedBody: string;
-  aiTokens: Record<string, string | null> | null;
-  aiWarning: string | null;
-  claudeCostUSD: number;
-  createdAt: string;
-}
-
-export interface ApolloPendingReviewListResponse {
-  items: ApolloPendingReviewItem[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-export interface ApolloPendingReviewApproveResponse {
-  id: string;
-  status: 'sent';
-  resendMessageId: string | null;
-}
-
-export interface ApolloPendingReviewRejectResponse {
-  id: string;
-  status: 'rejected';
-}
-
-export interface ApolloPendingReviewEditResponse {
-  id: string;
-  status: string;
-  subject: string;
-  // RE-RENDERED server-side from template + new aiTokens when aiTokens changed
-  // (Plan 06-04 MEDIUM 1 fix). Manual renderedBody overrides win when explicitly provided.
-  renderedBody: string;
-  aiTokens: Record<string, string | null> | null;
 }
 
 export const apolloApi = {
@@ -631,51 +567,6 @@ export const apolloApi = {
     apiClient.post('/apollo/send-personalized-campaign', params, {
       timeout: 600_000,
     }),
-
-  // Phase 06 plan 06-04: list Apollo-source contacts with no successful send.
-  // Used by the Apollo Campaign button on /campaigns to batch-fetch unsent prospects.
-  unsentContacts: async (
-    params?: { stream?: string; limit?: number },
-  ): Promise<ApolloUnsentContactsResponse> => {
-    const response = await apiClient.get('/apollo/unsent-contacts', { params });
-    return response.data;
-  },
-
-  // Phase 06 plan 06-04: pending-review queue CRUD.
-  // Backed by /api/apollo/pending-review[/:id/{approve,reject,edit}] — all gated on
-  // PersonalizedEmailSend.status='pending_review' via single findFirst.
-  pendingReview: {
-    list: async (
-      params?: { stream?: string; page?: number; pageSize?: number },
-    ): Promise<ApolloPendingReviewListResponse> => {
-      const response = await apiClient.get('/apollo/pending-review', { params });
-      return response.data;
-    },
-    approve: async (id: string): Promise<ApolloPendingReviewApproveResponse> => {
-      const response = await apiClient.post(`/apollo/pending-review/${id}/approve`);
-      return response.data;
-    },
-    reject: async (
-      id: string,
-      reason?: string,
-    ): Promise<ApolloPendingReviewRejectResponse> => {
-      const response = await apiClient.post(`/apollo/pending-review/${id}/reject`, {
-        reason,
-      });
-      return response.data;
-    },
-    edit: async (
-      id: string,
-      patch: {
-        aiTokens?: Record<string, string | null>;
-        renderedBody?: string;
-        subject?: string;
-      },
-    ): Promise<ApolloPendingReviewEditResponse> => {
-      const response = await apiClient.post(`/apollo/pending-review/${id}/edit`, patch);
-      return response.data;
-    },
-  },
 };
 
 // Job Leads Pipeline API
