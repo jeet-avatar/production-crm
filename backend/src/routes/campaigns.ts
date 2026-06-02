@@ -1567,11 +1567,27 @@ const NETSUITE_CAMPAIGN_HTML = `<div style='font-family: Segoe UI, Arial, sans-s
 // NetSuite campaign template and quick-send below
 
 // POST /api/campaigns/quick-send - One-click NetSuite campaign send
+// Phase 04-08 — accepts optional scheduledAt (ISO datetime). When in the future,
+// the campaign is created with status=SCHEDULED and the throttled-send start is
+// deferred via setTimeout to scheduledAt. NetSuite path uses SES (NOT Resend) —
+// scheduledDispatcher does NOT handle these rows; the in-memory deferral keeps
+// the picker UX consistent across both wizard modes.
 router.post('/quick-send', async (req, res, next) => {
   try {
     const userId = req.user!.id;
     const limit = Math.min(parseInt(req.body?.limit) || 50, 500); // Default 50, max 500
     const subjectVariant = Math.min(Math.max(parseInt(req.body?.subjectVariant) || 0, 0), NETSUITE_SUBJECTS.length - 1);
+
+    // Phase 04-08 — parse optional scheduledAt
+    let scheduleTime: Date | null = null;
+    if (req.body?.scheduledAt) {
+      const parsed = new Date(req.body.scheduledAt);
+      if (Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({ error: 'scheduledAt must be a valid ISO datetime string' });
+      }
+      scheduleTime = parsed;
+    }
+    const isScheduled = !!scheduleTime && scheduleTime.getTime() > Date.now();
 
     // Build team-aware user IDs (same pattern as GET /api/campaigns)
     const teamUserIds: string[] = [userId];
@@ -1620,13 +1636,16 @@ router.post('/quick-send', async (req, res, next) => {
     const companiesUsed = [...new Set(allContacts.map(c => c.companyId))];
 
     // 2. Create campaign with selected subject variant
+    // Phase 04-08 — when scheduled, start in SCHEDULED status with scheduledAt set.
     const selectedSubject = NETSUITE_SUBJECTS[subjectVariant];
     const campaign = await prisma.campaign.create({
       data: {
         name: `NetSuite Campaign — Subject #${subjectVariant + 1}`,
         subject: selectedSubject,
-        status: 'SENDING',
+        status: isScheduled ? 'SCHEDULED' : 'SENDING',
+        scheduledAt: isScheduled ? scheduleTime : null,
         htmlContent: NETSUITE_CAMPAIGN_HTML,
+        source: 'netsuite',
         userId,
       },
     });
@@ -1647,6 +1666,47 @@ router.post('/quick-send', async (req, res, next) => {
 
     if (validContacts.length === 0) {
       return res.status(400).json({ error: 'No valid email addresses found', invalidCount });
+    }
+
+    // Phase 04-08 — scheduled path: defer throttled-send kickoff via setTimeout.
+    // NetSuite uses SES (NOT Resend) so scheduledDispatcher cannot pick these up;
+    // in-memory deferral is acceptable for the 5/10-min window since pm2 restart
+    // during such a short window is rare. Campaign stays SCHEDULED in DB until
+    // kickoff time, at which point startThrottledSend flips it to SENDING then SENT.
+    if (isScheduled && scheduleTime) {
+      const delayMs = scheduleTime.getTime() - Date.now();
+      setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.log(`[campaigns.quick-send] firing deferred NetSuite send for campaign ${campaign.id} (delayed ${delayMs}ms)`);
+        prisma.campaign
+          .update({ where: { id: campaign.id }, data: { status: 'SENDING' } })
+          .then(() =>
+            startThrottledSend(
+              campaign.id,
+              userId,
+              validContacts,
+              campaign.subject!,
+              NETSUITE_CAMPAIGN_HTML,
+              intervalMinutes,
+            ),
+          )
+          .catch((err) => {
+            // eslint-disable-next-line no-console
+            console.error(`[campaigns.quick-send] deferred kickoff failed for ${campaign.id}:`, err);
+          });
+      }, delayMs);
+
+      return res.json({
+        success: true,
+        scheduled: true,
+        scheduledAt: scheduleTime.toISOString(),
+        campaignId: campaign.id,
+        total: validContacts.length,
+        invalidSkipped: invalidCount,
+        companyCount: companiesUsed.length,
+        intervalMinutes,
+        message: `Scheduled ${validContacts.length} NetSuite emails for ${scheduleTime.toISOString()}.`,
+      });
     }
 
     // Set campaign to SENDING

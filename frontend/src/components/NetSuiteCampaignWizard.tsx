@@ -78,6 +78,10 @@ interface SendResult {
   total?: number;
   companyCount?: number;
   failureDetails?: Array<{ contactId?: string; email: string | null; error: string }>;
+  // Phase 04-08 — scheduled-send fields (present when picker = 5 min / 10 min)
+  scheduled?: boolean;
+  scheduledAt?: string;
+  stagedCount?: number;
 }
 
 const APOLLO_FROM_DISPLAY = 'Sara <sara@techcloudpro.com>';
@@ -118,6 +122,19 @@ export function NetSuiteCampaignWizard({
   const [previewCached, setPreviewCached] = useState<boolean>(false);
   const [skipPersonalize, setSkipPersonalize] = useState<boolean>(false);
 
+  // Phase 04-08 — restored 3-option schedule picker (Send Now / 5 min / 10 min).
+  // Same state shared across both wizard modes; computeScheduledAt yields null for 'now'
+  // (immediate dispatch) or a future Date for the delayed options. The picker renders on
+  // Apollo Step 2 below the AI Personalize block AND on NetSuite Step 1 below the confirm text.
+  const [scheduleChoice, setScheduleChoice] = useState<'now' | '5min' | '10min'>('now');
+  function computeScheduledAt(choice: 'now' | '5min' | '10min'): Date | null {
+    if (choice === 'now') return null;
+    const t = new Date();
+    if (choice === '5min') t.setMinutes(t.getMinutes() + 5);
+    if (choice === '10min') t.setMinutes(t.getMinutes() + 10);
+    return t;
+  }
+
   const isApollo = mode === 'apollo';
   const campaignLabel = isApollo ? 'Apollo Campaign' : 'NetSuite Campaign';
 
@@ -137,6 +154,8 @@ export function NetSuiteCampaignWizard({
     setPreviewError(null);
     setPreviewCached(false);
     setSkipPersonalize(false);
+    // Phase 04-08: reset schedule picker to default 'now' on every clean open
+    setScheduleChoice('now');
 
     if (!isApollo) return; // netsuite mode has no audience step — skip
 
@@ -290,25 +309,39 @@ export function NetSuiteCampaignWizard({
     setSendResult(null);
     try {
       const usePersonalized = !!previewResult && !skipPersonalize && !!streamTemplateId;
+      // Phase 04-08 — compute scheduledAt from the picker. null = immediate (Send Now).
+      const scheduledAt = computeScheduledAt(scheduleChoice);
+      const scheduledAtIso = scheduledAt?.toISOString();
       if (usePersonalized) {
         const data = (await apolloApi.sendPersonalizedCampaign({
           contactIds: Array.from(selectedIds),
           templateId: streamTemplateId!,
           mode: 'send',
+          ...(scheduledAtIso ? { scheduledAt: scheduledAtIso } : {}),
         })) as ApolloPersonalizedSendResponse;
         setSendResult({
-          sent: data.sent,
+          sent: data.scheduled ? 0 : data.sent,
           failed: data.failed,
           total: selectedIds.size,
           failureDetails: data.failureDetails,
+          scheduled: !!data.scheduled,
+          scheduledAt: data.scheduledAt,
+          stagedCount: data.count,
         });
       } else {
-        const data = await apolloApi.sendCampaign(Array.from(selectedIds), selectedStream);
+        const data = await apolloApi.sendCampaign(
+          Array.from(selectedIds),
+          selectedStream,
+          scheduledAtIso,
+        );
         setSendResult({
-          sent: data.sent,
+          sent: data.scheduled ? 0 : data.sent,
           failed: data.failed,
           total: selectedIds.size,
           failureDetails: data.failureDetails,
+          scheduled: !!data.scheduled,
+          scheduledAt: data.scheduledAt,
+          stagedCount: data.count,
         });
       }
       setStep(3);
@@ -333,19 +366,29 @@ export function NetSuiteCampaignWizard({
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
       const token = localStorage.getItem('crmToken');
+      // Phase 04-08 — pass scheduledAt to quick-send so the picker works in NetSuite mode too.
+      const scheduledAt = computeScheduledAt(scheduleChoice);
+      const scheduledAtIso = scheduledAt?.toISOString();
       const response = await fetch(`${apiUrl}/api/campaigns/quick-send`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scheduledAtIso ? { scheduledAt: scheduledAtIso } : {}),
       });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data?.error || 'Failed to send NetSuite campaign');
       }
       setSendResult({
-        sent: data.sent,
+        sent: data.scheduled ? 0 : data.sent,
         failed: data.failed,
         total: data.total,
         companyCount: data.companyCount,
+        scheduled: !!data.scheduled,
+        scheduledAt: data.scheduledAt,
+        stagedCount: data.scheduled ? data.total : undefined,
       });
       setStep(3);
       onSuccess?.();
@@ -356,6 +399,76 @@ export function NetSuiteCampaignWizard({
     } finally {
       setSending(false);
     }
+  }
+
+  // ===== Phase 04-08 — Schedule picker (Send Now / 5 min / 10 min) =====
+  // Rendered on Apollo Step 2 (below AI Personalize block) AND NetSuite Step 1 (below confirm).
+  // Indigo brand only — matches the AI Preview block treatment for visual consistency.
+  // 3 fixed options ONLY — intentionally no arbitrary date picker.
+  function renderSchedulePicker() {
+    const opt: Array<{ key: 'now' | '5min' | '10min'; label: string }> = [
+      { key: 'now', label: 'Send Now' },
+      { key: '5min', label: 'Send in 5 min' },
+      { key: '10min', label: 'Send in 10 min' },
+    ];
+    return (
+      <div
+        style={{
+          padding: '14px 16px',
+          background: 'rgba(99,102,241,0.06)',
+          border: '1px solid rgba(99,102,241,0.25)',
+          borderRadius: 10,
+          marginBottom: 16,
+        }}
+      >
+        <div
+          style={{
+            color: '#94a3b8',
+            fontSize: 11,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            marginBottom: 8,
+          }}
+        >
+          Schedule
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+          {opt.map(({ key, label }) => {
+            const active = scheduleChoice === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setScheduleChoice(key)}
+                disabled={sending}
+                style={{
+                  padding: '10px 8px',
+                  borderRadius: 8,
+                  border: active
+                    ? '2px solid #6366f1'
+                    : '2px solid rgba(255,255,255,0.08)',
+                  background: active ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.03)',
+                  color: active ? '#fff' : '#cbd5e1',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: sending ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+        {scheduleChoice !== 'now' && (
+          <p style={{ color: '#a5b4fc', fontSize: 11, margin: '8px 0 0', lineHeight: 1.5 }}>
+            Will dispatch at ~{computeScheduledAt(scheduleChoice)?.toLocaleTimeString()}.
+            Sender stays Sara &lt;sara@techcloudpro.com&gt; for all scheduled sends.
+          </p>
+        )}
+      </div>
+    );
   }
 
   // ===== Render =====
@@ -971,6 +1084,9 @@ export function NetSuiteCampaignWizard({
                 </div>
               )}
 
+              {/* Phase 04-08 — 3-option schedule picker (Send Now / 5 min / 10 min) */}
+              {renderSchedulePicker()}
+
               {sendError && (
                 <div
                   style={{
@@ -1024,10 +1140,21 @@ export function NetSuiteCampaignWizard({
                   {(() => {
                     const usingPersonalized =
                       !!previewResult && !skipPersonalize && !!streamTemplateId;
+                    const isScheduled = scheduleChoice !== 'now';
                     if (sending) {
+                      if (isScheduled) {
+                        return usingPersonalized
+                          ? `Personalizing & scheduling ${selectedIds.size}…`
+                          : `Scheduling ${selectedIds.size}…`;
+                      }
                       return usingPersonalized
                         ? `Personalizing & sending to ${selectedIds.size}…`
                         : `Sending to ${selectedIds.size}…`;
+                    }
+                    if (isScheduled) {
+                      return usingPersonalized
+                        ? `✨ Schedule AI-personalized (${selectedIds.size})`
+                        : `🕒 Schedule ${selectedIds.size} contact(s)`;
                     }
                     return usingPersonalized
                       ? `✨ Send AI-personalized to ${selectedIds.size}`
@@ -1064,6 +1191,9 @@ export function NetSuiteCampaignWizard({
                 Endpoint: <code>POST /api/campaigns/quick-send</code><br />
                 You will see sent/failed counts on the next step.
               </div>
+
+              {/* Phase 04-08 — 3-option schedule picker (Send Now / 5 min / 10 min) */}
+              {renderSchedulePicker()}
 
               {sendError && (
                 <div
@@ -1113,7 +1243,13 @@ export function NetSuiteCampaignWizard({
                     border: 'none',
                   }}
                 >
-                  {sending ? 'Sending NetSuite campaign…' : '🚀 Send NetSuite Campaign'}
+                  {sending
+                    ? scheduleChoice !== 'now'
+                      ? 'Scheduling NetSuite campaign…'
+                      : 'Sending NetSuite campaign…'
+                    : scheduleChoice !== 'now'
+                      ? '🕒 Schedule NetSuite Campaign'
+                      : '🚀 Send NetSuite Campaign'}
                 </button>
               </div>
             </section>
@@ -1127,8 +1263,14 @@ export function NetSuiteCampaignWizard({
                   style={{ width: 56, height: 56, color: '#10b981', margin: '0 auto 12px' }}
                 />
                 <h3 style={{ color: '#f1f5f9', fontSize: 20, fontWeight: 700, margin: '0 0 4px' }}>
-                  {campaignLabel} sent!
+                  {sendResult.scheduled ? `${campaignLabel} scheduled!` : `${campaignLabel} sent!`}
                 </h3>
+                {sendResult.scheduled && sendResult.scheduledAt && (
+                  <p style={{ color: '#a5b4fc', fontSize: 13, margin: '4px 0 0' }}>
+                    Will dispatch at{' '}
+                    {new Date(sendResult.scheduledAt).toLocaleTimeString()} via Sara.
+                  </p>
+                )}
               </div>
 
               <div
@@ -1143,9 +1285,19 @@ export function NetSuiteCampaignWizard({
                 }}
               >
                 <ul style={{ margin: 0, paddingLeft: 22 }}>
-                  <li>
-                    📨 Sent: <strong style={{ color: '#10b981' }}>{sendResult.sent}</strong>
-                  </li>
+                  {sendResult.scheduled ? (
+                    <li>
+                      🕒 Scheduled:{' '}
+                      <strong style={{ color: '#a5b4fc' }}>
+                        {sendResult.stagedCount ?? sendResult.total ?? 0}
+                      </strong>{' '}
+                      email(s) staged for delivery
+                    </li>
+                  ) : (
+                    <li>
+                      📨 Sent: <strong style={{ color: '#10b981' }}>{sendResult.sent}</strong>
+                    </li>
+                  )}
                   <li>
                     ❌ Failed:{' '}
                     <strong style={{ color: sendResult.failed > 0 ? '#fbbf24' : '#10b981' }}>

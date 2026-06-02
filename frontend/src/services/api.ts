@@ -430,6 +430,11 @@ export interface ApolloSendCampaignResponse {
   sent: number;
   failed: number;
   failureDetails?: ApolloSendCampaignFailure[];
+  // Phase 04-08 — scheduled-send fields (present when scheduledAt was in the future)
+  scheduled?: boolean;
+  scheduledAt?: string;
+  count?: number;
+  campaignId?: string;
 }
 
 // -----------------------------------------------------------------------
@@ -484,12 +489,17 @@ export interface ApolloPersonalizedSendResponse {
   failureDetails: ApolloSendCampaignFailure[];
   audit: any[];
   cost: ApolloPersonalizedSendCost;
+  // Phase 04-08 — scheduled-send fields (present when scheduledAt was in the future)
+  scheduled?: boolean;
+  scheduledAt?: string;
+  count?: number;
 }
 
 export interface ApolloSendPersonalizedRequest {
   contactIds: string[];
   templateId: string;
   mode: 'preview' | 'send';
+  scheduledAt?: string; // Phase 04-08 — ISO datetime; honored in 'send' mode only.
 }
 
 export const apolloApi = {
@@ -506,13 +516,19 @@ export const apolloApi = {
   // POST /api/apollo/send-campaign — dispatches via Resend with stream-based
   // template fallback. Body shape MUST match backend (04-01 apollo.ts:317):
   // { contactIds, stream }. fromEmail is accepted but ignored server-side.
+  //
+  // Phase 04-08 — optional scheduledAt (ISO datetime). If in the future, backend
+  // stages EmailLog rows with status='SCHEDULED' and returns immediately;
+  // scheduledDispatcher polls every 30s and dispatches at scheduleTime.
   sendCampaign: async (
     contactIds: string[],
     stream: string,
+    scheduledAt?: string,
   ): Promise<ApolloSendCampaignResponse> => {
     const response = await apiClient.post('/apollo/send-campaign', {
       contactIds,
       stream,
+      ...(scheduledAt ? { scheduledAt } : {}),
     });
     return response.data;
   },

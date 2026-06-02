@@ -79,6 +79,7 @@ enum CampaignStatus {
 
 enum EmailStatus {
   PENDING
+  SCHEDULED
   SENT
   DELIVERED
   OPENED
@@ -601,6 +602,7 @@ model CampaignCompany {
 model EmailLog {
   id           String      @id @default(cuid())
   status       EmailStatus @default(PENDING)
+  scheduledAt  DateTime?   // Phase 04-08 — set when status='SCHEDULED'; scheduledDispatcher polls for due rows
   sentAt       DateTime?
   openedAt     DateTime?
   clickedAt    DateTime?
@@ -659,6 +661,7 @@ model EmailLog {
   @@index([serverUsed])
   @@index([engagementScore])
   @@index([firstOpenedAt])
+  @@index([status, scheduledAt]) // Phase 04-08 — dispatcher "find due SCHEDULED rows" query
   @@map("email_logs")
 }
 

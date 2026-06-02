@@ -61,8 +61,12 @@ const resend = new Resend(RESEND_API_KEY);
 // Phase 04 hardcoded from-address. NOT configurable per request — Sara is shared with the
 // video-generator pm2 process and a bad blast could degrade the whole Resend account.
 // techcloudpro.com is domain-verified in Resend (May 26, 2026 Peter→Sara swap).
-const APOLLO_FROM_EMAIL = 'Sara <sara@techcloudpro.com>';
-const APOLLO_REPLY_TO = 'sara@techcloudpro.com';
+//
+// EXPORTED for the Phase 04-08 scheduledDispatcher to reuse — single source of truth for
+// the Sara sender. Any new send path MUST import these constants instead of duplicating
+// the string, so a Sara swap is a one-line edit.
+export const APOLLO_FROM_EMAIL = 'Sara <sara@techcloudpro.com>';
+export const APOLLO_REPLY_TO = 'sara@techcloudpro.com';
 
 // Canonical stream allowlist. Used to validate `stream` in /send-campaign body and
 // to label Campaign rows. Matches streamClassifier.STREAMS + seeds/stream-templates.ts.
@@ -107,6 +111,7 @@ interface ApolloImportResponse {
 interface ApolloSendCampaignRequestBody {
   contactIds: string[];
   stream: string; // Stream key — used for 3-layer fallback Stream:<x> -> Stream:Other -> HARDCODED
+  scheduledAt?: string; // Phase 04-08 — ISO datetime; if > now(), stage SCHEDULED rows instead of immediate send.
   // fromEmail / fromName from request body are IGNORED — see APOLLO_FROM_EMAIL constant.
 }
 
@@ -385,7 +390,7 @@ router.post('/normalize-filters', async (req: Request, res: Response) => {
 // existing /campaigns/<id>/analytics view that Rajesh already uses.
 
 router.post('/send-campaign', async (req: Request, res: Response) => {
-  const { contactIds, stream, fromEmail: requestFromEmail } =
+  const { contactIds, stream, scheduledAt, fromEmail: requestFromEmail } =
     (req.body || {}) as ApolloSendCampaignRequestBody & { fromEmail?: string };
 
   // ===== Validation =====
@@ -396,6 +401,17 @@ router.post('/send-campaign', async (req: Request, res: Response) => {
     return res.status(400).json({
       error: `stream must be one of: ${[...VALID_STREAMS].join(', ')}`,
     });
+  }
+
+  // Phase 04-08 — Parse scheduledAt. delayMs > 0 means stage SCHEDULED rows;
+  // <= 0 (or unset) falls through to the existing immediate-dispatch path.
+  let scheduleTime: Date | null = null;
+  if (scheduledAt) {
+    const parsed = new Date(scheduledAt);
+    if (Number.isNaN(parsed.getTime())) {
+      return res.status(400).json({ error: 'scheduledAt must be a valid ISO datetime string' });
+    }
+    scheduleTime = parsed;
   }
 
   // Sara protection — log + ignore any request-side fromEmail attempts.
@@ -447,17 +463,78 @@ router.post('/send-campaign', async (req: Request, res: Response) => {
     }
 
     // ===== Unified analytics: create Campaign row FIRST so EmailLogs can link via campaignId =====
+    // Phase 04-08 — when scheduledAt is in the future, the Campaign starts in SCHEDULED status
+    // (visible in /campaigns list immediately) and EmailLog rows are staged for the dispatcher.
+    const isScheduled = !!scheduleTime && scheduleTime.getTime() > Date.now();
     const today = new Date().toISOString().slice(0, 10);
     const campaign = await prisma.campaign.create({
       data: {
         name: `Apollo Campaign — ${stream} — ${today}`,
         subject: templateSubject,
         htmlContent: templateHtml,
-        status: 'SENDING',
+        status: isScheduled ? 'SCHEDULED' : 'SENDING',
+        scheduledAt: isScheduled ? scheduleTime : null,
         source: 'apollo',
         userId,
       },
     });
+
+    // ===== Phase 04-08 — SCHEDULED branch: stage rows + return immediately =====
+    if (isScheduled && scheduleTime) {
+      // Pre-render subject + html per contact (same {{var}} substitution as immediate path)
+      // and stash on EmailLog.metadata so the dispatcher is a dumb transport.
+      let stagedCount = 0;
+      const failed: ApolloSendCampaignFailure[] = [];
+      for (const contact of contacts) {
+        if (!contact.email) {
+          failed.push({ contactId: contact.id, email: null, error: 'contact has no email' });
+          await prisma.emailLog.create({
+            data: {
+              campaignId: campaign.id,
+              contactId: contact.id,
+              toEmail: null,
+              fromEmail: APOLLO_REPLY_TO,
+              status: 'FAILED',
+              errorMessage: 'contact has no email',
+            },
+          });
+          continue;
+        }
+        const vars: Record<string, string> = {
+          firstName: contact.firstName || '',
+          lastName: contact.lastName || '',
+          email: contact.email,
+          companyName: contact.company?.name || '',
+        };
+        let subject = templateSubject;
+        let html = templateHtml;
+        for (const [key, val] of Object.entries(vars)) {
+          const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+          subject = subject.replace(regex, val);
+          html = html.replace(regex, val);
+        }
+        await prisma.emailLog.create({
+          data: {
+            campaignId: campaign.id,
+            contactId: contact.id,
+            toEmail: contact.email,
+            fromEmail: APOLLO_REPLY_TO,
+            status: 'SCHEDULED',
+            scheduledAt: scheduleTime,
+            metadata: { subject, html, transport: 'resend', source: 'apollo' },
+          },
+        });
+        stagedCount += 1;
+      }
+      return res.status(200).json({
+        scheduled: true,
+        scheduledAt: scheduleTime.toISOString(),
+        count: stagedCount,
+        campaignId: campaign.id,
+        templateSource,
+        failureDetails: failed,
+      });
+    }
 
     // ===== Send loop (sequential with 100ms gap — Resend free tier rate limit ~2/sec) =====
     const failureDetails: ApolloSendCampaignFailure[] = [];
@@ -662,6 +739,7 @@ interface ApolloSendPersonalizedRequestBody {
   contactIds: string[];
   templateId: string;
   mode?: 'preview' | 'send';
+  scheduledAt?: string; // Phase 04-08 — ISO datetime; in 'send' mode, stage SCHEDULED rows if > now().
   // `fromEmail` from request body is IGNORED — APOLLO_FROM_EMAIL constant.
 }
 
@@ -674,6 +752,7 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
       contactIds,
       templateId,
       mode = 'preview',
+      scheduledAt,
       fromEmail: requestFromEmail,
     } = (req.body || {}) as ApolloSendPersonalizedRequestBody & { fromEmail?: string };
 
@@ -686,6 +765,16 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
     }
     if (mode !== 'preview' && mode !== 'send') {
       return res.status(400).json({ error: 'mode must be "preview" or "send"' });
+    }
+
+    // Phase 04-08 — parse optional scheduledAt (only honored in 'send' mode).
+    let scheduleTime: Date | null = null;
+    if (scheduledAt) {
+      const parsed = new Date(scheduledAt);
+      if (Number.isNaN(parsed.getTime())) {
+        return res.status(400).json({ error: 'scheduledAt must be a valid ISO datetime string' });
+      }
+      scheduleTime = parsed;
     }
 
     // Sara guard — log + ignore any request-side fromEmail attempts.
@@ -824,12 +913,18 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
     const batchStream =
       Object.entries(streamCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Other';
 
+    // Phase 04-08 — When scheduledAt is in the future, Campaign starts SCHEDULED + EmailLog
+    // rows are staged (still personalized upfront via Claude — the AI cost is incurred at
+    // staging time, NOT dispatch time, so Rajesh sees the cost line item right away).
+    const isScheduledSend = !!scheduleTime && scheduleTime.getTime() > Date.now();
+
     const campaign = await prisma.campaign.create({
       data: {
         name: `Apollo AI-Personalized — ${batchStream} — ${today}`,
         subject: template.subject,
         htmlContent: template.htmlContent || STREAM_TEMPLATE_V2_BODY,
-        status: 'SENDING',
+        status: isScheduledSend ? 'SCHEDULED' : 'SENDING',
+        scheduledAt: isScheduledSend ? scheduleTime : null,
         source: 'apollo-ai',
         userId,
       },
@@ -842,6 +937,7 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
     }> = [];
     const audit: any[] = [];
     let sent = 0;
+    let staged = 0; // Phase 04-08 — counts rows staged for later dispatch (scheduled path)
     let personalized = 0;
     let personalizeFailures = 0;
     let totalInputTokens = 0;
@@ -949,6 +1045,39 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
         continue;
       }
 
+      // Phase 04-08 — SCHEDULED branch: stage EmailLog with status='SCHEDULED', pre-rendered
+      // subject+html on metadata. Dispatcher fires it at scheduleTime via the SAME Sara sender.
+      // Skip per-row resend pacing in scheduled mode (no Resend call here).
+      if (isScheduledSend && scheduleTime) {
+        await prisma.emailLog.create({
+          data: {
+            campaignId: campaign.id,
+            contactId: contact.id,
+            toEmail: contact.email,
+            fromEmail: APOLLO_REPLY_TO,
+            status: 'SCHEDULED',
+            scheduledAt: scheduleTime,
+            metadata: {
+              subject,
+              html,
+              personalizedSendId: auditRow.id,
+              transport: 'resend',
+              source: 'apollo-ai',
+            },
+          },
+        });
+        staged += 1;
+        audit.push({
+          contactId: contact.id,
+          email: contact.email,
+          auditId: auditRow.id,
+          aiTokens: result.tokens,
+          aiWarning: result.warning,
+          status: 'scheduled',
+        });
+        continue;
+      }
+
       try {
         const sendResult = await resend.emails.send({
           from: APOLLO_FROM_EMAIL,
@@ -1045,6 +1174,32 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
 
       // 5. Pacing — 4 req/sec to stay under Resend's 5/sec rate limit.
       await new Promise<void>((r) => setTimeout(r, PERSONALIZE_PACING_MS));
+    }
+
+    // Phase 04-08 — scheduled batch: Campaign stays SCHEDULED, return immediately.
+    // Dispatcher will roll it to SENT/CANCELLED after the last EmailLog dispatches.
+    if (isScheduledSend && scheduleTime) {
+      return res.status(200).json({
+        scheduled: true,
+        scheduledAt: scheduleTime.toISOString(),
+        count: staged,
+        sent: 0,
+        failed: failureDetails.length,
+        personalized,
+        personalizeFailures,
+        campaignId: campaign.id,
+        failureDetails,
+        audit,
+        cost: {
+          claudeInputTokens: totalInputTokens,
+          claudeOutputTokens: totalOutputTokens,
+          webSearchRequests: totalWebSearchUses,
+          claudeCostUSD: Number(totalClaudeCostUSD.toFixed(6)),
+          resendSendsCounted: 0,
+          resendCostUSD: 0,
+          totalCostUSD: Number(totalClaudeCostUSD.toFixed(6)),
+        },
+      });
     }
 
     // Mark Campaign SENT (or CANCELLED if 0 succeeded)

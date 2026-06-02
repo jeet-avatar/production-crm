@@ -62,6 +62,10 @@ import staffingRoutes from './routes/staffing';
 import apolloRoutes from './routes/apollo';
 // import godaddyRoutes from './routes/godaddy'; // Disabled - service not implemented
 
+// Phase 04-08 — Scheduled-send dispatcher (poll every 30s for due SCHEDULED EmailLog rows
+// + boot catch-up sweep for rows that became due during downtime).
+import { startScheduledDispatcher } from './services/scheduledDispatcher';
+
 const app = express();
 const prisma = new PrismaClient();
 
@@ -329,6 +333,11 @@ app.use('/api/ai-code', passport.authenticate('jwt', { session: false }), aiCode
 app.use('/api/staffing', staffingRoutes);
 app.use('/api/apollo', apolloRoutes);
 // app.use('/api/godaddy', godaddyRoutes); // Disabled - service not implemented
+
+// Phase 04-08 — start the scheduled-send poller AFTER routes register so any boot-time
+// catch-up sweep has the full app context available. Polls every 30s for due SCHEDULED
+// EmailLog rows; one-shot catch-up handles rows that came due during pm2 downtime.
+startScheduledDispatcher();
 
 // 404 handler
 app.use(notFoundHandler);
