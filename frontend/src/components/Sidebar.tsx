@@ -19,6 +19,7 @@ import {
   ClipboardDocumentCheckIcon,
   ArrowUpTrayIcon,
   BriefcaseIcon,
+  RocketLaunchIcon,
 } from '@heroicons/react/24/outline';
 import { Logo } from './Logo';
 import type { User } from '../types';
@@ -38,6 +39,7 @@ const navigation = [
   { name: 'Contracts', href: '/contracts', icon: ClipboardDocumentCheckIcon },
   { name: 'CRM Import', href: '/import', icon: ArrowUpTrayIcon },
   { name: 'Job Leads', href: '/job-leads', icon: BriefcaseIcon },
+  { name: 'Apollo', href: '/apollo', icon: RocketLaunchIcon },
   { name: 'Activities', href: '/activities', icon: ClipboardDocumentListIcon },
   { name: 'Analytics', href: '/analytics', icon: ChartBarSquareIcon },
   { name: 'Tags', href: '/tags', icon: TagIcon },

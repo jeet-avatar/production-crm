@@ -36,6 +36,7 @@ import { SubscriptionSuccess } from './pages/Subscription/SubscriptionSuccess';
 import { SuperAdminDashboard } from './pages/SuperAdmin/SuperAdminDashboard';
 import { SystemTemplates } from './pages/SuperAdmin/SystemTemplates';
 import JobLeadsPage from './pages/JobLeads/JobLeadsPage';
+import ApolloPage from './pages/Apollo/ApolloPage';
 import ScheduleCallPage from './pages/Landing/ScheduleCallPage';
 import TalentPage from './pages/Landing/TalentPage';
 import { ContractSigningPage } from './pages/Contracts/ContractSigningPage';
@@ -141,6 +142,7 @@ function App() {
               <Route path="super-admin" element={<SuperAdminDashboard />} />
               <Route path="super-admin/system-templates" element={<SystemTemplates />} />
               <Route path="job-leads" element={<JobLeadsPage />} />
+              <Route path="apollo" element={<ApolloPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
           )}

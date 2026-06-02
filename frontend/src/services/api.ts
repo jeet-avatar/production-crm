@@ -389,6 +389,75 @@ export const contractsApi = {
   },
 };
 
+// ============================================================================
+// Apollo Prospecting API (Phase 04-02 — ported from production b005169)
+// ----------------------------------------------------------------------------
+// Backed by backend/src/routes/apollo.ts (shipped 04-01):
+//   POST /api/apollo/import         body: { filters, apiKey?, enrich?, limit? }
+//   POST /api/apollo/send-campaign  body: { contactIds, stream, fromEmail? }
+//
+// /send-campaign uses Resend (NOT SES) with 3-layer template fallback:
+//   Stream:<x> -> Stream:Other -> hardcoded default. fromEmail/fromName are
+//   ignored by the backend (Sara protection — APOLLO_FROM_EMAIL is hardcoded).
+// ============================================================================
+export interface ApolloSearchFilters {
+  personTitles?: string[];
+  personLocations?: string[];
+  organizationKeywordTags?: string[];
+  organizationDomains?: string[];
+  minEmployees?: number;
+  maxEmployees?: number;
+  page?: number;
+  perPage?: number;
+}
+
+export interface ApolloImportResponse {
+  imported: number;
+  skipped: number;
+  total: number;
+  contactIds: string[];
+  suggestedStream: string;
+  errors: Array<{ apolloPersonId: string; reason: string }>;
+}
+
+export interface ApolloSendCampaignFailure {
+  contactId: string;
+  email: string | null;
+  error: string;
+}
+
+export interface ApolloSendCampaignResponse {
+  sent: number;
+  failed: number;
+  failureDetails?: ApolloSendCampaignFailure[];
+}
+
+export const apolloApi = {
+  // POST /api/apollo/import — search Apollo, optionally enrich, classify by stream,
+  // dedupe by apolloPersonId, upsert Contact + Company.
+  import: async (
+    filters: ApolloSearchFilters,
+    enrich = true,
+  ): Promise<ApolloImportResponse> => {
+    const response = await apiClient.post('/apollo/import', { filters, enrich });
+    return response.data;
+  },
+
+  // POST /api/apollo/send-campaign — dispatches via Resend with stream-based
+  // template fallback. Body shape MUST match backend (04-01 apollo.ts:317):
+  // { contactIds, stream }. fromEmail is accepted but ignored server-side.
+  sendCampaign: async (
+    contactIds: string[],
+    stream: string,
+  ): Promise<ApolloSendCampaignResponse> => {
+    const response = await apiClient.post('/apollo/send-campaign', {
+      contactIds,
+      stream,
+    });
+    return response.data;
+  },
+};
+
 // Job Leads Pipeline API
 export const jobLeadsApi = {
   fetch: async (stream?: string, forceRefresh?: boolean): Promise<{ leads: any[]; total: number; streams: Record<string, number>; error?: string; cached?: boolean }> => {
