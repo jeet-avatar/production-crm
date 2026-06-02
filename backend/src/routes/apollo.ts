@@ -871,6 +871,17 @@ router.post('/send-campaign', async (req: Request, res: Response) => {
 //   7. Sleep 250ms (4 req/sec < Resend's 5/sec limit)
 //
 // Hard gate: contactIds.length > 50 requires confirmedLargeBatch:true (RESEARCH §9.d)
+//
+// Phase 06 additive extension:
+//   - body.requireReview?: boolean (default false). When true:
+//       * Personalize each contact via Claude (same path).
+//       * Persist audit row with status='pending_review' (NOT 'pending' or 'preview').
+//       * SKIP Resend dispatch entirely — top-level sent=0, failed=0.
+//       * Return queuedForReview + queueIds in the response.
+//     Old callers (NetSuiteCampaignWizard Step 4) keep working — they don't pass
+//     requireReview, so undefined → falsy → existing dispatch path runs unchanged.
+//   - Mutual exclusion: when requireReview AND previewOnly are both true,
+//     requireReview wins (status='pending_review', not 'preview').
 // -----------------------------------------------------------------------
 router.post('/send-personalized-campaign', async (req: Request, res: Response) => {
   try {
@@ -885,6 +896,7 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
       testRecipient,
       previewOnly,
       confirmedLargeBatch,
+      requireReview,
     } = req.body as {
       contactIds: string[];
       templateId: string;
@@ -892,6 +904,7 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
       testRecipient?: string;
       previewOnly?: boolean;
       confirmedLargeBatch?: boolean;
+      requireReview?: boolean;  // Phase 06: when true, persist with status='pending_review' and skip Resend
     };
 
     // Validation
@@ -944,6 +957,9 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
     let totalOutputTokens = 0;
     let totalWebSearchRequests = 0;
     let totalClaudeCostUSD = 0;
+    // Phase 06 plan 06-03: pending-review queue tracking (only used when requireReview:true).
+    const queueIds: string[] = [];
+    let queuedForReview = 0;
 
     for (const contact of contacts) {
       // 1. Personalize via Claude
@@ -1012,7 +1028,7 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
           claudeOutputTokens: result.usage.outputTokens,
           webSearchUses: result.usage.webSearchUses,
           claudeCostUSD: result.usage.costUSD,
-          status: previewOnly ? 'preview' : 'pending',
+          status: requireReview ? 'pending_review' : (previewOnly ? 'preview' : 'pending'),
           userId,
         },
       });
@@ -1032,6 +1048,29 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
           webSearchUses: result.usage.webSearchUses,
           status: 'preview',
         });
+        continue;
+      }
+
+      // 4b. Phase 06 plan 06-03: requireReview skips Resend — leaves status='pending_review'
+      //     so Plan 06-04's GET /api/apollo/pending-review can surface it for Rajesh's review queue.
+      if (requireReview) {
+        queueIds.push(auditRow.id);
+        queuedForReview += 1;
+        audit.push({
+          contactId: contact.id,
+          email: toEmail,
+          auditId: auditRow.id,
+          subject,
+          renderedBody: html,
+          aiTokens: result.tokens,
+          aiWarning: result.warning,
+          claudeInputTokens: result.usage.inputTokens,
+          claudeOutputTokens: result.usage.outputTokens,
+          webSearchUses: result.usage.webSearchUses,
+          status: 'pending_review',
+        });
+        // Skip Resend dispatch but still pace so Claude API doesn't get hammered if N is large.
+        await new Promise<void>((r) => setTimeout(r, PERSONALIZE_PACING_MS));
         continue;
       }
 
@@ -1094,6 +1133,9 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
       personalizeFailures,
       failureDetails,
       audit,
+      // Phase 06 plan 06-03: pending-review queue summary (additive — old callers ignore).
+      queuedForReview,
+      queueIds,
       cost: {
         claudeInputTokens: totalInputTokens,
         claudeOutputTokens: totalOutputTokens,
