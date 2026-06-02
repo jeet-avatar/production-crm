@@ -38,6 +38,7 @@ import {
   ApolloSearchFilters,
 } from '../lib/apolloClient';
 import { classifyStream } from '../lib/streamClassifier';
+import { normalizeFiltersWithClaude } from '../lib/claudeClient';
 
 // Phase 04 USER-LOCKED: Resend send path.
 // We use Resend, NOT SES (campaigns.ts SES flow stays untouched for Rajesh's existing BrandMonkz campaigns).
@@ -239,22 +240,47 @@ router.post('/import', async (req: Request, res: Response) => {
             });
             companyId = updated.id;
           } else {
-            // (c) Truly new — safe to create.
-            const created = await prisma.company.create({
-              data: {
-                name: org.name,
-                website: org.website_url || null,
-                domain,
-                industry: org.industry || null,
-                employeeCount: empCount,
-                stream,
-                apolloOrgId: org.id,
-                apolloRawData: org as any,
-                dataSource: 'apollo',
-                userId,
-              },
-            });
-            companyId = created.id;
+            // (c) Truly new — safe to create. Wrap in try/catch to handle the rare race
+            // where two parallel /import calls both passed the findUnique checks and now
+            // both attempt INSERT — Postgres rejects the second with P2002 on
+            // companies_domain_key or companies_apolloOrgId_key. Re-fetch the winner.
+            try {
+              const created = await prisma.company.create({
+                data: {
+                  name: org.name,
+                  website: org.website_url || null,
+                  domain,
+                  industry: org.industry || null,
+                  employeeCount: empCount,
+                  stream,
+                  apolloOrgId: org.id,
+                  apolloRawData: org as any,
+                  dataSource: 'apollo',
+                  userId,
+                },
+              });
+              companyId = created.id;
+            } catch (e: any) {
+              if (e?.code === 'P2002') {
+                // Race condition — another concurrent /import won the INSERT. Re-fetch.
+                const racedByApollo = await prisma.company.findUnique({
+                  where: { apolloOrgId: org.id },
+                });
+                if (racedByApollo) {
+                  companyId = racedByApollo.id;
+                } else if (domain) {
+                  const racedByDomain = await prisma.company.findUnique({
+                    where: { domain },
+                  });
+                  if (racedByDomain) companyId = racedByDomain.id;
+                  else throw e;
+                } else {
+                  throw e;
+                }
+              } else {
+                throw e;
+              }
+            }
           }
         }
       }
@@ -303,6 +329,48 @@ router.post('/import', async (req: Request, res: Response) => {
     // eslint-disable-next-line no-console
     console.error('[apollo.import] unexpected error', err);
     return res.status(500).json({ error: 'Apollo import failed', detail: err?.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/apollo/normalize-filters
+// ---------------------------------------------------------------------------
+// Phase 04 (quick-7) — proxy user free-text titles/industries/keywords through
+// Claude Haiku to return Apollo's canonical taxonomy + pitfall warnings.
+// Saves Apollo credits on misclassified ICPs (e.g., "NetSuite" keyword returns
+// consultancies, not customers). Wired by frontend ApolloSearchForm "Refine with AI" button.
+router.post('/normalize-filters', async (req: Request, res: Response) => {
+  const { titles, industries, keywords } = (req.body || {}) as {
+    titles?: string;
+    industries?: string;
+    keywords?: string;
+  };
+
+  // At least one of the three must be present, otherwise there's nothing to refine.
+  if (!titles && !industries && !keywords) {
+    return res.status(400).json({
+      error: 'At least one of titles, industries, or keywords is required.',
+    });
+  }
+
+  try {
+    const result = await normalizeFiltersWithClaude({ titles, industries, keywords });
+    return res.status(200).json(result);
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error('[apollo.normalize-filters] Claude call failed', err);
+    // Common case: ANTHROPIC_API_KEY missing → 503 (service unavailable) so frontend can
+    // disable the "Refine with AI" button gracefully.
+    if (err?.message?.includes('ANTHROPIC_API_KEY')) {
+      return res.status(503).json({
+        error: 'claude_unavailable',
+        message: 'AI filter refinement is not configured on this server.',
+      });
+    }
+    return res.status(500).json({
+      error: 'normalize_failed',
+      message: err?.message || 'Claude filter normalization failed.',
+    });
   }
 });
 

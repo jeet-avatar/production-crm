@@ -20,6 +20,8 @@ interface Contact {
   email: string;
   phone?: string;
   role?: string;
+  source?: string;   // Phase 4 source tracking ('apollo' | 'job_leads' | 'csv_import' | 'manual' | ...)
+  stream?: string;   // Phase 4 stream classification ('NetSuite' | 'AI/ML' | 'Cybersecurity' | ...)
   company?: {
     id: string;
     name: string;
@@ -60,6 +62,8 @@ export function ContactList() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  // Phase 4 (quick-5): ?source=apollo filter driven by URL query param.
+  const [sourceFilter, setSourceFilter] = useState<string>(searchParams.get('source') || '');
   const [showModal, setShowModal] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [showAICSVImport, setShowAICSVImport] = useState(false);
@@ -126,6 +130,11 @@ export function ContactList() {
     }
   }, [searchParams, setSearchParams]);
 
+  // Phase 4 (quick-5): keep sourceFilter in sync when URL changes (deep links, browser back).
+  useEffect(() => {
+    setSourceFilter(searchParams.get('source') || '');
+  }, [searchParams]);
+
   const loadContacts = async () => {
     try {
       setLoading(true);
@@ -190,7 +199,7 @@ export function ContactList() {
     loadContacts();
     loadCompanies();
     setCurrentPage(1); // Reset to page 1 when filters change
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, sourceFilter]);
 
   // Smart auto-expand: Auto-expand companies with 2-5 contacts for better UX
   // 1 contact: No expand button (single contact shows inline)
@@ -442,13 +451,18 @@ export function ContactList() {
     setExpandedCompanies(newExpanded);
   };
 
+  // Phase 4 (quick-5): client-side source filter (?source=apollo). Backend wiring deferred to 04-02.
+  const filteredBySource = sourceFilter
+    ? contacts.filter(c => c.source === sourceFilter)
+    : contacts;
+
   // Filter by group then group by company
   const filteredByGroup = groupFilter
-    ? contacts.filter(c => {
+    ? filteredBySource.filter(c => {
         const tags = (c as any).company?.tags || [];
         return tags.includes(groupFilter);
       })
-    : contacts;
+    : filteredBySource;
 
   const groupedContacts: GroupedContacts = filteredByGroup.reduce((acc, contact) => {
     const companyName = contact.company?.name || 'No Company';
@@ -606,6 +620,30 @@ export function ContactList() {
             </button>
           </div>
         </div>
+
+        {/* Phase 4 (quick-5): dismissible source filter chip driven by ?source URL param */}
+        {sourceFilter && (
+          <div style={{ padding: '12px 24px', background: '#12121f', borderBottom: '1px solid #2a2a44' }}>
+            <span
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/40"
+            >
+              Source: {sourceFilter.charAt(0).toUpperCase() + sourceFilter.slice(1)}
+              <button
+                type="button"
+                onClick={() => {
+                  searchParams.delete('source');
+                  setSearchParams(searchParams);
+                  setSourceFilter('');
+                }}
+                className="ml-1 inline-flex items-center text-indigo-300 hover:text-indigo-100"
+                title="Clear source filter"
+                aria-label="Clear source filter"
+              >
+                <XMarkIcon className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          </div>
+        )}
 
         {/* Filters */}
         <div style={{ padding: '16px 24px', borderBottom: '1px solid #2a2a44', background: '#12121f' }}>
@@ -881,9 +919,23 @@ export function ContactList() {
                           </div>
                         </td>
                         <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
-                          <span className={statusColors[displayContact.status]}>
-                            {displayContact.status.replace('_', ' ')}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className={statusColors[displayContact.status]}>
+                              {displayContact.status.replace('_', ' ')}
+                            </span>
+                            {/* Phase 4 (quick-5): Apollo source badge */}
+                            {displayContact.source === 'apollo' && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                                Apollo
+                              </span>
+                            )}
+                            {/* Phase 4 (quick-5): stream classification badge */}
+                            {displayContact.stream && (
+                              <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                                {displayContact.stream}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         {/* Dynamic Custom Fields */}
                         {customFieldKeys.map(key => (
@@ -983,9 +1035,23 @@ export function ContactList() {
                             <span className="text-[#64748B] text-sm">↳ Same company</span>
                           </td>
                           <td style={{ padding: "12px 16px", borderBottom: "1px solid #1e1e36", color: "#F1F5F9", fontSize: "13px" }}>
-                            <span className={statusColors[contact.status]}>
-                              {contact.status.replace('_', ' ')}
-                            </span>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className={statusColors[contact.status]}>
+                                {contact.status.replace('_', ' ')}
+                              </span>
+                              {/* Phase 4 (quick-5): Apollo source badge */}
+                              {contact.source === 'apollo' && (
+                                <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                                  Apollo
+                                </span>
+                              )}
+                              {/* Phase 4 (quick-5): stream classification badge */}
+                              {contact.stream && (
+                                <span className="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                                  {contact.stream}
+                                </span>
+                              )}
+                            </div>
                           </td>
                           {/* Dynamic Custom Fields */}
                           {customFieldKeys.map(key => (
