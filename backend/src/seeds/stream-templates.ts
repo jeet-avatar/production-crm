@@ -260,35 +260,83 @@ export async function upgradeStreamTemplatesToV2(
 }
 
 // ---------------------------------------------------------------------------
-// Phase quick-8: v3 body shape — port of the TCP v6 branded email shell
-// (source: /Users/jeet/Documents/CRM Module/crm-pipeline/tcp-retargeting/templates/tcp-v6-email-template.html)
+// Phase 06 plan 06-01b: per-stream v3 bodies (stream-coherent chrome + copy).
 //
-// Differences from the source v6 shell:
-//   1. STRIP the video poster row (the <a href="{{videoUrl}}"> + <img {{inlineGifUrl}}>
-//      + VML round-rect + "Watch with sound" button + their wrapping <table> at navy bgcolor #0F172A).
-//   2. STRIP the tracking pixel ({{trackingId}} <img src=brandmonkz.com/api/tracking/open/...>).
-//   3. REPLACE the {{whyThis}} block in the orange-tinted "About this note to {{companyName}}" callout
-//      with 4 separate <p> tags, one per Phase 5 AI token, each styled to match the surrounding body:
-//        <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#7C2D12;">{{intentHook}}</p>
-//        <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#7C2D12;">{{companyContext}}</p>
-//        <p style="margin:0 0 12px 0;font-size:14px;line-height:1.7;color:#7C2D12;">{{painPoint}}</p>
-//        <p style="margin:0 0 0 0;font-size:14px;line-height:1.7;color:#7C2D12;">{{cta}}</p>
-//      (Color #7C2D12 = darker orange, matches the C2410C label tone in the callout. Last <p> has 0 bottom margin.)
-//   4. Replace {{unsubscribeUrl}} hardcoded mailto:sara@techcloudpro.com?subject=Unsubscribe (per scope: hardcoded mailto, NOT a tracking URL).
-//   5. Leave KEPT placeholders ({{firstName}}, {{companyName}}) untouched — Phase 5 substitution loop handles them.
+// Replaces the quick-8-era single-body `STREAM_TEMPLATE_V3_BODY` const with a
+// 9-entry dict keyed by the EXACT `email_templates.category` values written by
+// `seed.category = \`Stream:${seed.stream}\`` at stream-templates.ts:102 (NO
+// space after the colon).
 //
-// Total placeholder set in v3:
-//   - {{firstName}}, {{companyName}}  — substituted by Phase 5 vars loop (apollo.ts:973-982)
-//   - {{intentHook}}, {{companyContext}}, {{painPoint}}, {{cta}}  — substituted by Phase 5 vars loop (same)
+// Each entry shares the v6 visual chrome (navy `#0F172A` header, orange `#F97316`
+// accents, 4-cell metrics row, 4 CTA buttons, 30-day guarantee, Sara signature,
+// `mailto:sara@techcloudpro.com` footer) but the visible copy is stream-coherent
+// per the user-approved 06-STREAM-COPY.md (Plan 06-01a output).
 //
-// No {{whyThis}}, no {{videoUrl}}, no {{inlineGifUrl}}, no {{trackingId}}, no {{unsubscribeUrl}}.
+// The 6-placeholder set is preserved across all 9 entries:
+//   {{firstName}}, {{companyName}}, {{intentHook}}, {{companyContext}},
+//   {{painPoint}}, {{cta}}
 //
-// Phase 5 variable-substitution loop (apollo.ts:984-990) uses `\{\{key\}\}` regex per known var,
-// so any token NOT in `vars` survives as a literal in the rendered body. We MUST NOT introduce
-// new placeholders v3-only — only the 4 AI tokens + 2 contact tokens that vars already covers.
+// Idempotency sentinel: each body has `<!-- STREAM_V3:<bareStream> -->` baked
+// as the FIRST line immediately after `<body>` — unique per stream by
+// construction, survives any future copy changes within a stream. Detection:
+// `htmlContent.includes('<!-- STREAM_V3:' + row.category.slice('Stream:'.length) + ' -->')`.
+//
+// User approval captured 2026-06-01:
+//   "lets call it approved - and send email to jm@techcloudpro.com"
+// (verbatim citation per CONTEXT.md "any SUMMARY claim of 'shipped' is only
+// valid if it cites the user's approval message verbatim" rule).
 // ---------------------------------------------------------------------------
 
-export const STREAM_TEMPLATE_V3_BODY = `<!DOCTYPE html>
+interface StreamV3CopyOpts {
+  sentinel: string;                // e.g., '<!-- STREAM_V3:Cybersecurity -->' — first line after <body>
+  preheaderTail: string;
+  tagPillText: string;
+  metricLabel: string;             // e.g., "Cybersecurity Practice" — also drives "X Practice" visible literal
+  introSentence: string;
+  noteCalloutTitle: string | null; // null OR 'OMIT' both mean skip the secondary "AI banner" callout block
+  noteCalloutBody: string;         // ignored when title is null/OMIT
+  servicePropTitle1: string;
+  servicePropBody1: string;
+  servicePropTitle2: string;
+  servicePropBody2: string;
+  footerReprise: string;
+  arthaBannerSubtitle: string;
+  ariaBlurb: string;
+}
+
+function buildStreamV3Body(opts: StreamV3CopyOpts): string {
+  const includeSecondaryCallout =
+    opts.noteCalloutTitle !== null && opts.noteCalloutTitle !== 'OMIT';
+
+  // Secondary "AI banner" callout block (the "A note on NetSuite Next 2026"
+  // gradient-blue box) — conditional on noteCalloutTitle. Stream:NetSuite is
+  // the only entry that keeps it.
+  const secondaryCallout = includeSecondaryCallout
+    ? `    <!-- AI banner -->
+    <div style="background:linear-gradient(135deg,#EFF6FF,#F0F4FF);border:1px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:22px;">
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td width="36" valign="top" style="padding-right:14px;">
+            <div style="width:36px;height:36px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:8px;text-align:center;line-height:36px;box-shadow:0 4px 10px rgba(37,99,235,0.3);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-top:9px;">
+                <rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><path d="M8 15h.01M12 15h.01M16 15h.01"/>
+              </svg>
+            </div>
+          </td>
+          <td valign="top">
+            <div style="font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">${opts.noteCalloutTitle}</div>
+            <p style="font-size:13px;color:#1E40AF;line-height:1.6;margin:0;">
+              ${opts.noteCalloutBody}
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+`
+    : '';
+
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -309,12 +357,13 @@ export const STREAM_TEMPLATE_V3_BODY = `<!DOCTYPE html>
 </style>
 </head>
 <body style="margin:0;padding:0;background-color:#F1F5F9;font-family:'Plus Jakarta Sans','Helvetica Neue',Arial,sans-serif;">
+${opts.sentinel}
 <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#F1F5F9">
 <tr><td align="center" style="padding:24px 12px;">
 
 <!-- Hidden preheader -->
 <div style="display:none;font-size:1px;color:#fefefe;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
-Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI, custom AI work, and our $1 staffing model.
+Quick 45-second look at how we can help {{companyName}}. ${opts.preheaderTail}
 </div>
 
 <div class="email-container" style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(15,23,42,0.12), 0 0 0 1px rgba(15,23,42,0.06);font-family:'Plus Jakarta Sans','Helvetica Neue',Arial,sans-serif;">
@@ -340,7 +389,7 @@ Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI
           </h1>
           <span style="display:inline-block;background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.35);border-radius:20px;padding:4px 12px;">
             <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#60A5FA;margin-right:6px;vertical-align:middle;"></span>
-            <span style="font-size:10px;font-weight:700;color:#93C5FD;letter-spacing:0.06em;text-transform:uppercase;vertical-align:middle;">NetSuite Next &middot; ArthaBuild AI &middot; $1 Staffing</span>
+            <span style="font-size:10px;font-weight:700;color:#93C5FD;letter-spacing:0.06em;text-transform:uppercase;vertical-align:middle;">${opts.tagPillText}</span>
           </span>
         </td>
       </tr>
@@ -356,7 +405,7 @@ Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI
       </td>
       <td align="center" valign="top" style="padding:16px 8px;border-right:1px solid #E8EDF4;width:25%;">
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:#0F172A;line-height:1;letter-spacing:-0.03em;">Since<span style="color:#F97316;"> 2015</span></div>
-        <div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">NetSuite Practice</div>
+        <div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">${opts.metricLabel}</div>
       </td>
       <td align="center" valign="top" style="padding:16px 8px;border-right:1px solid #E8EDF4;width:25%;">
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:#0F172A;line-height:1;letter-spacing:-0.03em;">94<span style="color:#F97316;">%</span></div>
@@ -387,38 +436,17 @@ Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI
 
     <!-- Intro paragraph -->
     <p style="font-size:15px;line-height:1.75;margin:0 0 18px;color:#334155;">
-      We're a senior NetSuite and AI team. <strong>Certified. Around since 2015. Over 1,000 implementations.</strong> Here's what we actually do, and how it lines up with {{companyName}}. Pricing is upfront on every piece.
+      ${opts.introSentence} Here's what we actually do, and how it lines up with {{companyName}}. Pricing is upfront on every piece.
     </p>
 
-    <!-- AI banner -->
-    <div style="background:linear-gradient(135deg,#EFF6FF,#F0F4FF);border:1px solid #BFDBFE;border-radius:10px;padding:14px 18px;margin-bottom:22px;">
-      <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr>
-          <td width="36" valign="top" style="padding-right:14px;">
-            <div style="width:36px;height:36px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:8px;text-align:center;line-height:36px;box-shadow:0 4px 10px rgba(37,99,235,0.3);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-top:9px;">
-                <rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><path d="M8 15h.01M12 15h.01M16 15h.01"/>
-              </svg>
-            </div>
-          </td>
-          <td valign="top">
-            <div style="font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;">A note on NetSuite Next 2026</div>
-            <p style="font-size:13px;color:#1E40AF;line-height:1.6;margin:0;">
-              <strong style="color:#1E3A8A;">SuiteCloud AI, Predictive Planning, AI Workspaces.</strong> They take a lot more than SuiteScript. Our team plus our own NetSuite copilot, <strong style="color:#1E3A8A;">ArthaBuild AI</strong>, handle the modern stack end to end.
-            </p>
-          </td>
-        </tr>
-      </table>
-    </div>
-
-    <!-- 4 Service Value Props -->
+${secondaryCallout}    <!-- 4 Service Value Props -->
     <div style="padding:11px 15px;background:#F8FAFC;border-left:3px solid #2563EB;border-radius:0 6px 6px 0;margin-bottom:9px;">
-      <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:2px;letter-spacing:-0.01em;">01 &middot; NetSuite Practice. Senior team, since 2015.</div>
-      <div style="font-size:12px;color:#64748B;line-height:1.55;">Full-cycle implementation, optimization, managed services. Multi-entity, OneWorld, NetSuite Next 2026. Senior architects on the engagement, never juniors.</div>
+      <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:2px;letter-spacing:-0.01em;">01 &middot; ${opts.servicePropTitle1}</div>
+      <div style="font-size:12px;color:#64748B;line-height:1.55;">${opts.servicePropBody1}</div>
     </div>
     <div style="padding:11px 15px;background:#F8FAFC;border-left:3px solid #F97316;border-radius:0 6px 6px 0;margin-bottom:9px;">
-      <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:2px;letter-spacing:-0.01em;">02 &middot; ArthaBuild AI. Your NetSuite copilot.</div>
-      <div style="font-size:12px;color:#64748B;line-height:1.55;">Writes <strong style="color:#0F172A;">SuiteScript</strong>, drafts <strong style="color:#0F172A;">BRDs</strong>, builds <strong style="color:#0F172A;">technical documentation</strong>, and suggests <strong style="color:#0F172A;">improvements to your environment</strong>. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.</div>
+      <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:2px;letter-spacing:-0.01em;">02 &middot; ${opts.servicePropTitle2}</div>
+      <div style="font-size:12px;color:#64748B;line-height:1.55;">${opts.servicePropBody2}</div>
     </div>
     <div style="padding:11px 15px;background:#F8FAFC;border-left:3px solid #2563EB;border-radius:0 6px 6px 0;margin-bottom:9px;">
       <div style="font-size:13px;font-weight:700;color:#0F172A;margin-bottom:2px;letter-spacing:-0.01em;">03 &middot; Dedicated AI Consulting</div>
@@ -498,7 +526,7 @@ Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI
             </td>
             <td valign="middle">
               <div style="font-size:14px;font-weight:700;color:#ffffff;line-height:1.2;letter-spacing:-0.01em;">Visit TechCloudPro</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.8);margin-top:3px;line-height:1.2;">NetSuite Next · AI Consulting · $1 Staffing</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.8);margin-top:3px;line-height:1.2;">${opts.footerReprise}</div>
             </td>
             <td width="20" valign="middle" align="right">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
@@ -518,7 +546,7 @@ Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI
             </td>
             <td valign="middle">
               <div style="font-size:14px;font-weight:700;color:#ffffff;line-height:1.2;letter-spacing:-0.01em;">Visit ArthaBuild AI</div>
-              <div style="font-size:10px;color:rgba(255,255,255,0.85);margin-top:3px;line-height:1.2;">Your NetSuite copilot · SuiteScript, BRDs, docs · artha.build</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.85);margin-top:3px;line-height:1.2;">${opts.arthaBannerSubtitle}</div>
             </td>
             <td width="20" valign="middle" align="right">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
@@ -528,7 +556,7 @@ Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI
       </td></tr></table>
 
       <div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:14px;line-height:1.6;">
-        <strong style="color:#2563EB;">ARIA</strong> is our AI receptionist. She knows NetSuite Next 2026, SuiteCloud AI, and our full services portfolio.<br>
+        <strong style="color:#2563EB;">ARIA</strong> ${opts.ariaBlurb}<br>
         Available 24/7 · Powered by <strong style="color:#64748B;">VibingTicket AI Employees</strong>
       </div>
     </div>
@@ -564,15 +592,163 @@ Quick 45-second look at how we can help {{companyName}}. NetSuite, ArthaBuild AI
 </td></tr></table>
 </body>
 </html>`;
+}
+
+export const STREAM_TEMPLATE_V3_BODIES: Record<string, string> = {
+  'Stream:NetSuite': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:NetSuite -->',
+    preheaderTail: 'NetSuite, ArthaBuild AI, custom AI work, and our $1 staffing model.',
+    tagPillText: 'NetSuite Next · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'NetSuite Practice',
+    introSentence: "We're a senior NetSuite and AI team. <strong>Certified. Around since 2015. Over 1,000 implementations.</strong>",
+    noteCalloutTitle: 'A note on NetSuite Next 2026',
+    noteCalloutBody: '<strong style="color:#1E3A8A;">SuiteCloud AI, Predictive Planning, AI Workspaces.</strong> They take a lot more than SuiteScript. Our team plus our own NetSuite copilot, <strong style="color:#1E3A8A;">ArthaBuild AI</strong>, handle the modern stack end to end.',
+    servicePropTitle1: 'NetSuite Practice. Senior team, since 2015.',
+    servicePropBody1: 'Full-cycle implementation, optimization, managed services. Multi-entity, OneWorld, NetSuite Next 2026. Senior architects on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your NetSuite copilot.',
+    servicePropBody2: 'Writes <strong style="color:#0F172A;">SuiteScript</strong>, drafts <strong style="color:#0F172A;">BRDs</strong>, builds <strong style="color:#0F172A;">technical documentation</strong>. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'NetSuite Next · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your NetSuite copilot · SuiteScript, BRDs, docs · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows NetSuite Next 2026, SuiteCloud AI, and our full services portfolio.',
+  }),
+  'Stream:AI/ML': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:AI/ML -->',
+    preheaderTail: 'Production LLM apps, RAG, classical ML, ArthaBuild AI, and our $1 staffing model.',
+    tagPillText: 'AI/ML · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'AI/ML Practice',
+    introSentence: "We're a senior AI/ML engineering team. Production LLM apps, RAG, classical ML. <strong>Around since 2015. Over 1,000 model engagements.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'AI/ML Practice. Production LLM and classical, since 2015.',
+    servicePropBody1: 'Eval harnesses, prompt versioning, RAG pipelines, classical ML. Senior engineers on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your AI copilot.',
+    servicePropBody2: 'Eval harness scaffolds, prompt versioning workflows, RAG quick-starts. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'AI/ML · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your AI copilot · eval harnesses, prompt versioning · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our AI/ML practice and full services portfolio.',
+  }),
+  'Stream:Cloud/DevOps': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:Cloud/DevOps -->',
+    preheaderTail: 'Cloud architecture, IaC, cost optimization, ArthaBuild AI, and our $1 staffing model.',
+    tagPillText: 'Cloud/DevOps · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'Cloud/DevOps Practice',
+    introSentence: "We're a senior cloud architecture and AI team. AWS, GCP, Azure. <strong>Around since 2015. Over 1,000 cloud engagements.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'Cloud/DevOps Practice. AWS / GCP / Azure architects, since 2015.',
+    servicePropBody1: 'Landing zones, IaC, cost surfaces, drift detection, observability. Senior architects on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your infra copilot.',
+    servicePropBody2: 'IaC scaffolds, cost-surface reports, drift checks. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'Cloud/DevOps · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your infra copilot · IaC, cost surfaces, drift · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our Cloud/DevOps practice and full services portfolio.',
+  }),
+  'Stream:Cybersecurity': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:Cybersecurity -->',
+    preheaderTail: 'Cybersecurity audits, AI-augmented compliance, ArthaBuild AI, and our $1 staffing model.',
+    tagPillText: 'Cybersecurity · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'Cybersecurity Practice',
+    introSentence: "We're a senior security architecture and AI team. <strong>Certified. Around since 2015. Over 1,000 engagements.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'Cybersecurity Practice. Senior auditors, since 2015.',
+    servicePropBody1: 'Threat modeling, IR docs, compliance maps, AppSec engineering. Senior reviewers on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your security copilot.',
+    servicePropBody2: 'Threat modeling drafts, IR runbook generation, compliance gap maps. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'Cybersecurity · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your security copilot · threat modeling, IR docs · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our Cybersecurity practice and full services portfolio.',
+  }),
+  'Stream:Data/Analytics': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:Data/Analytics -->',
+    preheaderTail: 'Data engineering, warehouse modernization, ArthaBuild AI, and our $1 staffing model.',
+    tagPillText: 'Data/Analytics · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'Data/Analytics Practice',
+    introSentence: "We're a senior data engineering and AI team. Snowflake, Databricks, dbt. <strong>Around since 2015. Over 1,000 pipelines shipped.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'Data/Analytics Practice. Senior DEs — Snowflake / Databricks, since 2015.',
+    servicePropBody1: 'dbt modeling, lineage, anomaly detection, warehouse modernization. Senior engineers on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your data copilot.',
+    servicePropBody2: 'dbt model drafts, lineage maps, anomaly-detection rules. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'Data/Analytics · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your data copilot · dbt models, lineage, anomaly detection · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our Data/Analytics practice and full services portfolio.',
+  }),
+  'Stream:Mobile': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:Mobile -->',
+    preheaderTail: 'Mobile engineering, native and cross-platform, ArthaBuild AI, and our $1 staffing model.',
+    tagPillText: 'Mobile · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'Mobile Practice',
+    introSentence: "We're a senior mobile and AI team. Native iOS, Android, Flutter, React Native. <strong>Around since 2015. Over 1,000 apps shipped.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'Mobile Practice. Native and cross-platform, since 2015.',
+    servicePropBody1: 'iOS, Android, Flutter, RN. UI test generation, performance baselines, release ops. Senior engineers on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your mobile copilot.',
+    servicePropBody2: 'UI test scaffolds, performance baselines, release-pipeline drafts. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'Mobile · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your mobile copilot · UI test gen, perf baselines · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our Mobile practice and full services portfolio.',
+  }),
+  'Stream:Enterprise/ERP': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:Enterprise/ERP -->',
+    preheaderTail: 'Multi-system ERP architecture — SAP, Oracle, custom builds — ArthaBuild AI, and our $1 staffing model.',
+    tagPillText: 'Enterprise/ERP · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'Enterprise/ERP Practice',
+    introSentence: "We're a senior multi-system ERP and AI team. SAP, Oracle, custom builds. <strong>Around since 2015. Over 1,000 implementations across systems.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'Enterprise/ERP Practice. Multi-system architects — SAP, Oracle, custom builds, since 2015.',
+    servicePropBody1: 'Workflow design, integration maps, migration plans across multiple ERPs. Senior architects on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your ERP copilot.',
+    servicePropBody2: 'Workflow drafts, integration scaffolds, migration playbooks. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'Enterprise/ERP · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your ERP copilot · workflow design, integration maps · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our Enterprise/ERP practice and full services portfolio.',
+  }),
+  'Stream:Staffing/HR': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:Staffing/HR -->',
+    preheaderTail: '$1/contract staffing, candidate placement, ArthaBuild AI, and our custom AI work.',
+    tagPillText: 'Staffing/HR · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'Staffing/HR Practice',
+    introSentence: "We're a senior staffing and HR systems team. $1/contract staffing, candidate placement, HR-stack integrations. <strong>Around since 2015. Over 1,000 placements.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'Staffing/HR Practice. $1/contract staffing, since 2015.',
+    servicePropBody1: 'Req drafting, candidate matching, onboarding playbooks. Senior recruiters and HR architects on the engagement, never juniors.',
+    servicePropTitle2: 'ArthaBuild AI. Your HR copilot.',
+    servicePropBody2: 'Req-drafting templates, candidate-matching scaffolds, onboarding playbooks. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'Staffing/HR · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your HR copilot · req drafting, candidate matching · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our Staffing/HR practice and full services portfolio.',
+  }),
+  'Stream:Other': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:Other -->',
+    preheaderTail: 'Senior consulting, ArthaBuild AI, custom AI work, and our $1 staffing model.',
+    tagPillText: 'Consulting · ArthaBuild AI · $1 Staffing',
+    metricLabel: 'TCP Practice',
+    introSentence: "We're a senior consulting team, since 2015, with a custom AI copilot in-house. <strong>Over 1,000 engagements.</strong>",
+    noteCalloutTitle: 'OMIT',
+    noteCalloutBody: '',
+    servicePropTitle1: 'TCP Practice. Senior consulting, since 2015.',
+    servicePropBody1: 'Cross-stack senior engineers, architects, auditors. Whatever you actually need — no juniors, no offshore handoff.',
+    servicePropTitle2: 'ArthaBuild AI. Your custom copilot.',
+    servicePropBody2: 'Whatever you ship, whatever you audit, whatever you operate — we wire it through our own copilot. Live at <a href="https://artha.build" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'Consulting · AI Consulting · $1 Staffing',
+    arthaBannerSubtitle: 'Your custom copilot · whatever you ship · artha.build',
+    ariaBlurb: 'is our AI receptionist. She knows our full services portfolio.',
+  }),
+};
 
 /**
  * Idempotent in-place upgrade of the 9 Stream:* email_templates rows from v2 → v3.
- * Detection sentinel: structural marker UNIQUE to v3 vs. v2 — the v6 shell always contains
- * the literal string `1000+ Implementations` from the metrics row. v2 body (~150 chars,
- * 5 <p> tags) does NOT contain this string. Use it as the v3 sentinel.
+ * Stream-aware: looks up STREAM_TEMPLATE_V3_BODIES[row.category] per row, falls back
+ * to STREAM_TEMPLATE_V3_BODIES['Stream:Other'] if the category is not in the dict.
  *
- * Returns the same shape as upgradeStreamTemplatesToV2:
- *   { upgraded: string[], alreadyV3: string[], total: number }
+ * Idempotency sentinel: HTML-comment `<!-- STREAM_V3:<bareStream> -->` baked as the
+ * first line after `<body>`. Detection: htmlContent.includes(`<!-- STREAM_V3:${bare} -->`).
+ * Unique per stream by construction (sentinel suffix == bare stream name).
  */
 export async function upgradeStreamTemplatesToV3(
   prisma: PrismaClient,
@@ -580,20 +756,28 @@ export async function upgradeStreamTemplatesToV3(
 ): Promise<{ upgraded: string[]; alreadyV3: string[]; total: number }> {
   const rows = await prisma.emailTemplate.findMany({
     where: { userId, category: { startsWith: 'Stream:' } },
-    select: { id: true, name: true, htmlContent: true },
+    select: { id: true, name: true, category: true, htmlContent: true },
   });
 
   const upgraded: string[] = [];
   const alreadyV3: string[] = [];
 
   for (const row of rows) {
-    if ((row.htmlContent || '').includes('1000+ Implementations')) {
+    // Derive sentinel from category. category='Stream:Cybersecurity' → sentinel='<!-- STREAM_V3:Cybersecurity -->'.
+    const bareStream = row.category.startsWith('Stream:')
+      ? row.category.slice('Stream:'.length)
+      : row.category;
+    const sentinel = `<!-- STREAM_V3:${bareStream} -->`;
+
+    if ((row.htmlContent || '').includes(sentinel)) {
       alreadyV3.push(row.name);
       continue;
     }
+
+    const body = STREAM_TEMPLATE_V3_BODIES[row.category] ?? STREAM_TEMPLATE_V3_BODIES['Stream:Other'];
     await prisma.emailTemplate.update({
       where: { id: row.id },
-      data: { htmlContent: STREAM_TEMPLATE_V3_BODY },
+      data: { htmlContent: body },
     });
     upgraded.push(row.name);
   }
