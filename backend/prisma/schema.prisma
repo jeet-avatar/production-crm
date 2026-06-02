@@ -232,6 +232,11 @@ model Contact {
   // Field-level data source tracking
   fieldSources Json? @map("field_sources") // {"firstName": "manual", "email": "claude_ai", "phone": "csv_import"}
 
+  // Apollo integration (Phase 04 — columns already in prod DB, additive only)
+  apolloPersonId String? @unique
+  apolloRawData  Json?
+  stream         String? // Classified stream: NetSuite, AI/ML, Cloud/DevOps, etc. See lib/streamClassifier.ts
+
   // Foreign keys
   companyId    String?
   userId       String
@@ -255,6 +260,8 @@ model Contact {
   @@index([assignedToId])
   @@index([status])
   @@index([createdAt])
+  @@index([apolloPersonId])
+  @@index([stream])
   @@map("contacts")
 }
 
@@ -324,6 +331,11 @@ model Company {
   techStack    String? @db.Text // Current tech stack being used
   aiPitch      String? @db.Text // AI solution pitch/value proposition
 
+  // Apollo integration (Phase 04 — columns already in prod DB, additive only)
+  apolloOrgId   String? @unique
+  apolloRawData Json?
+  stream        String? // Classified stream: NetSuite, AI/ML, etc.
+
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -347,6 +359,8 @@ model Company {
   @@index([domain])
   @@index([enriched])
   @@index([dataSource])
+  @@index([apolloOrgId])
+  @@index([stream])
   @@map("companies")
 }
 
@@ -492,6 +506,7 @@ model EmailTemplate {
   htmlContent String
   textContent String?
   variables   Json? // Array of variable names like ["firstName", "companyName"]
+  category    String? // e.g., 'Stream:NetSuite', 'Stream:Other' — used by Apollo /send-campaign 3-layer fallback
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -504,6 +519,7 @@ model EmailTemplate {
   campaigns Campaign[]
 
   @@index([userId])
+  @@index([category])
   @@map("email_templates")
 }
 
@@ -540,6 +556,7 @@ model Campaign {
   totalOpened  Int            @default(0)
   totalClicked Int            @default(0)
   totalBounced Int            @default(0)
+  source       String? // 'apollo' | 'netsuite' | null (legacy). Used to distinguish in /campaigns list + analytics.
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
@@ -556,6 +573,7 @@ model Campaign {
   @@index([userId])
   @@index([status])
   @@index([scheduledAt])
+  @@index([source])
   @@map("campaigns")
 }
 
