@@ -15,8 +15,10 @@ import {
   QuestionMarkCircleIcon,
   PaperAirplaneIcon,
   ArrowPathIcon,
+  RocketLaunchIcon,
 } from '@heroicons/react/24/outline';
 import CampaignWizard from '../../components/CampaignWizard';
+import { NetSuiteCampaignWizard } from '../../components/NetSuiteCampaignWizard';
 import { EditCampaignModal } from '../../components/EditCampaignModal';
 import { CampaignsHelpGuide } from '../../components/CampaignsHelpGuide';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -58,6 +60,8 @@ export function CampaignsPage() {
   const [sendingNetSuite, setSendingNetSuite] = useState(false);
   const [netSuiteResult, setNetSuiteResult] = useState<{ sent: number; total: number; failed: number; companyCount: number } | null>(null);
   const [wizardPreselect, setWizardPreselect] = useState<{ subject: string; campaignType: string } | null>(null);
+  const [showNetSuiteCampaignWizard, setShowNetSuiteCampaignWizard] = useState(false);
+  const [wizardInitialMode, setWizardInitialMode] = useState<'netsuite' | 'apollo'>('netsuite');
 
   useEffect(() => {
     loadCampaigns();
@@ -263,10 +267,23 @@ export function CampaignsPage() {
             <button
               type="button"
               onClick={() => {
+                setWizardInitialMode('apollo');
+                setShowNetSuiteCampaignWizard(true);
+              }}
+              className={`flex items-center gap-2 px-5 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-indigo-500/30`}
+              title="Open Apollo Campaign wizard — pre-loads contacts imported from Apollo"
+            >
+              <RocketLaunchIcon className="h-5 w-5" />
+              Apollo Campaign
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setWizardInitialMode('netsuite'); // for symmetry — reset mode in case wizard re-opens
                 setWizardPreselect({ subject: "{{companyName}}'s NetSuite team ready for 2026.1?", campaignType: 'netsuite' });
                 setShowCreateModal(true);
               }}
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-orange-400/30"
+              className={`flex items-center gap-2 px-5 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-indigo-500/30`}
             >
               <PaperAirplaneIcon className="h-5 w-5" />
               Send NetSuite Campaign
@@ -683,6 +700,21 @@ export function CampaignsPage() {
       {showHelpGuide && (
         <CampaignsHelpGuide onClose={() => setShowHelpGuide(false)} />
       )}
+
+      {/* NetSuite/Apollo Campaign Wizard — dual-mode via initialMode prop */}
+      {showNetSuiteCampaignWizard && (
+        <NetSuiteCampaignWizard
+          isOpen={showNetSuiteCampaignWizard}
+          initialMode={wizardInitialMode}
+          onClose={() => {
+            setShowNetSuiteCampaignWizard(false);
+            setWizardInitialMode('netsuite'); // reset to default for next open
+          }}
+          onSuccess={() => {
+            loadCampaigns();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -857,7 +889,7 @@ function CampaignDetailModal({ campaign, onClose, navigate }: CampaignDetailModa
                 {companies.map((company) => (
                   <div
                     key={company.id}
-                    className="bg-[#161625] border-2 border-[#2a2a44] rounded-xl p-4 hover:shadow-md hover:border-orange-300 transition-all duration-200 flex items-center justify-between group"
+                    className="bg-[#161625] border-2 border-[#2a2a44] rounded-xl p-4 hover:shadow-md hover:border-indigo-400 transition-all duration-200 flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 bg-gradient-to-br ${gradients.brand.primary.gradient.replace('to-r', 'to-br')} rounded-xl flex items-center justify-center shadow-md`}>

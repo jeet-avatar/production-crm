@@ -1,0 +1,828 @@
+// NetSuiteCampaignWizard — dual-mode wizard (NetSuite + Apollo)
+// -----------------------------------------------------------------------------
+// Phase 04-03: Apollo Campaign port. This wizard opens from /campaigns header
+// in one of two modes via the `initialMode` prop:
+//
+//   initialMode='netsuite' (default):
+//     Mirrors the legacy Send-NetSuite-Campaign one-click flow. Confirms intent,
+//     then POSTs /api/campaigns/quick-send (SES one-shot dispatch to all
+//     NetSuite-staffing companies).
+//
+//   initialMode='apollo':
+//     New flow for contacts imported via /apollo (Phase 04-02). Fetches the
+//     contact list, client-side filters to source==='apollo', groups by stream,
+//     lets user pick a stream + which contacts to include, then dispatches via
+//     apolloApi.sendCampaign(contactIds, stream) (Resend, 3-layer template
+//     fallback handled server-side in backend/src/routes/apollo.ts).
+//
+// Intentionally LEAN (no AI personalize, no first-contact preview, no audit
+// table) — those advanced features come in 04-05. This satisfies REQ-030 +
+// REQ-033 (Apollo Campaign button reachable from main /campaigns header,
+// dispatches via the wired apolloApi service).
+//
+// Phase 6 rollback lessons: NO tabs, NO orange, NO auto-switching the page view.
+// -----------------------------------------------------------------------------
+
+import { useEffect, useState, useMemo } from 'react';
+import {
+  CheckCircleIcon,
+  XMarkIcon,
+  EnvelopeIcon,
+  UserGroupIcon,
+  PaperAirplaneIcon,
+  RocketLaunchIcon,
+} from '@heroicons/react/24/outline';
+import { contactsApi, apolloApi } from '../services/api';
+
+// ===== Types =====
+
+interface Contact {
+  id: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  source?: string | null;
+  customFields?: Record<string, any> | null;
+  company?: { id: string; name: string } | null;
+}
+
+interface NetSuiteCampaignWizardProps {
+  isOpen: boolean;
+  initialMode?: 'netsuite' | 'apollo';
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+interface SendResult {
+  sent: number;
+  failed: number;
+  total?: number;
+  companyCount?: number;
+  failureDetails?: Array<{ contactId?: string; email: string | null; error: string }>;
+}
+
+const APOLLO_FROM_DISPLAY = 'Sara <sara@techcloudpro.com>';
+const DEFAULT_STREAM = 'Other';
+
+// ===== Component =====
+
+export function NetSuiteCampaignWizard({
+  isOpen,
+  initialMode = 'netsuite',
+  onClose,
+  onSuccess,
+}: NetSuiteCampaignWizardProps) {
+  // initialMode drives label + dispatch path; locked at mount so toggling parent
+  // state mid-flight can't corrupt an in-progress send.
+  const [mode] = useState<'netsuite' | 'apollo'>(initialMode);
+
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // Apollo-mode state
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loadingContacts, setLoadingContacts] = useState(false);
+  const [contactsError, setContactsError] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedStream, setSelectedStream] = useState<string>(DEFAULT_STREAM);
+
+  // Send state (shared)
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sendResult, setSendResult] = useState<SendResult | null>(null);
+
+  const isApollo = mode === 'apollo';
+  const campaignLabel = isApollo ? 'Apollo Campaign' : 'NetSuite Campaign';
+
+  // ===== Mount: for apollo mode, fetch contacts and client-filter to source==='apollo' =====
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Reset state for clean open
+    setStep(1);
+    setSendError(null);
+    setSendResult(null);
+    setSelectedIds(new Set());
+
+    if (!isApollo) return; // netsuite mode has no audience step — skip
+
+    let cancelled = false;
+    (async () => {
+      setLoadingContacts(true);
+      setContactsError(null);
+      try {
+        // Backend /api/contacts doesn't filter by source — fetch a wide page
+        // and client-filter. Apollo imports are typically small batches.
+        const data = await contactsApi.getAll({ limit: 500 });
+        if (cancelled) return;
+        const all: Contact[] = Array.isArray(data?.contacts) ? data.contacts : [];
+        const apolloOnly = all.filter((c) => (c.source || '').toLowerCase() === 'apollo');
+        setContacts(apolloOnly);
+        // Pre-tick all (user can deselect)
+        setSelectedIds(new Set(apolloOnly.map((c) => c.id)));
+      } catch (err: any) {
+        if (cancelled) return;
+        console.error('[NetSuiteCampaignWizard] fetch contacts failed', err);
+        setContactsError(err?.message || 'Failed to load Apollo contacts');
+      } finally {
+        if (!cancelled) setLoadingContacts(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, isApollo]);
+
+  // Derive available streams from loaded contacts (read from customFields.stream
+  // if set by 04-01 importer; falls back to 'Other'). Memoized so the dropdown
+  // doesn't churn on every render.
+  const availableStreams = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of contacts) {
+      const s = (c.customFields?.stream as string | undefined) || DEFAULT_STREAM;
+      set.add(s);
+    }
+    if (set.size === 0) set.add(DEFAULT_STREAM);
+    return Array.from(set).sort();
+  }, [contacts]);
+
+  // Auto-select first available stream when contacts arrive
+  useEffect(() => {
+    if (availableStreams.length > 0 && !availableStreams.includes(selectedStream)) {
+      setSelectedStream(availableStreams[0]);
+    }
+  }, [availableStreams, selectedStream]);
+
+  if (!isOpen) return null;
+
+  // ===== Step 1 helpers (apollo) =====
+  function toggleContact(id: string) {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  }
+
+  function toggleSelectAll() {
+    if (selectedIds.size === contacts.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(contacts.map((c) => c.id)));
+  }
+
+  // ===== Dispatch =====
+  async function handleSendApollo() {
+    if (selectedIds.size === 0) {
+      setSendError('Pick at least one contact in Step 1.');
+      return;
+    }
+    setSending(true);
+    setSendError(null);
+    setSendResult(null);
+    try {
+      const data = await apolloApi.sendCampaign(Array.from(selectedIds), selectedStream);
+      setSendResult({
+        sent: data.sent,
+        failed: data.failed,
+        total: selectedIds.size,
+        failureDetails: data.failureDetails,
+      });
+      setStep(3);
+      onSuccess?.();
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
+        err?.message ||
+        'Send failed. Check console for details.';
+      console.error('[NetSuiteCampaignWizard] apollo send failed', err);
+      setSendError(msg);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  async function handleSendNetSuite() {
+    setSending(true);
+    setSendError(null);
+    setSendResult(null);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+      const token = localStorage.getItem('crmToken');
+      const response = await fetch(`${apiUrl}/api/campaigns/quick-send`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Failed to send NetSuite campaign');
+      }
+      setSendResult({
+        sent: data.sent,
+        failed: data.failed,
+        total: data.total,
+        companyCount: data.companyCount,
+      });
+      setStep(3);
+      onSuccess?.();
+    } catch (err: any) {
+      const msg = err?.message || 'Send failed. Check console for details.';
+      console.error('[NetSuiteCampaignWizard] netsuite send failed', err);
+      setSendError(msg);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  // ===== Render =====
+
+  const headerIcon = isApollo ? (
+    <RocketLaunchIcon style={{ width: 22, height: 22, color: '#a5b4fc' }} />
+  ) : (
+    <PaperAirplaneIcon style={{ width: 22, height: 22, color: '#a5b4fc' }} />
+  );
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.75)',
+        zIndex: 1000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '16px',
+      }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        style={{
+          background: '#0f172a',
+          borderRadius: '16px',
+          width: '100%',
+          maxWidth: '720px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          border: '1px solid rgba(255,255,255,0.08)',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: '20px 24px',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {headerIcon}
+            <div>
+              <h2 style={{ color: '#f1f5f9', fontSize: 18, fontWeight: 700, margin: 0 }}>
+                {campaignLabel}
+              </h2>
+              <p style={{ color: '#64748b', fontSize: 12, margin: '4px 0 0' }}>
+                {isApollo
+                  ? `From: ${APOLLO_FROM_DISPLAY} · Resend dispatch with stream template fallback`
+                  : 'One-click send to all NetSuite-staffing companies via AWS SES'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#64748b',
+              padding: 4,
+            }}
+            aria-label="Close"
+          >
+            <XMarkIcon style={{ width: 20, height: 20 }} />
+          </button>
+        </div>
+
+        {/* Step indicator */}
+        <div
+          style={{
+            padding: '14px 24px',
+            display: 'flex',
+            gap: 8,
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            flexWrap: 'wrap',
+          }}
+        >
+          {(isApollo ? ['Audience', 'Review', 'Done'] : ['Confirm', 'Send', 'Done']).map(
+            (label, i) => {
+              const s = (i + 1) as 1 | 2 | 3;
+              const active = s === step;
+              const done = s < step;
+              return (
+                <div
+                  key={s}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}
+                >
+                  <div
+                    style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      background: done ? '#10b981' : active ? '#6366f1' : 'rgba(255,255,255,0.08)',
+                      color: done || active ? '#fff' : '#64748b',
+                    }}
+                  >
+                    {done ? '✓' : s}
+                  </div>
+                  <span style={{ color: active ? '#f1f5f9' : '#64748b' }}>
+                    {s}. {label}
+                  </span>
+                  {i < 2 && <span style={{ color: '#334155', marginLeft: 4 }}>›</span>}
+                </div>
+              );
+            },
+          )}
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '24px' }}>
+          {/* ===== APOLLO STEP 1: Audience ===== */}
+          {isApollo && step === 1 && (
+            <section>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <UserGroupIcon style={{ width: 18, height: 18, color: '#6366f1' }} />
+                <h3 style={{ color: '#f1f5f9', fontSize: 15, fontWeight: 600, margin: 0 }}>
+                  Pick Apollo contacts to email
+                </h3>
+              </div>
+              <p style={{ color: '#94a3b8', fontSize: 13, margin: '0 0 16px' }}>
+                Showing {contacts.length} contact(s) imported from Apollo (source='apollo').
+              </p>
+
+              {/* Stream picker */}
+              <div style={{ marginBottom: 16 }}>
+                <label
+                  style={{
+                    color: '#94a3b8',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    display: 'block',
+                    marginBottom: 6,
+                  }}
+                >
+                  STREAM (template routing key)
+                </label>
+                <select
+                  value={selectedStream}
+                  onChange={(e) => setSelectedStream(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 14px',
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 8,
+                    color: '#f1f5f9',
+                    fontSize: 14,
+                  }}
+                >
+                  {availableStreams.map((s) => (
+                    <option key={s} value={s} style={{ background: '#0f172a' }}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <p style={{ color: '#64748b', fontSize: 11, margin: '6px 0 0' }}>
+                  Backend resolves: Stream:{selectedStream} → Stream:Other → hardcoded fallback
+                </p>
+              </div>
+
+              {loadingContacts ? (
+                <div style={{ color: '#64748b', fontSize: 14, padding: '20px 0' }}>
+                  Loading Apollo contacts…
+                </div>
+              ) : contactsError ? (
+                <div
+                  style={{
+                    padding: 16,
+                    background: 'rgba(239,68,68,0.08)',
+                    border: '1px solid rgba(239,68,68,0.2)',
+                    borderRadius: 8,
+                    color: '#fca5a5',
+                    fontSize: 13,
+                  }}
+                >
+                  ❌ {contactsError}
+                </div>
+              ) : contacts.length === 0 ? (
+                <div
+                  style={{
+                    padding: 16,
+                    background: 'rgba(245,158,11,0.08)',
+                    border: '1px solid rgba(245,158,11,0.2)',
+                    borderRadius: 8,
+                    color: '#fbbf24',
+                    fontSize: 13,
+                  }}
+                >
+                  No Apollo-source contacts found. Go to <strong>/apollo</strong> and import some
+                  first.
+                </div>
+              ) : (
+                <>
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      padding: '10px 14px',
+                      background: 'rgba(99,102,241,0.08)',
+                      border: '1px solid rgba(99,102,241,0.2)',
+                      borderRadius: 8,
+                      marginBottom: 12,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.size === contacts.length && contacts.length > 0}
+                      onChange={toggleSelectAll}
+                      style={{ width: 16, height: 16, cursor: 'pointer' }}
+                    />
+                    <span style={{ color: '#a5b4fc', fontSize: 13, fontWeight: 600 }}>
+                      Select all {contacts.length}
+                    </span>
+                  </label>
+
+                  <div
+                    style={{
+                      maxHeight: 320,
+                      overflowY: 'auto',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: 8,
+                    }}
+                  >
+                    {contacts.map((c) => {
+                      const checked = selectedIds.has(c.id);
+                      const displayName =
+                        [c.firstName, c.lastName].filter(Boolean).join(' ') || '(no name)';
+                      return (
+                        <label
+                          key={c.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12,
+                            padding: '10px 14px',
+                            borderBottom: '1px solid rgba(255,255,255,0.04)',
+                            cursor: 'pointer',
+                            background: checked ? 'rgba(99,102,241,0.05)' : 'transparent',
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => toggleContact(c.id)}
+                            style={{ width: 16, height: 16, cursor: 'pointer' }}
+                          />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ color: '#f1f5f9', fontSize: 13, fontWeight: 600 }}>
+                              {displayName}
+                              {c.company?.name && (
+                                <span
+                                  style={{ color: '#64748b', fontWeight: 400, marginLeft: 8 }}
+                                >
+                                  · {c.company.name}
+                                </span>
+                              )}
+                            </div>
+                            <div
+                              style={{
+                                color: '#94a3b8',
+                                fontSize: 12,
+                                marginTop: 2,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                              }}
+                            >
+                              {c.email || '(no email)'}
+                            </div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  <p style={{ color: '#64748b', fontSize: 12, margin: '12px 0 0' }}>
+                    {selectedIds.size} of {contacts.length} selected
+                  </p>
+                </>
+              )}
+
+              <div style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setStep(2)}
+                  disabled={selectedIds.size === 0}
+                  style={{
+                    padding: '10px 24px',
+                    borderRadius: 8,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    cursor: selectedIds.size === 0 ? 'not-allowed' : 'pointer',
+                    background:
+                      selectedIds.size === 0
+                        ? 'rgba(255,255,255,0.06)'
+                        : 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    color: selectedIds.size === 0 ? '#475569' : '#fff',
+                    border: 'none',
+                  }}
+                >
+                  Review →
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* ===== APOLLO STEP 2: Review & Send ===== */}
+          {isApollo && step === 2 && (
+            <section>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <EnvelopeIcon style={{ width: 18, height: 18, color: '#6366f1' }} />
+                <h3 style={{ color: '#f1f5f9', fontSize: 15, fontWeight: 600, margin: 0 }}>
+                  Review &amp; Send
+                </h3>
+              </div>
+
+              <div
+                style={{
+                  padding: '12px 16px',
+                  background: 'rgba(99,102,241,0.08)',
+                  border: '1px solid rgba(99,102,241,0.2)',
+                  borderRadius: 8,
+                  color: '#a5b4fc',
+                  fontSize: 13,
+                  marginBottom: 16,
+                  lineHeight: 1.5,
+                }}
+              >
+                Sending to <strong>{selectedIds.size} Apollo contact(s)</strong> on stream{' '}
+                <strong>{selectedStream}</strong> via Resend.<br />
+                From: {APOLLO_FROM_DISPLAY}<br />
+                Backend resolves template via 3-layer fallback (Stream:{selectedStream} →
+                Stream:Other → hardcoded).
+              </div>
+
+              {sendError && (
+                <div
+                  style={{
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.3)',
+                    color: '#fca5a5',
+                    padding: '12px 14px',
+                    borderRadius: 8,
+                    marginBottom: 12,
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  ❌ {sendError}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                <button
+                  onClick={() => setStep(1)}
+                  disabled={sending}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: 8,
+                    background: 'rgba(255,255,255,0.06)',
+                    color: '#94a3b8',
+                    border: 'none',
+                    cursor: sending ? 'not-allowed' : 'pointer',
+                    fontSize: 14,
+                  }}
+                >
+                  ← Back
+                </button>
+                <button
+                  onClick={handleSendApollo}
+                  disabled={sending || selectedIds.size === 0}
+                  style={{
+                    padding: '10px 28px',
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    cursor: sending || selectedIds.size === 0 ? 'not-allowed' : 'pointer',
+                    background:
+                      sending || selectedIds.size === 0
+                        ? 'rgba(255,255,255,0.06)'
+                        : 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    color: sending || selectedIds.size === 0 ? '#475569' : '#fff',
+                    border: 'none',
+                  }}
+                >
+                  {sending
+                    ? `Sending to ${selectedIds.size}…`
+                    : `🚀 Send to ${selectedIds.size} contact(s)`}
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* ===== NETSUITE STEP 1: Confirm ===== */}
+          {!isApollo && step === 1 && (
+            <section>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <PaperAirplaneIcon style={{ width: 18, height: 18, color: '#6366f1' }} />
+                <h3 style={{ color: '#f1f5f9', fontSize: 15, fontWeight: 600, margin: 0 }}>
+                  Send NetSuite Campaign — confirm
+                </h3>
+              </div>
+              <div
+                style={{
+                  padding: '14px 16px',
+                  background: 'rgba(99,102,241,0.08)',
+                  border: '1px solid rgba(99,102,241,0.2)',
+                  borderRadius: 8,
+                  color: '#a5b4fc',
+                  fontSize: 13,
+                  marginBottom: 16,
+                  lineHeight: 1.6,
+                }}
+              >
+                This sends the $2/hr staff-augmentation campaign to <strong>all NetSuite
+                companies</strong> in your CRM via AWS SES.<br />
+                Endpoint: <code>POST /api/campaigns/quick-send</code><br />
+                You will see sent/failed counts on the next step.
+              </div>
+
+              {sendError && (
+                <div
+                  style={{
+                    background: 'rgba(239,68,68,0.1)',
+                    border: '1px solid rgba(239,68,68,0.3)',
+                    color: '#fca5a5',
+                    padding: '12px 14px',
+                    borderRadius: 8,
+                    marginBottom: 12,
+                    fontSize: 13,
+                  }}
+                >
+                  ❌ {sendError}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                <button
+                  onClick={onClose}
+                  disabled={sending}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: 8,
+                    background: 'rgba(255,255,255,0.06)',
+                    color: '#94a3b8',
+                    border: 'none',
+                    cursor: sending ? 'not-allowed' : 'pointer',
+                    fontSize: 14,
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSendNetSuite}
+                  disabled={sending}
+                  style={{
+                    padding: '10px 28px',
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    fontSize: 14,
+                    cursor: sending ? 'not-allowed' : 'pointer',
+                    background: sending
+                      ? 'rgba(255,255,255,0.06)'
+                      : 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    color: sending ? '#475569' : '#fff',
+                    border: 'none',
+                  }}
+                >
+                  {sending ? 'Sending NetSuite campaign…' : '🚀 Send NetSuite Campaign'}
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* ===== DONE (both modes) ===== */}
+          {step === 3 && sendResult && (
+            <section style={{ padding: '16px 8px' }}>
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <CheckCircleIcon
+                  style={{ width: 56, height: 56, color: '#10b981', margin: '0 auto 12px' }}
+                />
+                <h3 style={{ color: '#f1f5f9', fontSize: 20, fontWeight: 700, margin: '0 0 4px' }}>
+                  {campaignLabel} sent!
+                </h3>
+              </div>
+
+              <div
+                style={{
+                  background: 'rgba(16,185,129,0.08)',
+                  border: '1px solid rgba(16,185,129,0.3)',
+                  borderRadius: 12,
+                  padding: '18px 22px',
+                  color: '#d1fae5',
+                  fontSize: 14,
+                  lineHeight: 1.7,
+                }}
+              >
+                <ul style={{ margin: 0, paddingLeft: 22 }}>
+                  <li>
+                    📨 Sent: <strong style={{ color: '#10b981' }}>{sendResult.sent}</strong>
+                  </li>
+                  <li>
+                    ❌ Failed:{' '}
+                    <strong style={{ color: sendResult.failed > 0 ? '#fbbf24' : '#10b981' }}>
+                      {sendResult.failed}
+                    </strong>
+                  </li>
+                  {sendResult.total !== undefined && (
+                    <li>
+                      📊 Total attempted: <strong>{sendResult.total}</strong>
+                    </li>
+                  )}
+                  {sendResult.companyCount !== undefined && (
+                    <li>
+                      🏢 Companies reached: <strong>{sendResult.companyCount}</strong>
+                    </li>
+                  )}
+                </ul>
+
+                {sendResult.failureDetails && sendResult.failureDetails.length > 0 && (
+                  <details style={{ marginTop: 14 }}>
+                    <summary
+                      style={{
+                        cursor: 'pointer',
+                        color: '#fbbf24',
+                        fontWeight: 600,
+                        fontSize: 13,
+                      }}
+                    >
+                      Show {sendResult.failureDetails.length} failure(s)
+                    </summary>
+                    <ul
+                      style={{
+                        marginTop: 8,
+                        paddingLeft: 22,
+                        color: '#fde68a',
+                        fontSize: 12,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {sendResult.failureDetails.map((f, i) => (
+                        <li key={i}>
+                          <strong>{f.email || '(no email)'}:</strong> {f.error}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  justifyContent: 'center',
+                  marginTop: 22,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  onClick={onClose}
+                  style={{
+                    padding: '10px 24px',
+                    borderRadius: 8,
+                    background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                    color: '#fff',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    fontSize: 14,
+                  }}
+                >
+                  Done
+                </button>
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default NetSuiteCampaignWizard;
