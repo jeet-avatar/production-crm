@@ -2363,7 +2363,7 @@ model PersonalizedEmailSend {
   claudeCostUSD      Decimal   @default(0) @db.Decimal(10, 6)
   resendMessageId    String?
   resendError        String?
-  status             String    @default("pending") // 'pending' | 'sent' | 'failed' | 'preview'
+  status             String    @default("pending") // 'pending' | 'preview' | 'sent' | 'failed' | 'pending_review' | 'rejected'  (Phase 06: pending_review + rejected added)
   sentAt             DateTime?
   createdAt          DateTime  @default(now())
   userId             String
