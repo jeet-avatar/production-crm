@@ -20,6 +20,18 @@
 // REQ-033 (Apollo Campaign button reachable from main /campaigns header,
 // dispatches via the wired apolloApi service).
 //
+// Phase 04-05 ADAPTATION: rather than insert a separate "AI Personalize" step
+// (the plan assumed a 4-step wizard that no longer exists post-04-03 rewrite),
+// the AI Personalize Preview is rendered ON the Step 2 Review screen for Apollo
+// mode ONLY. It's a self-contained block above the Confirm & Send button:
+//   - "Generate Preview" button → POST /api/apollo/send-personalized-campaign mode=preview
+//   - Renders personalized subject + HTML + cost
+//   - Caches per (firstContactId, templateId) — re-click does not re-spend Claude credits
+//   - "Skip AI Personalization" link → revert to non-personalized Stream:* template dispatch
+//   - Confirm & Send branches: if preview generated AND not skipped → mode='send' on the
+//     personalized endpoint; else → existing apolloApi.sendCampaign (non-personalized)
+// NetSuite mode is UNCHANGED — no AI Personalize there.
+//
 // Phase 6 rollback lessons: NO tabs, NO orange, NO auto-switching the page view.
 // -----------------------------------------------------------------------------
 
@@ -31,8 +43,15 @@ import {
   UserGroupIcon,
   PaperAirplaneIcon,
   RocketLaunchIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
-import { contactsApi, apolloApi } from '../services/api';
+import {
+  contactsApi,
+  apolloApi,
+  ApolloPersonalizedSendRow,
+  ApolloPersonalizedPreviewResponse,
+  ApolloPersonalizedSendResponse,
+} from '../services/api';
 
 // ===== Types =====
 
@@ -90,6 +109,15 @@ export function NetSuiteCampaignWizard({
   const [sendError, setSendError] = useState<string | null>(null);
   const [sendResult, setSendResult] = useState<SendResult | null>(null);
 
+  // Phase 04-05 AI Personalize state (Apollo mode only)
+  const [streamTemplateId, setStreamTemplateId] = useState<string | null>(null);
+  const [streamTemplateError, setStreamTemplateError] = useState<string | null>(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewResult, setPreviewResult] = useState<ApolloPersonalizedSendRow | null>(null);
+  const [previewCached, setPreviewCached] = useState<boolean>(false);
+  const [skipPersonalize, setSkipPersonalize] = useState<boolean>(false);
+
   const isApollo = mode === 'apollo';
   const campaignLabel = isApollo ? 'Apollo Campaign' : 'NetSuite Campaign';
 
@@ -102,6 +130,13 @@ export function NetSuiteCampaignWizard({
     setSendError(null);
     setSendResult(null);
     setSelectedIds(new Set());
+    // Phase 04-05: clear AI Personalize state on every clean open
+    setStreamTemplateId(null);
+    setStreamTemplateError(null);
+    setPreviewResult(null);
+    setPreviewError(null);
+    setPreviewCached(false);
+    setSkipPersonalize(false);
 
     if (!isApollo) return; // netsuite mode has no audience step — skip
 
@@ -153,6 +188,44 @@ export function NetSuiteCampaignWizard({
     }
   }, [availableStreams, selectedStream]);
 
+  // Phase 04-05: changing the stream invalidates any prior preview (different template).
+  // Also clears the previously-resolved templateId so the next Step 2 entry re-resolves.
+  useEffect(() => {
+    setPreviewResult(null);
+    setPreviewError(null);
+    setPreviewCached(false);
+    setStreamTemplateId(null);
+    setStreamTemplateError(null);
+    setSkipPersonalize(false);
+  }, [selectedStream]);
+
+  // Phase 04-05: resolve the Stream:<x> template id once we enter Step 2 (Apollo mode).
+  // 3-layer fallback handled server-side. 404 → AI Preview block hides itself.
+  useEffect(() => {
+    if (!isOpen || !isApollo || step !== 2 || streamTemplateId || streamTemplateError) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await apolloApi.getStreamTemplate(selectedStream);
+        if (cancelled) return;
+        setStreamTemplateId(data.template.id);
+      } catch (err: any) {
+        if (cancelled) return;
+        const status = err?.response?.status;
+        if (status === 404) {
+          setStreamTemplateError(
+            'No Stream:* template seeded for this stream yet — AI Personalize is unavailable. The non-personalized fallback still works.',
+          );
+        } else {
+          setStreamTemplateError(err?.response?.data?.error || err?.message || 'Failed to load template');
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, isApollo, step, selectedStream, streamTemplateId, streamTemplateError]);
+
   if (!isOpen) return null;
 
   // ===== Step 1 helpers (apollo) =====
@@ -168,7 +241,45 @@ export function NetSuiteCampaignWizard({
     else setSelectedIds(new Set(contacts.map((c) => c.id)));
   }
 
+  // ===== Phase 04-05: AI Personalize preview (Apollo mode only) =====
+  // Generates the personalized email for the FIRST selected contact via Claude + web_search.
+  // Cached server-side per (firstContactId, templateId, status='preview') so re-click
+  // doesn't re-spend Claude credits.
+  async function handleGeneratePreview() {
+    if (!streamTemplateId) return;
+    if (selectedIds.size === 0) {
+      setPreviewError('No contacts selected (go back to Step 1).');
+      return;
+    }
+    setPreviewing(true);
+    setPreviewError(null);
+    setSkipPersonalize(false);
+    try {
+      const contactIds = Array.from(selectedIds);
+      const data = (await apolloApi.sendPersonalizedCampaign({
+        contactIds: [contactIds[0]],
+        templateId: streamTemplateId,
+        mode: 'preview',
+      })) as ApolloPersonalizedPreviewResponse;
+      setPreviewResult(data.preview);
+      setPreviewCached(data.cached);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.error ||
+        err?.message ||
+        'Preview generation failed.';
+      console.error('[NetSuiteCampaignWizard] AI preview failed', err);
+      setPreviewError(msg);
+    } finally {
+      setPreviewing(false);
+    }
+  }
+
   // ===== Dispatch =====
+  // Branches on AI Personalize state:
+  //   - preview generated AND not skipped → personalized send (Claude + web_search per contact)
+  //   - otherwise                          → non-personalized Stream:* template dispatch (04-01)
   async function handleSendApollo() {
     if (selectedIds.size === 0) {
       setSendError('Pick at least one contact in Step 1.');
@@ -178,13 +289,28 @@ export function NetSuiteCampaignWizard({
     setSendError(null);
     setSendResult(null);
     try {
-      const data = await apolloApi.sendCampaign(Array.from(selectedIds), selectedStream);
-      setSendResult({
-        sent: data.sent,
-        failed: data.failed,
-        total: selectedIds.size,
-        failureDetails: data.failureDetails,
-      });
+      const usePersonalized = !!previewResult && !skipPersonalize && !!streamTemplateId;
+      if (usePersonalized) {
+        const data = (await apolloApi.sendPersonalizedCampaign({
+          contactIds: Array.from(selectedIds),
+          templateId: streamTemplateId!,
+          mode: 'send',
+        })) as ApolloPersonalizedSendResponse;
+        setSendResult({
+          sent: data.sent,
+          failed: data.failed,
+          total: selectedIds.size,
+          failureDetails: data.failureDetails,
+        });
+      } else {
+        const data = await apolloApi.sendCampaign(Array.from(selectedIds), selectedStream);
+        setSendResult({
+          sent: data.sent,
+          failed: data.failed,
+          total: selectedIds.size,
+          failureDetails: data.failureDetails,
+        });
+      }
       setStep(3);
       onSuccess?.();
     } catch (err: any) {
@@ -577,6 +703,274 @@ export function NetSuiteCampaignWizard({
                 Stream:Other → hardcoded).
               </div>
 
+              {/* ===== Phase 04-05: AI Personalize Preview block ===== */}
+              {/* Renders ONLY when a Stream:* template is found. 404 → block hides (block uses
+                  the lean non-personalized Stream:* path via existing apolloApi.sendCampaign). */}
+              {streamTemplateError ? (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    background: 'rgba(245,158,11,0.06)',
+                    border: '1px solid rgba(245,158,11,0.18)',
+                    borderRadius: 8,
+                    color: '#fbbf24',
+                    fontSize: 12,
+                    marginBottom: 16,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  ⚠️ {streamTemplateError}
+                </div>
+              ) : streamTemplateId ? (
+                <div
+                  style={{
+                    padding: '14px 16px',
+                    background: 'rgba(124,58,237,0.06)',
+                    border: '1px solid rgba(124,58,237,0.25)',
+                    borderRadius: 10,
+                    marginBottom: 16,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      marginBottom: 8,
+                    }}
+                  >
+                    <SparklesIcon style={{ width: 16, height: 16, color: '#c4b5fd' }} />
+                    <h4
+                      style={{
+                        color: '#f1f5f9',
+                        fontSize: 14,
+                        fontWeight: 700,
+                        margin: 0,
+                      }}
+                    >
+                      AI Personalize Preview
+                    </h4>
+                  </div>
+                  <p
+                    style={{
+                      color: '#94a3b8',
+                      fontSize: 12,
+                      margin: '0 0 12px',
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    Generate a Claude + web_search personalized email for your first selected
+                    contact. Cost ~$0.01-$0.07. Re-clicking re-uses the cached preview (no
+                    additional credit spend).
+                  </p>
+
+                  {!previewResult && !previewError && (
+                    <button
+                      onClick={handleGeneratePreview}
+                      disabled={previewing || !streamTemplateId || selectedIds.size === 0}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: 8,
+                        background: previewing
+                          ? 'rgba(255,255,255,0.06)'
+                          : 'linear-gradient(135deg, #6d28d9, #4f46e5)',
+                        color: previewing ? '#475569' : '#fff',
+                        border: 'none',
+                        cursor: previewing ? 'not-allowed' : 'pointer',
+                        fontWeight: 600,
+                        fontSize: 13,
+                      }}
+                    >
+                      {previewing ? 'Generating preview…' : '✨ Generate Preview'}
+                    </button>
+                  )}
+
+                  {previewError && (
+                    <div
+                      style={{
+                        marginTop: 8,
+                        padding: '10px 12px',
+                        background: 'rgba(239,68,68,0.08)',
+                        border: '1px solid rgba(239,68,68,0.25)',
+                        borderRadius: 6,
+                        color: '#fca5a5',
+                        fontSize: 12,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      ❌ {previewError}
+                      <div style={{ marginTop: 6 }}>
+                        <button
+                          onClick={handleGeneratePreview}
+                          disabled={previewing}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#a5b4fc',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                            fontSize: 12,
+                            padding: 0,
+                          }}
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {previewResult && (
+                    <div>
+                      <div
+                        style={{
+                          padding: '10px 12px',
+                          background: 'rgba(16,185,129,0.06)',
+                          border: '1px solid rgba(16,185,129,0.2)',
+                          borderRadius: 6,
+                          color: '#d1fae5',
+                          fontSize: 12,
+                          marginBottom: 10,
+                        }}
+                      >
+                        ✓ Preview generated{previewCached ? ' (cache hit — no credit re-spend)' : ''}.
+                        Cost so far: ~${Number(previewResult.claudeCostUSD || 0).toFixed(4)} ·
+                        Tokens: {previewResult.claudeInputTokens}/{previewResult.claudeOutputTokens} ·
+                        Web searches: {previewResult.webSearchUses}
+                        {previewResult.aiWarning && (
+                          <>
+                            <br />
+                            <span style={{ color: '#fbbf24' }}>
+                              ⚠ {previewResult.aiWarning} — per-stream fallback tokens used.
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          padding: '10px 12px',
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          borderRadius: 6,
+                          marginBottom: 10,
+                        }}
+                      >
+                        <div
+                          style={{
+                            color: '#94a3b8',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                            marginBottom: 4,
+                          }}
+                        >
+                          Subject
+                        </div>
+                        <div style={{ color: '#f1f5f9', fontSize: 13, marginBottom: 10 }}>
+                          {previewResult.subject}
+                        </div>
+                        <div
+                          style={{
+                            color: '#94a3b8',
+                            fontSize: 11,
+                            fontWeight: 700,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5,
+                            marginBottom: 4,
+                          }}
+                        >
+                          Rendered HTML (first contact)
+                        </div>
+                        <div
+                          style={{
+                            background: '#fff',
+                            color: '#0f172a',
+                            padding: 12,
+                            borderRadius: 4,
+                            maxHeight: 260,
+                            overflowY: 'auto',
+                            fontSize: 12,
+                          }}
+                          dangerouslySetInnerHTML={{ __html: previewResult.renderedBody }}
+                        />
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: 12,
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <button
+                          onClick={handleGeneratePreview}
+                          disabled={previewing}
+                          style={{
+                            background: 'none',
+                            border: '1px solid rgba(255,255,255,0.15)',
+                            color: '#a5b4fc',
+                            cursor: previewing ? 'not-allowed' : 'pointer',
+                            padding: '6px 12px',
+                            borderRadius: 6,
+                            fontSize: 12,
+                          }}
+                        >
+                          {previewing ? '…' : '↻ Regenerate'}
+                        </button>
+                        <button
+                          onClick={() => setSkipPersonalize(true)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#94a3b8',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                            fontSize: 12,
+                            padding: 0,
+                          }}
+                        >
+                          Skip AI Personalization (send Stream:{selectedStream} as-is)
+                        </button>
+                        {skipPersonalize && (
+                          <span style={{ color: '#fbbf24', fontSize: 12 }}>
+                            AI personalization SKIPPED — non-personalized template will be used.
+                            <button
+                              onClick={() => setSkipPersonalize(false)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: '#a5b4fc',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                fontSize: 12,
+                                marginLeft: 8,
+                                padding: 0,
+                              }}
+                            >
+                              undo
+                            </button>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 8,
+                    color: '#64748b',
+                    fontSize: 12,
+                    marginBottom: 16,
+                  }}
+                >
+                  Loading Stream:{selectedStream} template…
+                </div>
+              )}
+
               {sendError && (
                 <div
                   style={{
@@ -627,9 +1021,18 @@ export function NetSuiteCampaignWizard({
                     border: 'none',
                   }}
                 >
-                  {sending
-                    ? `Sending to ${selectedIds.size}…`
-                    : `🚀 Send to ${selectedIds.size} contact(s)`}
+                  {(() => {
+                    const usingPersonalized =
+                      !!previewResult && !skipPersonalize && !!streamTemplateId;
+                    if (sending) {
+                      return usingPersonalized
+                        ? `Personalizing & sending to ${selectedIds.size}…`
+                        : `Sending to ${selectedIds.size}…`;
+                    }
+                    return usingPersonalized
+                      ? `✨ Send AI-personalized to ${selectedIds.size}`
+                      : `🚀 Send to ${selectedIds.size} contact(s)`;
+                  })()}
                 </button>
               </div>
             </section>

@@ -39,6 +39,8 @@ import {
 } from '../lib/apolloClient';
 import { classifyStream } from '../lib/streamClassifier';
 import { normalizeFiltersWithClaude } from '../lib/claudeClient';
+import { personalizeContactWithClaude } from '../lib/personalize';
+import { STREAM_TEMPLATE_V2_BODY, getStreamFallbacks } from '../seeds/stream-templates';
 
 // Phase 04 USER-LOCKED: Resend send path.
 // We use Resend, NOT SES (campaigns.ts SES flow stays untouched for Rajesh's existing BrandMonkz campaigns).
@@ -589,6 +591,496 @@ router.post('/send-campaign', async (req: Request, res: Response) => {
     // eslint-disable-next-line no-console
     console.error('[apollo.send-campaign] unexpected error', err);
     return res.status(500).json({ error: 'send-campaign failed', detail: err?.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/apollo/stream-template/:stream
+// ---------------------------------------------------------------------------
+// Phase 04-05 helper — returns the Stream:<x> template id + subject for the
+// given stream so the wizard's AI Personalize block can hand it to
+// /send-personalized-campaign without making the frontend hit /email-templates
+// directly (which doesn't return `category`).
+//
+// Resolves via the same 3-layer ladder as /send-campaign:
+//   Stream:<x> -> Stream:Other -> 404 (frontend should hide the AI Preview button).
+router.get('/stream-template/:stream', async (req: Request, res: Response) => {
+  const stream = req.params.stream;
+  const userId = (req as any).user?.id || (req as any).user?.sub;
+  if (!userId) return res.status(401).json({ error: 'unauthenticated' });
+  if (!stream || !VALID_STREAMS.has(stream)) {
+    return res.status(400).json({ error: 'invalid_stream' });
+  }
+
+  const t1 = await prisma.emailTemplate.findFirst({
+    where: { category: `Stream:${stream}`, userId },
+    select: { id: true, name: true, subject: true, category: true },
+  });
+  if (t1) return res.status(200).json({ template: t1, source: 'stream' });
+
+  const t2 = await prisma.emailTemplate.findFirst({
+    where: { category: 'Stream:Other', userId },
+    select: { id: true, name: true, subject: true, category: true },
+  });
+  if (t2) return res.status(200).json({ template: t2, source: 'stream-other' });
+
+  return res.status(404).json({ error: 'no_stream_template_found' });
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/apollo/send-personalized-campaign
+// ---------------------------------------------------------------------------
+// Phase 04-05 — Per-contact AI personalization via Claude + web_search.
+//
+// ADJACENT to /send-campaign. Phase 04-01 /send-campaign stays byte-for-byte
+// unchanged so the Phase 4 firewall holds.
+//
+// Two modes (body `mode` field):
+//   - 'preview' (default): personalize the FIRST contact only and return the
+//                          rendered email + cost telemetry. Caches per
+//                          (firstContactId, templateId) so re-clicking
+//                          "Generate Preview" doesn't re-spend Claude credits.
+//                          Does NOT create a Campaign row (no analytics surface).
+//   - 'send':              full dispatch — personalize each contact, render with
+//                          per-stream null-token fallback, send via Resend (Sara),
+//                          create ONE Campaign row + per-contact EmailLog rows
+//                          so the existing /campaigns/:id/analytics page shows
+//                          these AI-personalized sends (filter source='apollo-ai').
+//
+// Hard guards (Sara protection):
+//   - 100-contact cap in 'send' mode (Resend account quality score). 'preview'
+//     is implicitly 1-contact.
+//   - APOLLO_FROM_EMAIL is the ONLY accepted sender. Request-body fromEmail is
+//     logged + ignored. Singleton Resend client reused from the file head.
+//   - APOLLO_FROM_EMAIL string stored in personalized_email_sends.fromEmail
+//     and emailLog.fromEmail (analytics filter on Sara's identity).
+
+const PERSONALIZE_SEND_CAP = 100; // 'send' mode max contacts (Sara protection)
+const PERSONALIZE_PACING_MS = 250; // 4 req/sec < Resend's 5/sec limit
+
+interface ApolloSendPersonalizedRequestBody {
+  contactIds: string[];
+  templateId: string;
+  mode?: 'preview' | 'send';
+  // `fromEmail` from request body is IGNORED — APOLLO_FROM_EMAIL constant.
+}
+
+router.post('/send-personalized-campaign', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id || (req as any).user?.sub;
+    if (!userId) return res.status(401).json({ error: 'unauthorized' });
+
+    const {
+      contactIds,
+      templateId,
+      mode = 'preview',
+      fromEmail: requestFromEmail,
+    } = (req.body || {}) as ApolloSendPersonalizedRequestBody & { fromEmail?: string };
+
+    // ===== Validation =====
+    if (!Array.isArray(contactIds) || contactIds.length === 0) {
+      return res.status(400).json({ error: 'contactIds must be a non-empty array' });
+    }
+    if (!templateId || typeof templateId !== 'string') {
+      return res.status(400).json({ error: 'templateId required' });
+    }
+    if (mode !== 'preview' && mode !== 'send') {
+      return res.status(400).json({ error: 'mode must be "preview" or "send"' });
+    }
+
+    // Sara guard — log + ignore any request-side fromEmail attempts.
+    if (requestFromEmail && requestFromEmail !== APOLLO_FROM_EMAIL) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[apollo.send-personalized-campaign] ignored client-supplied fromEmail=${requestFromEmail} ; forcing APOLLO_FROM_EMAIL=${APOLLO_FROM_EMAIL}`,
+      );
+    }
+
+    // Sara protection cap (send mode only — preview is implicitly 1 contact)
+    if (mode === 'send' && contactIds.length > PERSONALIZE_SEND_CAP) {
+      return res.status(400).json({
+        error: 'batch_too_large',
+        message: `Max ${PERSONALIZE_SEND_CAP} contacts per send to protect Resend account quality score.`,
+        attempted: contactIds.length,
+      });
+    }
+
+    // ===== Template lookup (must belong to caller) =====
+    const template = await prisma.emailTemplate.findFirst({
+      where: { id: templateId, userId },
+    });
+    if (!template) return res.status(404).json({ error: 'template_not_found' });
+
+    // ===== PREVIEW MODE — first contact only, cached per (firstContactId, templateId) =====
+    if (mode === 'preview') {
+      const firstContactId = contactIds[0];
+      const firstContact = await prisma.contact.findFirst({
+        where: { id: firstContactId, userId },
+        include: { company: true },
+      });
+      if (!firstContact) return res.status(404).json({ error: 'contact_not_found' });
+
+      // Cache: re-use existing preview row for this (contactId, templateId, status='preview').
+      // Re-clicking "Generate Preview" returns the same row — no Claude credit re-spend.
+      const cached = await prisma.personalizedEmailSend.findFirst({
+        where: {
+          contactId: firstContact.id,
+          templateId,
+          status: 'preview',
+          userId,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (cached) {
+        return res.status(200).json({ preview: cached, cached: true });
+      }
+
+      // Determine stream — prefer contact.stream (set by /import classifier), else 'Other'.
+      const stream = firstContact.stream || 'Other';
+
+      // Call Claude (never throws — returns warning string on failure).
+      const result = await personalizeContactWithClaude(
+        {
+          firstName: firstContact.firstName,
+          lastName: firstContact.lastName,
+          title: firstContact.title,
+          apolloRawData: (firstContact as any).apolloRawData,
+          company: firstContact.company
+            ? {
+                name: firstContact.company.name,
+                industry: (firstContact.company as any).industry ?? null,
+              }
+            : null,
+        },
+        stream,
+      );
+
+      // Render body with AI tokens (per-stream fallback for null tokens)
+      const fallbacks = getStreamFallbacks(stream);
+      const aiTokens = result.tokens ?? {
+        intentHook: null,
+        companyContext: null,
+        painPoint: null,
+        cta: null,
+      };
+      const vars: Record<string, string> = {
+        firstName: firstContact.firstName || '',
+        lastName: firstContact.lastName || '',
+        email: firstContact.email || '',
+        companyName: firstContact.company?.name || '',
+        intentHook: aiTokens.intentHook ?? fallbacks.intentHook,
+        companyContext: aiTokens.companyContext ?? fallbacks.companyContext,
+        painPoint: aiTokens.painPoint ?? fallbacks.painPoint,
+        cta: aiTokens.cta ?? fallbacks.cta,
+      };
+      let subject = template.subject;
+      let html = template.htmlContent || STREAM_TEMPLATE_V2_BODY;
+      for (const [key, val] of Object.entries(vars)) {
+        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        subject = subject.replace(regex, val);
+        html = html.replace(regex, val);
+      }
+
+      // Persist preview row (status='preview') — becomes the cache key for next call.
+      const saved = await prisma.personalizedEmailSend.create({
+        data: {
+          contactId: firstContact.id,
+          templateId: template.id,
+          stream,
+          fromEmail: APOLLO_FROM_EMAIL,
+          toEmail: firstContact.email || '',
+          subject,
+          renderedBody: html,
+          aiTokens: (result.tokens as any) ?? undefined,
+          aiWarning: result.warning ?? null,
+          claudeInputTokens: result.usage.inputTokens,
+          claudeOutputTokens: result.usage.outputTokens,
+          webSearchUses: result.usage.webSearchUses,
+          claudeCostUSD: result.usage.costUSD,
+          status: 'preview',
+          userId,
+        },
+      });
+
+      return res.status(200).json({ preview: saved, cached: false });
+    }
+
+    // ===== SEND MODE — personalize each contact, dispatch via Resend, write Campaign + EmailLog =====
+    const contacts = await prisma.contact.findMany({
+      where: { id: { in: contactIds }, userId },
+      include: { company: true },
+    });
+    if (contacts.length === 0) return res.status(404).json({ error: 'no_contacts_found' });
+
+    // Unified analytics: ONE Campaign row covers the whole batch.
+    // source='apollo-ai' distinguishes from non-personalized 'apollo' (04-01) sends.
+    const today = new Date().toISOString().slice(0, 10);
+    // Best-effort batch stream label = the most common stream across the selected contacts.
+    const streamCounts: Record<string, number> = {};
+    for (const c of contacts) {
+      const s = c.stream || 'Other';
+      streamCounts[s] = (streamCounts[s] || 0) + 1;
+    }
+    const batchStream =
+      Object.entries(streamCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Other';
+
+    const campaign = await prisma.campaign.create({
+      data: {
+        name: `Apollo AI-Personalized — ${batchStream} — ${today}`,
+        subject: template.subject,
+        htmlContent: template.htmlContent || STREAM_TEMPLATE_V2_BODY,
+        status: 'SENDING',
+        source: 'apollo-ai',
+        userId,
+      },
+    });
+
+    const failureDetails: Array<{
+      contactId: string;
+      email: string | null;
+      error: string;
+    }> = [];
+    const audit: any[] = [];
+    let sent = 0;
+    let personalized = 0;
+    let personalizeFailures = 0;
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let totalWebSearchUses = 0;
+    let totalClaudeCostUSD = 0;
+
+    for (const contact of contacts) {
+      const stream = contact.stream || batchStream;
+
+      // 1. Personalize (never throws — returns warning on failure)
+      const result = await personalizeContactWithClaude(
+        {
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          title: contact.title,
+          apolloRawData: (contact as any).apolloRawData,
+          company: contact.company
+            ? {
+                name: contact.company.name,
+                industry: (contact.company as any).industry ?? null,
+              }
+            : null,
+        },
+        stream,
+      );
+
+      if (result.tokens) personalized += 1;
+      else personalizeFailures += 1;
+
+      totalInputTokens += result.usage.inputTokens;
+      totalOutputTokens += result.usage.outputTokens;
+      totalWebSearchUses += result.usage.webSearchUses;
+      totalClaudeCostUSD += result.usage.costUSD;
+
+      // 2. Render body (per-stream fallback for null tokens)
+      const fallbacks = getStreamFallbacks(stream);
+      const aiTokens = result.tokens ?? {
+        intentHook: null,
+        companyContext: null,
+        painPoint: null,
+        cta: null,
+      };
+      const vars: Record<string, string> = {
+        firstName: contact.firstName || '',
+        lastName: contact.lastName || '',
+        email: contact.email || '',
+        companyName: contact.company?.name || '',
+        intentHook: aiTokens.intentHook ?? fallbacks.intentHook,
+        companyContext: aiTokens.companyContext ?? fallbacks.companyContext,
+        painPoint: aiTokens.painPoint ?? fallbacks.painPoint,
+        cta: aiTokens.cta ?? fallbacks.cta,
+      };
+      let subject = template.subject;
+      let html = template.htmlContent || STREAM_TEMPLATE_V2_BODY;
+      for (const [key, val] of Object.entries(vars)) {
+        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        subject = subject.replace(regex, val);
+        html = html.replace(regex, val);
+      }
+
+      // 3. Persist personalized_email_sends row (status='pending') BEFORE Resend dispatch.
+      const auditRow = await prisma.personalizedEmailSend.create({
+        data: {
+          contactId: contact.id,
+          templateId: template.id,
+          stream,
+          fromEmail: APOLLO_FROM_EMAIL,
+          toEmail: contact.email || '',
+          subject,
+          renderedBody: html,
+          aiTokens: (result.tokens as any) ?? undefined,
+          aiWarning: result.warning ?? null,
+          claudeInputTokens: result.usage.inputTokens,
+          claudeOutputTokens: result.usage.outputTokens,
+          webSearchUses: result.usage.webSearchUses,
+          claudeCostUSD: result.usage.costUSD,
+          status: 'pending',
+          userId,
+        },
+      });
+
+      // 4. Resend dispatch — Sara only.
+      if (!contact.email) {
+        await prisma.personalizedEmailSend.update({
+          where: { id: auditRow.id },
+          data: { status: 'failed', resendError: 'contact has no email' },
+        });
+        await prisma.emailLog.create({
+          data: {
+            campaignId: campaign.id,
+            contactId: contact.id,
+            toEmail: null,
+            fromEmail: APOLLO_REPLY_TO,
+            status: 'FAILED',
+            errorMessage: 'contact has no email',
+            metadata: { personalizedSendId: auditRow.id },
+          },
+        });
+        failureDetails.push({
+          contactId: contact.id,
+          email: null,
+          error: 'contact has no email',
+        });
+        continue;
+      }
+
+      try {
+        const sendResult = await resend.emails.send({
+          from: APOLLO_FROM_EMAIL,
+          to: contact.email,
+          subject,
+          html,
+          replyTo: APOLLO_REPLY_TO,
+        });
+
+        if ((sendResult as any).error) {
+          const errMsg = String(
+            (sendResult as any).error?.message || (sendResult as any).error,
+          );
+          await prisma.personalizedEmailSend.update({
+            where: { id: auditRow.id },
+            data: { status: 'failed', resendError: errMsg },
+          });
+          await prisma.emailLog.create({
+            data: {
+              campaignId: campaign.id,
+              contactId: contact.id,
+              toEmail: contact.email,
+              fromEmail: APOLLO_REPLY_TO,
+              status: 'FAILED',
+              errorMessage: errMsg,
+              metadata: { personalizedSendId: auditRow.id },
+            },
+          });
+          failureDetails.push({
+            contactId: contact.id,
+            email: contact.email,
+            error: errMsg,
+          });
+        } else {
+          const messageId = (sendResult as any).data?.id || null;
+          sent += 1;
+          await prisma.personalizedEmailSend.update({
+            where: { id: auditRow.id },
+            data: {
+              status: 'sent',
+              resendMessageId: messageId,
+              sentAt: new Date(),
+            },
+          });
+          await prisma.emailLog.create({
+            data: {
+              campaignId: campaign.id,
+              contactId: contact.id,
+              toEmail: contact.email,
+              fromEmail: APOLLO_REPLY_TO,
+              messageId,
+              status: 'SENT',
+              sentAt: new Date(),
+              metadata: { personalizedSendId: auditRow.id },
+            },
+          });
+          audit.push({
+            contactId: contact.id,
+            email: contact.email,
+            auditId: auditRow.id,
+            messageId,
+            aiTokens: result.tokens,
+            aiWarning: result.warning,
+            status: 'sent',
+          });
+        }
+      } catch (err: any) {
+        const errMsg = err?.message || 'send_threw';
+        await prisma.personalizedEmailSend.update({
+          where: { id: auditRow.id },
+          data: { status: 'failed', resendError: errMsg },
+        });
+        try {
+          await prisma.emailLog.create({
+            data: {
+              campaignId: campaign.id,
+              contactId: contact.id,
+              toEmail: contact.email,
+              fromEmail: APOLLO_REPLY_TO,
+              status: 'FAILED',
+              errorMessage: errMsg,
+              metadata: { personalizedSendId: auditRow.id },
+            },
+          });
+        } catch {
+          // Best-effort logging — don't let an EmailLog write failure mask the send error.
+        }
+        failureDetails.push({
+          contactId: contact.id,
+          email: contact.email,
+          error: errMsg,
+        });
+      }
+
+      // 5. Pacing — 4 req/sec to stay under Resend's 5/sec rate limit.
+      await new Promise<void>((r) => setTimeout(r, PERSONALIZE_PACING_MS));
+    }
+
+    // Mark Campaign SENT (or CANCELLED if 0 succeeded)
+    await prisma.campaign.update({
+      where: { id: campaign.id },
+      data: {
+        status: sent > 0 ? 'SENT' : 'CANCELLED',
+        sentAt: sent > 0 ? new Date() : null,
+        totalSent: sent,
+      },
+    });
+
+    return res.status(200).json({
+      sent,
+      failed: failureDetails.length,
+      personalized,
+      personalizeFailures,
+      campaignId: campaign.id,
+      failureDetails,
+      audit,
+      cost: {
+        claudeInputTokens: totalInputTokens,
+        claudeOutputTokens: totalOutputTokens,
+        webSearchRequests: totalWebSearchUses,
+        claudeCostUSD: Number(totalClaudeCostUSD.toFixed(6)),
+        resendSendsCounted: sent,
+        resendCostUSD: 0, // Resend free tier — keep one named line for future paid-tier swap
+        totalCostUSD: Number(totalClaudeCostUSD.toFixed(6)),
+      },
+    });
+  } catch (err: any) {
+    // eslint-disable-next-line no-console
+    console.error('[apollo.send-personalized-campaign] unexpected error:', err);
+    return res
+      .status(500)
+      .json({ error: 'send_personalized_failed', detail: err?.message || String(err) });
   }
 });
 

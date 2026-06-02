@@ -195,6 +195,9 @@ model User {
   assignedContacts  Contact[] @relation("AssignedContacts")
   assignedCompanies Company[] @relation("AssignedCompanies")
 
+  // Phase 04-05 AI personalization (table already exists in prod DB; schema-only add)
+  personalizedSends PersonalizedEmailSend[]
+
   @@index([accountOwnerId])
   @@index([invitedById])
   @@index([inviteToken])
@@ -253,6 +256,9 @@ model Contact {
   emailComposer EmailComposer[]
   positions     Position[] // Positions this contact is decision maker for
   shares        ContactShare[] // Team members this contact is shared with
+
+  // Phase 04-05 AI personalization (table already exists in prod DB; schema-only add)
+  personalizedSends PersonalizedEmailSend[]
 
   @@index([email])
   @@index([userId])
@@ -515,8 +521,10 @@ model EmailTemplate {
   userId String
 
   // Relationships
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  campaigns Campaign[]
+  user              User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaigns         Campaign[]
+  // Phase 04-05 AI personalization (table already exists in prod DB; schema-only add)
+  personalizedSends PersonalizedEmailSend[]
 
   @@index([userId])
   @@index([category])
@@ -1502,4 +1510,49 @@ model PlacementEmail {
 
   @@index([placementId])
   @@map("placement_emails")
+}
+
+// Phase 04-05 — Per-contact AI personalization audit trail.
+// Table ALREADY EXISTS in prod DB (verified 2026-06-02 against
+// `\d personalized_email_sends` — same columns, same indexes, same FKs).
+// This is a schema-only add; no migration needed.
+//
+// Status field is a string (not enum) to match prod's existing column.
+// Values: 'pending' | 'preview' | 'sent' | 'failed'
+//
+// One row per personalized send attempt (preview or live) so Rajesh can audit AI tokens,
+// cost, and Resend dispatch outcome per contact.
+model PersonalizedEmailSend {
+  id                 String    @id @default(cuid())
+  contactId          String
+  templateId         String
+  stream             String // 'NetSuite' | 'AI/ML' | etc. (denormalized for audit speed)
+  fromEmail          String // 'Sara <sara@techcloudpro.com>'
+  toEmail            String
+  testRecipient      String? // when set, send was redirected for smoke
+  subject            String
+  renderedBody       String    @db.Text // full HTML after substitution
+  aiTokens           Json? // { intentHook, companyContext, painPoint, cta } — null if fallback used
+  aiWarning          String? // 'Claude timed out' / 'Claude unavailable' / etc.
+  claudeInputTokens  Int       @default(0)
+  claudeOutputTokens Int       @default(0)
+  webSearchUses      Int       @default(0)
+  claudeCostUSD      Decimal   @default(0) @db.Decimal(10, 6)
+  resendMessageId    String?
+  resendError        String?
+  status             String    @default("pending") // 'pending' | 'sent' | 'failed' | 'preview'
+  sentAt             DateTime?
+  createdAt          DateTime  @default(now())
+  userId             String
+
+  contact  Contact       @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  template EmailTemplate @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([templateId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("personalized_email_sends")
 }

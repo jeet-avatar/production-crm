@@ -432,6 +432,66 @@ export interface ApolloSendCampaignResponse {
   failureDetails?: ApolloSendCampaignFailure[];
 }
 
+// -----------------------------------------------------------------------
+// Phase 04-05 — AI personalization types
+// -----------------------------------------------------------------------
+
+export interface ApolloPersonalizedSendRow {
+  id: string;
+  contactId: string;
+  templateId: string;
+  stream: string;
+  fromEmail: string;
+  toEmail: string;
+  subject: string;
+  renderedBody: string;
+  aiTokens: {
+    intentHook: string | null;
+    companyContext: string | null;
+    painPoint: string | null;
+    cta: string | null;
+  } | null;
+  aiWarning: string | null;
+  claudeInputTokens: number;
+  claudeOutputTokens: number;
+  webSearchUses: number;
+  claudeCostUSD: string | number; // Prisma Decimal serializes as string over JSON
+  status: 'pending' | 'preview' | 'sent' | 'failed';
+  createdAt: string;
+}
+
+export interface ApolloPersonalizedPreviewResponse {
+  preview: ApolloPersonalizedSendRow;
+  cached: boolean;
+}
+
+export interface ApolloPersonalizedSendCost {
+  claudeInputTokens: number;
+  claudeOutputTokens: number;
+  webSearchRequests: number;
+  claudeCostUSD: number;
+  resendSendsCounted: number;
+  resendCostUSD: number;
+  totalCostUSD: number;
+}
+
+export interface ApolloPersonalizedSendResponse {
+  sent: number;
+  failed: number;
+  personalized: number;
+  personalizeFailures: number;
+  campaignId: string;
+  failureDetails: ApolloSendCampaignFailure[];
+  audit: any[];
+  cost: ApolloPersonalizedSendCost;
+}
+
+export interface ApolloSendPersonalizedRequest {
+  contactIds: string[];
+  templateId: string;
+  mode: 'preview' | 'send';
+}
+
 export const apolloApi = {
   // POST /api/apollo/import — search Apollo, optionally enrich, classify by stream,
   // dedupe by apolloPersonId, upsert Contact + Company.
@@ -454,6 +514,40 @@ export const apolloApi = {
       contactIds,
       stream,
     });
+    return response.data;
+  },
+
+  // GET /api/apollo/stream-template/:stream — Phase 04-05 helper.
+  // Resolves a Stream:<x> template id for the wizard's AI Personalize block.
+  // 3-layer fallback: Stream:<x> -> Stream:Other -> 404. Frontend hides the
+  // AI Preview block when 404 (means no template seed for this user yet).
+  getStreamTemplate: async (
+    stream: string,
+  ): Promise<{
+    template: { id: string; name: string; subject: string; category: string | null };
+    source: 'stream' | 'stream-other';
+  }> => {
+    const response = await apiClient.get(
+      `/apollo/stream-template/${encodeURIComponent(stream)}`,
+    );
+    return response.data;
+  },
+
+  // POST /api/apollo/send-personalized-campaign — Phase 04-05 AI personalization.
+  // mode='preview' → personalize FIRST contact only, cached per (firstContactId, templateId).
+  // mode='send'    → personalize all (max 100), dispatch via Resend, create Campaign + EmailLog
+  //                  rows linked via campaignId (visible in /campaigns/:id/analytics with
+  //                  source='apollo-ai').
+  //
+  // 600s axios timeout per call — covers up to 100-contact batch (~14s/contact + 250ms pacing).
+  sendPersonalizedCampaign: async (
+    params: ApolloSendPersonalizedRequest,
+  ): Promise<ApolloPersonalizedPreviewResponse | ApolloPersonalizedSendResponse> => {
+    const response = await apiClient.post(
+      '/apollo/send-personalized-campaign',
+      params,
+      { timeout: 600_000 },
+    );
     return response.data;
   },
 };
