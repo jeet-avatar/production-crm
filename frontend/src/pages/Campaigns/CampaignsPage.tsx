@@ -15,11 +15,29 @@ import {
   QuestionMarkCircleIcon,
   PaperAirplaneIcon,
   ArrowPathIcon,
+  RocketLaunchIcon,
 } from '@heroicons/react/24/outline';
 import CampaignWizard from '../../components/CampaignWizard';
 import { EditCampaignModal } from '../../components/EditCampaignModal';
 import { CampaignsHelpGuide } from '../../components/CampaignsHelpGuide';
+import { PendingReviewQueue } from '../../components/PendingReviewQueue';
 import { useTheme } from '../../contexts/ThemeContext';
+import { apolloApi, emailTemplatesApi } from '../../services/api';
+
+// Phase 06 plan 06-05: mirrors backend/src/routes/apollo.ts:73-76 VALID_STREAMS — the 9 real prod streams.
+// If a contact arrives with a stream value NOT in this set, the Apollo Campaign click handler
+// routes it to 'Other' to avoid silent mis-mapping. BLOCKER 1+3 guard.
+const VALID_STREAMS_FRONTEND = new Set([
+  'NetSuite',
+  'AI/ML',
+  'Cloud/DevOps',
+  'Cybersecurity',
+  'Data/Analytics',
+  'Mobile',
+  'Enterprise/ERP',
+  'Staffing/HR',
+  'Other',
+]);
 
 interface Campaign {
   id: string;
@@ -55,6 +73,15 @@ export function CampaignsPage() {
   const [showHelpGuide, setShowHelpGuide] = useState(false);
   const [sendingCampaignId, setSendingCampaignId] = useState<string | null>(null);
   const [sendResult, setSendResult] = useState<{ id: string; sent: number; total: number } | null>(null);
+  // Phase 06 plan 06-05: view toggle + Apollo Campaign staging state
+  const [view, setView] = useState<'campaigns' | 'pendingReview'>('campaigns');
+  const [stagingQueue, setStagingQueue] = useState(false);
+  const [stagingStreams, setStagingStreams] = useState<{ done: number; total: number; current: string | null }>({
+    done: 0,
+    total: 0,
+    current: null,
+  });
+  const [pendingRefreshKey, setPendingRefreshKey] = useState(0);
 
   useEffect(() => {
     loadCampaigns();
@@ -145,6 +172,110 @@ export function CampaignsPage() {
       setSendingCampaignId(null);
     }
   };
+
+  // Phase 06 plan 06-05: Apollo Campaign button — fetch unsent Apollo contacts, group by stream,
+  // per-stream personalize+queue via apolloApi.sendPersonalizedCampaign({requireReview:true}),
+  // then auto-switch view to 'pendingReview' so Rajesh works the queue immediately.
+  async function handleApolloCampaignClick() {
+    try {
+      setStagingQueue(true);
+      setStagingStreams({ done: 0, total: 0, current: null });
+
+      // 1. Fetch unsent Apollo contacts
+      const { contacts, total } = await apolloApi.unsentContacts();
+
+      if (total === 0) {
+        alert('No unsent Apollo contacts. Run Apollo import first to add new contacts.');
+        return;
+      }
+
+      // 2. Hard cap at 200 + N>50 single confirmation
+      const HARD_CAP = 200;
+      const LARGE_CONFIRM = 50;
+      let toProcess = contacts;
+      if (total > HARD_CAP) {
+        const ok = window.confirm(
+          `${total} unsent contacts found. This will process the first ${HARD_CAP} in this batch. Continue?`,
+        );
+        if (!ok) return;
+        toProcess = contacts.slice(0, HARD_CAP);
+      } else if (total > LARGE_CONFIRM) {
+        const ok = window.confirm(
+          `${total} contacts will be personalized via Claude (~$${(total * 0.069).toFixed(2)} estimated). Continue?`,
+        );
+        if (!ok) return;
+      }
+
+      // 3. Group contacts by stream — route invalid stream values to 'Other' per VALID_STREAMS_FRONTEND guard.
+      const byStream = new Map<string, typeof toProcess>();
+      for (const c of toProcess) {
+        let stream = c.suggestedStream || c.stream || 'Other';
+        if (!VALID_STREAMS_FRONTEND.has(stream)) {
+          // BLOCKER 3 guard — a contact with a rogue stream value gets routed to 'Other'
+          // rather than silently mis-mapping. Phase 6 only ships templates for the 9 real prod streams.
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[Apollo Campaign] Contact ${c.id} has stream "${stream}" NOT in VALID_STREAMS — routing to Other`,
+          );
+          stream = 'Other';
+        }
+        if (!byStream.has(stream)) byStream.set(stream, []);
+        byStream.get(stream)!.push(c);
+      }
+
+      // Defensive assertion — every key in byStream is in VALID_STREAMS_FRONTEND
+      const invalidKeys = Array.from(byStream.keys()).filter((s) => !VALID_STREAMS_FRONTEND.has(s));
+      if (invalidKeys.length > 0) {
+        throw new Error(`Internal error: byStream contains invalid stream keys: ${invalidKeys.join(', ')}`);
+      }
+
+      // 4. Fetch the per-stream EmailTemplate for each group, then dispatch one call per group
+      const streamNames = Array.from(byStream.keys());
+      setStagingStreams({ done: 0, total: streamNames.length, current: null });
+
+      for (let i = 0; i < streamNames.length; i++) {
+        const streamName = streamNames[i];
+        setStagingStreams({ done: i, total: streamNames.length, current: streamName });
+        const group = byStream.get(streamName)!;
+
+        // Look up the Stream:<name> template via emailTemplatesApi.findByCategory.
+        // NO-SPACE format matches prod DB email_templates.category values written by
+        // `seed.category = `Stream:${seed.stream}`` at stream-templates.ts:102.
+        let template = await emailTemplatesApi.findByCategory('Stream:' + streamName);
+
+        // Fall back to Stream:Other if the requested stream has no template
+        if (!template && streamName !== 'Other') {
+          template = await emailTemplatesApi.findByCategory('Stream:Other');
+        }
+
+        if (!template?.id) {
+          // Surface a soft error: skip this stream, keep going.
+          // eslint-disable-next-line no-console
+          console.error(`[Apollo Campaign] No template found for Stream:${streamName} or Stream:Other`);
+          continue;
+        }
+
+        // 5. Dispatch the per-stream personalize+queue call
+        await apolloApi.sendPersonalizedCampaign({
+          contactIds: group.map((c) => c.id),
+          templateId: template.id,
+          suggestedStream: streamName,
+          requireReview: true,
+          confirmedLargeBatch: group.length > LARGE_CONFIRM,
+        });
+      }
+
+      setStagingStreams({ done: streamNames.length, total: streamNames.length, current: null });
+
+      // 6. Auto-switch to Pending Review tab and bump refresh key
+      setView('pendingReview');
+      setPendingRefreshKey((k) => k + 1);
+    } catch (err: any) {
+      alert(`Apollo Campaign staging failed: ${err?.message || 'unknown error'}`);
+    } finally {
+      setStagingQueue(false);
+    }
+  }
 
   const filteredCampaigns = filterStatus === 'all'
     ? campaigns
@@ -243,6 +374,20 @@ export function CampaignsPage() {
             </button>
             <button
               type="button"
+              onClick={handleApolloCampaignClick}
+              disabled={stagingQueue}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-orange-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Personalize all unsent Apollo contacts and stage them for review"
+            >
+              <RocketLaunchIcon className="h-5 w-5" />
+              {stagingQueue
+                ? stagingStreams.total > 0
+                  ? `Staging ${stagingStreams.done}/${stagingStreams.total} streams…`
+                  : 'Staging…'
+                : 'Apollo Campaign'}
+            </button>
+            <button
+              type="button"
               onClick={() => setShowCreateModal(true)}
               className={`flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-indigo-500/30`}
             >
@@ -298,26 +443,59 @@ export function CampaignsPage() {
         </div>
       </div>
 
-      {/* Filters with gradient when selected */}
-      <div className="mb-6 flex gap-2 flex-wrap">
-        {['all', 'draft', 'scheduled', 'active', 'completed', 'paused'].map((status) => (
-          <button
-            key={status}
-            type="button"
-            onClick={() => setFilterStatus(status)}
-            className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ease-in-out capitalize tracking-wide ${
-              filterStatus === status
-                ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border border-indigo-500/30 shadow-lg hover:shadow-xl hover:scale-105`
-                : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-2 border-[var(--border-default)] hover:bg-[var(--glass-hover)] hover:border-[var(--border-default)] hover:scale-105 shadow-sm'
-            }`}
-          >
-            {status === 'all' ? 'All Campaigns' : status}
-          </button>
-        ))}
+      {/* Phase 06 plan 06-05: View toggle — Campaigns vs Pending Review */}
+      <div className="mb-4 flex gap-2 flex-wrap border-b border-[var(--border-default)] pb-2">
+        <button
+          type="button"
+          onClick={() => setView('campaigns')}
+          className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ease-in-out capitalize tracking-wide ${
+            view === 'campaigns'
+              ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border border-indigo-500/30 shadow-lg`
+              : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-2 border-[var(--border-default)] hover:bg-[var(--glass-hover)]'
+          }`}
+        >
+          Campaigns
+        </button>
+        <button
+          type="button"
+          onClick={() => setView('pendingReview')}
+          className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ease-in-out capitalize tracking-wide ${
+            view === 'pendingReview'
+              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border border-orange-400/30 shadow-lg'
+              : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-2 border-[var(--border-default)] hover:bg-[var(--glass-hover)]'
+          }`}
+        >
+          Pending Review
+        </button>
       </div>
 
+      {/* Filters with gradient when selected — only when view='campaigns' */}
+      {view === 'campaigns' && (
+        <div className="mb-6 flex gap-2 flex-wrap">
+          {['all', 'draft', 'scheduled', 'active', 'completed', 'paused'].map((status) => (
+            <button
+              key={status}
+              type="button"
+              onClick={() => setFilterStatus(status)}
+              className={`px-6 py-3 rounded-full text-sm font-bold transition-all duration-300 ease-in-out capitalize tracking-wide ${
+                filterStatus === status
+                  ? `bg-gradient-to-r ${gradients.brand.primary.gradient} text-white border border-indigo-500/30 shadow-lg hover:shadow-xl hover:scale-105`
+                  : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border-2 border-[var(--border-default)] hover:bg-[var(--glass-hover)] hover:border-[var(--border-default)] hover:scale-105 shadow-sm'
+              }`}
+            >
+              {status === 'all' ? 'All Campaigns' : status}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Pending Review tab body */}
+      {view === 'pendingReview' && (
+        <PendingReviewQueue refreshKey={pendingRefreshKey} />
+      )}
+
       {/* Campaigns List */}
-      {filteredCampaigns.length === 0 ? (
+      {view === 'campaigns' && (filteredCampaigns.length === 0 ? (
         <div className="bg-[var(--bg-elevated)] rounded-xl shadow-lg border border-[var(--border-default)]">
           <div className="p-12 text-center">
             <MegaphoneIcon className="h-16 w-16 text-[var(--text-muted)] mx-auto mb-4" />
@@ -485,7 +663,7 @@ export function CampaignsPage() {
             </div>
           ))}
         </div>
-      )}
+      ))}
 
       {/* Campaign Detail Modal */}
       {showDetailModal && selectedCampaign && (
