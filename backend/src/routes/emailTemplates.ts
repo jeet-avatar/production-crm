@@ -120,12 +120,12 @@ router.post('/upgrade-streams-v2', async (req, res) => {
   }
 });
 
-/**
- * POST /api/email-templates/upgrade-streams-v3
- * Phase quick-8: in-place upgrade of the 9 Stream:* templates from v2 → v3 branded shell
- * (TCP v6 shell with header, metrics row, 4 service value props, Sara signature, mailto unsubscribe).
- * Idempotent — second call returns upgraded:[] alreadyV3:[...9 names].
- */
+// Phase 06 plan 06-01b: in-place upgrade of the 9 Stream:* templates to v3 (per-stream branded bodies).
+// Stream-aware: each Stream:* row receives the body keyed by its category from STREAM_TEMPLATE_V3_BODIES.
+// Dict keys are NO-SPACE (e.g., 'Stream:Cybersecurity') matching prod DB email_templates.category values.
+// Idempotent — second call returns upgraded:[] alreadyV3:[...up-to-9 names] because the per-stream
+// HTML-comment sentinel `<!-- STREAM_V3:<bare> -->` (e.g., `<!-- STREAM_V3:Cybersecurity -->`) is
+// unique per stream and remains in place across re-runs.
 router.post('/upgrade-streams-v3', async (req, res) => {
   try {
     const userId = req.user?.id;
