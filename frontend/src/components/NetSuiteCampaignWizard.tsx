@@ -166,6 +166,16 @@ export function NetSuiteCampaignWizard({
   // the user knows what Apollo filters to use when going to /apollo to import).
   const [icpPreset, setIcpPreset] = useState<ApolloSearchFilters | null>(null);
 
+  // Phase 09-01 — "where I left off" resume tracking. Ported from
+  // CampaignWizard.tsx (line 85,97,166,1491). Set of contact ids that have
+  // received ANY prior campaign send (global across NetSuite + Apollo +
+  // arthaBuild). Used to (a) badge contact rows and (b) drive the
+  // "Hide already-sent" filter chip. NEVER affects what the user can manually
+  // select or what gets dispatched — purely a visual + display-filter layer.
+  const [sentContactIds, setSentContactIds] = useState<Set<string>>(new Set());
+  // Default ON — matches Rajesh's resume-from-where-left-off workflow.
+  const [hideAlreadySent, setHideAlreadySent] = useState<boolean>(true);
+
   // ===== Mount: for apollo mode, fetch contacts and client-filter to source==='apollo' =====
   useEffect(() => {
     if (!isOpen) return;
@@ -186,6 +196,30 @@ export function NetSuiteCampaignWizard({
     setScheduleChoice('now');
     // Phase 08-02: reset arthabuild ICP preset on clean open
     setIcpPreset(null);
+    // Phase 09-01: reset sent-tracking on clean open (refetched below)
+    setSentContactIds(new Set());
+    setHideAlreadySent(true);
+
+    // Phase 09-01 — fetch contacts that have received ANY prior campaign send.
+    // Used to render "Sent" badges + drive the "Hide already-sent" filter chip.
+    // Auth-gated (relative URL → same VITE_API_URL pattern as other fetches in
+    // this wizard's parent app). Silent on 401 / network error — badges just
+    // won't show; wizard still works fully.
+    (async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const token = localStorage.getItem('crmToken');
+        const res = await fetch(`${apiUrl}/api/campaigns/sent-contact-ids`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSentContactIds(new Set<string>(data.sentContactIds || []));
+        }
+      } catch {
+        /* silent — badges just won't show, no blocker */
+      }
+    })();
 
     // Phase 08-02 — arthabuild mode locks stream to 'ArthaBuild' so backend
     // resolves Stream:ArthaBuild template seeded in Phase 08-01.
@@ -799,6 +833,54 @@ export function NetSuiteCampaignWizard({
                 </div>
               ) : (
                 <>
+                  {/* Phase 09-01 — "Hide already-sent" filter chip. Default ON
+                      to match Rajesh's resume-from-where-left-off workflow.
+                      VISUAL-ONLY: filters what's rendered in the contact list
+                      below; does NOT mutate `contacts`, `selectedIds`, or any
+                      dispatch payload. Manually-selected contacts stay
+                      selected even when hidden. */}
+                  {sentContactIds.size > 0 && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        marginBottom: 12,
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setHideAlreadySent((v) => !v)}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          padding: '6px 14px',
+                          borderRadius: 999,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          border: hideAlreadySent
+                            ? '1px solid rgba(139,92,246,0.45)'
+                            : '1px solid rgba(255,255,255,0.12)',
+                          background: hideAlreadySent
+                            ? 'rgba(139,92,246,0.18)'
+                            : 'rgba(255,255,255,0.05)',
+                          color: hideAlreadySent ? '#c4b5fd' : '#94a3b8',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {hideAlreadySent
+                          ? `✓ Hiding ${
+                              contacts.filter((c) => sentContactIds.has(c.id)).length
+                            } already-sent`
+                          : 'Show all'}
+                      </button>
+                      <span style={{ color: '#64748b', fontSize: 11 }}>
+                        Resume from where you left off — already-sent contacts hidden by default.
+                      </span>
+                    </div>
+                  )}
+
                   <label
                     style={{
                       display: 'flex',
@@ -831,60 +913,92 @@ export function NetSuiteCampaignWizard({
                       borderRadius: 8,
                     }}
                   >
-                    {contacts.map((c) => {
-                      const checked = selectedIds.has(c.id);
-                      const displayName =
-                        [c.firstName, c.lastName].filter(Boolean).join(' ') || '(no name)';
-                      return (
-                        <label
-                          key={c.id}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 12,
-                            padding: '10px 14px',
-                            borderBottom: '1px solid rgba(255,255,255,0.04)',
-                            cursor: 'pointer',
-                            background: checked ? 'rgba(99,102,241,0.05)' : 'transparent',
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={checked}
-                            onChange={() => toggleContact(c.id)}
-                            style={{ width: 16, height: 16, cursor: 'pointer' }}
-                          />
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ color: '#f1f5f9', fontSize: 13, fontWeight: 600 }}>
-                              {displayName}
-                              {c.company?.name && (
-                                <span
-                                  style={{ color: '#64748b', fontWeight: 400, marginLeft: 8 }}
-                                >
-                                  · {c.company.name}
-                                </span>
-                              )}
+                    {/* Phase 09-01 — filter only the RENDERED list. `contacts`,
+                        `selectedIds`, and dispatch logic are untouched. */}
+                    {contacts
+                      .filter((c) => !hideAlreadySent || !sentContactIds.has(c.id))
+                      .map((c) => {
+                        const checked = selectedIds.has(c.id);
+                        const isSent = sentContactIds.has(c.id);
+                        const displayName =
+                          [c.firstName, c.lastName].filter(Boolean).join(' ') || '(no name)';
+                        return (
+                          <label
+                            key={c.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              padding: '10px 14px',
+                              borderBottom: '1px solid rgba(255,255,255,0.04)',
+                              cursor: 'pointer',
+                              background: checked ? 'rgba(99,102,241,0.05)' : 'transparent',
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleContact(c.id)}
+                              style={{ width: 16, height: 16, cursor: 'pointer' }}
+                            />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ color: '#f1f5f9', fontSize: 13, fontWeight: 600 }}>
+                                {displayName}
+                                {/* Phase 09-01 — "Sent" badge (purple, mirrors
+                                    CampaignWizard.tsx:1520 pattern). */}
+                                {isSent && (
+                                  <span
+                                    style={{
+                                      display: 'inline-block',
+                                      marginLeft: 8,
+                                      padding: '1px 7px',
+                                      borderRadius: 4,
+                                      background: 'rgba(139,92,246,0.25)',
+                                      color: '#c4b5fd',
+                                      fontSize: 10,
+                                      fontWeight: 700,
+                                      verticalAlign: 'middle',
+                                    }}
+                                  >
+                                    Sent
+                                  </span>
+                                )}
+                                {c.company?.name && (
+                                  <span
+                                    style={{ color: '#64748b', fontWeight: 400, marginLeft: 8 }}
+                                  >
+                                    · {c.company.name}
+                                  </span>
+                                )}
+                              </div>
+                              <div
+                                style={{
+                                  color: '#94a3b8',
+                                  fontSize: 12,
+                                  marginTop: 2,
+                                  whiteSpace: 'nowrap',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {c.email || '(no email)'}
+                              </div>
                             </div>
-                            <div
-                              style={{
-                                color: '#94a3b8',
-                                fontSize: 12,
-                                marginTop: 2,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                              }}
-                            >
-                              {c.email || '(no email)'}
-                            </div>
-                          </div>
-                        </label>
-                      );
-                    })}
+                          </label>
+                        );
+                      })}
                   </div>
 
                   <p style={{ color: '#64748b', fontSize: 12, margin: '12px 0 0' }}>
                     {selectedIds.size} of {contacts.length} selected
+                    {hideAlreadySent && sentContactIds.size > 0 && (() => {
+                      const hidden = contacts.filter((c) => sentContactIds.has(c.id)).length;
+                      return hidden > 0 ? (
+                        <span style={{ color: '#94a3b8', marginLeft: 6 }}>
+                          ({hidden} already-sent hidden)
+                        </span>
+                      ) : null;
+                    })()}
                   </p>
                 </>
               )}
