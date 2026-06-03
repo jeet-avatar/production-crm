@@ -1257,23 +1257,23 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
             });
             const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedCompanyIds.includes(c.id));
 
-            // Pin TechCloudPro companies to top; exclude from last-sent calc
-            const filteredSorted = [
-              ...filtered.filter(c => INTERNAL_COMPANY_REGEX.test(c.name || '')),
-              ...filtered.filter(c => !INTERNAL_COMPANY_REGEX.test(c.name || '')),
-            ];
-            const nonInternal = filteredSorted.filter(c => !INTERNAL_COMPANY_REGEX.test(c.name || ''));
-            let lastSentIdx = -1;
-            for (let i = nonInternal.length - 1; i >= 0; i--) {
-              const hasNonInternalSent = (nonInternal[i].contacts || []).some(
-                (c: any) => sentContactIds.has(c.id) && !INTERNAL_EMAILS.has((c.email || '').toLowerCase())
+            // Sort: 1) TechCloudPro top  2) Sent companies  3) Unsent companies
+            // This guarantees pages 1..N-1 are ALL sent, page N = first unsent
+            const hasSentContact = (c: any) =>
+              (c.contacts || []).some(
+                (ct: any) => sentContactIds.has(ct.id) && !INTERNAL_EMAILS.has((ct.email || '').toLowerCase())
               );
-              if (hasNonInternalSent) { lastSentIdx = i; break; }
-            }
-            const lastSentCompany = lastSentIdx >= 0 ? nonInternal[lastSentIdx] : null;
-            const lastSentPageNum = lastSentCompany
-              ? Math.ceil((filteredSorted.indexOf(lastSentCompany) + 1) / COMPANIES_PER_PAGE)
+            const tcpGroup   = filtered.filter(c =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
+            const sentGroup  = filtered.filter(c => !INTERNAL_COMPANY_REGEX.test(c.name || '') &&  hasSentContact(c));
+            const unsentGroup= filtered.filter(c => !INTERNAL_COMPANY_REGEX.test(c.name || '') && !hasSentContact(c));
+            const filteredSorted = [...tcpGroup, ...sentGroup, ...unsentGroup];
+
+            // Jump = first page that has unsent companies
+            const firstUnsentPos = tcpGroup.length + sentGroup.length; // 0-indexed
+            const lastSentPageNum = sentGroup.length > 0
+              ? Math.ceil((firstUnsentPos + 1) / COMPANIES_PER_PAGE)
               : null;
+            const lastSentCompany = sentGroup.length > 0 ? sentGroup[sentGroup.length - 1] : null;
             const totalPages = Math.ceil(filteredSorted.length / COMPANIES_PER_PAGE);
             const pagedCompanies = filteredSorted.slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE);
             const showingFrom = filteredSorted.length === 0 ? 0 : (companyPage - 1) * COMPANIES_PER_PAGE + 1;
@@ -1462,9 +1462,11 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       style={{ cursor: 'pointer', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', padding: '8px 14px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}
                     >
                       <span>📍</span>
-                      <span style={{ color: '#10B981', fontWeight: 600 }}>Last sent: {lastSentCompany.name}</span>
+                      <span style={{ color: '#10B981', fontWeight: 600 }}>
+                        {sentGroup.length} companies already sent · {unsentGroup.length} remaining
+                      </span>
                       <span style={{ color: '#64748B' }}>·</span>
-                      <span style={{ color: '#10B981' }}>Jump to Page {lastSentPageNum} →</span>
+                      <span style={{ color: '#10B981' }}>Continue from Page {lastSentPageNum} →</span>
                     </div>
                   )}
                   <div
