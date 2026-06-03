@@ -1817,8 +1817,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {[
                     { value: 1, label: '1 min', desc: 'Fast' },
-                    { value: 5, label: '5 min', desc: 'Normal' },
-                    { value: 10, label: '10 min', desc: 'Slow' },
+                    { value: 3, label: '3 min', desc: 'Normal' },
+                    { value: 5, label: '5 min', desc: 'Slow' },
                     { value: 0, label: 'Instant', desc: 'All at once' },
                   ].map(opt => (
                     <button
