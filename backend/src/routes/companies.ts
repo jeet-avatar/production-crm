@@ -61,7 +61,9 @@ router.get('/', async (req, res, next) => {
       minRevenue,
       maxRevenue,
       minEmployees,
-      maxEmployees
+      maxEmployees,
+      slim,
+      ids,
     } = req.query as {
       search?: string;
       page?: string;
@@ -69,6 +71,8 @@ router.get('/', async (req, res, next) => {
       sortBy?: string;
       sortOrder?: string;
       industry?: string;
+      slim?: string;
+      ids?: string;
       minRevenue?: string;
       maxRevenue?: string;
       minEmployees?: string;
@@ -161,6 +165,16 @@ router.get('/', async (req, res, next) => {
 
     orderBy[sortField] = order;
 
+    // If ids= provided, filter to those specific company IDs (for per-page contact loading)
+    if (ids) {
+      const idList = ids.split(',').filter(Boolean);
+      where.AND = where.AND || [];
+      where.AND.push({ id: { in: idList } });
+    }
+
+    // slim=true skips contacts (fast metadata-only load for sorting/pagination)
+    const isSlim = slim === 'true';
+
     // Get companies with contact count and contact details
     const companies = await prisma.company.findMany({
       where,
@@ -168,29 +182,17 @@ router.get('/', async (req, res, next) => {
         _count: {
           select: {
             contacts: {
-              where: {
-                isActive: true,
-              },
+              where: { isActive: true },
             },
           },
         },
-        contacts: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            phone: true,
-            role: true,
-            status: true,
+        ...(isSlim ? {} : {
+          contacts: {
+            select: { id: true, firstName: true, lastName: true, email: true, phone: true, role: true, status: true },
+            where: { isActive: true },
+            orderBy: { createdAt: 'desc' },
           },
-          where: {
-            isActive: true,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
+        }),
       },
       orderBy,
       skip,

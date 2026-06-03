@@ -154,6 +154,36 @@ router.get('/company-verticals', async (req, res, next) => {
   }
 });
 
+// GET /api/campaigns/sent-counts-by-company — Per-company count of contacts sent to
+router.get('/sent-counts-by-company', async (req, res, next) => {
+  try {
+    const userId = req.user?.id;
+    const userIds = [userId];
+    if (req.user?.teamRole === 'MEMBER' && req.user?.accountOwnerId) {
+      userIds.push(req.user.accountOwnerId);
+    }
+    if (req.user?.teamRole === 'OWNER') {
+      const teamMembers = await prisma.user.findMany({ where: { accountOwnerId: userId }, select: { id: true } });
+      teamMembers.forEach(m => userIds.push(m.id));
+    }
+    const filteredIds = userIds.filter(Boolean) as string[];
+    const rows = await prisma.$queryRaw<{ companyId: string; sent_count: bigint }[]>`
+      SELECT co."companyId", COUNT(DISTINCT el."contactId") as sent_count
+      FROM "email_logs" el
+      JOIN "contacts" co ON co.id = el."contactId"
+      JOIN "campaigns" ca ON ca.id = el."campaignId"
+      WHERE el.status IN ('SENT','DELIVERED','OPENED','CLICKED')
+      AND ca."userId" = ANY(${filteredIds})
+      GROUP BY co."companyId"
+    `;
+    const companySentCounts: Record<string, number> = {};
+    rows.forEach(r => { companySentCounts[r.companyId] = Number(r.sent_count); });
+    return res.json({ companySentCounts });
+  } catch (error: any) {
+    return next(error);
+  }
+});
+
 // GET /api/campaigns/sent-contact-ids — Contacts that have received any campaign email
 router.get('/sent-contact-ids', async (req, res, next) => {
   try {
