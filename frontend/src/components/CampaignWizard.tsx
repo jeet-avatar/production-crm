@@ -1283,7 +1283,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
             // Merge slim page data with loaded contacts for current page
             const contactsMap = new Map(companies.map(c => [c.id, c.contacts || []]));
             const pagedCompanies = pagedSlim.map((c: any) => ({ ...c, contacts: contactsMap.get(c.id) || [] }));
-            const filtered = searchFiltered; // alias for Select All logic
+            const filtered = filteredSorted; // alias for Select All logic
 
             return (
             <div>
@@ -1470,7 +1470,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     const hasNoContacts = contactCount === 0;
 
                     return (
-                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : hasNoContacts ? '1px solid rgba(249,115,22,0.3)' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : hasNoContacts ? 'rgba(249,115,22,0.04)' : '#20203a', transition: 'all 0.15s' }}>
+                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : hasNoContacts ? '1px solid rgba(234,88,12,0.5)' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : hasNoContacts ? 'rgba(234,88,12,0.08)' : '#20203a', transition: 'all 0.15s' }}>
                         {/* Company header row */}
                         <div
                           onClick={() => toggleCompany(company.id)}
@@ -1500,7 +1500,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                                 }}>{company.vertical}</span>
                               )}
                               {hasNoContacts && (
-                                <span style={{ padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, background: 'rgba(249,115,22,0.15)', color: '#F97316', whiteSpace: 'nowrap' }}>No email</span>
+                                <span style={{ padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, background: 'rgba(234,88,12,0.2)', color: '#EA580C', whiteSpace: 'nowrap' }}>No email</span>
                               )}
                             </div>
                             <span style={{ fontSize: '12px', color: '#64748B' }}>
@@ -1747,6 +1747,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
               const slim = allCompaniesSlim.find((c: any) => c.id === companyId);
               const contacts = contactsMap.get(companyId) || [];
               contacts.forEach(contact => {
+                // Only include contacts with a valid email — matches backend validation
+                if (!isValidEmail(contact.email)) return;
                 if (selectedContactIds.size === 0 || selectedContactIds.has(contact.id)) {
                   allRecipients.push({
                     firstName: contact.firstName || '',
@@ -1757,6 +1759,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 }
               });
             });
+            const hasNoValidRecipients = allRecipients.length === 0;
 
             // Use first recipient for preview, fallback to sample
             const previewRecipient = allRecipients[0] || { firstName: 'Sarah', lastName: 'Mitchell', email: 'sarah@example.com', companyName: 'Deloitte' };
@@ -1891,16 +1894,23 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 </p>
               </div>
 
+              {/* Warning when all selected contacts have no email */}
+              {hasNoValidRecipients && (
+                <div style={{ background: 'rgba(234,88,12,0.1)', border: '1px solid rgba(234,88,12,0.4)', borderRadius: '8px', padding: '12px 16px', marginBottom: '12px', fontSize: '13px', color: '#EA580C' }}>
+                  ⚠️ <strong>No valid email addresses found</strong> in the selected companies. All contacts have blank emails. Go back and select companies that show email addresses.
+                </div>
+              )}
+
               {/* Send button — shows confirmation first */}
               {!showConfirm ? (
                 <button
                   onClick={() => setShowConfirm(true)}
-                  disabled={sending || totalSelectedContacts === 0}
+                  disabled={sending || totalSelectedContacts === 0 || hasNoValidRecipients}
                   style={{
                     width: '100%', padding: '14px', borderRadius: '10px', border: 'none',
-                    background: totalSelectedContacts === 0 ? 'rgba(100,100,120,0.3)' : 'linear-gradient(to right, #10B981, #059669)',
+                    background: (totalSelectedContacts === 0 || hasNoValidRecipients) ? 'rgba(100,100,120,0.3)' : 'linear-gradient(to right, #10B981, #059669)',
                     color: '#fff', fontWeight: 700, fontSize: '15px',
-                    cursor: totalSelectedContacts === 0 ? 'not-allowed' : 'pointer',
+                    cursor: (totalSelectedContacts === 0 || hasNoValidRecipients) ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                   }}
                 >
