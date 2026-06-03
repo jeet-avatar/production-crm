@@ -143,12 +143,13 @@ export function NetSuiteCampaignWizard({
   // Same state shared across both wizard modes; computeScheduledAt yields null for 'now'
   // (immediate dispatch) or a future Date for the delayed options. The picker renders on
   // Apollo Step 2 below the AI Personalize block AND on NetSuite Step 1 below the confirm text.
-  const [scheduleChoice, setScheduleChoice] = useState<'now' | '5min' | '10min'>('now');
-  function computeScheduledAt(choice: 'now' | '5min' | '10min'): Date | null {
+  const [scheduleChoice, setScheduleChoice] = useState<'now' | '1min' | '3min' | '5min'>('now');
+  function computeScheduledAt(choice: 'now' | '1min' | '3min' | '5min'): Date | null {
     if (choice === 'now') return null;
     const t = new Date();
+    if (choice === '1min') t.setMinutes(t.getMinutes() + 1);
+    if (choice === '3min') t.setMinutes(t.getMinutes() + 3);
     if (choice === '5min') t.setMinutes(t.getMinutes() + 5);
-    if (choice === '10min') t.setMinutes(t.getMinutes() + 10);
     return t;
   }
 
@@ -551,10 +552,11 @@ export function NetSuiteCampaignWizard({
   // Indigo brand only — matches the AI Preview block treatment for visual consistency.
   // 3 fixed options ONLY — intentionally no arbitrary date picker.
   function renderSchedulePicker() {
-    const opt: Array<{ key: 'now' | '5min' | '10min'; label: string }> = [
+    const opt: Array<{ key: 'now' | '1min' | '3min' | '5min'; label: string }> = [
       { key: 'now', label: 'Send Now' },
+      { key: '1min', label: 'Send in 1 min' },
+      { key: '3min', label: 'Send in 3 min' },
       { key: '5min', label: 'Send in 5 min' },
-      { key: '10min', label: 'Send in 10 min' },
     ];
     return (
       <div
