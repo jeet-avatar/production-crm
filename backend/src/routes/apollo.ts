@@ -70,10 +70,52 @@ export const APOLLO_REPLY_TO = 'sara@techcloudpro.com';
 
 // Canonical stream allowlist. Used to validate `stream` in /send-campaign body and
 // to label Campaign rows. Matches streamClassifier.STREAMS + seeds/stream-templates.ts.
+//
+// Phase 08 plan 08-01: 'ArthaBuild' added as a 10th allowed stream — it is a
+// marketing-campaign target template, NOT an auto-classification bucket. The
+// streamClassifier.ts STREAMS list stays at 9 (only inbound prospects classify
+// into the 9 standard buckets; ArthaBuild is manually selected in the wizard).
 const VALID_STREAMS = new Set([
   'NetSuite', 'AI/ML', 'Cloud/DevOps', 'Cybersecurity',
   'Data/Analytics', 'Mobile', 'Enterprise/ERP', 'Staffing/HR', 'Other',
+  'ArthaBuild',
 ]);
+
+// ---------------------------------------------------------------------------
+// Phase 08 plan 08-01 — Apollo ICP filter preset for arthaBuild campaign.
+// ---------------------------------------------------------------------------
+// Used by the frontend wizard 'arthabuild' mode (Phase 08 plan 08-02) to pre-
+// populate Apollo search filters. ICP sourced verbatim from arthaBuild's
+// BUILT_FOR_YOU.cards section in landingContent.ts — NetSuite consultants,
+// in-house admins/architects, and implementation specialists.
+//
+// Exported so the frontend can fetch via GET /api/apollo/icp-presets/arthabuild
+// rather than duplicating the list in two places.
+//
+// Field-naming note: uses the camelCase keys defined by ApolloSearchFilters in
+// backend/src/lib/apolloClient.ts (apolloClient maps them to Apollo's wire
+// snake_case at call time). `organizationKeywordTags` carries the keyword query
+// (Apollo wire `q_keywords` / keyword tag IDs); `personLocations` carries the
+// country filter (Apollo wire `organization_locations`).
+export const ARTHABUILD_ICP_PRESET: ApolloSearchFilters = {
+  personTitles: [
+    'NetSuite Administrator',
+    'NetSuite Developer',
+    'SuiteScript Developer',
+    'ERP Administrator',
+    'NetSuite Consultant',
+    'ERP Implementation Specialist',
+    'NetSuite Architect',
+  ],
+  organizationKeywordTags: ['NetSuite', 'SuiteScript'],
+  personLocations: ['United States', 'Canada'],
+};
+
+// Named-preset registry. Add new presets here as the campaign library grows.
+// Keys are lowercase-kebab to match the frontend wizard's mode strings.
+const ICP_PRESETS: Record<string, ApolloSearchFilters> = {
+  arthabuild: ARTHABUILD_ICP_PRESET,
+};
 
 // 3-layer template fallback — Stream:<x> -> Stream:Other -> HARDCODED.
 // This is the safety net: if both Stream:<x> and Stream:Other templates are missing
@@ -702,6 +744,24 @@ router.get('/stream-template/:stream', async (req: Request, res: Response) => {
   if (t2) return res.status(200).json({ template: t2, source: 'stream-other' });
 
   return res.status(404).json({ error: 'no_stream_template_found' });
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/apollo/icp-presets/:name
+// ---------------------------------------------------------------------------
+// Phase 08 plan 08-01 — return a named Apollo ICP filter preset (see
+// ICP_PRESETS at file head). Frontend wizard 'arthabuild' mode fetches
+// preset='arthabuild' to pre-populate the search form. 404 if name unknown.
+router.get('/icp-presets/:name', async (req: Request, res: Response) => {
+  const name = (req.params.name || '').toLowerCase();
+  const preset = ICP_PRESETS[name];
+  if (!preset) {
+    return res.status(404).json({
+      error: 'preset_not_found',
+      available: Object.keys(ICP_PRESETS),
+    });
+  }
+  return res.status(200).json({ name, preset });
 });
 
 // ---------------------------------------------------------------------------

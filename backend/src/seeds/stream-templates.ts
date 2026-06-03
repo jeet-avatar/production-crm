@@ -79,6 +79,16 @@ export const STREAM_TEMPLATE_SEEDS: StreamTemplateSeed[] = [
     htmlSnippet:
       "<p>Hi {{firstName}},</p><p>We place senior engineers across the stack. Quick chat about {{companyName}}'s near-term needs?</p><p>— Sara, TechCloudPro</p>",
   },
+  // Phase 08 plan 08-01 — arthaBuild marketing campaign target stream.
+  // NOT added to streamClassifier.ts VALID_STREAMS (which stays at 9) — ArthaBuild
+  // is a manually-triggered campaign target, not an auto-classification bucket.
+  // The v3 dict entry below carries the locked landing-page messaging.
+  {
+    stream: 'ArthaBuild',
+    subject: 'Superpowers for the NetSuite superuser — first 50 spots',
+    htmlSnippet:
+      "<p>Hi {{firstName}},</p><p>Six months. Fourteen BRD revisions. Three missed acceptance criteria. ArthaBuild gives you superpowers — not a tool that replaces you. BRD, technical spec, deployable SuiteScript — your team owns it. Free access at <a href=\"https://artha.build/?utm_source=email&utm_campaign=arthabuild_launch\">artha.build</a> — first 50 spots.</p><p>— Sara, TechCloudPro</p>",
+  },
 ];
 
 /**
@@ -722,6 +732,28 @@ export const STREAM_TEMPLATE_V3_BODIES: Record<string, string> = {
     footerReprise: 'Staffing/HR · AI Consulting · $1 Staffing',
     arthaBannerSubtitle: 'Your HR copilot · req drafting, candidate matching · artha.build',
     ariaBlurb: 'is our AI receptionist. She knows our Staffing/HR practice and full services portfolio.',
+  }),
+  // Phase 08 plan 08-01 — arthaBuild marketing-campaign template.
+  // Messaging LOCKED from /Users/jeet/arthaBuild/src/frontend/src/data/landingContent.ts
+  // (HERO.subcopy + PROBLEM.title + BUILT_FOR_YOU.cards + FINAL_CTA) and NARRATION v8.1.
+  // Frontend wizard 'arthabuild' mode auto-pre-selects this template.
+  // Sentinel pattern: '<!-- STREAM_V3:ArthaBuild -->' — note the capital A + capital B
+  // (matches brand spelling); category key is the literal 'Stream:ArthaBuild'.
+  'Stream:ArthaBuild': buildStreamV3Body({
+    sentinel: '<!-- STREAM_V3:ArthaBuild -->',
+    preheaderTail: 'Five-stage AI pipeline for NetSuite practitioners. BRD in under ten minutes. First 50 spots — free access.',
+    tagPillText: 'ArthaBuild Launch · Free Access · 50 Spots',
+    metricLabel: 'ArthaBuild Practice',
+    introSentence: "Six months. Fourteen BRD revisions. Three missed acceptance criteria. <strong>You've shipped this NetSuite implementation five times.</strong> ArthaBuild gives you superpowers — not a tool that replaces you.",
+    noteCalloutTitle: 'About the ArthaBuild launch',
+    noteCalloutBody: '<strong style="color:#1E3A8A;">Five stages, one pipeline:</strong> intake &rarr; BRD &rarr; TBA connect &rarr; SuiteScript &rarr; SuiteCloud deploy. BRD generated in under ten minutes. Production-grade SuiteScript with three anti-hallucination gates. <strong style="color:#1E3A8A;">Your team owns every artefact.</strong>',
+    servicePropTitle1: 'BRD in under ten minutes',
+    servicePropBody1: 'Guided intake captures scope, modules, integrations, compliance. The BRD is generated in under ten minutes — reviewable, exportable, ready for stakeholder sign-off. The AI then expands each section into an implementable technical spec.',
+    servicePropTitle2: 'Local AI · RAM-only credentials · BYO Cloud',
+    servicePropBody2: '<strong style="color:#0F172A;">Ollama runs on your GPU.</strong> Zero calls to OpenAI or Anthropic. NetSuite TBA tokens live in RAM only — never on disk, never in logs. One Docker Compose drops into your AWS, Azure, or GCP. Your data never leaves your environment. Live at <a href="https://artha.build/?utm_source=email&utm_campaign=arthabuild_launch" target="_blank" style="color:#F97316;font-weight:600;text-decoration:none;">artha.build</a>.',
+    footerReprise: 'ArthaBuild · Free Access · 50 Spots',
+    arthaBannerSubtitle: 'BRD, technical spec, deployable SuiteScript — your team owns it · artha.build',
+    ariaBlurb: 'is your guide to the ArthaBuild launch — five-stage AI pipeline for NetSuite practitioners.',
   }),
   'Stream:Other': buildStreamV3Body({
     sentinel: '<!-- STREAM_V3:Other -->',
