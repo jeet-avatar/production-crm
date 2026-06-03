@@ -223,7 +223,31 @@ export const campaignsApi = {
     const response = await apiClient.delete(`/campaigns/${id}`);
     return response.data;
   },
+
+  // Phase 10 — fetch merged NetSuite subject options (5 hardcoded + N DB templates).
+  // Returns { subjects: NetsuiteSubjectOption[] } where each option carries either
+  // `index` (code source → maps to POST quick-send subjectVariant) or `templateId`
+  // (db source → maps to POST quick-send templateId). The wizard uses this to let
+  // Rajesh pick exactly which subject + body to dispatch.
+  getNetsuiteSubjects: async (): Promise<{ subjects: NetsuiteSubjectOption[] }> => {
+    const response = await apiClient.get('/campaigns/netsuite-subjects');
+    return response.data;
+  },
 };
+
+// Phase 10 — option shape returned by /api/campaigns/netsuite-subjects.
+// `source` discriminates which dispatch field to pass to POST quick-send:
+//   - source='code'  → pass subjectVariant: option.index
+//   - source='db'    → pass templateId: option.templateId
+export interface NetsuiteSubjectOption {
+  id: string;
+  subject: string;
+  source: 'code' | 'db';
+  bodySource: 'hardcoded' | 'db-template';
+  index?: number;
+  templateId?: string;
+  templateName?: string;
+}
 
 // Analytics API
 export const analyticsApi = {

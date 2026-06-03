@@ -497,11 +497,40 @@ const NETSUITE_SUBJECTS = [
   "NetSuite 2026.1 + NetSuite Next — does {{companyName}} have the right engineers?",
 ];
 
-// GET /api/campaigns/netsuite-subjects — List all subject line variants
-router.get('/netsuite-subjects', async (req, res) => {
-  return res.json({
-    subjects: NETSUITE_SUBJECTS.map((s, i) => ({ id: i, subject: s })),
-  });
+// GET /api/campaigns/netsuite-subjects — List ALL NetSuite subject options.
+// Phase 10: merges 5 hardcoded NETSUITE_SUBJECTS (bodySource='hardcoded') with
+// every email_templates row where category='NetSuite' (bodySource='db-template').
+// Resolves the code-vs-DB drift Rajesh hit: code had 5 subjects, DB had 4 with
+// richer bodies, wizard only saw the 5. Now Rajesh can pick any of the 9.
+// Numeric `index` preserved on code entries so the legacy subjectVariant POST
+// path keeps working unchanged (backward compat for any callers still posting
+// subjectVariant 0..4).
+router.get('/netsuite-subjects', async (req, res, next) => {
+  try {
+    const codeSubjects = NETSUITE_SUBJECTS.map((s, i) => ({
+      id: `code-${i}`,
+      index: i,
+      subject: s,
+      source: 'code' as const,
+      bodySource: 'hardcoded' as const,
+    }));
+    const dbRows = await prisma.emailTemplate.findMany({
+      where: { category: 'NetSuite' },
+      select: { id: true, name: true, subject: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    const dbSubjects = dbRows.map((t: { id: string; name: string; subject: string }) => ({
+      id: `db-${t.id}`,
+      subject: t.subject,
+      source: 'db' as const,
+      templateId: t.id,
+      templateName: t.name,
+      bodySource: 'db-template' as const,
+    }));
+    return res.json({ subjects: [...codeSubjects, ...dbSubjects] });
+  } catch (error) {
+    return next(error);
+  }
 });
 
 // POST /api/campaigns/create-all-netsuite — Create 5 draft campaigns (one per subject line)
@@ -1578,6 +1607,32 @@ router.post('/quick-send', async (req, res, next) => {
     const limit = Math.min(parseInt(req.body?.limit) || 50, 500); // Default 50, max 500
     const subjectVariant = Math.min(Math.max(parseInt(req.body?.subjectVariant) || 0, 0), NETSUITE_SUBJECTS.length - 1);
 
+    // Phase 10 — accept optional templateId (from the picker UI). When provided,
+    // we use the DB template's subject + htmlContent instead of the hardcoded
+    // NETSUITE_SUBJECTS / NETSUITE_CAMPAIGN_HTML pair. templateId takes precedence
+    // over subjectVariant if both are sent. Validation: must be a NetSuite-category
+    // template (prevents accidentally dispatching AI / arthaBuild / Apollo bodies
+    // through the NetSuite SES path).
+    const templateIdRaw = req.body?.templateId;
+    const templateId = typeof templateIdRaw === 'string' && templateIdRaw.trim() ? templateIdRaw.trim() : null;
+    let templateOverride: { subject: string; htmlContent: string } | null = null;
+    if (templateId) {
+      const tmpl = await prisma.emailTemplate.findUnique({
+        where: { id: templateId },
+        select: { id: true, subject: true, htmlContent: true, category: true },
+      });
+      if (!tmpl) {
+        return res.status(400).json({ error: 'templateId not found' });
+      }
+      if (tmpl.category !== 'NetSuite') {
+        return res.status(400).json({ error: 'templateId must be a NetSuite-category template' });
+      }
+      if (!tmpl.subject || !tmpl.htmlContent) {
+        return res.status(400).json({ error: 'templateId is missing subject or htmlContent' });
+      }
+      templateOverride = { subject: tmpl.subject, htmlContent: tmpl.htmlContent };
+    }
+
     // Phase 04-08 — parse optional scheduledAt
     let scheduleTime: Date | null = null;
     if (req.body?.scheduledAt) {
@@ -1637,14 +1692,21 @@ router.post('/quick-send', async (req, res, next) => {
 
     // 2. Create campaign with selected subject variant
     // Phase 04-08 — when scheduled, start in SCHEDULED status with scheduledAt set.
-    const selectedSubject = NETSUITE_SUBJECTS[subjectVariant];
+    // Phase 10 — templateOverride (when templateId provided) supplies BOTH subject
+    // and htmlContent from the DB template; otherwise fall back to the hardcoded
+    // NETSUITE_SUBJECTS[subjectVariant] + NETSUITE_CAMPAIGN_HTML pair.
+    const selectedSubject = templateOverride ? templateOverride.subject : NETSUITE_SUBJECTS[subjectVariant];
+    const selectedHtml = templateOverride ? templateOverride.htmlContent : NETSUITE_CAMPAIGN_HTML;
+    const campaignName = templateOverride
+      ? `NetSuite Campaign — Template ${templateId!.slice(0, 16)}`
+      : `NetSuite Campaign — Subject #${subjectVariant + 1}`;
     const campaign = await prisma.campaign.create({
       data: {
-        name: `NetSuite Campaign — Subject #${subjectVariant + 1}`,
+        name: campaignName,
         subject: selectedSubject,
         status: isScheduled ? 'SCHEDULED' : 'SENDING',
         scheduledAt: isScheduled ? scheduleTime : null,
-        htmlContent: NETSUITE_CAMPAIGN_HTML,
+        htmlContent: selectedHtml,
         source: 'netsuite',
         userId,
       },
@@ -1686,7 +1748,7 @@ router.post('/quick-send', async (req, res, next) => {
               userId,
               validContacts,
               campaign.subject!,
-              NETSUITE_CAMPAIGN_HTML,
+              selectedHtml,
               intervalMinutes,
             ),
           )
@@ -1713,7 +1775,7 @@ router.post('/quick-send', async (req, res, next) => {
     await prisma.campaign.update({ where: { id: campaign.id }, data: { status: 'SENDING' } });
 
     // Start throttled background send (returns immediately)
-    await startThrottledSend(campaign.id, userId, validContacts, campaign.subject!, NETSUITE_CAMPAIGN_HTML, intervalMinutes);
+    await startThrottledSend(campaign.id, userId, validContacts, campaign.subject!, selectedHtml, intervalMinutes);
 
     const estimatedMinutes = (validContacts.length - 1) * intervalMinutes;
     return res.json({

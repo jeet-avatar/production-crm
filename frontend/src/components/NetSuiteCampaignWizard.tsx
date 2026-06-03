@@ -57,10 +57,12 @@ import {
 import {
   contactsApi,
   apolloApi,
+  campaignsApi,
   ApolloPersonalizedSendRow,
   ApolloPersonalizedPreviewResponse,
   ApolloPersonalizedSendResponse,
   ApolloSearchFilters,
+  NetsuiteSubjectOption,
 } from '../services/api';
 
 // ===== Types =====
@@ -176,6 +178,16 @@ export function NetSuiteCampaignWizard({
   // Default ON — matches Rajesh's resume-from-where-left-off workflow.
   const [hideAlreadySent, setHideAlreadySent] = useState<boolean>(true);
 
+  // Phase 10 — NetSuite subject picker state (netsuite mode ONLY; apollo +
+  // arthabuild ignore these). Fetched on mount from /api/campaigns/netsuite-subjects
+  // which now merges 5 hardcoded subjects with N DB email_templates rows
+  // (category='NetSuite'). Default selection = first option (preserves prior
+  // subjectVariant=0 behavior for muscle memory). On Send, the chosen option's
+  // source decides whether to dispatch subjectVariant (code) or templateId (db).
+  const [subjectOptions, setSubjectOptions] = useState<NetsuiteSubjectOption[]>([]);
+  const [selectedSubject, setSelectedSubject] = useState<NetsuiteSubjectOption | null>(null);
+  const [subjectOptionsError, setSubjectOptionsError] = useState<string | null>(null);
+
   // ===== Mount: for apollo mode, fetch contacts and client-filter to source==='apollo' =====
   useEffect(() => {
     if (!isOpen) return;
@@ -199,6 +211,30 @@ export function NetSuiteCampaignWizard({
     // Phase 09-01: reset sent-tracking on clean open (refetched below)
     setSentContactIds(new Set());
     setHideAlreadySent(true);
+    // Phase 10: reset NetSuite subject picker on clean open (refetched below
+    // ONLY for netsuite mode — apollo/arthabuild don't use this picker).
+    setSubjectOptions([]);
+    setSelectedSubject(null);
+    setSubjectOptionsError(null);
+
+    // Phase 10 — fetch merged 9 NetSuite subject options (5 hardcoded + 4 DB
+    // email_templates rows) ONLY in netsuite mode. Auth-gated via apiClient
+    // (axios interceptor adds Bearer token). On error: surface inline so Rajesh
+    // sees what went wrong, but DON'T block — fallback default = first hardcoded
+    // option (subjectVariant=0) which is the legacy behavior.
+    if (mode === 'netsuite') {
+      (async () => {
+        try {
+          const data = await campaignsApi.getNetsuiteSubjects();
+          const opts = Array.isArray(data?.subjects) ? data.subjects : [];
+          setSubjectOptions(opts);
+          if (opts.length > 0) setSelectedSubject(opts[0]);
+        } catch (err: any) {
+          console.error('[NetSuiteCampaignWizard] netsuite-subjects fetch failed', err);
+          setSubjectOptionsError(err?.response?.data?.error || err?.message || 'Failed to load subject options');
+        }
+      })();
+    }
 
     // Phase 09-01 — fetch contacts that have received ANY prior campaign send.
     // Used to render "Sent" badges + drive the "Hide already-sent" filter chip.
@@ -463,13 +499,28 @@ export function NetSuiteCampaignWizard({
       // Phase 04-08 — pass scheduledAt to quick-send so the picker works in NetSuite mode too.
       const scheduledAt = computeScheduledAt(scheduleChoice);
       const scheduledAtIso = scheduledAt?.toISOString();
+      // Phase 10 — pass the Rajesh-picked subject. Source decides which field:
+      //   source='code' → subjectVariant (numeric index, 0..4 today)
+      //   source='db'   → templateId (cuid pointing at email_templates row)
+      // If selectedSubject is null (fetch failed / empty), fall back to legacy
+      // default behavior (server defaults subjectVariant to 0 = first hardcoded).
+      const subjectPayload: Record<string, unknown> = {};
+      if (selectedSubject) {
+        if (selectedSubject.source === 'db' && selectedSubject.templateId) {
+          subjectPayload.templateId = selectedSubject.templateId;
+        } else if (selectedSubject.source === 'code' && typeof selectedSubject.index === 'number') {
+          subjectPayload.subjectVariant = selectedSubject.index;
+        }
+      }
+      const body: Record<string, unknown> = { ...subjectPayload };
+      if (scheduledAtIso) body.scheduledAt = scheduledAtIso;
       const response = await fetch(`${apiUrl}/api/campaigns/quick-send`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(scheduledAtIso ? { scheduledAt: scheduledAtIso } : {}),
+        body: JSON.stringify(body),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -1430,6 +1481,71 @@ export function NetSuiteCampaignWizard({
                 companies</strong> in your CRM via AWS SES.<br />
                 Endpoint: <code>POST /api/campaigns/quick-send</code><br />
                 You will see sent/failed counts on the next step.
+              </div>
+
+              {/* Phase 10 — Subject + body picker. Lists 5 hardcoded subjects
+                  ([code] body) + N DB email_templates rows ([DB-rich body]) so
+                  Rajesh can pick exactly which NetSuite variant to dispatch. */}
+              <div style={{ marginBottom: 16 }}>
+                <label
+                  style={{
+                    display: 'block',
+                    color: '#cbd5e1',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    marginBottom: 8,
+                  }}
+                >
+                  Subject + body variant
+                </label>
+                {subjectOptionsError && (
+                  <div
+                    style={{
+                      background: 'rgba(251,191,36,0.1)',
+                      border: '1px solid rgba(251,191,36,0.3)',
+                      color: '#fde68a',
+                      padding: '8px 12px',
+                      borderRadius: 6,
+                      fontSize: 12,
+                      marginBottom: 8,
+                    }}
+                  >
+                    ⚠️ {subjectOptionsError} — falling back to default subject.
+                  </div>
+                )}
+                <select
+                  value={selectedSubject?.id || ''}
+                  onChange={(e) => {
+                    const next = subjectOptions.find((o) => o.id === e.target.value);
+                    if (next) setSelectedSubject(next);
+                  }}
+                  disabled={sending || subjectOptions.length === 0}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    background: 'rgba(15,23,42,0.6)',
+                    border: '1px solid rgba(99,102,241,0.3)',
+                    color: '#e2e8f0',
+                    fontSize: 13,
+                    cursor: sending || subjectOptions.length === 0 ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {subjectOptions.length === 0 && <option value="">Loading subjects…</option>}
+                  {subjectOptions.map((opt) => {
+                    const bodyTag = opt.bodySource === 'db-template' ? 'DB-rich body' : 'code body';
+                    return (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.subject} — [{bodyTag}]
+                      </option>
+                    );
+                  })}
+                </select>
+                {subjectOptions.length > 0 && (
+                  <div style={{ color: '#64748b', fontSize: 11, marginTop: 6 }}>
+                    {subjectOptions.length} option(s) available — {subjectOptions.filter((o) => o.source === 'code').length} hardcoded, {subjectOptions.filter((o) => o.source === 'db').length} from email_templates.
+                  </div>
+                )}
               </div>
 
               {/* Phase 04-08 — 3-option schedule picker (Send Now / 5 min / 10 min) */}
