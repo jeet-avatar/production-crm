@@ -1012,12 +1012,15 @@ router.post('/:id/companies/:companyId', async (req, res, next) => {
       return res.status(404).json({ error: 'Campaign not found' });
     }
 
-    // ✅ Verify company exists and user owns it
+    // ✅ Verify company exists — team-aware (Rajesh can link Peter's companies)
+    const teamUserIds = [req.user?.id];
+    if (req.user?.teamRole === 'MEMBER' && req.user?.accountOwnerId) teamUserIds.push(req.user.accountOwnerId);
+    if (req.user?.teamRole === 'OWNER') {
+      const members = await prisma.user.findMany({ where: { accountOwnerId: req.user.id }, select: { id: true } });
+      members.forEach(m => teamUserIds.push(m.id));
+    }
     const company = await prisma.company.findFirst({
-      where: {
-        id: companyId,
-        userId: req.user?.id,
-      },
+      where: { id: companyId, userId: { in: teamUserIds.filter(Boolean) as string[] } },
     });
 
     if (!company) {
