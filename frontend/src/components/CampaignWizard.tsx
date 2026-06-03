@@ -1435,8 +1435,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       flexDirection: 'column',
                       gap: '6px',
                       marginBottom: '16px',
-                      maxHeight: '400px',
-                      overflowY: 'auto',
                       paddingRight: '4px',
                     }}
                   >
