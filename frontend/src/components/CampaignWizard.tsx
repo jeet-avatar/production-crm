@@ -297,7 +297,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
       const total = data.total || firstBatch.length;
       setTotalCompanyCount(total);
       setCompanies(firstBatch);
-      buildVerticalsFromList(firstBatch);
 
       // Background — load remaining batches in groups of 5
       if (total > BATCH_SIZE) {
@@ -323,7 +322,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
           });
         }
         setCompanies(accumulated);
-        buildVerticalsFromList(accumulated);
         setTotalCompanyCount(accumulated.length);
         setLoadingMoreCompanies(false);
       }
@@ -1340,52 +1338,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 </button>
               </div>
 
-              {/* Vertical filter tabs */}
-              {verticals.length > 0 && (
-                <div style={{ display: 'flex', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
-                  <button
-                    onClick={() => setVerticalFilter('all')}
-                    style={{
-                      padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 600,
-                      border: verticalFilter === 'all' ? '1px solid #6366F1' : '1px solid #3d3d5c',
-                      background: verticalFilter === 'all' ? 'rgba(99,102,241,0.15)' : 'transparent',
-                      color: verticalFilter === 'all' ? '#A5B4FC' : '#64748B',
-                      cursor: 'pointer', transition: 'all 0.15s',
-                    }}
-                  >
-                    All ({companies.length})
-                  </button>
-                  {verticals.filter(v => v.name !== 'Uncategorized').map(v => (
-                    <button
-                      key={v.name}
-                      onClick={() => setVerticalFilter(v.name)}
-                      style={{
-                        padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 600,
-                        border: verticalFilter === v.name ? '1px solid #6366F1' : '1px solid #3d3d5c',
-                        background: verticalFilter === v.name ? 'rgba(99,102,241,0.15)' : 'transparent',
-                        color: verticalFilter === v.name ? '#A5B4FC' : '#64748B',
-                        cursor: 'pointer', transition: 'all 0.15s',
-                      }}
-                    >
-                      {v.name} ({v.count})
-                    </button>
-                  ))}
-                  {verticals.some(v => v.name === 'Uncategorized') && (
-                    <button
-                      onClick={() => setVerticalFilter('Uncategorized')}
-                      style={{
-                        padding: '5px 12px', borderRadius: '6px', fontSize: '11px', fontWeight: 600,
-                        border: verticalFilter === 'Uncategorized' ? '1px solid #6366F1' : '1px solid #3d3d5c',
-                        background: verticalFilter === 'Uncategorized' ? 'rgba(99,102,241,0.15)' : 'transparent',
-                        color: verticalFilter === 'Uncategorized' ? '#F59E0B' : '#64748B',
-                        cursor: 'pointer', transition: 'all 0.15s',
-                      }}
-                    >
-                      Uncategorized ({verticals.find(v => v.name === 'Uncategorized')?.count || 0})
-                    </button>
-                  )}
-                </div>
-              )}
 
               {/* Stats bar + seed button */}
               <div style={{
@@ -1658,6 +1610,20 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                             : <button key={p} onClick={() => setCompanyPage(p as number)} style={btnStyle(p === companyPage)}>{p}</button>
                         )}
                         <button onClick={() => setCompanyPage(p => Math.min(totalPages, p + 1))} disabled={companyPage === totalPages} style={btnStyle(false, companyPage === totalPages)}>→</button>
+                        {/* Direct page number input */}
+                        <input
+                          type="number"
+                          min={1}
+                          max={totalPages}
+                          placeholder="Go to page"
+                          style={{ width: '90px', padding: '5px 8px', borderRadius: '6px', border: '1px solid #3d3d5c', background: '#1e1e36', color: '#F1F5F9', fontSize: '12px', textAlign: 'center', marginLeft: '8px' }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              const val = parseInt((e.target as HTMLInputElement).value);
+                              if (val >= 1 && val <= totalPages) { setCompanyPage(val); (e.target as HTMLInputElement).value = ''; }
+                            }
+                          }}
+                        />
                       </div>
                     );
                   })()}
