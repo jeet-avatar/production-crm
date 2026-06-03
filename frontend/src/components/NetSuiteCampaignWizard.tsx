@@ -1,5 +1,14 @@
-// NetSuiteCampaignWizard — dual-mode wizard (NetSuite + Apollo)
+// NetSuiteCampaignWizard — tri-mode wizard (NetSuite + Apollo + arthaBuild)
 // -----------------------------------------------------------------------------
+// Phase 08-02: 3rd mode 'arthabuild' added — opens the same Apollo audience +
+// review + send flow as 'apollo' mode but: (a) header label "arthaBuild
+// Campaign", (b) pre-fetches the ARTHABUILD ICP preset on mount via
+// apolloApi.getIcpPreset('arthabuild') to show the user which Apollo filters
+// to use when importing, (c) locks the dispatch stream to 'ArthaBuild' so the
+// backend resolves the Stream:ArthaBuild template via the 3-layer fallback
+// (Stream:ArthaBuild -> Stream:Other -> hardcoded). All 3 modes share the
+// wizard shell; arthabuild diff is intentionally tiny.
+//
 // Phase 04-03: Apollo Campaign port. This wizard opens from /campaigns header
 // in one of two modes via the `initialMode` prop:
 //
@@ -51,6 +60,7 @@ import {
   ApolloPersonalizedSendRow,
   ApolloPersonalizedPreviewResponse,
   ApolloPersonalizedSendResponse,
+  ApolloSearchFilters,
 } from '../services/api';
 
 // ===== Types =====
@@ -67,7 +77,8 @@ interface Contact {
 
 interface NetSuiteCampaignWizardProps {
   isOpen: boolean;
-  initialMode?: 'netsuite' | 'apollo';
+  // Phase 08-02 — 'arthabuild' added as 3rd mode (arthaBuild marketing campaign).
+  initialMode?: 'netsuite' | 'apollo' | 'arthabuild';
   onClose: () => void;
   onSuccess?: () => void;
 }
@@ -86,6 +97,9 @@ interface SendResult {
 
 const APOLLO_FROM_DISPLAY = 'Sara <sara@techcloudpro.com>';
 const DEFAULT_STREAM = 'Other';
+// Phase 08-02 — arthabuild mode locks the stream to 'ArthaBuild' so the
+// backend resolves the Stream:ArthaBuild template seeded in Phase 08-01.
+const ARTHABUILD_STREAM = 'ArthaBuild';
 
 // ===== Component =====
 
@@ -96,8 +110,9 @@ export function NetSuiteCampaignWizard({
   onSuccess,
 }: NetSuiteCampaignWizardProps) {
   // initialMode drives label + dispatch path; locked at mount so toggling parent
-  // state mid-flight can't corrupt an in-progress send.
-  const [mode] = useState<'netsuite' | 'apollo'>(initialMode);
+  // state mid-flight can't corrupt an in-progress send. Phase 08-02 widened to
+  // accept 'arthabuild' which reuses the Apollo audience+review+send flow.
+  const [mode] = useState<'netsuite' | 'apollo' | 'arthabuild'>(initialMode);
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
@@ -135,8 +150,21 @@ export function NetSuiteCampaignWizard({
     return t;
   }
 
-  const isApollo = mode === 'apollo';
-  const campaignLabel = isApollo ? 'Apollo Campaign' : 'NetSuite Campaign';
+  // Phase 08-02 — arthabuild reuses the apollo audience/review/send flow, so
+  // `isApollo` is true for BOTH 'apollo' and 'arthabuild'. `isArthaBuild`
+  // narrows to the arthabuild-only branches (stream lock, ICP preset display,
+  // label).
+  const isArthaBuild = mode === 'arthabuild';
+  const isApollo = mode === 'apollo' || isArthaBuild;
+  const campaignLabel = isArthaBuild
+    ? 'arthaBuild Campaign'
+    : mode === 'apollo'
+      ? 'Apollo Campaign'
+      : 'NetSuite Campaign';
+
+  // Phase 08-02 — arthabuild ICP preset fetched on mount (display-only help so
+  // the user knows what Apollo filters to use when going to /apollo to import).
+  const [icpPreset, setIcpPreset] = useState<ApolloSearchFilters | null>(null);
 
   // ===== Mount: for apollo mode, fetch contacts and client-filter to source==='apollo' =====
   useEffect(() => {
@@ -156,6 +184,12 @@ export function NetSuiteCampaignWizard({
     setSkipPersonalize(false);
     // Phase 04-08: reset schedule picker to default 'now' on every clean open
     setScheduleChoice('now');
+    // Phase 08-02: reset arthabuild ICP preset on clean open
+    setIcpPreset(null);
+
+    // Phase 08-02 — arthabuild mode locks stream to 'ArthaBuild' so backend
+    // resolves Stream:ArthaBuild template seeded in Phase 08-01.
+    if (isArthaBuild) setSelectedStream(ARTHABUILD_STREAM);
 
     if (!isApollo) return; // netsuite mode has no audience step — skip
 
@@ -169,7 +203,17 @@ export function NetSuiteCampaignWizard({
         const data = await contactsApi.getAll({ limit: 500 });
         if (cancelled) return;
         const all: Contact[] = Array.isArray(data?.contacts) ? data.contacts : [];
-        const apolloOnly = all.filter((c) => (c.source || '').toLowerCase() === 'apollo');
+        // Phase 08-02 — arthabuild mode additionally filters to contacts with
+        // customFields.stream === 'ArthaBuild' so the user only sees the
+        // arthaBuild-tagged audience. apollo mode keeps the broader filter.
+        const apolloOnly = all.filter((c) => {
+          if ((c.source || '').toLowerCase() !== 'apollo') return false;
+          if (isArthaBuild) {
+            const s = (c.customFields?.stream as string | undefined) || '';
+            return s === ARTHABUILD_STREAM;
+          }
+          return true;
+        });
         setContacts(apolloOnly);
         // Pre-tick all (user can deselect)
         setSelectedIds(new Set(apolloOnly.map((c) => c.id)));
@@ -182,10 +226,26 @@ export function NetSuiteCampaignWizard({
       }
     })();
 
+    // Phase 08-02 — fetch ICP preset for arthabuild mode (display-only).
+    // Failure falls back silently to null — the wizard still works without it.
+    if (isArthaBuild) {
+      (async () => {
+        try {
+          const data = await apolloApi.getIcpPreset('arthabuild');
+          if (!cancelled) setIcpPreset(data.preset);
+        } catch (err) {
+          if (!cancelled) {
+            console.warn('[NetSuiteCampaignWizard] ICP preset fetch failed', err);
+            setIcpPreset(null);
+          }
+        }
+      })();
+    }
+
     return () => {
       cancelled = true;
     };
-  }, [isOpen, isApollo]);
+  }, [isOpen, isApollo, isArthaBuild]);
 
   // Derive available streams from loaded contacts (read from customFields.stream
   // if set by 04-01 importer; falls back to 'Other'). Memoized so the dropdown
@@ -596,49 +656,104 @@ export function NetSuiteCampaignWizard({
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
                 <UserGroupIcon style={{ width: 18, height: 18, color: '#6366f1' }} />
                 <h3 style={{ color: '#f1f5f9', fontSize: 15, fontWeight: 600, margin: 0 }}>
-                  Pick Apollo contacts to email
+                  {isArthaBuild
+                    ? 'Pick arthaBuild contacts to email'
+                    : 'Pick Apollo contacts to email'}
                 </h3>
               </div>
               <p style={{ color: '#94a3b8', fontSize: 13, margin: '0 0 16px' }}>
-                Showing {contacts.length} contact(s) imported from Apollo (source='apollo').
+                {isArthaBuild
+                  ? `Showing ${contacts.length} contact(s) tagged stream='ArthaBuild' (source='apollo').`
+                  : `Showing ${contacts.length} contact(s) imported from Apollo (source='apollo').`}
               </p>
 
-              {/* Stream picker */}
-              <div style={{ marginBottom: 16 }}>
-                <label
+              {/* Phase 08-02 — arthabuild ICP preset banner (display-only).
+                  Tells the user which Apollo filters to apply when going to
+                  /apollo to import more arthaBuild-tagged contacts. */}
+              {isArthaBuild && icpPreset && (
+                <div
                   style={{
-                    color: '#94a3b8',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    display: 'block',
-                    marginBottom: 6,
-                  }}
-                >
-                  STREAM (template routing key)
-                </label>
-                <select
-                  value={selectedStream}
-                  onChange={(e) => setSelectedStream(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
+                    padding: '12px 14px',
+                    background: 'rgba(124,58,237,0.06)',
+                    border: '1px solid rgba(124,58,237,0.25)',
                     borderRadius: 8,
-                    color: '#f1f5f9',
-                    fontSize: 14,
+                    marginBottom: 16,
+                    fontSize: 12,
+                    color: '#c4b5fd',
+                    lineHeight: 1.6,
                   }}
                 >
-                  {availableStreams.map((s) => (
-                    <option key={s} value={s} style={{ background: '#0f172a' }}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-                <p style={{ color: '#64748b', fontSize: 11, margin: '6px 0 0' }}>
-                  Backend resolves: Stream:{selectedStream} → Stream:Other → hardcoded fallback
-                </p>
-              </div>
+                  <div
+                    style={{
+                      color: '#94a3b8',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.5,
+                      marginBottom: 6,
+                    }}
+                  >
+                    arthaBuild ICP preset (use these on /apollo)
+                  </div>
+                  {icpPreset.personTitles && icpPreset.personTitles.length > 0 && (
+                    <div>
+                      <strong>Titles:</strong> {icpPreset.personTitles.join(', ')}
+                    </div>
+                  )}
+                  {icpPreset.organizationKeywordTags &&
+                    icpPreset.organizationKeywordTags.length > 0 && (
+                      <div>
+                        <strong>Keywords:</strong>{' '}
+                        {icpPreset.organizationKeywordTags.join(', ')}
+                      </div>
+                    )}
+                  {icpPreset.personLocations && icpPreset.personLocations.length > 0 && (
+                    <div>
+                      <strong>Locations:</strong> {icpPreset.personLocations.join(', ')}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Stream picker — apollo mode only. arthabuild locks the
+                  stream to 'ArthaBuild' so we hide the picker. */}
+              {!isArthaBuild && (
+                <div style={{ marginBottom: 16 }}>
+                  <label
+                    style={{
+                      color: '#94a3b8',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      display: 'block',
+                      marginBottom: 6,
+                    }}
+                  >
+                    STREAM (template routing key)
+                  </label>
+                  <select
+                    value={selectedStream}
+                    onChange={(e) => setSelectedStream(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: 8,
+                      color: '#f1f5f9',
+                      fontSize: 14,
+                    }}
+                  >
+                    {availableStreams.map((s) => (
+                      <option key={s} value={s} style={{ background: '#0f172a' }}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                  <p style={{ color: '#64748b', fontSize: 11, margin: '6px 0 0' }}>
+                    Backend resolves: Stream:{selectedStream} → Stream:Other → hardcoded fallback
+                  </p>
+                </div>
+              )}
 
               {loadingContacts ? (
                 <div style={{ color: '#64748b', fontSize: 14, padding: '20px 0' }}>
@@ -666,10 +781,21 @@ export function NetSuiteCampaignWizard({
                     borderRadius: 8,
                     color: '#fbbf24',
                     fontSize: 13,
+                    lineHeight: 1.5,
                   }}
                 >
-                  No Apollo-source contacts found. Go to <strong>/apollo</strong> and import some
-                  first.
+                  {isArthaBuild ? (
+                    <>
+                      No existing arthaBuild-tagged contacts yet — go to{' '}
+                      <strong>/apollo</strong> and import contacts using the ICP preset above
+                      (apply <code>stream='ArthaBuild'</code> on import).
+                    </>
+                  ) : (
+                    <>
+                      No Apollo-source contacts found. Go to <strong>/apollo</strong> and import
+                      some first.
+                    </>
+                  )}
                 </div>
               ) : (
                 <>

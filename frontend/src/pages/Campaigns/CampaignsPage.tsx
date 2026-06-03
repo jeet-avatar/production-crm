@@ -61,7 +61,7 @@ export function CampaignsPage() {
   const [netSuiteResult, setNetSuiteResult] = useState<{ sent: number; total: number; failed: number; companyCount: number } | null>(null);
   const [wizardPreselect, setWizardPreselect] = useState<{ subject: string; campaignType: string } | null>(null);
   const [showNetSuiteCampaignWizard, setShowNetSuiteCampaignWizard] = useState(false);
-  const [wizardInitialMode, setWizardInitialMode] = useState<'netsuite' | 'apollo'>('netsuite');
+  const [wizardInitialMode, setWizardInitialMode] = useState<'netsuite' | 'apollo' | 'arthabuild'>('netsuite');
 
   useEffect(() => {
     loadCampaigns();
@@ -264,6 +264,24 @@ export function CampaignsPage() {
             <p className="text-lg text-white/90 font-medium">Create and manage email marketing campaigns</p>
           </div>
           <div className="flex items-center gap-3">
+            {/* Phase 08-02 — leftmost arthaBuild Campaign button. Opens the
+                tri-mode wizard in 'arthabuild' mode, which: filters contacts
+                to stream='ArthaBuild', shows the Apollo ICP preset, and
+                dispatches via apolloApi.sendCampaign(ids, 'ArthaBuild') so
+                the backend resolves the Stream:ArthaBuild template. Indigo
+                gradient matches the other 3 buttons. */}
+            <button
+              type="button"
+              onClick={() => {
+                setWizardInitialMode('arthabuild');
+                setShowNetSuiteCampaignWizard(true);
+              }}
+              className={`flex items-center gap-2 px-5 py-3 bg-gradient-to-r ${gradients.brand.primary.gradient} text-white rounded-xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95 tracking-wide border border-indigo-500/30`}
+              title="Open arthaBuild Campaign wizard — pre-loads ICP preset and arthaBuild-tagged contacts"
+            >
+              <SparklesIcon className="h-5 w-5" />
+              Send arthaBuild Campaign
+            </button>
             <button
               type="button"
               onClick={() => {

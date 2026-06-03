@@ -549,6 +549,20 @@ export const apolloApi = {
     return response.data;
   },
 
+  // GET /api/apollo/icp-presets/:name — Phase 08 plan 08-02 helper.
+  // Returns a named Apollo ICP filter preset (e.g. 'arthabuild'). Used by the
+  // wizard's 'arthabuild' mode to pre-populate the Apollo search form so the
+  // user doesn't re-type the NetSuite-admin/dev titles + US/Canada filter.
+  // Backend: backend/src/routes/apollo.ts:755 (404 if preset name unknown).
+  getIcpPreset: async (
+    name: string,
+  ): Promise<{ name: string; preset: ApolloSearchFilters }> => {
+    const response = await apiClient.get(
+      `/apollo/icp-presets/${encodeURIComponent(name)}`,
+    );
+    return response.data;
+  },
+
   // POST /api/apollo/send-personalized-campaign — Phase 04-05 AI personalization.
   // mode='preview' → personalize FIRST contact only, cached per (firstContactId, templateId).
   // mode='send'    → personalize all (max 100), dispatch via Resend, create Campaign + EmailLog
