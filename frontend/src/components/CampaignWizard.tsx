@@ -1251,11 +1251,12 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
             );
             const allFilteredSelected = searchFiltered.length > 0 && searchFiltered.every((c: any) => selectedCompanyIds.includes(c.id));
 
-            // Sort: TCP pinned top, sent companies before unsent (uses companySentCounts — no contact scan needed)
-            const tcpGroup    = searchFiltered.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
-            const sentGroup   = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0);
-            const unsentGroup = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0);
-            const filteredSorted = [...tcpGroup, ...sentGroup, ...unsentGroup];
+            // Sort: 1) TCP  2) Sent  3) Unsent with contacts  4) No contacts at end (greyed out)
+            const tcpGroup         = searchFiltered.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
+            const sentGroup        = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0);
+            const unsentGroup      = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0);
+            const noContactGroup   = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) === 0);
+            const filteredSorted   = [...tcpGroup, ...sentGroup, ...unsentGroup, ...noContactGroup];
 
             const firstUnsentPos = tcpGroup.length + sentGroup.length;
             const lastSentPageNum = sentGroup.length > 0 ? Math.ceil((firstUnsentPos + 1) / COMPANIES_PER_PAGE) : null;
@@ -1355,12 +1356,15 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       <span>•</span>
                       <button
                         onClick={() => {
-                          const unsentIds = unsentGroup.map((c: any) => c.id);
+                          // Only select companies with at least 1 contact (skip empty/no-email companies)
+                          const unsentIds = unsentGroup
+                            .filter((c: any) => (c._count?.contacts || 0) > 0)
+                            .map((c: any) => c.id);
                           setSelectedCompanyIds(prev => [...new Set([...prev, ...unsentIds])]);
                         }}
                         style={{ background: 'none', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', color: '#10B981', fontSize: '11px', fontWeight: 600, padding: '3px 10px', cursor: 'pointer' }}
                       >
-                        + Select all {unsentGroup.length} unsent
+                        + Select all {unsentGroup.filter((c: any) => (c._count?.contacts || 0) > 0).length} unsent (with contacts)
                       </button>
                     </>
                   )}
@@ -1446,9 +1450,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     const contactCount = company._count?.contacts || 0;
                     const contacts = company.contacts || [];
                     const selectedInCompany = contacts.filter(c => selectedContactIds.has(c.id)).length;
+                    const hasNoContacts = contactCount === 0;
 
                     return (
-                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : '#20203a', transition: 'all 0.15s' }}>
+                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : hasNoContacts ? '1px solid #2d2d3a' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : hasNoContacts ? '#18182e' : '#20203a', transition: 'all 0.15s', opacity: hasNoContacts ? 0.45 : 1 }}>
                         {/* Company header row */}
                         <div
                           onClick={() => toggleCompany(company.id)}
