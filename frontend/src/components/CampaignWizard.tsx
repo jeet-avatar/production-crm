@@ -89,6 +89,11 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [sendProgress, setSendProgress] = useState<{ status: string; sent: number; failed: number; total: number; remaining: number; nextSendInSeconds: number } | null>(null);
   const [verticalFilter, setVerticalFilter] = useState<string>('all');
   const [verticals, setVerticals] = useState<Vertical[]>([]);
+  const [companyPage, setCompanyPage] = useState(1);
+
+  const COMPANIES_PER_PAGE = 50;
+  const INTERNAL_COMPANY_REGEX = /techcloudpro/i;
+  const INTERNAL_EMAILS = new Set(['raj.manohran@gmail.com', 'jeetnair.in@gmail.com', 'jm@techcloudpro.com']);
 
   const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -152,6 +157,9 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
     const timer = setInterval(poll, 10000);
     return () => clearInterval(timer);
   }, [sendCampaignId, sendProgress?.status]);
+
+  // Reset to page 1 when search or vertical filter changes
+  useEffect(() => { setCompanyPage(1); }, [companySearch, verticalFilter]);
 
   // Load companies + templates when wizard opens
   useEffect(() => {
@@ -1211,6 +1219,28 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
             });
             const allFilteredSelected = filtered.length > 0 && filtered.every(c => selectedCompanyIds.includes(c.id));
 
+            // Pin TechCloudPro companies to top; exclude from last-sent calc
+            const filteredSorted = [
+              ...filtered.filter(c => INTERNAL_COMPANY_REGEX.test(c.name || '')),
+              ...filtered.filter(c => !INTERNAL_COMPANY_REGEX.test(c.name || '')),
+            ];
+            const nonInternal = filteredSorted.filter(c => !INTERNAL_COMPANY_REGEX.test(c.name || ''));
+            let lastSentIdx = -1;
+            for (let i = nonInternal.length - 1; i >= 0; i--) {
+              const hasNonInternalSent = (nonInternal[i].contacts || []).some(
+                (c: any) => sentContactIds.has(c.id) && !INTERNAL_EMAILS.has((c.email || '').toLowerCase())
+              );
+              if (hasNonInternalSent) { lastSentIdx = i; break; }
+            }
+            const lastSentCompany = lastSentIdx >= 0 ? nonInternal[lastSentIdx] : null;
+            const lastSentPageNum = lastSentCompany
+              ? Math.ceil((filteredSorted.indexOf(lastSentCompany) + 1) / COMPANIES_PER_PAGE)
+              : null;
+            const totalPages = Math.ceil(filteredSorted.length / COMPANIES_PER_PAGE);
+            const pagedCompanies = filteredSorted.slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE);
+            const showingFrom = filteredSorted.length === 0 ? 0 : (companyPage - 1) * COMPANIES_PER_PAGE + 1;
+            const showingTo = Math.min(companyPage * COMPANIES_PER_PAGE, filteredSorted.length);
+
             return (
             <div>
               {/* Search bar */}
@@ -1331,7 +1361,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <span>{companies.length} total groups</span>
                   <span>•</span>
-                  <span>{filtered.length} shown</span>
+                  <span>Showing {showingFrom}–{showingTo} of {filteredSorted.length}</span>
                   <span>•</span>
                   <span style={{ color: '#A5B4FC', fontWeight: 600 }}>{selectedCompanyIds.length} selected</span>
                 </div>
@@ -1386,18 +1416,31 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   <p style={{ fontSize: '14px' }}>No companies match "{companySearch}"</p>
                 </div>
               ) : (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '6px',
-                    marginBottom: '16px',
-                    maxHeight: '400px',
-                    overflowY: 'auto',
-                    paddingRight: '4px',
-                  }}
-                >
-                  {filtered.map((company) => {
+                <>
+                  {/* Last sent jump banner — excludes TechCloudPro/internal test sends */}
+                  {lastSentCompany && lastSentPageNum && lastSentPageNum !== companyPage && (
+                    <div
+                      onClick={() => setCompanyPage(lastSentPageNum)}
+                      style={{ cursor: 'pointer', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', padding: '8px 14px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}
+                    >
+                      <span>📍</span>
+                      <span style={{ color: '#10B981', fontWeight: 600 }}>Last sent: {lastSentCompany.name}</span>
+                      <span style={{ color: '#64748B' }}>·</span>
+                      <span style={{ color: '#10B981' }}>Jump to Page {lastSentPageNum} →</span>
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '6px',
+                      marginBottom: '16px',
+                      maxHeight: '400px',
+                      overflowY: 'auto',
+                      paddingRight: '4px',
+                    }}
+                  >
+                  {pagedCompanies.map((company) => {
                     const isSelected = selectedCompanyIds.includes(company.id);
                     const isExpanded = expandedCompanyId === company.id;
                     const contactCount = company._count?.contacts || 0;
@@ -1545,7 +1588,24 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       </div>
                     );
                   })}
-                </div>
+                  </div>
+                  {/* Pagination controls */}
+                  {totalPages > 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '12px', fontSize: '13px' }}>
+                      <button
+                        onClick={() => setCompanyPage(p => Math.max(1, p - 1))}
+                        disabled={companyPage === 1}
+                        style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #3d3d5c', background: companyPage === 1 ? 'transparent' : 'rgba(99,102,241,0.15)', color: companyPage === 1 ? '#4a4a6a' : '#A5B4FC', cursor: companyPage === 1 ? 'not-allowed' : 'pointer', fontWeight: 600 }}
+                      >← Prev</button>
+                      <span style={{ color: '#94A3B8' }}>Page {companyPage} of {totalPages}</span>
+                      <button
+                        onClick={() => setCompanyPage(p => Math.min(totalPages, p + 1))}
+                        disabled={companyPage === totalPages}
+                        style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #3d3d5c', background: companyPage === totalPages ? 'transparent' : 'rgba(99,102,241,0.15)', color: companyPage === totalPages ? '#4a4a6a' : '#A5B4FC', cursor: companyPage === totalPages ? 'not-allowed' : 'pointer', fontWeight: 600 }}
+                      >Next →</button>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Summary bar */}
