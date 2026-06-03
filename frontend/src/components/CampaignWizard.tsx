@@ -166,19 +166,19 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   // Reset to page 1 when search changes
   useEffect(() => { setCompanyPage(1); }, [companySearch]);
 
-  // Compute stable page order ONCE when companies load — never recomputes on sent-count changes
-  // Order: TCP pinned top | with-contacts alphabetical | no-contacts alphabetical
+  // Compute stable page order ONCE — uses sent-first order so jump button works correctly.
+  // Waits for BOTH allCompaniesSlim AND companySentCounts to load, then FREEZES the order.
+  // Pages never reshuffle after first computation (guard: stableSortedCompanies.length > 0).
   useEffect(() => {
-    if (allCompaniesSlim.length === 0) return;
-    const tcp  = allCompaniesSlim.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
-    const withContacts = allCompaniesSlim
-      .filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) > 0)
-      .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''));
-    const noContacts = allCompaniesSlim
-      .filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) === 0)
-      .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''));
-    setStableSortedCompanies([...tcp, ...withContacts, ...noContacts]);
-  }, [allCompaniesSlim.length]); // ← depends ONLY on length, not on companySentCounts
+    if (allCompaniesSlim.length === 0 || Object.keys(companySentCounts).length === 0) return;
+    if (stableSortedCompanies.length > 0) return; // already frozen — don't overwrite
+    const tcp     = allCompaniesSlim.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
+    const sent    = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0 && (c._count?.contacts || 0) > 0);
+    const unsent  = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0);
+    const noEmail = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) === 0);
+    setStableSortedCompanies([...tcp, ...sent, ...unsent, ...noEmail]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allCompaniesSlim.length, Object.keys(companySentCounts).length]);
 
   // Load contacts for current page whenever page or slim data changes
   useEffect(() => {
