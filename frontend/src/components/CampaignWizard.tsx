@@ -255,38 +255,76 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
     }
   };
 
+  const buildVerticalsFromList = (list: any[]) => {
+    const vMap = new Map<string, { count: number; totalContacts: number; emailContacts: number }>();
+    list.forEach((c: any) => {
+      const v = c.vertical || 'Uncategorized';
+      const existing = vMap.get(v) || { count: 0, totalContacts: 0, emailContacts: 0 };
+      existing.count++;
+      existing.totalContacts += c._count?.contacts || 0;
+      existing.emailContacts += (c.contacts || []).filter((ct: any) => isValidEmail(ct.email)).length;
+      vMap.set(v, existing);
+    });
+    const vList = Array.from(vMap.entries())
+      .map(([name, stats]) => ({ name, ...stats }))
+      .sort((a, b) => b.emailContacts - a.emailContacts);
+    setVerticals(vList);
+  };
+
   const loadCompanies = async () => {
     try {
       const token = localStorage.getItem('crmToken');
-      const res = await fetch(`${API_URL}/api/companies?limit=500`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : data.companies || data.data || [];
-        // Tag each company with normalized vertical + sort by emailable contact count
+      const processAndSort = (list: any[]) => {
         list.forEach((c: any) => { c.vertical = getVertical(c.industry); });
         list.sort((a: any, b: any) => {
           const aEmail = (a.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
           const bEmail = (b.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
           return bEmail - aEmail;
         });
-        setCompanies(list);
+        return list;
+      };
 
-        // Build vertical summary from loaded companies
-        const vMap = new Map<string, { count: number; totalContacts: number; emailContacts: number }>();
-        list.forEach((c: any) => {
-          const v = c.vertical || 'Uncategorized';
-          const existing = vMap.get(v) || { count: 0, totalContacts: 0, emailContacts: 0 };
-          existing.count++;
-          existing.totalContacts += c._count?.contacts || 0;
-          existing.emailContacts += (c.contacts || []).filter((ct: any) => isValidEmail(ct.email)).length;
-          vMap.set(v, existing);
+      // First batch — show immediately so user can start working
+      const res = await fetch(`${API_URL}/api/companies?page=1&limit=500`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const firstBatch = processAndSort(Array.isArray(data) ? data : data.companies || data.data || []);
+      const total = data.total || firstBatch.length;
+      setCompanies(firstBatch);
+      buildVerticalsFromList(firstBatch);
+
+      // Background — load remaining batches silently in groups of 5
+      if (total > 500) {
+        const totalApiPages = Math.ceil(total / 500);
+        const accumulated: any[] = [...firstBatch];
+        for (let groupStart = 2; groupStart <= totalApiPages; groupStart += 5) {
+          const group = [];
+          for (let p = groupStart; p <= Math.min(groupStart + 4, totalApiPages); p++) {
+            group.push(
+              fetch(`${API_URL}/api/companies?page=${p}&limit=500`, {
+                headers: { Authorization: `Bearer ${token}` },
+              }).then(r => r.ok ? r.json() : null).catch(() => null)
+            );
+          }
+          const results = await Promise.all(group);
+          results.forEach(d => {
+            if (d) {
+              const batch = Array.isArray(d) ? d : d.companies || [];
+              processAndSort(batch);
+              accumulated.push(...batch);
+            }
+          });
+        }
+        // Final sort + state update once all batches done
+        accumulated.sort((a: any, b: any) => {
+          const aEmail = (a.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
+          const bEmail = (b.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
+          return bEmail - aEmail;
         });
-        const vList = Array.from(vMap.entries())
-          .map(([name, stats]) => ({ name, ...stats }))
-          .sort((a, b) => b.emailContacts - a.emailContacts);
-        setVerticals(vList);
+        setCompanies(accumulated);
+        buildVerticalsFromList(accumulated);
       }
     } catch {
       // silently fail — empty state handled below
