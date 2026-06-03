@@ -65,6 +65,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [campaignGoal, setCampaignGoal] = useState('');
   const [companies, setCompanies] = useState<Company[]>([]); // current page full data
   const [allCompaniesSlim, setAllCompaniesSlim] = useState<any[]>([]); // all companies, no contacts
+  const [stableSortedCompanies, setStableSortedCompanies] = useState<any[]>([]); // fixed page order, computed once
   const [companySentCounts, setCompanySentCounts] = useState<Record<string, number>>({});
   const [selectedCompanyIds, setSelectedCompanyIds] = useState<string[]>([]);
   const [fromAddress, setFromAddress] = useState('');
@@ -165,21 +166,33 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   // Reset to page 1 when search changes
   useEffect(() => { setCompanyPage(1); }, [companySearch]);
 
+  // Compute stable page order ONCE when companies load — never recomputes on sent-count changes
+  // Order: TCP pinned top | with-contacts alphabetical | no-contacts alphabetical
+  useEffect(() => {
+    if (allCompaniesSlim.length === 0) return;
+    const tcp  = allCompaniesSlim.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
+    const withContacts = allCompaniesSlim
+      .filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) > 0)
+      .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''));
+    const noContacts = allCompaniesSlim
+      .filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) === 0)
+      .sort((a: any, b: any) => (a.name || '').localeCompare(b.name || ''));
+    setStableSortedCompanies([...tcp, ...withContacts, ...noContacts]);
+  }, [allCompaniesSlim.length]); // ← depends ONLY on length, not on companySentCounts
+
   // Load contacts for current page whenever page or slim data changes
   useEffect(() => {
     if (!isOpen || allCompaniesSlim.length === 0) return;
+    // Use stable sort for page contacts — same order as display
+    const base = stableSortedCompanies.length > 0 ? stableSortedCompanies : allCompaniesSlim;
     const searchLower = companySearch.toLowerCase();
-    const matches = (c: any) => !searchLower || c.name?.toLowerCase().includes(searchLower);
-    const tcp    = allCompaniesSlim.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || '') && matches(c));
-    const sent   = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0 && matches(c));
-    const unsent = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && matches(c));
-    const filteredSorted = [...tcp, ...sent, ...unsent];
-    const pageIds = filteredSorted
+    const filtered = searchLower ? base.filter((c: any) => c.name?.toLowerCase().includes(searchLower)) : base;
+    const pageIds = filtered
       .slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE)
       .map((c: any) => c.id);
     if (pageIds.length) loadPageContacts(pageIds);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyPage, allCompaniesSlim.length, Object.keys(companySentCounts).length, companySearch, isOpen]);
+  }, [companyPage, stableSortedCompanies.length, companySearch, isOpen]);
 
   // Load companies + templates when wizard opens
   useEffect(() => {
@@ -1245,21 +1258,23 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
           {/* ======================== STEP 2 ======================== */}
           {step === 2 && (() => {
-            // Use slim list (all companies, no contacts) for sorting + pagination
-            const searchFiltered = allCompaniesSlim.filter((c: any) =>
-              c.name?.toLowerCase().includes(companySearch.toLowerCase())
+            // STABLE PAGE ORDER — from stableSortedCompanies (computed once on load, never reshuffled)
+            // sentCounts only used for badges + banner, never for ordering
+            const base = stableSortedCompanies.length > 0 ? stableSortedCompanies : allCompaniesSlim;
+            const filteredSorted = companySearch
+              ? base.filter((c: any) => c.name?.toLowerCase().includes(companySearch.toLowerCase()))
+              : base;
+            const allFilteredSelected = filteredSorted.length > 0 && filteredSorted.every((c: any) => selectedCompanyIds.includes(c.id));
+
+            // Banner counts — uses sentCounts but does NOT affect page order
+            const sentGroup   = filteredSorted.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0);
+            const unsentGroup = filteredSorted.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0);
+
+            // Jump page = first position in stable list with any unsent company (with contacts)
+            const firstUnsentIdx = filteredSorted.findIndex((c: any) =>
+              !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0
             );
-            const allFilteredSelected = searchFiltered.length > 0 && searchFiltered.every((c: any) => selectedCompanyIds.includes(c.id));
-
-            // Sort: 1) TCP  2) Sent  3) Unsent with contacts  4) No contacts at end (greyed out)
-            const tcpGroup         = searchFiltered.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
-            const sentGroup        = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0);
-            const unsentGroup      = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0);
-            const noContactGroup   = searchFiltered.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) === 0);
-            const filteredSorted   = [...tcpGroup, ...sentGroup, ...unsentGroup, ...noContactGroup];
-
-            const firstUnsentPos = tcpGroup.length + sentGroup.length;
-            const lastSentPageNum = sentGroup.length > 0 ? Math.ceil((firstUnsentPos + 1) / COMPANIES_PER_PAGE) : null;
+            const lastSentPageNum = firstUnsentIdx >= 0 ? Math.ceil((firstUnsentIdx + 1) / COMPANIES_PER_PAGE) : null;
             const totalPages = Math.ceil(filteredSorted.length / COMPANIES_PER_PAGE);
             const pagedSlim = filteredSorted.slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE);
             const showingFrom = filteredSorted.length === 0 ? 0 : (companyPage - 1) * COMPANIES_PER_PAGE + 1;
