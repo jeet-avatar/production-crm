@@ -1422,17 +1422,19 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
               ) : (
                 <>
                   {/* Last sent jump banner — excludes TechCloudPro/internal test sends */}
-                  {sentGroup.length > 0 && lastSentPageNum && lastSentPageNum !== companyPage && (
+                  {sentGroup.length > 0 && lastSentPageNum && (
                     <div
-                      onClick={() => setCompanyPage(lastSentPageNum)}
-                      style={{ cursor: 'pointer', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', padding: '8px 14px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}
+                      onClick={() => lastSentPageNum !== companyPage && setCompanyPage(lastSentPageNum)}
+                      style={{ cursor: lastSentPageNum !== companyPage ? 'pointer' : 'default', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', padding: '8px 14px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', flexWrap: 'wrap' }}
                     >
                       <span>📍</span>
                       <span style={{ color: '#10B981', fontWeight: 600 }}>
-                        {sentGroup.length} companies already sent · {unsentGroup.length} remaining
+                        {sentGroup.length} sent · {unsentGroup.length} unsent remaining
                       </span>
                       <span style={{ color: '#64748B' }}>·</span>
-                      <span style={{ color: '#10B981' }}>Continue from Page {lastSentPageNum} →</span>
+                      {lastSentPageNum !== companyPage
+                        ? <span style={{ color: '#10B981' }}>Jump to Page {lastSentPageNum} (first unsent) →</span>
+                        : <span style={{ color: '#64748B' }}>You are on Page {lastSentPageNum} (first unsent)</span>}
                     </div>
                   )}
                   <div
@@ -1453,7 +1455,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     const hasNoContacts = contactCount === 0;
 
                     return (
-                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : hasNoContacts ? '1px solid #2d2d3a' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : hasNoContacts ? '#18182e' : '#20203a', transition: 'all 0.15s', opacity: hasNoContacts ? 0.45 : 1 }}>
+                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : hasNoContacts ? '1px solid rgba(249,115,22,0.3)' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : hasNoContacts ? 'rgba(249,115,22,0.04)' : '#20203a', transition: 'all 0.15s' }}>
                         {/* Company header row */}
                         <div
                           onClick={() => toggleCompany(company.id)}
@@ -1481,6 +1483,9 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                                   padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 600,
                                   background: 'rgba(99,102,241,0.12)', color: '#818CF8', whiteSpace: 'nowrap',
                                 }}>{company.vertical}</span>
+                              )}
+                              {hasNoContacts && (
+                                <span style={{ padding: '1px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 700, background: 'rgba(249,115,22,0.15)', color: '#F97316', whiteSpace: 'nowrap' }}>No email</span>
                               )}
                             </div>
                             <span style={{ fontSize: '12px', color: '#64748B' }}>
