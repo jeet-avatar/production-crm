@@ -488,6 +488,24 @@ router.get('/:id/send-progress', async (req, res, next) => {
   }
 });
 
+// 14 original NetSuite subject line variants (restored from prior deployment)
+const OLD_NETSUITE_SUBJECTS = [
+  "Scale {{companyName}}'s NetSuite Team — Pre-Vetted Engineers at $2/hr",
+  "NetSuite Next 2026 is live — {{companyName}} ready?",
+  "{{companyName}}'s NetSuite talent gap — we can close it in 2-4 weeks",
+  "3.2x demand for NetSuite Next engineers — don't wait 6 months",
+  "Hire NetSuite Next certified engineers at $2/hr flat fee",
+  "{{companyName}} + TechCloudPro — certified NetSuite Next talent in 2-4 weeks",
+  "Still waiting 6 months to fill a NetSuite role?",
+  "We deliver NetSuite Next engineers 4x faster than the industry average",
+  "Your NetSuite Next team, fully staffed in 2-4 weeks",
+  "AI-ready NetSuite engineers for {{companyName}} — $2/hr, no markups",
+  "NetSuite Next certified talent — free 15-min call with Peter",
+  "Stop overpaying 15-20% on NetSuite contractor rates",
+  "Pre-vetted NetSuite Next engineers — 30-day performance guarantee",
+  "{{companyName}}'s NetSuite Next upgrade — the right team matters",
+];
+
 // 5 NetSuite campaign subject line variants
 const NETSUITE_SUBJECTS = [
   "{{companyName}}'s NetSuite team ready for 2026.1?",
@@ -866,6 +884,8 @@ const ONBOARD_SUBJECTS = [
 router.get('/all-templates', async (req, res) => {
   const includeHtml = req.query.html === 'true';
   const templates = [
+    { id: 'netsuite-ai-powered', name: 'NetSuite Next 2026 — AI-Powered Staffing', color: '#FF6B35', subjects: OLD_NETSUITE_SUBJECTS, ...(includeHtml && { htmlContent: NETSUITE_CAMPAIGN_HTML }) },
+    { id: 'netsuite-table', name: 'NetSuite Staff Augmentation — Table Layout', color: '#FF6B35', subjects: OLD_NETSUITE_SUBJECTS, ...(includeHtml && { htmlContent: NETSUITE_CAMPAIGN_HTML }) },
     { id: 'netsuite', name: 'NetSuite + NetSuite Next', color: '#FF6B35', subjects: NETSUITE_SUBJECTS, ...(includeHtml && { htmlContent: NETSUITE_CAMPAIGN_HTML }) },
     { id: 'ai', name: 'AI Consulting', color: '#8B5CF6', subjects: AI_SUBJECTS, ...(includeHtml && { htmlContent: AI_CAMPAIGN_HTML }) },
     { id: 'cloud', name: 'Cloud & Platform Engineering', color: '#0EA5E9', subjects: CLOUD_SUBJECTS, ...(includeHtml && { htmlContent: CLOUD_CAMPAIGN_HTML }) },
