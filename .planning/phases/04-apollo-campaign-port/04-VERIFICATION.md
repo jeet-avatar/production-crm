@@ -92,6 +92,23 @@ No retries exceeded 2 attempts. No checkpoint bypassed.
 - scheduledDispatcher service running with 30s poll + boot catch-up + Sara-protected dispatch path
 - Apollo Campaigns surface in existing /campaigns list and /campaigns/<id>/analytics (unified analytics via Campaign.source)
 
+## Post-deploy Sara deliverability investigation (separate from Phase 04 code)
+
+User reported the live-verify test email did not arrive in `jeetnair.in@gmail.com`. Investigation determined the Phase 04 dispatcher path worked correctly (Resend ack, EmailLog SENT with `fromEmail=sara@techcloudpro.com`, no bounce). The issue was **Gmail-side spam filtering specific to `jeetnair.in@gmail.com`**:
+
+| Evidence | Result |
+|---|---|
+| Resend acked all 3 test sends (messageIds 6f086818-..., 4228bb1a-..., b4e90ad7-...) | ✓ Sending OK |
+| Sara webhook events in last 7d (`email_tracking_events`) | **343 CLICKs + 180 OPENs** — Sara emails reach other recipients fine |
+| EmailLog history for `jeetnair.in@gmail.com` | Peter@ (pre-May 26): OPENED/CLICKED. Sara@ (post-May 26): SENT but never OPENED — Gmail learned Sara=spam for this address only |
+| AWS SES DKIM FAILURE notification | Unrelated — orphaned SES identity in account 134607809447, BrandMonkz uses Resend SMTP. Safe to delete from AWS SES console. |
+| User action: searched Gmail for `from:sara@techcloudpro.com`, marked as Not Spam | ✓ Reputation correction signal sent to Gmail |
+| Confirmation test (messageId `b4e90ad7-...`) post-correction | **✓ Landed in primary inbox** — Sara deliverability to jeetnair.in@gmail.com fully restored |
+
+**Root cause:** new sender (Sara replaced Peter on 2026-05-26 per memory `feedback_brandmonkz_operational_repo_is_seconf_branch`). Early Sara emails to jeetnair.in@gmail.com hit spam during Gmail's new-sender validation window. No engagement → Gmail's classifier locked in "Sara = spam" for that address. Single "Not Spam" click reset reputation.
+
+**Lesson:** when rotating senders (Peter → Sara), proactively send first emails to internal team addresses AND have recipients manually mark as Not Spam to seed positive engagement before bulk dispatch.
+
 ## Rollback path (if needed)
 
 ```bash
