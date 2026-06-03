@@ -91,7 +91,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [verticals, setVerticals] = useState<Vertical[]>([]);
   const [companyPage, setCompanyPage] = useState(1);
 
-  const COMPANIES_PER_PAGE = 10;
+  const COMPANIES_PER_PAGE = 50;
   const INTERNAL_COMPANY_REGEX = /techcloudpro/i;
   const INTERNAL_EMAILS = new Set(['raj.manohran@gmail.com', 'jeetnair.in@gmail.com', 'jm@techcloudpro.com']);
 
@@ -258,7 +258,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const loadCompanies = async () => {
     try {
       const token = localStorage.getItem('crmToken');
-      const res = await fetch(`${API_URL}/api/companies?limit=20000`, {
+      const res = await fetch(`${API_URL}/api/companies?limit=500`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
