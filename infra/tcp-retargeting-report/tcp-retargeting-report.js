@@ -489,7 +489,7 @@ async function render(stats, today) {
     body += `<h2 style="color:#0F172A;font-size:16px;margin-top:28px;border-bottom:2px solid #E5E7EB;padding-bottom:6px">4. 📨 Campaign activity — NEW in last 24h</h2>`;
     const allAttrib = Object.values(attribByEmail).flat();
     if (!allAttrib.length) {
-        body += `<p style="color:#6B7280;font-style:italic;font-size:13px">No new Sara/Peter (sender rotation lives in SENDERS const) campaign activity in the last 24h for our identified prospects. (Reports will only show fresh sends/clicks since the previous fire — same prospect with the same campaign won't repeat report after report.)</p>`;
+        body += `<p style="color:#6B7280;font-style:italic;font-size:13px">No new Sara/Peter campaign activity in the last 24h for our identified prospects. (Reports will only show fresh sends/clicks since the previous fire — same prospect with the same campaign won't repeat report after report.)</p>`;
     } else {
         body += `<table style="width:100%;border-collapse:collapse;font-size:13px">`;
         body += `<thead><tr style="background:#F9FAFB"><th style="padding:8px;text-align:left;border-bottom:1px solid #E5E7EB">Recipient</th><th style="padding:8px;text-align:left;border-bottom:1px solid #E5E7EB">Campaign</th><th style="padding:8px;text-align:right;border-bottom:1px solid #E5E7EB">Sent</th><th style="padding:8px;text-align:right;border-bottom:1px solid #E5E7EB">Delivered</th><th style="padding:8px;text-align:right;border-bottom:1px solid #E5E7EB">Clicks</th><th style="padding:8px;text-align:right;border-bottom:1px solid #E5E7EB">Bounced</th><th style="padding:8px;text-align:left;border-bottom:1px solid #E5E7EB">Last click</th></tr></thead><tbody>`;
