@@ -1350,6 +1350,20 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   <span>Showing {showingFrom}–{showingTo} of {filteredSorted.length}</span>
                   <span>•</span>
                   <span style={{ color: '#A5B4FC', fontWeight: 600 }}>{selectedCompanyIds.length} selected</span>
+                  {unsentGroup.length > 0 && !loadingMoreCompanies && (
+                    <>
+                      <span>•</span>
+                      <button
+                        onClick={() => {
+                          const unsentIds = unsentGroup.map((c: any) => c.id);
+                          setSelectedCompanyIds(prev => [...new Set([...prev, ...unsentIds])]);
+                        }}
+                        style={{ background: 'none', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', color: '#10B981', fontSize: '11px', fontWeight: 600, padding: '3px 10px', cursor: 'pointer' }}
+                      >
+                        + Select all {unsentGroup.length} unsent
+                      </button>
+                    </>
+                  )}
                 </div>
                 {!seedDone && (
                   <button
@@ -1700,16 +1714,20 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
           {/* ======================== STEP 3 ======================== */}
           {step === 3 && (() => {
-            // Build the actual recipient list from selected companies + contacts
+            // Build recipient list from ALL selected companies (not just current page)
+            // contactsMap covers current page; for cross-page selections we show count from selectedContactIds
+            const contactsMap = new Map(companies.map(c => [c.id, c.contacts || []]));
             const allRecipients: { firstName: string; lastName: string; email: string; companyName: string }[] = [];
-            companies.filter(c => selectedCompanyIds.includes(c.id)).forEach(company => {
-              (company.contacts || []).forEach(contact => {
+            selectedCompanyIds.forEach(companyId => {
+              const slim = allCompaniesSlim.find((c: any) => c.id === companyId);
+              const contacts = contactsMap.get(companyId) || [];
+              contacts.forEach(contact => {
                 if (selectedContactIds.size === 0 || selectedContactIds.has(contact.id)) {
                   allRecipients.push({
                     firstName: contact.firstName || '',
                     lastName: contact.lastName || '',
                     email: contact.email || '',
-                    companyName: company.name || '',
+                    companyName: slim?.name || '',
                   });
                 }
               });
