@@ -160,8 +160,21 @@ router.get('/sent-contact-ids', async (req, res, next) => {
     const userId = req.user?.id;
     const { campaignType } = req.query;
 
+    // Team-aware: include account owner's sends so team members see full sent history
+    const userIds = [userId];
+    if (req.user?.teamRole === 'MEMBER' && req.user?.accountOwnerId) {
+      userIds.push(req.user.accountOwnerId);
+    }
+    if (req.user?.teamRole === 'OWNER') {
+      const teamMembers = await prisma.user.findMany({
+        where: { accountOwnerId: userId },
+        select: { id: true },
+      });
+      teamMembers.forEach(m => userIds.push(m.id));
+    }
+
     const where: any = {
-      campaign: { userId },
+      campaign: { userId: { in: userIds.filter(Boolean) as string[] } },
       status: { in: ['SENT', 'DELIVERED', 'OPENED', 'CLICKED'] },
     };
     if (campaignType) {
