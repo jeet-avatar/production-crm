@@ -90,6 +90,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [verticalFilter, setVerticalFilter] = useState<string>('all');
   const [verticals, setVerticals] = useState<Vertical[]>([]);
   const [companyPage, setCompanyPage] = useState(1);
+  const [loadingMoreCompanies, setLoadingMoreCompanies] = useState(false);
+  const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
   const COMPANIES_PER_PAGE = 50;
   const INTERNAL_COMPANY_REGEX = /techcloudpro/i;
@@ -284,26 +286,29 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
         return list;
       };
 
+      const BATCH_SIZE = 1000;
       // First batch — show immediately so user can start working
-      const res = await fetch(`${API_URL}/api/companies?page=1&limit=500`, {
+      const res = await fetch(`${API_URL}/api/companies?page=1&limit=${BATCH_SIZE}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) return;
       const data = await res.json();
       const firstBatch = processAndSort(Array.isArray(data) ? data : data.companies || data.data || []);
       const total = data.total || firstBatch.length;
+      setTotalCompanyCount(total);
       setCompanies(firstBatch);
       buildVerticalsFromList(firstBatch);
 
-      // Background — load remaining batches silently in groups of 5
-      if (total > 500) {
-        const totalApiPages = Math.ceil(total / 500);
+      // Background — load remaining batches in groups of 5
+      if (total > BATCH_SIZE) {
+        setLoadingMoreCompanies(true);
+        const totalApiPages = Math.ceil(total / BATCH_SIZE);
         const accumulated: any[] = [...firstBatch];
         for (let groupStart = 2; groupStart <= totalApiPages; groupStart += 5) {
           const group = [];
           for (let p = groupStart; p <= Math.min(groupStart + 4, totalApiPages); p++) {
             group.push(
-              fetch(`${API_URL}/api/companies?page=${p}&limit=500`, {
+              fetch(`${API_URL}/api/companies?page=${p}&limit=${BATCH_SIZE}`, {
                 headers: { Authorization: `Bearer ${token}` },
               }).then(r => r.ok ? r.json() : null).catch(() => null)
             );
@@ -317,14 +322,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
             }
           });
         }
-        // Final sort + state update once all batches done
-        accumulated.sort((a: any, b: any) => {
-          const aEmail = (a.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
-          const bEmail = (b.contacts || []).filter((c: any) => isValidEmail(c.email)).length;
-          return bEmail - aEmail;
-        });
         setCompanies(accumulated);
         buildVerticalsFromList(accumulated);
+        setTotalCompanyCount(accumulated.length);
+        setLoadingMoreCompanies(false);
       }
     } catch {
       // silently fail — empty state handled below
@@ -1397,7 +1398,11 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 justifyContent: 'space-between',
               }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <span>{companies.length} total groups</span>
+                  <span>
+                    {loadingMoreCompanies
+                      ? `Loading... ${companies.length} of ${totalCompanyCount} companies`
+                      : `${companies.length} total groups`}
+                  </span>
                   <span>•</span>
                   <span>Showing {showingFrom}–{showingTo} of {filteredSorted.length}</span>
                   <span>•</span>
