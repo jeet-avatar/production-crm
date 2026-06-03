@@ -91,7 +91,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [verticals, setVerticals] = useState<Vertical[]>([]);
   const [companyPage, setCompanyPage] = useState(1);
 
-  const COMPANIES_PER_PAGE = 50;
+  const COMPANIES_PER_PAGE = 10;
   const INTERNAL_COMPANY_REGEX = /techcloudpro/i;
   const INTERNAL_EMAILS = new Set(['raj.manohran@gmail.com', 'jeetnair.in@gmail.com', 'jm@techcloudpro.com']);
 
@@ -258,7 +258,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const loadCompanies = async () => {
     try {
       const token = localStorage.getItem('crmToken');
-      const res = await fetch(`${API_URL}/api/companies?limit=500`, {
+      const res = await fetch(`${API_URL}/api/companies?limit=20000`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -1587,22 +1587,35 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     );
                   })}
                   </div>
-                  {/* Pagination controls */}
-                  {totalPages > 1 && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '12px', fontSize: '13px' }}>
-                      <button
-                        onClick={() => setCompanyPage(p => Math.max(1, p - 1))}
-                        disabled={companyPage === 1}
-                        style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #3d3d5c', background: companyPage === 1 ? 'transparent' : 'rgba(99,102,241,0.15)', color: companyPage === 1 ? '#4a4a6a' : '#A5B4FC', cursor: companyPage === 1 ? 'not-allowed' : 'pointer', fontWeight: 600 }}
-                      >← Prev</button>
-                      <span style={{ color: '#94A3B8' }}>Page {companyPage} of {totalPages}</span>
-                      <button
-                        onClick={() => setCompanyPage(p => Math.min(totalPages, p + 1))}
-                        disabled={companyPage === totalPages}
-                        style={{ padding: '6px 14px', borderRadius: '6px', border: '1px solid #3d3d5c', background: companyPage === totalPages ? 'transparent' : 'rgba(99,102,241,0.15)', color: companyPage === totalPages ? '#4a4a6a' : '#A5B4FC', cursor: companyPage === totalPages ? 'not-allowed' : 'pointer', fontWeight: 600 }}
-                      >Next →</button>
-                    </div>
-                  )}
+                  {/* Numbered pagination — matches old setup: 1  2  ...  50  → */}
+                  {totalPages > 1 && (() => {
+                    const btnStyle = (active: boolean, disabled?: boolean): React.CSSProperties => ({
+                      padding: '5px 10px', borderRadius: '6px', border: active ? '1px solid #6366F1' : '1px solid #3d3d5c',
+                      background: active ? '#6366F1' : disabled ? 'transparent' : 'rgba(99,102,241,0.1)',
+                      color: active ? '#fff' : disabled ? '#4a4a6a' : '#A5B4FC',
+                      cursor: disabled ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '13px', minWidth: '34px',
+                    });
+                    const pages: (number | '...')[] = [];
+                    if (totalPages <= 7) {
+                      for (let i = 1; i <= totalPages; i++) pages.push(i);
+                    } else {
+                      pages.push(1);
+                      if (companyPage > 3) pages.push('...');
+                      for (let i = Math.max(2, companyPage - 1); i <= Math.min(totalPages - 1, companyPage + 1); i++) pages.push(i);
+                      if (companyPage < totalPages - 2) pages.push('...');
+                      pages.push(totalPages);
+                    }
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                        <button onClick={() => setCompanyPage(p => Math.max(1, p - 1))} disabled={companyPage === 1} style={btnStyle(false, companyPage === 1)}>←</button>
+                        {pages.map((p, i) =>
+                          p === '...' ? <span key={`e${i}`} style={{ color: '#64748B', padding: '0 4px' }}>...</span>
+                            : <button key={p} onClick={() => setCompanyPage(p as number)} style={btnStyle(p === companyPage)}>{p}</button>
+                        )}
+                        <button onClick={() => setCompanyPage(p => Math.min(totalPages, p + 1))} disabled={companyPage === totalPages} style={btnStyle(false, companyPage === totalPages)}>→</button>
+                      </div>
+                    );
+                  })()}
                 </>
               )}
 
