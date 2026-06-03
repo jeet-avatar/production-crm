@@ -204,7 +204,7 @@ function validateRedirectUrl(url) {
 
   try {
     const parsed = new URL(url);
-    const allowedDomains = ['brandmonkz.com', 'sandbox.brandmonkz.com'];
+    const allowedDomains = ['brandmonkz.com', 'sandbox.brandmonkz.com', 'techcloudpro.com', 'artha.build'];
 
     // Check if the hostname ends with any of our allowed domains
     return allowedDomains.some(domain =>
