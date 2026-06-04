@@ -191,7 +191,7 @@ router.get('/', async (req, res, next) => {
           // Frontend uses contacts.length > 0 to decide if company belongs in "With Email" folder
           contacts: {
             select: { id: true },
-            where: { isActive: true, email: { not: '' } },
+            where: { isActive: true, NOT: [{ email: null }, { email: '' }] },
             take: 1, // just need to know if at least one exists
           },
         } : {
