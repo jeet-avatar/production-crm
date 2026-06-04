@@ -167,6 +167,13 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   // Reset to page 1 when search changes
   useEffect(() => { setCompanyPage(1); }, [companySearch]);
 
+  // Save last visited page to localStorage whenever user navigates in Step 2
+  useEffect(() => {
+    if (step === 2 && companyPage > 1) {
+      localStorage.setItem('bm_last_campaign_page', String(companyPage));
+    }
+  }, [step, companyPage]);
+
   // Compute stable page order — waits for ALL batches to finish loading + sentCounts loaded.
   // loadingMoreCompanies=false means all 16k+ companies are in allCompaniesSlim.
   // Freezes after full computation so pages don't shuffle mid-session.
@@ -1285,7 +1292,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
               if (emailableCount === 0) return false;
               return (companySentCounts[c.id] || 0) < emailableCount;
             });
-            const lastSentPageNum = firstUnsentIdx >= 0 ? Math.ceil((firstUnsentIdx + 1) / COMPANIES_PER_PAGE) : null;
+            const firstUnsentPageNum = firstUnsentIdx >= 0 ? Math.ceil((firstUnsentIdx + 1) / COMPANIES_PER_PAGE) : null;
+            // Last visited page from localStorage — takes priority over first-unsent calculation
+            const storedPage = parseInt(localStorage.getItem('bm_last_campaign_page') || '0') || null;
+            const lastSentPageNum = storedPage || firstUnsentPageNum;
             const totalPages = Math.ceil(filteredSorted.length / COMPANIES_PER_PAGE);
             const pagedSlim = filteredSorted.slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE);
             const showingFrom = filteredSorted.length === 0 ? 0 : (companyPage - 1) * COMPANIES_PER_PAGE + 1;
@@ -1454,20 +1464,22 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 </div>
               ) : (
                 <>
-                  {/* Last sent jump banner — excludes TechCloudPro/internal test sends */}
-                  {sentGroup.length > 0 && lastSentPageNum && (
+                  {/* Jump banner — last visited page takes priority over first-unsent */}
+                  {lastSentPageNum && (
                     <div
                       onClick={() => lastSentPageNum !== companyPage && setCompanyPage(lastSentPageNum)}
                       style={{ cursor: lastSentPageNum !== companyPage ? 'pointer' : 'default', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', padding: '8px 14px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', flexWrap: 'wrap' }}
                     >
                       <span>📍</span>
                       <span style={{ color: '#10B981', fontWeight: 600 }}>
-                        {sentGroup.length} sent · {unsentGroup.length} unsent remaining
+                        {sentGroup.length} sent · {unsentGroup.length} unsent
                       </span>
                       <span style={{ color: '#64748B' }}>·</span>
                       {lastSentPageNum !== companyPage
-                        ? <span style={{ color: '#10B981' }}>Jump to Page {lastSentPageNum} (first unsent) →</span>
-                        : <span style={{ color: '#64748B' }}>You are on Page {lastSentPageNum} (first unsent)</span>}
+                        ? <span style={{ color: '#10B981' }}>
+                            {storedPage ? `Continue from Page ${lastSentPageNum} (last visited) →` : `Jump to Page ${lastSentPageNum} →`}
+                          </span>
+                        : <span style={{ color: '#64748B' }}>You are on Page {lastSentPageNum}</span>}
                     </div>
                   )}
                   <div
