@@ -93,6 +93,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [verticalFilter, setVerticalFilter] = useState<string>('all');
   const [verticals, setVerticals] = useState<Vertical[]>([]);
   const [companyPage, setCompanyPage] = useState(1);
+  const [emailFolder, setEmailFolder] = useState<'with-email' | 'no-email'>('with-email');
   const [loadingMoreCompanies, setLoadingMoreCompanies] = useState(false);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
@@ -1258,12 +1259,15 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
           {/* ======================== STEP 2 ======================== */}
           {step === 2 && (() => {
-            // STABLE PAGE ORDER — from stableSortedCompanies (computed once on load, never reshuffled)
-            // sentCounts only used for badges + banner, never for ordering
             const base = stableSortedCompanies.length > 0 ? stableSortedCompanies : allCompaniesSlim;
-            const filteredSorted = companySearch
+            const searchBase = companySearch
               ? base.filter((c: any) => c.name?.toLowerCase().includes(companySearch.toLowerCase()))
               : base;
+
+            // Split into two folders — With Email and No Email
+            const withEmailList = searchBase.filter((c: any) => (c._count?.contacts || 0) > 0 || INTERNAL_COMPANY_REGEX.test(c.name || ''));
+            const noEmailList   = searchBase.filter((c: any) => (c._count?.contacts || 0) === 0 && !INTERNAL_COMPANY_REGEX.test(c.name || ''));
+            const filteredSorted = emailFolder === 'with-email' ? withEmailList : noEmailList;
             const allFilteredSelected = filteredSorted.length > 0 && filteredSorted.every((c: any) => selectedCompanyIds.includes(c.id));
 
             // Banner counts — uses sentCounts but does NOT affect page order
@@ -1287,6 +1291,30 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
             return (
             <div>
+              {/* Folder toggle — With Email / No Email */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+                <button
+                  onClick={() => { setEmailFolder('with-email'); setCompanyPage(1); }}
+                  style={{
+                    padding: '8px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', border: 'none',
+                    background: emailFolder === 'with-email' ? 'linear-gradient(to right,#6366F1,#8B5CF6)' : 'rgba(99,102,241,0.1)',
+                    color: emailFolder === 'with-email' ? '#fff' : '#A5B4FC',
+                  }}
+                >
+                  📧 With Email ({withEmailList.length})
+                </button>
+                <button
+                  onClick={() => { setEmailFolder('no-email'); setCompanyPage(1); }}
+                  style={{
+                    padding: '8px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', border: 'none',
+                    background: emailFolder === 'no-email' ? 'rgba(234,88,12,0.85)' : 'rgba(234,88,12,0.1)',
+                    color: emailFolder === 'no-email' ? '#fff' : '#EA580C',
+                  }}
+                >
+                  🚫 No Email ({noEmailList.length})
+                </button>
+              </div>
+
               {/* Search bar */}
               <div style={{ marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <div style={{ flex: 1, position: 'relative' }}>
