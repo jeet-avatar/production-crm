@@ -343,6 +343,24 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
         const list: any[] = Array.isArray(data) ? data : data.companies || [];
         list.forEach((c: any) => { c.vertical = getVertical(c.industry); });
         setCompanies(list);
+        // Auto-deselect any companies on this page that have no valid email contacts
+        const noEmailIds = list
+          .filter((c: any) => {
+            const validEmails = (c.contacts || []).filter((ct: any) => isValidEmail(ct.email)).length;
+            return (c._count?.contacts || 0) > 0 && validEmails === 0;
+          })
+          .map((c: any) => c.id);
+        if (noEmailIds.length > 0) {
+          setSelectedCompanyIds(prev => prev.filter(id => !noEmailIds.includes(id)));
+          setSelectedContactIds(prev => {
+            const next = new Set(prev);
+            noEmailIds.forEach((cid: string) => {
+              const company = list.find((c: any) => c.id === cid);
+              (company?.contacts || []).forEach((ct: any) => next.delete(ct.id));
+            });
+            return next;
+          });
+        }
       }
     } catch { /* ignore */ }
   };
