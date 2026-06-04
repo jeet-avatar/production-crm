@@ -1498,23 +1498,26 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     const contacts = company.contacts || [];
                     const selectedInCompany = contacts.filter(c => selectedContactIds.has(c.id)).length;
                     const hasNoContacts = contactCount === 0;
+                    // Red + disabled: has contacts but NONE have a valid email
+                    const validEmailCount = contacts.filter(c => isValidEmail(c.email)).length;
+                    const noValidEmail = contactCount > 0 && validEmailCount === 0;
 
                     return (
-                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : hasNoContacts ? '1px solid rgba(234,88,12,0.5)' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : hasNoContacts ? 'rgba(234,88,12,0.08)' : '#20203a', transition: 'all 0.15s' }}>
+                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : noValidEmail ? '1px solid rgba(239,68,68,0.5)' : hasNoContacts ? '1px solid rgba(234,88,12,0.5)' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : noValidEmail ? 'rgba(239,68,68,0.06)' : hasNoContacts ? 'rgba(234,88,12,0.08)' : '#20203a', transition: 'all 0.15s' }}>
                         {/* Company header row */}
                         <div
-                          onClick={() => toggleCompany(company.id)}
-                          style={{ minHeight: '56px', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', boxSizing: 'border-box' }}
+                          onClick={() => !noValidEmail && toggleCompany(company.id)}
+                          style={{ minHeight: '56px', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '10px', cursor: noValidEmail ? 'not-allowed' : 'pointer', boxSizing: 'border-box' }}
                         >
-                          {/* Checkbox */}
+                          {/* Checkbox — red + disabled if no valid email contacts */}
                           <div style={{
                             width: '20px', height: '20px', minWidth: '20px', borderRadius: '5px',
-                            border: isSelected ? 'none' : '2px solid #4a4a6a',
-                            background: isSelected ? '#6366F1' : 'transparent',
+                            border: noValidEmail ? '2px solid rgba(239,68,68,0.6)' : isSelected ? 'none' : '2px solid #4a4a6a',
+                            background: noValidEmail ? 'rgba(239,68,68,0.12)' : isSelected ? '#6366F1' : 'transparent',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: '#fff', fontSize: '11px', fontWeight: 800, lineHeight: '1',
+                            color: noValidEmail ? '#EF4444' : '#fff', fontSize: noValidEmail ? '14px' : '11px', fontWeight: 800, lineHeight: '1',
                           }}>
-                            {isSelected ? '✓' : ''}
+                            {noValidEmail ? '✕' : isSelected ? '✓' : ''}
                           </div>
 
                           {/* Company name + vertical + contact count */}
