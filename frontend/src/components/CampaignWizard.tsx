@@ -180,11 +180,16 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   useEffect(() => {
     if (loadingMoreCompanies) return; // still loading batches
     if (allCompaniesSlim.length === 0 || Object.keys(companySentCounts).length === 0) return;
-    const tcp     = allCompaniesSlim.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
-    const sent    = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0 && (c._count?.contacts || 0) > 0);
-    const unsent  = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0);
-    const noEmail = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) === 0);
-    setStableSortedCompanies([...tcp, ...sent, ...unsent, ...noEmail]);
+    const tcp              = allCompaniesSlim.filter((c: any) =>  INTERNAL_COMPANY_REGEX.test(c.name || ''));
+    // Companies that HAVE been sent to (have valid email contacts)
+    const sent             = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0 && (c.contacts?.length || 0) > 0);
+    // Unsent companies WITH at least one valid email contact — main working zone
+    const unsentWithEmail  = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c.contacts?.length || 0) > 0);
+    // Companies that HAVE contacts but NONE have a valid email — pushed to last pages (red/disabled)
+    const noEmailContacts  = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) > 0 && (c.contacts?.length || 0) === 0);
+    // Companies with zero contacts — absolute last
+    const noContacts       = allCompaniesSlim.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (c._count?.contacts || 0) === 0);
+    setStableSortedCompanies([...tcp, ...sent, ...unsentWithEmail, ...noEmailContacts, ...noContacts]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingMoreCompanies, Object.keys(companySentCounts).length]);
 
