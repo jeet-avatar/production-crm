@@ -94,6 +94,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [verticals, setVerticals] = useState<Vertical[]>([]);
   const [companyPage, setCompanyPage] = useState(1);
   const [emailFolder, setEmailFolder] = useState<'with-email' | 'no-email'>('with-email');
+  const [apolloEnriching, setApolloEnriching] = useState(false);
+  const [apolloResult, setApolloResult] = useState<{ enriched: any[]; notFound: any[]; creditsUsed: number } | null>(null);
   const [loadingMoreCompanies, setLoadingMoreCompanies] = useState(false);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
@@ -1331,8 +1333,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
             return (
             <div>
-              {/* Folder toggle — With Email / No Email */}
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+              {/* Folder toggle + Apollo Enrich button */}
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => { setEmailFolder('with-email'); setCompanyPage(1); }}
                   style={{
@@ -1353,7 +1355,65 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 >
                   🚫 No Email ({noEmailList.length})
                 </button>
+
+                {/* Apollo Enrich button — finds missing emails for current page */}
+                <button
+                  onClick={async () => {
+                    const pageCompanyIds = pagedSlim
+                      .filter((c: any) => !hasEmailContact(c))
+                      .map((c: any) => c.id);
+                    if (pageCompanyIds.length === 0) {
+                      alert('No companies without email on this page.');
+                      return;
+                    }
+                    setApolloEnriching(true);
+                    setApolloResult(null);
+                    try {
+                      const token = localStorage.getItem('crmToken');
+                      const res = await fetch(`${API_URL}/api/apollo/enrich-contacts`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ companyIds: pageCompanyIds }),
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setApolloResult(data);
+                        if (data.enriched?.length > 0) {
+                          // Reload page contacts to show updated emails
+                          const base2 = stableSortedCompanies.length > 0 ? stableSortedCompanies : allCompaniesSlim;
+                          const searchLower2 = companySearch.toLowerCase();
+                          const filtered2 = searchLower2 ? base2.filter((c: any) => c.name?.toLowerCase().includes(searchLower2)) : base2;
+                          const paged2 = filtered2.slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE);
+                          const ids2 = paged2.map((c: any) => c.id);
+                          if (ids2.length) {
+                            const r2 = await fetch(`${API_URL}/api/companies?ids=${ids2.join(',')}&limit=${ids2.length}`, { headers: { Authorization: `Bearer ${token}` } });
+                            if (r2.ok) { const d2 = await r2.json(); setCompanies(Array.isArray(d2) ? d2 : d2.companies || []); }
+                          }
+                        }
+                      }
+                    } catch { /* ignore */ } finally { setApolloEnriching(false); }
+                  }}
+                  disabled={apolloEnriching}
+                  style={{
+                    padding: '8px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px',
+                    cursor: apolloEnriching ? 'not-allowed' : 'pointer', border: 'none',
+                    background: apolloEnriching ? 'rgba(251,191,36,0.3)' : 'linear-gradient(to right,#F59E0B,#D97706)',
+                    color: '#fff', marginLeft: 'auto',
+                  }}
+                >
+                  {apolloEnriching ? '⏳ Enriching...' : '🔍 Apollo Enrich This Page'}
+                </button>
               </div>
+
+              {/* Apollo result banner */}
+              {apolloResult && (
+                <div style={{ background: apolloResult.enriched.length > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(99,102,241,0.08)', border: `1px solid ${apolloResult.enriched.length > 0 ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`, borderRadius: '8px', padding: '10px 14px', marginBottom: '12px', fontSize: '12px' }}>
+                  <span style={{ color: '#10B981', fontWeight: 700 }}>✅ {apolloResult.enriched.length} emails found</span>
+                  {apolloResult.notFound.length > 0 && <span style={{ color: '#94A3B8', marginLeft: '12px' }}>❌ {apolloResult.notFound.length} not found</span>}
+                  <span style={{ color: '#64748B', marginLeft: '12px' }}>Credits used: {apolloResult.creditsUsed}</span>
+                  {apolloResult.enriched.length > 0 && <div style={{ marginTop: '6px', color: '#CBD5E1' }}>{apolloResult.enriched.map((e: any) => `${e.name} → ${e.email}`).join(' · ')}</div>}
+                </div>
+              )}
 
               {/* Search bar */}
               <div style={{ marginBottom: '16px', display: 'flex', gap: '10px', alignItems: 'center' }}>

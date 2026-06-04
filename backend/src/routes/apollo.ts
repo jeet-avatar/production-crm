@@ -1299,4 +1299,67 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
   }
 });
 
+// POST /api/apollo/enrich-contacts
+// Takes a list of company IDs, finds their no-email contacts, calls Apollo people/match,
+// writes found emails back to DB. Returns enriched + not-found lists.
+router.post('/enrich-contacts', authenticate, async (req: Request, res: Response) => {
+  const apiKey = process.env.APOLLO_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: 'Apollo not configured' });
+
+  const { companyIds } = req.body as { companyIds: string[] };
+  if (!Array.isArray(companyIds) || companyIds.length === 0) {
+    return res.status(400).json({ error: 'companyIds array required' });
+  }
+
+  // Team-aware: allow companies owned by team owner too
+  const userId = (req as any).user?.id;
+  const teamUserIds = [userId];
+  if ((req as any).user?.teamRole === 'MEMBER' && (req as any).user?.accountOwnerId) {
+    teamUserIds.push((req as any).user.accountOwnerId);
+  }
+
+  const enriched: { contactId: string; name: string; email: string; company: string }[] = [];
+  const notFound: { name: string; company: string }[] = [];
+
+  for (const companyId of companyIds.slice(0, 50)) { // cap at 50 per call
+    const company = await prisma.company.findFirst({
+      where: { id: companyId, userId: { in: teamUserIds.filter(Boolean) as string[] } },
+      include: {
+        contacts: {
+          where: { isActive: true, OR: [{ email: null }, { email: '' }] },
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+      },
+    });
+    if (!company || !company.contacts.length) continue;
+
+    for (const contact of company.contacts) {
+      if (!contact.firstName || !contact.lastName) continue;
+      await sleep(400); // ~1.5 req/sec — well within Apollo rate limit
+      try {
+        const resp = await (async () => {
+          const axios = (await import('axios')).default;
+          const r = await axios.post(
+            'https://api.apollo.io/api/v1/people/match',
+            { first_name: contact.firstName, last_name: contact.lastName, organization_name: company.name, reveal_personal_emails: false },
+            { headers: { 'X-Api-Key': apiKey, 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' }, timeout: 15000 }
+          );
+          return r.data?.person ?? null;
+        })();
+        const email = resp?.email || '';
+        if (email && email.includes('@') && !email.startsWith('email_not_unlocked')) {
+          await prisma.contact.update({ where: { id: contact.id }, data: { email } });
+          enriched.push({ contactId: contact.id, name: `${contact.firstName} ${contact.lastName}`, email, company: company.name });
+        } else {
+          notFound.push({ name: `${contact.firstName} ${contact.lastName}`, company: company.name });
+        }
+      } catch {
+        notFound.push({ name: `${contact.firstName} ${contact.lastName}`, company: company.name });
+      }
+    }
+  }
+
+  return res.json({ enriched, notFound, creditsUsed: enriched.length });
+});
+
 export default router;
