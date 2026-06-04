@@ -1264,9 +1264,12 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
               ? base.filter((c: any) => c.name?.toLowerCase().includes(companySearch.toLowerCase()))
               : base;
 
-            // Split into two folders — With Email and No Email
-            const withEmailList = searchBase.filter((c: any) => (c._count?.contacts || 0) > 0 || INTERNAL_COMPANY_REGEX.test(c.name || ''));
-            const noEmailList   = searchBase.filter((c: any) => (c._count?.contacts || 0) === 0 && !INTERNAL_COMPANY_REGEX.test(c.name || ''));
+            // Split into two folders using slim contacts array
+            // Backend returns contacts=[{id}] only for contacts with non-empty emails in slim mode
+            // So contacts.length > 0 = company has at least 1 contact with an email address
+            const hasEmailContact = (c: any) => INTERNAL_COMPANY_REGEX.test(c.name || '') || (c.contacts?.length || 0) > 0;
+            const withEmailList = searchBase.filter((c: any) =>  hasEmailContact(c));
+            const noEmailList   = searchBase.filter((c: any) => !hasEmailContact(c));
             const filteredSorted = emailFolder === 'with-email' ? withEmailList : noEmailList;
             const allFilteredSelected = filteredSorted.length > 0 && filteredSorted.every((c: any) => selectedCompanyIds.includes(c.id));
 
@@ -1394,23 +1397,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   <span>Showing {showingFrom}–{showingTo} of {filteredSorted.length}</span>
                   <span>•</span>
                   <span style={{ color: '#A5B4FC', fontWeight: 600 }}>{selectedCompanyIds.length} selected</span>
-                  {unsentGroup.length > 0 && !loadingMoreCompanies && (
-                    <>
-                      <span>•</span>
-                      <button
-                        onClick={() => {
-                          // Only select companies with at least 1 contact (skip empty/no-email companies)
-                          const unsentIds = unsentGroup
-                            .filter((c: any) => (c._count?.contacts || 0) > 0)
-                            .map((c: any) => c.id);
-                          setSelectedCompanyIds(prev => [...new Set([...prev, ...unsentIds])]);
-                        }}
-                        style={{ background: 'none', border: '1px solid rgba(16,185,129,0.4)', borderRadius: '6px', color: '#10B981', fontSize: '11px', fontWeight: 600, padding: '3px 10px', cursor: 'pointer' }}
-                      >
-                        + Select all {unsentGroup.filter((c: any) => (c._count?.contacts || 0) > 0).length} unsent (with contacts)
-                      </button>
-                    </>
-                  )}
                 </div>
                 {!seedDone && (
                   <button

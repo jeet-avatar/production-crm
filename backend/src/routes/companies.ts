@@ -186,7 +186,15 @@ router.get('/', async (req, res, next) => {
             },
           },
         },
-        ...(isSlim ? {} : {
+        ...(isSlim ? {
+          // In slim mode: only return contacts that have a non-empty email address
+          // Frontend uses contacts.length > 0 to decide if company belongs in "With Email" folder
+          contacts: {
+            select: { id: true },
+            where: { isActive: true, email: { not: '' } },
+            take: 1, // just need to know if at least one exists
+          },
+        } : {
           contacts: {
             select: { id: true, firstName: true, lastName: true, email: true, phone: true, role: true, status: true },
             where: { isActive: true },
