@@ -1277,10 +1277,14 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
             const sentGroup   = filteredSorted.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) > 0);
             const unsentGroup = filteredSorted.filter((c: any) => !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0);
 
-            // Jump page = first position in stable list with any unsent company (with contacts)
-            const firstUnsentIdx = filteredSorted.findIndex((c: any) =>
-              !INTERNAL_COMPANY_REGEX.test(c.name || '') && (companySentCounts[c.id] || 0) === 0 && (c._count?.contacts || 0) > 0
-            );
+            // Jump page = first page where ANY company has unsent emailable contacts
+            // sentCount < emailableCount catches both: fully unsent (0) AND partially sent (some sent, some not)
+            const firstUnsentIdx = filteredSorted.findIndex((c: any) => {
+              if (INTERNAL_COMPANY_REGEX.test(c.name || '')) return false;
+              const emailableCount = c.contacts?.length || 0; // slim: contacts with non-empty email
+              if (emailableCount === 0) return false;
+              return (companySentCounts[c.id] || 0) < emailableCount;
+            });
             const lastSentPageNum = firstUnsentIdx >= 0 ? Math.ceil((firstUnsentIdx + 1) / COMPANIES_PER_PAGE) : null;
             const totalPages = Math.ceil(filteredSorted.length / COMPANIES_PER_PAGE);
             const pagedSlim = filteredSorted.slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE);
