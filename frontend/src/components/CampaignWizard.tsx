@@ -96,6 +96,9 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [emailFolder, setEmailFolder] = useState<'with-email' | 'no-email'>('with-email');
   const [apolloEnriching, setApolloEnriching] = useState(false);
   const [apolloResult, setApolloResult] = useState<{ enriched: any[]; notFound: any[]; creditsUsed: number } | null>(null);
+  const [apolloModalOpen, setApolloModalOpen] = useState(false);
+  const [apolloSelected, setApolloSelected] = useState<Set<string>>(new Set()); // contactIds to save
+  const [apolloEnrichedCompanyIds, setApolloEnrichedCompanyIds] = useState<Set<string>>(new Set()); // green highlight
   const [loadingMoreCompanies, setLoadingMoreCompanies] = useState(false);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
@@ -1378,18 +1381,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       if (res.ok) {
                         const data = await res.json();
                         setApolloResult(data);
-                        if (data.enriched?.length > 0) {
-                          // Reload page contacts to show updated emails
-                          const base2 = stableSortedCompanies.length > 0 ? stableSortedCompanies : allCompaniesSlim;
-                          const searchLower2 = companySearch.toLowerCase();
-                          const filtered2 = searchLower2 ? base2.filter((c: any) => c.name?.toLowerCase().includes(searchLower2)) : base2;
-                          const paged2 = filtered2.slice((companyPage - 1) * COMPANIES_PER_PAGE, companyPage * COMPANIES_PER_PAGE);
-                          const ids2 = paged2.map((c: any) => c.id);
-                          if (ids2.length) {
-                            const r2 = await fetch(`${API_URL}/api/companies?ids=${ids2.join(',')}&limit=${ids2.length}`, { headers: { Authorization: `Bearer ${token}` } });
-                            if (r2.ok) { const d2 = await r2.json(); setCompanies(Array.isArray(d2) ? d2 : d2.companies || []); }
-                          }
-                        }
+                        // Pre-select all found contacts
+                        const allContactIds = new Set<string>(data.enriched?.map((e: any) => e.contactId) || []);
+                        setApolloSelected(allContactIds);
+                        setApolloModalOpen(true);
                       }
                     } catch { /* ignore */ } finally { setApolloEnriching(false); }
                   }}
@@ -1405,13 +1400,81 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 </button>
               </div>
 
-              {/* Apollo result banner */}
-              {apolloResult && (
-                <div style={{ background: apolloResult.enriched.length > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(99,102,241,0.08)', border: `1px solid ${apolloResult.enriched.length > 0 ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`, borderRadius: '8px', padding: '10px 14px', marginBottom: '12px', fontSize: '12px' }}>
-                  <span style={{ color: '#10B981', fontWeight: 700 }}>✅ {apolloResult.enriched.length} emails found</span>
-                  {apolloResult.notFound.length > 0 && <span style={{ color: '#94A3B8', marginLeft: '12px' }}>❌ {apolloResult.notFound.length} not found</span>}
-                  <span style={{ color: '#64748B', marginLeft: '12px' }}>Credits used: {apolloResult.creditsUsed}</span>
-                  {apolloResult.enriched.length > 0 && <div style={{ marginTop: '6px', color: '#CBD5E1' }}>{apolloResult.enriched.map((e: any) => `${e.name} → ${e.email}`).join(' · ')}</div>}
+              {/* Apollo Results Modal */}
+              {apolloModalOpen && apolloResult && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <div style={{ background: '#1e1e36', border: '1px solid #3d3d5c', borderRadius: '14px', padding: '24px', maxWidth: '560px', width: '90%', maxHeight: '80vh', overflowY: 'auto' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h3 style={{ color: '#F1F5F9', margin: 0, fontSize: '16px', fontWeight: 700 }}>🔍 Apollo Enrichment Results</h3>
+                      <button onClick={() => setApolloModalOpen(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '20px' }}>×</button>
+                    </div>
+                    <p style={{ color: '#94A3B8', fontSize: '13px', margin: '0 0 16px' }}>
+                      <span style={{ color: '#10B981', fontWeight: 700 }}>✅ {apolloResult.enriched.length} emails found</span>
+                      {apolloResult.notFound.length > 0 && <span style={{ marginLeft: '12px' }}>❌ {apolloResult.notFound.length} not found</span>}
+                      <span style={{ marginLeft: '12px', color: '#F59E0B' }}>Credits used: {apolloResult.creditsUsed}</span>
+                    </p>
+                    {apolloResult.enriched.length > 0 && (
+                      <>
+                        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                          <button onClick={() => setApolloSelected(new Set(apolloResult.enriched.map((e: any) => e.contactId)))}
+                            style={{ padding: '4px 12px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.4)', background: 'none', color: '#10B981', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>
+                            ☑ Select All
+                          </button>
+                          <button onClick={() => setApolloSelected(new Set())}
+                            style={{ padding: '4px 12px', borderRadius: '6px', border: '1px solid #3d3d5c', background: 'none', color: '#94A3B8', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>
+                            ☐ Deselect All
+                          </button>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                          {apolloResult.enriched.map((e: any) => (
+                            <label key={e.contactId} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', background: apolloSelected.has(e.contactId) ? 'rgba(16,185,129,0.08)' : '#252540', border: `1px solid ${apolloSelected.has(e.contactId) ? 'rgba(16,185,129,0.3)' : '#3d3d5c'}`, cursor: 'pointer' }}>
+                              <input type="checkbox" checked={apolloSelected.has(e.contactId)} onChange={() => {
+                                setApolloSelected(prev => { const n = new Set(prev); n.has(e.contactId) ? n.delete(e.contactId) : n.add(e.contactId); return n; });
+                              }} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                              <div style={{ flex: 1 }}>
+                                <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: '13px' }}>{e.name}</span>
+                                <span style={{ color: '#64748B', fontSize: '12px', marginLeft: '8px' }}>{e.company}</span>
+                              </div>
+                              <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 600 }}>{e.email}</span>
+                            </label>
+                          ))}
+                        </div>
+                        <button
+                          disabled={apolloSelected.size === 0}
+                          onClick={async () => {
+                            // Find the company IDs for selected contacts
+                            const selEnriched = apolloResult.enriched.filter((e: any) => apolloSelected.has(e.contactId));
+                            const selCompanyIds = [...new Set(selEnriched.map((e: any) => e.companyId).filter(Boolean))];
+                            // Reload page contacts to get fresh email data
+                            const token = localStorage.getItem('crmToken');
+                            const base2 = stableSortedCompanies.length > 0 ? stableSortedCompanies : allCompaniesSlim;
+                            const ids2 = base2.slice((companyPage-1)*COMPANIES_PER_PAGE, companyPage*COMPANIES_PER_PAGE).map((c: any) => c.id);
+                            if (ids2.length) {
+                              const r2 = await fetch(`${API_URL}/api/companies?ids=${ids2.join(',')}&limit=${ids2.length}`, { headers: { Authorization: `Bearer ${token}` } });
+                              if (r2.ok) { const d2 = await r2.json(); setCompanies(Array.isArray(d2) ? d2 : d2.companies || []); }
+                            }
+                            // Mark companies as Apollo-enriched (green) and select them
+                            setApolloEnrichedCompanyIds(prev => { const n = new Set(prev); selCompanyIds.forEach(id => n.add(id)); return n; });
+                            setSelectedCompanyIds(prev => [...new Set([...prev, ...selCompanyIds])]);
+                            setApolloModalOpen(false);
+                            setApolloResult(null);
+                            setStep(3); // go straight to Review & Send
+                          }}
+                          style={{ width: '100%', padding: '12px', borderRadius: '10px', border: 'none', background: apolloSelected.size === 0 ? 'rgba(16,185,129,0.3)' : 'linear-gradient(to right,#10B981,#059669)', color: '#fff', fontWeight: 700, fontSize: '14px', cursor: apolloSelected.size === 0 ? 'not-allowed' : 'pointer' }}
+                        >
+                          🚀 Save & Send {apolloSelected.size} Contact{apolloSelected.size !== 1 ? 's' : ''}
+                        </button>
+                      </>
+                    )}
+                    {apolloResult.notFound.length > 0 && (
+                      <div style={{ marginTop: '12px' }}>
+                        <p style={{ color: '#64748B', fontSize: '11px', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Not found ({apolloResult.notFound.length})</p>
+                        {apolloResult.notFound.map((e: any, i: number) => (
+                          <span key={i} style={{ color: '#64748B', fontSize: '12px', marginRight: '12px' }}>❌ {e.name}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -1581,12 +1644,12 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     const contacts = company.contacts || [];
                     const selectedInCompany = contacts.filter(c => selectedContactIds.has(c.id)).length;
                     const hasNoContacts = contactCount === 0;
-                    // Red + disabled: has contacts but NONE have a valid email
                     const validEmailCount = contacts.filter(c => isValidEmail(c.email)).length;
                     const noValidEmail = contactCount > 0 && validEmailCount === 0;
+                    const isApolloEnriched = apolloEnrichedCompanyIds.has(company.id);
 
                     return (
-                      <div key={company.id} style={{ borderRadius: '10px', border: isSelected ? '2px solid #6366F1' : noValidEmail ? '1px solid rgba(239,68,68,0.5)' : hasNoContacts ? '1px solid rgba(234,88,12,0.5)' : '1px solid #3d3d5c', background: isSelected ? 'rgba(99,102,241,0.1)' : noValidEmail ? 'rgba(239,68,68,0.06)' : hasNoContacts ? 'rgba(234,88,12,0.08)' : '#20203a', transition: 'all 0.15s' }}>
+                      <div key={company.id} style={{ borderRadius: '10px', border: isApolloEnriched ? '2px solid rgba(16,185,129,0.7)' : isSelected ? '2px solid #6366F1' : noValidEmail ? '1px solid rgba(239,68,68,0.5)' : hasNoContacts ? '1px solid rgba(234,88,12,0.5)' : '1px solid #3d3d5c', background: isApolloEnriched ? 'rgba(16,185,129,0.08)' : isSelected ? 'rgba(99,102,241,0.1)' : noValidEmail ? 'rgba(239,68,68,0.06)' : hasNoContacts ? 'rgba(234,88,12,0.08)' : '#20203a', transition: 'all 0.15s' }}>
                         {/* Company header row */}
                         <div
                           onClick={() => !noValidEmail && toggleCompany(company.id)}
