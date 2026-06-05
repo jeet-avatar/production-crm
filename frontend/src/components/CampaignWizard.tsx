@@ -103,6 +103,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [apolloSavedContacts, setApolloSavedContacts] = useState<any[]>([]); // all Apollo-saved contacts from DB
   const [apolloPageSelected, setApolloPageSelected] = useState<Set<string>>(new Set()); // selected contactIds on Apollo page
   const [apolloPageLoading, setApolloPageLoading] = useState(false);
+  // Direct Apollo send: bypasses company contactsMap by storing contacts directly
+  const [apolloDirectSendContacts, setApolloDirectSendContacts] = useState<any[]>([]);
   const [showNewProspectsPage, setShowNewProspectsPage] = useState(false); // New DB from Apollo page
   const [newProspects, setNewProspects] = useState<any[]>([]); // new Apollo-sourced prospects
   const [newProspectsSelected, setNewProspectsSelected] = useState<Set<string>>(new Set());
@@ -250,6 +252,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
       setSendResult(null);
       setShowPreview(false);
       setError('');
+      setApolloDirectSendContacts([]); // clear Apollo direct send on new wizard open
 
       // Check for follow-up campaign data
       try {
@@ -746,14 +749,14 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
               <button
                 disabled={apolloPageSelected.size === 0}
                 onClick={() => {
-                  // Build selectedCompanyIds from selected contacts' company IDs
                   const selContacts = apolloSavedContacts.filter((c: any) => apolloPageSelected.has(c.id));
                   const companyIds = [...new Set(selContacts.map((c: any) => c.company?.id).filter(Boolean))] as string[];
-                  // Mark green + add to selection
                   setApolloEnrichedCompanyIds(prev => { const n = new Set(prev); companyIds.forEach(id => n.add(id)); return n; });
                   setSelectedCompanyIds(prev => [...new Set([...prev, ...companyIds])]);
+                  // Store contacts directly so Step 3 preview works without needing contactsMap
+                  setApolloDirectSendContacts(selContacts);
                   setShowApolloPage(false);
-                  setStep(3); // go straight to Review & Send
+                  setStep(3);
                 }}
                 style={{ width: '100%', padding: '14px', borderRadius: '10px', border: 'none', background: apolloPageSelected.size === 0 ? 'rgba(16,185,129,0.3)' : 'linear-gradient(to right,#10B981,#059669)', color: '#fff', fontWeight: 700, fontSize: '15px', cursor: apolloPageSelected.size === 0 ? 'not-allowed' : 'pointer' }}
               >
@@ -838,6 +841,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   const companyIds = [...new Set(selContacts.map((c: any) => c.company?.id).filter(Boolean))] as string[];
                   setApolloEnrichedCompanyIds(prev => { const n = new Set(prev); companyIds.forEach(id => n.add(id)); try { localStorage.setItem('bm_apollo_enriched_ids', JSON.stringify([...n])); } catch {} return n; });
                   setSelectedCompanyIds(prev => [...new Set([...prev, ...companyIds])]);
+                  setApolloDirectSendContacts(selContacts);
                   setShowNewProspectsPage(false);
                   setStep(3);
                 }}
@@ -2095,26 +2099,38 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
           {/* ======================== STEP 3 ======================== */}
           {step === 3 && (() => {
-            // Build recipient list from ALL selected companies (not just current page)
-            // contactsMap covers current page; for cross-page selections we show count from selectedContactIds
-            const contactsMap = new Map(companies.map(c => [c.id, c.contacts || []]));
+            // If coming from Apollo pages, use direct contacts (bypasses contactsMap lookup)
             const allRecipients: { firstName: string; lastName: string; email: string; companyName: string }[] = [];
-            selectedCompanyIds.forEach(companyId => {
-              const slim = allCompaniesSlim.find((c: any) => c.id === companyId);
-              const contacts = contactsMap.get(companyId) || [];
-              contacts.forEach(contact => {
-                // Only include contacts with a valid email — matches backend validation
-                if (!isValidEmail(contact.email)) return;
-                if (selectedContactIds.size === 0 || selectedContactIds.has(contact.id)) {
+            if (apolloDirectSendContacts.length > 0) {
+              apolloDirectSendContacts.forEach((c: any) => {
+                if (isValidEmail(c.email)) {
                   allRecipients.push({
-                    firstName: contact.firstName || '',
-                    lastName: contact.lastName || '',
-                    email: contact.email || '',
-                    companyName: slim?.name || '',
+                    firstName: c.firstName || '',
+                    lastName: c.lastName || '',
+                    email: c.email || '',
+                    companyName: c.company?.name || '',
                   });
                 }
               });
-            });
+            } else {
+              // Normal flow: build from contactsMap (current page companies)
+              const contactsMap = new Map(companies.map(c => [c.id, c.contacts || []]));
+              selectedCompanyIds.forEach(companyId => {
+                const slim = allCompaniesSlim.find((c: any) => c.id === companyId);
+                const contacts = contactsMap.get(companyId) || [];
+                contacts.forEach(contact => {
+                  if (!isValidEmail(contact.email)) return;
+                  if (selectedContactIds.size === 0 || selectedContactIds.has(contact.id)) {
+                    allRecipients.push({
+                      firstName: contact.firstName || '',
+                      lastName: contact.lastName || '',
+                      email: contact.email || '',
+                      companyName: slim?.name || '',
+                    });
+                  }
+                });
+              });
+            }
             const hasNoValidRecipients = allRecipients.length === 0;
 
             // Use first recipient for preview, fallback to sample
