@@ -1299,6 +1299,33 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
   }
 });
 
+// GET /api/apollo/new-prospects — brand new contacts imported from Apollo database (not from existing CRM)
+router.get('/new-prospects', authenticate, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const teamUserIds = [userId];
+    if ((req as any).user?.teamRole === 'MEMBER' && (req as any).user?.accountOwnerId) {
+      teamUserIds.push((req as any).user.accountOwnerId);
+    }
+    const contacts = await prisma.contact.findMany({
+      where: {
+        source: 'apollo_prospect',
+        isActive: true,
+        email: { not: null },
+        company: { userId: { in: teamUserIds.filter(Boolean) as string[] } },
+      },
+      select: {
+        id: true, firstName: true, lastName: true, email: true, role: true, enrichedAt: true, linkedin: true,
+        company: { select: { id: true, name: true, industry: true } },
+      },
+      orderBy: { enrichedAt: 'desc' },
+    });
+    return res.json({ contacts });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to fetch new Apollo prospects' });
+  }
+});
+
 // GET /api/apollo/enriched-contacts — all contacts saved via Apollo, newest first
 router.get('/enriched-contacts', authenticate, async (req: Request, res: Response) => {
   try {

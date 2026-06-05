@@ -103,6 +103,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [apolloSavedContacts, setApolloSavedContacts] = useState<any[]>([]); // all Apollo-saved contacts from DB
   const [apolloPageSelected, setApolloPageSelected] = useState<Set<string>>(new Set()); // selected contactIds on Apollo page
   const [apolloPageLoading, setApolloPageLoading] = useState(false);
+  const [showNewProspectsPage, setShowNewProspectsPage] = useState(false); // New DB from Apollo page
+  const [newProspects, setNewProspects] = useState<any[]>([]); // new Apollo-sourced prospects
+  const [newProspectsSelected, setNewProspectsSelected] = useState<Set<string>>(new Set());
+  const [newProspectsLoading, setNewProspectsLoading] = useState(false);
   const [loadingMoreCompanies, setLoadingMoreCompanies] = useState(false);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
@@ -777,8 +781,72 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
     </div>
   );
 
+  // New DB from Apollo page
+  const renderNewProspectsPage = () => (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px', overflowY: 'auto' }}>
+      <div style={{ background: '#1a1a2e', border: '2px solid rgba(99,102,241,0.5)', borderRadius: '16px', width: '860px', maxWidth: '95vw', color: '#F1F5F9', position: 'relative' }}>
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #2d2d4a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#A5B4FC' }}>🔵 New DB from Apollo</h2>
+            <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Fresh prospects sourced from Apollo — CTOs, CFOs, NetSuite Admins, IT Directors. Not in your CRM before.</p>
+          </div>
+          <button onClick={() => setShowNewProspectsPage(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '22px' }}>×</button>
+        </div>
+        <div style={{ padding: '16px 24px' }}>
+          {newProspectsLoading ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>Loading prospects...</div>
+          ) : newProspects.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+              <p style={{ fontSize: '16px', marginBottom: '8px' }}>No new prospects yet</p>
+              <p style={{ fontSize: '13px' }}>Run "Apollo Enrich All" to import fresh decision-makers from Apollo</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap' }}>
+                <span style={{ color: '#A5B4FC', fontWeight: 700, fontSize: '14px' }}>{newProspects.length} new prospects from Apollo DB</span>
+                <button onClick={() => setNewProspectsSelected(new Set(newProspects.map((c: any) => c.id)))}
+                  style={{ padding: '5px 14px', borderRadius: '6px', border: '1px solid rgba(99,102,241,0.4)', background: 'none', color: '#A5B4FC', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>☑ Select All</button>
+                <button onClick={() => setNewProspectsSelected(new Set())}
+                  style={{ padding: '5px 14px', borderRadius: '6px', border: '1px solid #3d3d5c', background: 'none', color: '#94A3B8', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>☐ Deselect All</button>
+                <span style={{ color: '#64748B', fontSize: '12px' }}>{newProspectsSelected.size} selected</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: 'calc(70vh - 180px)', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
+                {newProspects.map((c: any) => (
+                  <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: newProspectsSelected.has(c.id) ? 'rgba(99,102,241,0.08)' : '#1e1e36', border: `1px solid ${newProspectsSelected.has(c.id) ? 'rgba(99,102,241,0.35)' : '#2d2d4a'}`, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={newProspectsSelected.has(c.id)} onChange={() => setNewProspectsSelected(prev => { const n = new Set(prev); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; })} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: '13px' }}>{c.firstName} {c.lastName}</span>
+                      {c.role && <span style={{ color: '#6366F1', fontSize: '11px', marginLeft: '8px', background: 'rgba(99,102,241,0.12)', padding: '1px 6px', borderRadius: '4px' }}>{c.role}</span>}
+                      <span style={{ color: '#64748B', fontSize: '12px', marginLeft: '8px' }}>{c.company?.name}{c.company?.industry ? ` · ${c.company.industry}` : ''}</span>
+                    </div>
+                    <span style={{ color: '#A5B4FC', fontSize: '12px', fontWeight: 600 }}>✉ {c.email}</span>
+                  </label>
+                ))}
+              </div>
+              <button
+                disabled={newProspectsSelected.size === 0}
+                onClick={() => {
+                  const selContacts = newProspects.filter((c: any) => newProspectsSelected.has(c.id));
+                  const companyIds = [...new Set(selContacts.map((c: any) => c.company?.id).filter(Boolean))] as string[];
+                  setApolloEnrichedCompanyIds(prev => { const n = new Set(prev); companyIds.forEach(id => n.add(id)); try { localStorage.setItem('bm_apollo_enriched_ids', JSON.stringify([...n])); } catch {} return n; });
+                  setSelectedCompanyIds(prev => [...new Set([...prev, ...companyIds])]);
+                  setShowNewProspectsPage(false);
+                  setStep(3);
+                }}
+                style={{ width: '100%', padding: '14px', borderRadius: '10px', border: 'none', background: newProspectsSelected.size === 0 ? 'rgba(99,102,241,0.3)' : 'linear-gradient(to right,#6366F1,#8B5CF6)', color: '#fff', fontWeight: 700, fontSize: '15px', cursor: newProspectsSelected.size === 0 ? 'not-allowed' : 'pointer' }}
+              >
+                🚀 Send to {newProspectsSelected.size} Selected Prospect{newProspectsSelected.size !== 1 ? 's' : ''}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   if (!isOpen) return null;
   if (showApolloPage) return renderApolloPage();
+  if (showNewProspectsPage) return renderNewProspectsPage();
 
   return (
     <div style={overlayStyle}>
@@ -1518,6 +1586,31 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   }}
                 >
                   🟢 Apollo Contacts
+                </button>
+
+                {/* New DB from Apollo — fresh prospects not from existing CRM */}
+                <button
+                  onClick={async () => {
+                    setNewProspectsLoading(true);
+                    setShowNewProspectsPage(true);
+                    try {
+                      const token = localStorage.getItem('crmToken');
+                      const res = await fetch(`${API_URL}/api/apollo/new-prospects`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setNewProspects(data.contacts || []);
+                        setNewProspectsSelected(new Set((data.contacts || []).map((c: any) => c.id)));
+                      }
+                    } catch { /* ignore */ } finally { setNewProspectsLoading(false); }
+                  }}
+                  style={{
+                    padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
+                    border: '2px solid rgba(99,102,241,0.5)', background: 'rgba(99,102,241,0.12)', color: '#A5B4FC',
+                  }}
+                >
+                  🔵 New DB from Apollo
                 </button>
               </div>
 
