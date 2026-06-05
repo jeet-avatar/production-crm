@@ -721,7 +721,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 <span style={{ color: '#64748B', fontSize: '12px' }}>{apolloPageSelected.size} selected</span>
               </div>
               {/* Contact list */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '420px', overflowY: 'auto', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: 'calc(70vh - 180px)', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
                 {apolloSavedContacts.map((c: any) => (
                   <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.08)' : '#1e1e36', border: `1px solid ${apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.35)' : '#2d2d4a'}`, cursor: 'pointer' }}>
                     <input type="checkbox" checked={apolloPageSelected.has(c.id)} onChange={() => setApolloPageSelected(prev => { const n = new Set(prev); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; })} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
