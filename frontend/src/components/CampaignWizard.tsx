@@ -725,18 +725,22 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 <span style={{ color: '#64748B', fontSize: '12px' }}>{apolloPageSelected.size} selected</span>
               </div>
               {/* Contact list */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: 'calc(70vh - 180px)', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
-                {apolloSavedContacts.map((c: any) => (
-                  <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.08)' : '#1e1e36', border: `1px solid ${apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.35)' : '#2d2d4a'}`, cursor: 'pointer' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', height: 'calc(70vh - 200px)', overflowY: 'scroll', marginBottom: '16px', paddingRight: '6px' }}>
+                {apolloSavedContacts.map((c: any) => {
+                  const alreadySent = sentContactIds.has(c.id);
+                  return (
+                  <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: alreadySent ? 'rgba(100,116,139,0.06)' : apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.08)' : '#1e1e36', border: `1px solid ${alreadySent ? '#334155' : apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.35)' : '#2d2d4a'}`, cursor: 'pointer', opacity: alreadySent ? 0.7 : 1 }}>
                     <input type="checkbox" checked={apolloPageSelected.has(c.id)} onChange={() => setApolloPageSelected(prev => { const n = new Set(prev); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; })} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
                     <div style={{ flex: 1 }}>
                       <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: '13px' }}>{c.firstName} {c.lastName}</span>
                       {c.role && <span style={{ color: '#64748B', fontSize: '12px', marginLeft: '6px' }}>· {c.role}</span>}
                       <span style={{ color: '#64748B', fontSize: '12px', marginLeft: '8px' }}>{c.company?.name}</span>
+                      {alreadySent && <span style={{ color: '#C4B5FD', fontSize: '11px', marginLeft: '8px' }}>✓ mail sent</span>}
                     </div>
                     <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 600 }}>✉ {c.email}</span>
                   </label>
-                ))}
+                  );
+                })}
               </div>
               {/* Send button */}
               <button
@@ -811,17 +815,21 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 <span style={{ color: '#64748B', fontSize: '12px' }}>{newProspectsSelected.size} selected</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: 'calc(70vh - 180px)', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
-                {newProspects.map((c: any) => (
-                  <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: newProspectsSelected.has(c.id) ? 'rgba(99,102,241,0.08)' : '#1e1e36', border: `1px solid ${newProspectsSelected.has(c.id) ? 'rgba(99,102,241,0.35)' : '#2d2d4a'}`, cursor: 'pointer' }}>
+                {newProspects.map((c: any) => {
+                  const alreadySent = sentContactIds.has(c.id);
+                  return (
+                  <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: alreadySent ? 'rgba(100,116,139,0.06)' : newProspectsSelected.has(c.id) ? 'rgba(99,102,241,0.08)' : '#1e1e36', border: `1px solid ${alreadySent ? '#334155' : newProspectsSelected.has(c.id) ? 'rgba(99,102,241,0.35)' : '#2d2d4a'}`, cursor: 'pointer', opacity: alreadySent ? 0.7 : 1 }}>
                     <input type="checkbox" checked={newProspectsSelected.has(c.id)} onChange={() => setNewProspectsSelected(prev => { const n = new Set(prev); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; })} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
                     <div style={{ flex: 1 }}>
                       <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: '13px' }}>{c.firstName} {c.lastName}</span>
                       {c.role && <span style={{ color: '#6366F1', fontSize: '11px', marginLeft: '8px', background: 'rgba(99,102,241,0.12)', padding: '1px 6px', borderRadius: '4px' }}>{c.role}</span>}
                       <span style={{ color: '#64748B', fontSize: '12px', marginLeft: '8px' }}>{c.company?.name}{c.company?.industry ? ` · ${c.company.industry}` : ''}</span>
+                      {alreadySent && <span style={{ color: '#C4B5FD', fontSize: '11px', marginLeft: '8px' }}>✓ mail sent</span>}
                     </div>
                     <span style={{ color: '#A5B4FC', fontSize: '12px', fontWeight: 600 }}>✉ {c.email}</span>
                   </label>
-                ))}
+                  );
+                })}
               </div>
               <button
                 disabled={newProspectsSelected.size === 0}
@@ -1511,57 +1519,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   🚫 No Email ({noEmailList.length})
                 </button>
 
-                {/* Apollo Enrich button — enriches ALL no-email companies */}
-                <button
-                  onClick={async () => {
-                    if (emailFolder === 'with-email') {
-                      setEmailFolder('no-email'); setCompanyPage(1); return;
-                    }
-                    // Get ALL no-email company IDs (entire list, not just current page)
-                    const allNoEmailIds = noEmailList.map((c: any) => c.id);
-                    if (allNoEmailIds.length === 0) {
-                      alert('No companies in the No Email list.');
-                      return;
-                    }
-                    setApolloEnriching(true);
-                    setApolloResult(null);
-                    setApolloModalOpen(true); // Open modal immediately to show progress
-                    const token = localStorage.getItem('crmToken');
-                    const allEnriched: any[] = [];
-                    const allNotFound: any[] = [];
-                    // Process in batches of 50
-                    const BATCH = 50;
-                    for (let i = 0; i < allNoEmailIds.length; i += BATCH) {
-                      const batch = allNoEmailIds.slice(i, i + BATCH);
-                      try {
-                        const res = await fetch(`${API_URL}/api/apollo/enrich-contacts`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                          body: JSON.stringify({ companyIds: batch }),
-                        });
-                        if (res.ok) {
-                          const data = await res.json();
-                          allEnriched.push(...(data.enriched || []));
-                          allNotFound.push(...(data.notFound || []));
-                          // Update modal progressively
-                          setApolloResult({ enriched: [...allEnriched], notFound: [...allNotFound], creditsUsed: allEnriched.length });
-                        }
-                      } catch { /* continue with next batch */ }
-                    }
-                    const allContactIds = new Set<string>(allEnriched.map((e: any) => e.contactId));
-                    setApolloSelected(allContactIds);
-                    setApolloEnriching(false);
-                  }}
-                  disabled={apolloEnriching}
-                  style={{
-                    padding: '8px 18px', borderRadius: '8px', fontWeight: 700, fontSize: '13px',
-                    cursor: apolloEnriching ? 'not-allowed' : 'pointer', border: 'none',
-                    background: apolloEnriching ? 'rgba(251,191,36,0.3)' : 'linear-gradient(to right,#F59E0B,#D97706)',
-                    color: '#fff', marginLeft: 'auto',
-                  }}
-                >
-                  {apolloEnriching ? `⏳ Enriching all ${noEmailList.length}...` : `🔍 Apollo Enrich All (${noEmailList.length})`}
-                </button>
 
                 {/* Apollo Saved Contacts — opens page with all DB-saved Apollo emails */}
                 <button
