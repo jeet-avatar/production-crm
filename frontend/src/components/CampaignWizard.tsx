@@ -1362,11 +1362,16 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 {/* Apollo Enrich button — finds missing emails for current page */}
                 <button
                   onClick={async () => {
-                    const pageCompanyIds = pagedSlim
-                      .filter((c: any) => !hasEmailContact(c))
-                      .map((c: any) => c.id);
+                    // If on With Email tab, switch to No Email tab automatically
+                    if (emailFolder === 'with-email') {
+                      setEmailFolder('no-email');
+                      setCompanyPage(1);
+                      return;
+                    }
+                    // On No Email tab — get all companies on this page
+                    const pageCompanyIds = pagedSlim.map((c: any) => c.id);
                     if (pageCompanyIds.length === 0) {
-                      alert('No companies without email on this page.');
+                      alert('No companies on this page. Try a different page in the No Email tab.');
                       return;
                     }
                     setApolloEnriching(true);
