@@ -1312,7 +1312,7 @@ router.get('/new-prospects', authenticate, async (req: Request, res: Response) =
         source: 'apollo_prospect',
         isActive: true,
         email: { not: null },
-        company: { userId: { in: teamUserIds.filter(Boolean) as string[] } },
+        userId: { in: teamUserIds.filter(Boolean) as string[] },
       },
       select: {
         id: true, firstName: true, lastName: true, email: true, role: true, enrichedAt: true, linkedin: true,
@@ -1339,13 +1339,13 @@ router.get('/enriched-contacts', authenticate, async (req: Request, res: Respons
         source: 'apollo',
         isActive: true,
         email: { not: null },
-        company: { userId: { in: teamUserIds.filter(Boolean) as string[] } },
+        userId: { in: teamUserIds.filter(Boolean) as string[] },
       },
       select: {
         id: true, firstName: true, lastName: true, email: true, role: true, enrichedAt: true,
         company: { select: { id: true, name: true } },
       },
-      orderBy: { enrichedAt: 'desc' }, // newest first = appears on page 1
+      orderBy: { enrichedAt: 'desc' },
     });
     return res.json({ contacts });
   } catch (error: any) {
