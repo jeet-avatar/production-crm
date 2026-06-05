@@ -99,6 +99,10 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   const [apolloModalOpen, setApolloModalOpen] = useState(false);
   const [apolloSelected, setApolloSelected] = useState<Set<string>>(new Set()); // contactIds to save
   const [apolloEnrichedCompanyIds, setApolloEnrichedCompanyIds] = useState<Set<string>>(new Set()); // green highlight
+  const [showApolloPage, setShowApolloPage] = useState(false); // Apollo saved contacts page
+  const [apolloSavedContacts, setApolloSavedContacts] = useState<any[]>([]); // all Apollo-saved contacts from DB
+  const [apolloPageSelected, setApolloPageSelected] = useState<Set<string>>(new Set()); // selected contactIds on Apollo page
+  const [apolloPageLoading, setApolloPageLoading] = useState(false);
   const [loadingMoreCompanies, setLoadingMoreCompanies] = useState(false);
   const [totalCompanyCount, setTotalCompanyCount] = useState(0);
 
@@ -680,6 +684,80 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
     padding: '16px',
   };
 
+  // Apollo Saved Contacts page — full overlay
+  const renderApolloPage = () => (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px', overflowY: 'auto' }}>
+      <div style={{ background: '#1a1a2e', border: '2px solid rgba(16,185,129,0.5)', borderRadius: '16px', width: '860px', maxWidth: '95vw', color: '#F1F5F9', position: 'relative' }}>
+        {/* Header */}
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #2d2d4a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#10B981' }}>🟢 Apollo Saved Contacts</h2>
+            <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Contacts enriched via Apollo — saved to your database. Newest first.</p>
+          </div>
+          <button onClick={() => setShowApolloPage(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '22px', padding: '4px' }}>×</button>
+        </div>
+        {/* Content */}
+        <div style={{ padding: '16px 24px' }}>
+          {apolloPageLoading ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>Loading Apollo contacts...</div>
+          ) : apolloSavedContacts.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+              <p style={{ fontSize: '16px', marginBottom: '8px' }}>No Apollo contacts yet</p>
+              <p style={{ fontSize: '13px' }}>Go to 🚫 No Email tab → click Apollo Enrich All → save found contacts</p>
+            </div>
+          ) : (
+            <>
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap' }}>
+                <span style={{ color: '#10B981', fontWeight: 700, fontSize: '14px' }}>{apolloSavedContacts.length} contacts found by Apollo</span>
+                <button onClick={() => setApolloPageSelected(new Set(apolloSavedContacts.map((c: any) => c.id)))}
+                  style={{ padding: '5px 14px', borderRadius: '6px', border: '1px solid rgba(16,185,129,0.4)', background: 'none', color: '#10B981', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                  ☑ Select All
+                </button>
+                <button onClick={() => setApolloPageSelected(new Set())}
+                  style={{ padding: '5px 14px', borderRadius: '6px', border: '1px solid #3d3d5c', background: 'none', color: '#94A3B8', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                  ☐ Deselect All
+                </button>
+                <span style={{ color: '#64748B', fontSize: '12px' }}>{apolloPageSelected.size} selected</span>
+              </div>
+              {/* Contact list */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '420px', overflowY: 'auto', marginBottom: '16px' }}>
+                {apolloSavedContacts.map((c: any) => (
+                  <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', borderRadius: '8px', background: apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.08)' : '#1e1e36', border: `1px solid ${apolloPageSelected.has(c.id) ? 'rgba(16,185,129,0.35)' : '#2d2d4a'}`, cursor: 'pointer' }}>
+                    <input type="checkbox" checked={apolloPageSelected.has(c.id)} onChange={() => setApolloPageSelected(prev => { const n = new Set(prev); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; })} style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ color: '#F1F5F9', fontWeight: 600, fontSize: '13px' }}>{c.firstName} {c.lastName}</span>
+                      {c.role && <span style={{ color: '#64748B', fontSize: '12px', marginLeft: '6px' }}>· {c.role}</span>}
+                      <span style={{ color: '#64748B', fontSize: '12px', marginLeft: '8px' }}>{c.company?.name}</span>
+                    </div>
+                    <span style={{ color: '#10B981', fontSize: '12px', fontWeight: 600 }}>✉ {c.email}</span>
+                  </label>
+                ))}
+              </div>
+              {/* Send button */}
+              <button
+                disabled={apolloPageSelected.size === 0}
+                onClick={() => {
+                  // Build selectedCompanyIds from selected contacts' company IDs
+                  const selContacts = apolloSavedContacts.filter((c: any) => apolloPageSelected.has(c.id));
+                  const companyIds = [...new Set(selContacts.map((c: any) => c.company?.id).filter(Boolean))] as string[];
+                  // Mark green + add to selection
+                  setApolloEnrichedCompanyIds(prev => { const n = new Set(prev); companyIds.forEach(id => n.add(id)); return n; });
+                  setSelectedCompanyIds(prev => [...new Set([...prev, ...companyIds])]);
+                  setShowApolloPage(false);
+                  setStep(3); // go straight to Review & Send
+                }}
+                style={{ width: '100%', padding: '14px', borderRadius: '10px', border: 'none', background: apolloPageSelected.size === 0 ? 'rgba(16,185,129,0.3)' : 'linear-gradient(to right,#10B981,#059669)', color: '#fff', fontWeight: 700, fontSize: '15px', cursor: apolloPageSelected.size === 0 ? 'not-allowed' : 'pointer' }}
+              >
+                🚀 Send to {apolloPageSelected.size} Selected Contact{apolloPageSelected.size !== 1 ? 's' : ''}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   // Progress bar
   const stepCount = 4;
   const ProgressBar = () => (
@@ -700,6 +778,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
   );
 
   if (!isOpen) return null;
+  if (showApolloPage) return renderApolloPage();
 
   return (
     <div style={overlayStyle}>
@@ -1341,8 +1420,33 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
             return (
             <div>
-              {/* Folder toggle + Apollo Enrich button */}
+              {/* Folder toggle + Apollo buttons */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {/* Apollo Saved Contacts button — opens dedicated Apollo page */}
+                <button
+                  onClick={async () => {
+                    setApolloPageLoading(true);
+                    setShowApolloPage(true);
+                    try {
+                      const token = localStorage.getItem('crmToken');
+                      const res = await fetch(`${API_URL}/api/apollo/enriched-contacts`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setApolloSavedContacts(data.contacts || []);
+                        // Pre-select all
+                        setApolloPageSelected(new Set((data.contacts || []).map((c: any) => c.id)));
+                      }
+                    } catch { /* ignore */ } finally { setApolloPageLoading(false); }
+                  }}
+                  style={{
+                    padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', border: '2px solid rgba(16,185,129,0.5)',
+                    background: 'rgba(16,185,129,0.1)', color: '#10B981',
+                  }}
+                >
+                  🟢 Apollo Contacts
+                </button>
                 <button
                   onClick={() => { setEmailFolder('with-email'); setCompanyPage(1); }}
                   style={{

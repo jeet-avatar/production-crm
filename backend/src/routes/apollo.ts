@@ -1299,6 +1299,33 @@ router.post('/send-personalized-campaign', async (req: Request, res: Response) =
   }
 });
 
+// GET /api/apollo/enriched-contacts — all contacts saved via Apollo, newest first
+router.get('/enriched-contacts', authenticate, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id;
+    const teamUserIds = [userId];
+    if ((req as any).user?.teamRole === 'MEMBER' && (req as any).user?.accountOwnerId) {
+      teamUserIds.push((req as any).user.accountOwnerId);
+    }
+    const contacts = await prisma.contact.findMany({
+      where: {
+        source: 'apollo',
+        isActive: true,
+        email: { not: null },
+        company: { userId: { in: teamUserIds.filter(Boolean) as string[] } },
+      },
+      select: {
+        id: true, firstName: true, lastName: true, email: true, role: true, enrichedAt: true,
+        company: { select: { id: true, name: true } },
+      },
+      orderBy: { enrichedAt: 'desc' }, // newest first = appears on page 1
+    });
+    return res.json({ contacts });
+  } catch (error: any) {
+    return res.status(500).json({ error: 'Failed to fetch Apollo contacts' });
+  }
+});
+
 // POST /api/apollo/enrich-contacts
 // Takes a list of company IDs, finds their no-email contacts, calls Apollo people/match,
 // writes found emails back to DB. Returns enriched + not-found lists.
@@ -1318,7 +1345,7 @@ router.post('/enrich-contacts', authenticate, async (req: Request, res: Response
     teamUserIds.push((req as any).user.accountOwnerId);
   }
 
-  const enriched: { contactId: string; name: string; email: string; company: string }[] = [];
+  const enriched: { contactId: string; companyId: string; name: string; email: string; company: string }[] = [];
   const notFound: { name: string; company: string }[] = [];
 
   for (const companyId of companyIds.slice(0, 50)) { // cap at 50 per call
@@ -1348,8 +1375,8 @@ router.post('/enrich-contacts', authenticate, async (req: Request, res: Response
         })();
         const email = resp?.email || '';
         if (email && email.includes('@') && !email.startsWith('email_not_unlocked')) {
-          await prisma.contact.update({ where: { id: contact.id }, data: { email } });
-          enriched.push({ contactId: contact.id, name: `${contact.firstName} ${contact.lastName}`, email, company: company.name });
+          await prisma.contact.update({ where: { id: contact.id }, data: { email, source: 'apollo', enrichedAt: new Date() } });
+          enriched.push({ contactId: contact.id, companyId: company.id, name: `${contact.firstName} ${contact.lastName}`, email, company: company.name });
         } else {
           notFound.push({ name: `${contact.firstName} ${contact.lastName}`, company: company.name });
         }
