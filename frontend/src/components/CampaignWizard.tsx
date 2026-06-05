@@ -1422,31 +1422,6 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
             <div>
               {/* Folder toggle + Apollo buttons */}
               <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
-                {/* Apollo Saved Contacts button — opens dedicated Apollo page */}
-                <button
-                  onClick={async () => {
-                    setApolloPageLoading(true);
-                    setShowApolloPage(true);
-                    try {
-                      const token = localStorage.getItem('crmToken');
-                      const res = await fetch(`${API_URL}/api/apollo/enriched-contacts`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                      });
-                      if (res.ok) {
-                        const data = await res.json();
-                        setApolloSavedContacts(data.contacts || []);
-                        // Pre-select all
-                        setApolloPageSelected(new Set((data.contacts || []).map((c: any) => c.id)));
-                      }
-                    } catch { /* ignore */ } finally { setApolloPageLoading(false); }
-                  }}
-                  style={{
-                    padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', border: '2px solid rgba(16,185,129,0.5)',
-                    background: 'rgba(16,185,129,0.1)', color: '#10B981',
-                  }}
-                >
-                  🟢 Apollo Contacts
-                </button>
                 <button
                   onClick={() => { setEmailFolder('with-email'); setCompanyPage(1); }}
                   style={{
@@ -1518,6 +1493,31 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   }}
                 >
                   {apolloEnriching ? `⏳ Enriching all ${noEmailList.length}...` : `🔍 Apollo Enrich All (${noEmailList.length})`}
+                </button>
+
+                {/* Apollo Saved Contacts — opens page with all DB-saved Apollo emails */}
+                <button
+                  onClick={async () => {
+                    setApolloPageLoading(true);
+                    setShowApolloPage(true);
+                    try {
+                      const token = localStorage.getItem('crmToken');
+                      const res = await fetch(`${API_URL}/api/apollo/enriched-contacts`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      if (res.ok) {
+                        const data = await res.json();
+                        setApolloSavedContacts(data.contacts || []);
+                        setApolloPageSelected(new Set((data.contacts || []).map((c: any) => c.id)));
+                      }
+                    } catch { /* ignore */ } finally { setApolloPageLoading(false); }
+                  }}
+                  style={{
+                    padding: '8px 16px', borderRadius: '8px', fontWeight: 700, fontSize: '13px', cursor: 'pointer', border: '2px solid rgba(16,185,129,0.5)',
+                    background: 'rgba(16,185,129,0.12)', color: '#10B981',
+                  }}
+                >
+                  🟢 Apollo Contacts
                 </button>
               </div>
 
