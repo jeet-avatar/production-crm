@@ -217,6 +217,11 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
     if (isOpen) {
       loadCompanies();   // Phase 1: slim metadata (fast)
       loadSentCounts();  // Phase 1b: sent counts per company (parallel)
+      // Restore Apollo-enriched company IDs from localStorage (green indicator persists across sessions)
+      try {
+        const saved = JSON.parse(localStorage.getItem('bm_apollo_enriched_ids') || '[]');
+        if (saved.length > 0) setApolloEnrichedCompanyIds(new Set(saved));
+      } catch { /* ignore */ }
       loadTemplates();
       loadStaffingTemplates();
       // Fetch contacts already sent any campaign
@@ -1359,39 +1364,46 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   🚫 No Email ({noEmailList.length})
                 </button>
 
-                {/* Apollo Enrich button — finds missing emails for current page */}
+                {/* Apollo Enrich button — enriches ALL no-email companies */}
                 <button
                   onClick={async () => {
-                    // If on With Email tab, switch to No Email tab automatically
                     if (emailFolder === 'with-email') {
-                      setEmailFolder('no-email');
-                      setCompanyPage(1);
-                      return;
+                      setEmailFolder('no-email'); setCompanyPage(1); return;
                     }
-                    // On No Email tab — get all companies on this page
-                    const pageCompanyIds = pagedSlim.map((c: any) => c.id);
-                    if (pageCompanyIds.length === 0) {
-                      alert('No companies on this page. Try a different page in the No Email tab.');
+                    // Get ALL no-email company IDs (entire list, not just current page)
+                    const allNoEmailIds = noEmailList.map((c: any) => c.id);
+                    if (allNoEmailIds.length === 0) {
+                      alert('No companies in the No Email list.');
                       return;
                     }
                     setApolloEnriching(true);
                     setApolloResult(null);
-                    try {
-                      const token = localStorage.getItem('crmToken');
-                      const res = await fetch(`${API_URL}/api/apollo/enrich-contacts`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                        body: JSON.stringify({ companyIds: pageCompanyIds }),
-                      });
-                      if (res.ok) {
-                        const data = await res.json();
-                        setApolloResult(data);
-                        // Pre-select all found contacts
-                        const allContactIds = new Set<string>(data.enriched?.map((e: any) => e.contactId) || []);
-                        setApolloSelected(allContactIds);
-                        setApolloModalOpen(true);
-                      }
-                    } catch { /* ignore */ } finally { setApolloEnriching(false); }
+                    setApolloModalOpen(true); // Open modal immediately to show progress
+                    const token = localStorage.getItem('crmToken');
+                    const allEnriched: any[] = [];
+                    const allNotFound: any[] = [];
+                    // Process in batches of 50
+                    const BATCH = 50;
+                    for (let i = 0; i < allNoEmailIds.length; i += BATCH) {
+                      const batch = allNoEmailIds.slice(i, i + BATCH);
+                      try {
+                        const res = await fetch(`${API_URL}/api/apollo/enrich-contacts`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                          body: JSON.stringify({ companyIds: batch }),
+                        });
+                        if (res.ok) {
+                          const data = await res.json();
+                          allEnriched.push(...(data.enriched || []));
+                          allNotFound.push(...(data.notFound || []));
+                          // Update modal progressively
+                          setApolloResult({ enriched: [...allEnriched], notFound: [...allNotFound], creditsUsed: allEnriched.length });
+                        }
+                      } catch { /* continue with next batch */ }
+                    }
+                    const allContactIds = new Set<string>(allEnriched.map((e: any) => e.contactId));
+                    setApolloSelected(allContactIds);
+                    setApolloEnriching(false);
                   }}
                   disabled={apolloEnriching}
                   style={{
@@ -1401,7 +1413,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     color: '#fff', marginLeft: 'auto',
                   }}
                 >
-                  {apolloEnriching ? '⏳ Enriching...' : '🔍 Apollo Enrich This Page'}
+                  {apolloEnriching ? `⏳ Enriching all ${noEmailList.length}...` : `🔍 Apollo Enrich All (${noEmailList.length})`}
                 </button>
               </div>
 
@@ -1458,8 +1470,14 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                               const r2 = await fetch(`${API_URL}/api/companies?ids=${ids2.join(',')}&limit=${ids2.length}`, { headers: { Authorization: `Bearer ${token}` } });
                               if (r2.ok) { const d2 = await r2.json(); setCompanies(Array.isArray(d2) ? d2 : d2.companies || []); }
                             }
-                            // Mark companies as Apollo-enriched (green) and select them
-                            setApolloEnrichedCompanyIds(prev => { const n = new Set(prev); selCompanyIds.forEach(id => n.add(id)); return n; });
+                            // Mark companies as Apollo-enriched (green) — save to localStorage for persistence
+                            setApolloEnrichedCompanyIds(prev => {
+                              const n = new Set(prev);
+                              selCompanyIds.forEach(id => n.add(id));
+                              // Persist to localStorage so green survives wizard close/reopen
+                              try { localStorage.setItem('bm_apollo_enriched_ids', JSON.stringify([...n])); } catch { /* ignore */ }
+                              return n;
+                            });
                             setSelectedCompanyIds(prev => [...new Set([...prev, ...selCompanyIds])]);
                             setApolloModalOpen(false);
                             setApolloResult(null);
