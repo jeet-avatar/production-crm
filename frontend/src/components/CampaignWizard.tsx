@@ -632,11 +632,13 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
     });
   };
 
-  const totalSelectedContacts = selectedContactIds.size > 0
-    ? selectedContactIds.size
-    : companies
-        .filter(c => selectedCompanyIds.includes(c.id))
-        .reduce((sum, c) => sum + (c._count?.contacts || 0), 0);
+  const totalSelectedContacts = apolloDirectSendContacts.length > 0
+    ? apolloDirectSendContacts.length // Apollo direct send — use count from those contacts
+    : selectedContactIds.size > 0
+      ? selectedContactIds.size
+      : companies
+          .filter(c => selectedCompanyIds.includes(c.id))
+          .reduce((sum, c) => sum + (c._count?.contacts || 0), 0);
 
   const toneLabels: { value: 'professional' | 'friendly' | 'persuasive'; label: string }[] = [
     { value: 'professional', label: 'Professional' },
@@ -2187,7 +2189,9 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       ✏️ edit
                     </button>
                   </div>
-                  {editingFrom ? (
+                  {apolloDirectSendContacts.length > 0 ? (
+                    <p style={{ fontSize: '14px', color: '#10B981', margin: 0, fontWeight: 600 }}>sara@techcloudpro.com <span style={{ color: '#64748B', fontSize: '11px', fontWeight: 400 }}>(Apollo sends via Sara)</span></p>
+                  ) : editingFrom ? (
                     <input type="email" value={fromAddress} onChange={e => setFromAddress(e.target.value)} style={{ ...inputStyle }} />
                   ) : (
                     <p style={{ fontSize: '14px', color: '#F1F5F9', margin: 0 }}>{fromAddress}</p>
