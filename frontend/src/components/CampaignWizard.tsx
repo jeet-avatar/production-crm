@@ -725,7 +725,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 <span style={{ color: '#64748B', fontSize: '12px' }}>{apolloPageSelected.size} selected</span>
               </div>
               {/* Contact list */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', height: 'calc(70vh - 200px)', overflowY: 'scroll', marginBottom: '16px', paddingRight: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '500px', overflowY: 'auto', marginBottom: '16px', paddingRight: '6px', border: '1px solid #2d2d4a', borderRadius: '8px', padding: '8px' }}>
                 {apolloSavedContacts.map((c: any) => {
                   const alreadySent = sentContactIds.has(c.id);
                   return (
@@ -814,7 +814,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                   style={{ padding: '5px 14px', borderRadius: '6px', border: '1px solid #3d3d5c', background: 'none', color: '#94A3B8', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>☐ Deselect All</button>
                 <span style={{ color: '#64748B', fontSize: '12px' }}>{newProspectsSelected.size} selected</span>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: 'calc(70vh - 180px)', overflowY: 'auto', marginBottom: '16px', paddingRight: '4px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '500px', overflowY: 'auto', marginBottom: '16px', paddingRight: '6px', border: '1px solid #2d2d4a', borderRadius: '8px', padding: '8px' }}>
                 {newProspects.map((c: any) => {
                   const alreadySent = sentContactIds.has(c.id);
                   return (
