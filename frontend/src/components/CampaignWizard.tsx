@@ -690,8 +690,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
   // Apollo Saved Contacts page — full overlay
   const renderApolloPage = () => (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px', overflowY: 'auto' }}>
-      <div style={{ background: '#1a1a2e', border: '2px solid rgba(16,185,129,0.5)', borderRadius: '16px', width: '860px', maxWidth: '95vw', color: '#F1F5F9', position: 'relative' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ background: '#1a1a2e', border: '2px solid rgba(16,185,129,0.5)', borderRadius: '16px', width: '860px', maxWidth: '95vw', color: '#F1F5F9', position: 'relative', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
         {/* Header */}
         <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #2d2d4a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
@@ -700,8 +700,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
           </div>
           <button onClick={() => setShowApolloPage(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '22px', padding: '4px' }}>×</button>
         </div>
-        {/* Content */}
-        <div style={{ padding: '16px 24px' }}>
+        {/* Content — flex: 1 + overflowY: auto makes the middle section scroll */}
+        <div style={{ padding: '16px 24px', flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {apolloPageLoading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>Loading Apollo contacts...</div>
           ) : apolloSavedContacts.length === 0 ? (
@@ -787,16 +787,16 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
 
   // New DB from Apollo page
   const renderNewProspectsPage = () => (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '20px', overflowY: 'auto' }}>
-      <div style={{ background: '#1a1a2e', border: '2px solid rgba(99,102,241,0.5)', borderRadius: '16px', width: '860px', maxWidth: '95vw', color: '#F1F5F9', position: 'relative' }}>
-        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #2d2d4a', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+      <div style={{ background: '#1a1a2e', border: '2px solid rgba(99,102,241,0.5)', borderRadius: '16px', width: '860px', maxWidth: '95vw', color: '#F1F5F9', position: 'relative', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #2d2d4a', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
           <div>
             <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#A5B4FC' }}>🔵 New DB from Apollo</h2>
             <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>Fresh prospects sourced from Apollo — CTOs, CFOs, NetSuite Admins, IT Directors. Not in your CRM before.</p>
           </div>
           <button onClick={() => setShowNewProspectsPage(false)} style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer', fontSize: '22px' }}>×</button>
         </div>
-        <div style={{ padding: '16px 24px' }}>
+        <div style={{ padding: '16px 24px', flex: 1, overflowY: 'auto', minHeight: 0 }}>
           {newProspectsLoading ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>Loading prospects...</div>
           ) : newProspects.length === 0 ? (
