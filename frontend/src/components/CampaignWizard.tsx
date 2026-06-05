@@ -1539,7 +1539,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       if (res.ok) {
                         const data = await res.json();
                         setApolloSavedContacts(data.contacts || []);
-                        setApolloPageSelected(new Set((data.contacts || []).map((c: any) => c.id)));
+                        setApolloPageSelected(new Set()); // user selects manually
                       }
                     } catch { /* ignore */ } finally { setApolloPageLoading(false); }
                   }}
@@ -1564,7 +1564,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                       if (res.ok) {
                         const data = await res.json();
                         setNewProspects(data.contacts || []);
-                        setNewProspectsSelected(new Set((data.contacts || []).map((c: any) => c.id)));
+                        setNewProspectsSelected(new Set()); // user selects manually
                       }
                     } catch { /* ignore */ } finally { setNewProspectsLoading(false); }
                   }}
@@ -2134,6 +2134,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
               });
             }
             const hasNoValidRecipients = allRecipients.length === 0;
+            // Override totalSelectedContacts for Apollo sends — allRecipients is the source of truth
+            const effectiveTotal = allRecipients.length > 0 ? allRecipients.length : totalSelectedContacts;
 
             // Use first recipient for preview, fallback to sample
             const previewRecipient = allRecipients[0] || { firstName: 'Sarah', lastName: 'Mitchell', email: 'sarah@example.com', companyName: 'Deloitte' };
@@ -2265,8 +2267,8 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                 </div>
                 <p style={{ fontSize: '11px', color: '#64748B', margin: '6px 0 0' }}>
                   {sendSpeed === 0
-                    ? `All ${totalSelectedContacts} emails sent immediately`
-                    : `1 email every ${sendSpeed} min — ~${(totalSelectedContacts - 1) * sendSpeed} min total for ${totalSelectedContacts} contacts`}
+                    ? `All ${effectiveTotal} emails sent immediately`
+                    : `1 email every ${sendSpeed} min — ~${(effectiveTotal - 1) * sendSpeed} min total for ${effectiveTotal} contacts`}
                 </p>
               </div>
 
@@ -2281,17 +2283,17 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
               {!showConfirm ? (
                 <button
                   onClick={() => setShowConfirm(true)}
-                  disabled={sending || totalSelectedContacts === 0 || hasNoValidRecipients}
+                  disabled={sending || effectiveTotal === 0 || hasNoValidRecipients}
                   style={{
                     width: '100%', padding: '14px', borderRadius: '10px', border: 'none',
-                    background: (totalSelectedContacts === 0 || hasNoValidRecipients) ? 'rgba(100,100,120,0.3)' : 'linear-gradient(to right, #10B981, #059669)',
+                    background: (effectiveTotal === 0 || hasNoValidRecipients) ? 'rgba(100,100,120,0.3)' : 'linear-gradient(to right, #10B981, #059669)',
                     color: '#fff', fontWeight: 700, fontSize: '15px',
-                    cursor: (totalSelectedContacts === 0 || hasNoValidRecipients) ? 'not-allowed' : 'pointer',
+                    cursor: (effectiveTotal === 0 || hasNoValidRecipients) ? 'not-allowed' : 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                   }}
                 >
                   {sendSpeed === 0
-                    ? `🚀 Send All ${totalSelectedContacts} Emails Now`
+                    ? `🚀 Send All ${effectiveTotal} Emails Now`
                     : `🚀 Start Sending — 1 every ${sendSpeed} min`}
                 </button>
               ) : (
@@ -2313,7 +2315,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                       <span style={{ color: '#94A3B8' }}>Estimated time</span>
-                      <span style={{ fontWeight: 700 }}>{sendSpeed === 0 ? 'Immediate' : `~${(totalSelectedContacts - 1) * sendSpeed} min`}</span>
+                      <span style={{ fontWeight: 700 }}>{sendSpeed === 0 ? 'Immediate' : `~${(effectiveTotal - 1) * sendSpeed} min`}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0' }}>
                       <span style={{ color: '#94A3B8' }}>Subject</span>
@@ -2344,7 +2346,7 @@ export function CampaignWizard({ isOpen, onClose, onSuccess, preselect }: Props)
                         cursor: sending ? 'not-allowed' : 'pointer',
                       }}
                     >
-                      {sending ? 'Sending...' : `Confirm — Send ${totalSelectedContacts} Emails`}
+                      {sending ? 'Sending...' : `Confirm — Send ${effectiveTotal} Emails`}
                     </button>
                   </div>
                 </div>
