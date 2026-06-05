@@ -1307,6 +1307,10 @@ router.get('/new-prospects', authenticate, async (req: Request, res: Response) =
     if ((req as any).user?.teamRole === 'MEMBER' && (req as any).user?.accountOwnerId) {
       teamUserIds.push((req as any).user.accountOwnerId);
     }
+    if ((req as any).user?.teamRole === 'OWNER') {
+      const members = await prisma.user.findMany({ where: { accountOwnerId: userId }, select: { id: true } });
+      members.forEach((m: any) => teamUserIds.push(m.id));
+    }
     const contacts = await prisma.contact.findMany({
       where: {
         source: 'apollo_prospect',
@@ -1333,6 +1337,10 @@ router.get('/enriched-contacts', authenticate, async (req: Request, res: Respons
     const teamUserIds = [userId];
     if ((req as any).user?.teamRole === 'MEMBER' && (req as any).user?.accountOwnerId) {
       teamUserIds.push((req as any).user.accountOwnerId);
+    }
+    if ((req as any).user?.teamRole === 'OWNER') {
+      const members = await prisma.user.findMany({ where: { accountOwnerId: userId }, select: { id: true } });
+      members.forEach((m: any) => teamUserIds.push(m.id));
     }
     const contacts = await prisma.contact.findMany({
       where: {
