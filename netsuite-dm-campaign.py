@@ -81,33 +81,43 @@ EMAILS = {
         "subject": "What their CFO stopped doing on month 7",
         "body": """Hi {first_name},
 
-A CFO at a $52M distribution company — NetSuite, five years in — was still rebuilding their board deck from scratch every quarter. Three analysts. One Google Sheet. Two days of reconciliation to get numbers that were already in NetSuite.
+A CFO at a $52M distribution company was still rebuilding their board deck from scratch every quarter. Three analysts. Two days of reconciliation on numbers already in NetSuite.
 
-Month 7 with artha.build: same output, 40 minutes.
+Month 7 with artha.build: they pull the board deck directly from NetSuite in 40 minutes, model any scenario the board might ask in the same call, and close the quarter without a single export file touching their team's inbox.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-Is that kind of close cycle something your team still runs?"""
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (1, 2): {
         "subject": "The version that wasn't actually final",
         "body": """Hi {first_name},
 
-Someone on your team has sent a file labeled "FINAL" that wasn't.
+Someone on your team sent a file labeled "FINAL" last close. It wasn't.
 
-Probably last close. Probably a number that came back wrong after the board had already seen it.
+Here's what the same team looks like after: one version of every report, always current, living inside NetSuite — not exported and emailed around. Reconciliation time drops from two days to under an hour. And the board sees numbers that come from one source, not three people's best guess.
 
-That's not a people problem. It's a process built on top of NetSuite instead of inside it.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
 
-Still running reporting outside the system?"""
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (1, 3): {
         "subject": "closing this out",
         "body": """Hi {first_name},
 
-Not a fit — or just bad timing?"""
+Not a fit — or just bad timing?
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
 
     # ── PERSONA 2 — CEO / FOUNDER ─────────────────────────────────────────────
@@ -117,29 +127,41 @@ Not a fit — or just bad timing?"""
 
 You asked your finance team for last quarter's margin. They came back the next afternoon.
 
-Not because they're slow — because pulling clean numbers out of NetSuite still means two exports, a pivot table, and someone who knows which version to trust.
+A founder I know at a $35M SaaS company was in the same position until month 6. Now he asks "what's our runway if we miss plan by 15%" and gets the answer in 9 minutes, live, without pulling a single analyst off something else. The question becomes the analysis.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-Does your team still work that way?"""
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (2, 2): {
         "subject": "Their CEO got the answer in 9 minutes",
         "body": """Hi {first_name},
 
-A founder running a $35M SaaS company asked: "What's our runway if we miss plan by 15%?"
+Most CEOs don't know how long their finance team spends just getting numbers into a format they can use.
 
-Used to take two days. Now takes 9 minutes — because the answer comes from live NetSuite data, not a manual export.
+A founder I mentioned runs a $35M SaaS company. Before: two days to model a single scenario. After: 9 minutes — because the model runs against live NetSuite data, not a two-day-old export. He uses the time he saves to run more scenarios, not fewer.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-That kind of speed — useful where you're at?"""
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (2, 3): {
         "subject": "one last thing",
         "body": """Hi {first_name},
 
-Should I leave you alone, or is the timing just off?"""
+Should I leave you alone, or is the timing just off?
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
 
     # ── PERSONA 3 — CONTROLLER / COO / OWNER ─────────────────────────────────
@@ -149,31 +171,41 @@ Should I leave you alone, or is the timing just off?"""
 
 It's the 2nd of the month. NetSuite has the data. But the close report is in four different files, owned by three different people, and none of them match yet.
 
-That's not a NetSuite problem — that's what happens when reporting lives outside the system.
+A controller I worked with had the same setup. After: one report, inside NetSuite, no spreadsheet layer. Close time dropped by six hours. The errors that used to come from reconciling versions disappeared — because there was only one version left.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-Does that sound like your close process?"""
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (3, 2): {
         "subject": "The thing most NetSuite teams get wrong about month-end",
         "body": """Hi {first_name},
 
-Most finance teams use NetSuite as a ledger and Excel as the reporting layer.
+Most finance teams treat NetSuite as the ledger and Excel as the reporting layer. That split is where close errors happen, version chaos starts, and hours disappear.
 
-That split is where close errors happen, version chaos starts, and hours disappear.
+The teams that fixed it didn't add more process. They moved reporting back inside the system — and gained close time they hadn't had in years, audit trails that live with the data, and month-end numbers that didn't need a second round of corrections.
 
-The teams that fixed it didn't add more process — they moved reporting back inside the system.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
 
-Is that a shift your team has tried?"""
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (3, 3): {
         "subject": "Should I stop?",
         "body": """Hi {first_name},
 
-Not the right time — or just not a fit?"""
+Not the right time — or just not a fit?
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
 
     # ── PERSONA 4 — CTO ───────────────────────────────────────────────────────
@@ -181,31 +213,43 @@ Not the right time — or just not a fit?"""
         "subject": "One more tool that touches your NetSuite — or not",
         "body": """Hi {first_name},
 
-Every tool that connects to NetSuite becomes something your team owns later — access controls, API limits, data governance.
+Every tool that connects to NetSuite becomes something your team owns later — access controls, API limits, data governance, eventual decommissioning.
 
-artha.build is read-only. No write access. No new pipelines. No data stored or synced. It reads from NetSuite. That's it.
+artha.build is read-only OAuth. No write access, no data stored outside your environment, no new pipelines to maintain. Finance gets their reporting layer. Your team inherits zero new infrastructure — and stops getting pulled into spreadsheet-debugging at 11pm before a board meeting.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-Worth a look at the technical spec?"""
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (4, 2): {
         "subject": "What your finance team built instead",
         "body": """Hi {first_name},
 
-When finance can't get data out of NetSuite cleanly — they build their own system.
+When finance can't get data out of NetSuite cleanly, they build their own system. Usually a shared drive. Sometimes a Google Sheet with custom scripts. Always something that pages your team when it breaks at 11pm before a board meeting.
 
-Usually a shared drive. Sometimes a Google Sheet with custom scripts. Always something your team touches when it breaks at 11pm before a board meeting.
+artha.build gives finance a reporting layer they own — without your team building or maintaining a pipeline. The shadow system disappears. And you get that 11pm page back.
 
-I'm Sara from artha.build — built specifically for NetSuite finance teams.
+Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
 
-Seeing that pattern on your end?"""
+Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
     (4, 3): {
         "subject": "Closing this thread",
         "body": """Hi {first_name},
 
-Wrong time, wrong problem — or just not your call?"""
+Wrong time, wrong problem — or just not your call?
+
+Sara Mitchell
+NetSuite Consultant · TechCloudPro
+artha.build · linkedin.com/company/techcloudpro"""
     },
 }
 
