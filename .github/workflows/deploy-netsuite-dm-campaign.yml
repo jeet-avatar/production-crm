@@ -1,0 +1,37 @@
+name: Deploy NetSuite DM Campaign Script
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Copy netsuite-dm-campaign.py to EC2 and add cron
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Deploy script to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+
+          # Copy campaign script to EC2 scripts directory
+          scp -i ~/.ssh/deploy_key netsuite-dm-campaign.py $EC2_USER@$EC2_HOST:/var/www/crm-backend/scripts/netsuite-dm-campaign.py
+
+          # Add cron entry if not already present (14:05 UTC = 9:05 AM EST, Mon-Thu)
+          ssh -i ~/.ssh/deploy_key $EC2_USER@$EC2_HOST << 'ENDSSH'
+            CRON_JOB="5 14 * * 1-4 /usr/bin/python3 /var/www/crm-backend/scripts/netsuite-dm-campaign.py >> /var/www/crm-backend/logs/netsuite-dm-campaign.log 2>&1"
+            (crontab -l 2>/dev/null | grep -v "netsuite-dm-campaign"; echo "$CRON_JOB") | crontab -
+            echo "Cron set:"
+            crontab -l | grep netsuite-dm
+            echo "Script deployed:"
+            ls -la /var/www/crm-backend/scripts/netsuite-dm-campaign.py
+          ENDSSH
