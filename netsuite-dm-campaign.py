@@ -85,13 +85,13 @@ A CFO at a $52M distribution company was still rebuilding their board deck from 
 
 Month 7 with artha.build: they pull the board deck directly from NetSuite in 40 minutes, model any scenario the board might ask in the same call, and close the quarter without a single export file touching their team's inbox.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (1, 2): {
         "subject": "The version that wasn't actually final",
@@ -99,25 +99,25 @@ artha.build · linkedin.com/company/techcloudpro"""
 
 Someone on your team sent a file labeled "FINAL" last close. It wasn't.
 
-Here's what the same team looks like after: one version of every report, always current, living inside NetSuite — not exported and emailed around. Reconciliation time drops from two days to under an hour. And the board sees numbers that come from one source, not three people's best guess.
+Here's what the same team looks like after: one version of every report, always current, living inside NetSuite, not exported or emailed around. Reconciliation time drops from two days to under an hour. The board sees numbers that come from one source, not three people's best guess.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (1, 3): {
         "subject": "closing this out",
         "body": """Hi {first_name},
 
-Not a fit — or just bad timing?
+Not a fit? Or bad timing?
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
 
     # ── PERSONA 2 — CEO / FOUNDER ─────────────────────────────────────────────
@@ -129,13 +129,13 @@ You asked your finance team for last quarter's margin. They came back the next a
 
 A founder I know at a $35M SaaS company was in the same position until month 6. Now he asks "what's our runway if we miss plan by 15%" and gets the answer in 9 minutes, live, without pulling a single analyst off something else. The question becomes the analysis.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (2, 2): {
         "subject": "Their CEO got the answer in 9 minutes",
@@ -143,15 +143,15 @@ artha.build · linkedin.com/company/techcloudpro"""
 
 Most CEOs don't know how long their finance team spends just getting numbers into a format they can use.
 
-A founder I mentioned runs a $35M SaaS company. Before: two days to model a single scenario. After: 9 minutes — because the model runs against live NetSuite data, not a two-day-old export. He uses the time he saves to run more scenarios, not fewer.
+A founder I mentioned runs a $35M SaaS company. Before: two days to model a single scenario. After: 9 minutes. Because the model runs against live NetSuite data, not a two-day-old export. He uses the time he saves to run more scenarios, not fewer.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (2, 3): {
         "subject": "one last thing",
@@ -161,7 +161,7 @@ Should I leave you alone, or is the timing just off?
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
 
     # ── PERSONA 3 — CONTROLLER / COO / OWNER ─────────────────────────────────
@@ -171,15 +171,15 @@ artha.build · linkedin.com/company/techcloudpro"""
 
 It's the 2nd of the month. NetSuite has the data. But the close report is in four different files, owned by three different people, and none of them match yet.
 
-A controller I worked with had the same setup. After: one report, inside NetSuite, no spreadsheet layer. Close time dropped by six hours. The errors that used to come from reconciling versions disappeared — because there was only one version left.
+A controller I worked with had the same setup. After: one report, inside NetSuite, no spreadsheet layer. Close time dropped by six hours. The errors that used to come from reconciling versions disappeared. One version, no reconciliation needed.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (3, 2): {
         "subject": "The thing most NetSuite teams get wrong about month-end",
@@ -187,43 +187,43 @@ artha.build · linkedin.com/company/techcloudpro"""
 
 Most finance teams treat NetSuite as the ledger and Excel as the reporting layer. That split is where close errors happen, version chaos starts, and hours disappear.
 
-The teams that fixed it didn't add more process. They moved reporting back inside the system — and gained close time they hadn't had in years, audit trails that live with the data, and month-end numbers that didn't need a second round of corrections.
+The teams that fixed it didn't add more process. They moved reporting back inside the system. Close time came back. Audit trails lived with the data. Month-end numbers stopped needing a second round of corrections.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (3, 3): {
         "subject": "Should I stop?",
         "body": """Hi {first_name},
 
-Not the right time — or just not a fit?
+Not the right time? Or not a fit?
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
 
     # ── PERSONA 4 — CTO ───────────────────────────────────────────────────────
     (4, 1): {
-        "subject": "One more tool that touches your NetSuite — or not",
+        "subject": "One more tool that touches your NetSuite. Or not.",
         "body": """Hi {first_name},
 
-Every tool that connects to NetSuite becomes something your team owns later — access controls, API limits, data governance, eventual decommissioning.
+Every tool that connects to NetSuite becomes something your team owns later: access controls, API limits, data governance, eventual decommissioning.
 
-artha.build is read-only OAuth. No write access, no data stored outside your environment, no new pipelines to maintain. Finance gets their reporting layer. Your team inherits zero new infrastructure — and stops getting pulled into spreadsheet-debugging at 11pm before a board meeting.
+artha.build is read-only OAuth. No write access, no data stored outside your environment, no new pipelines to maintain. Finance gets their reporting layer. Your team inherits zero new infrastructure. No more spreadsheet-debugging at 11pm before a board meeting.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (4, 2): {
         "subject": "What your finance team built instead",
@@ -231,25 +231,25 @@ artha.build · linkedin.com/company/techcloudpro"""
 
 When finance can't get data out of NetSuite cleanly, they build their own system. Usually a shared drive. Sometimes a Google Sheet with custom scripts. Always something that pages your team when it breaks at 11pm before a board meeting.
 
-artha.build gives finance a reporting layer they own — without your team building or maintaining a pipeline. The shadow system disappears. And you get that 11pm page back.
+artha.build gives finance a reporting layer they own, without your team building or maintaining a pipeline. The shadow system disappears. And you get that 11pm page back.
 
-Through artha.build your data is stored locally — nothing leaves your NetSuite environment.
+Through artha.build your data is stored locally. Nothing leaves your NetSuite environment.
 
-Register free at artha.build — or reply "demo" and I'll send you slots, no deck, no commitment.
+Register free at artha.build, or reply "demo" and I'll send you slots, no deck, no commitment.
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
     (4, 3): {
         "subject": "Closing this thread",
         "body": """Hi {first_name},
 
-Wrong time, wrong problem — or just not your call?
+Wrong time. Wrong problem. Or just not your call?
 
 Sara Mitchell
 NetSuite Consultant · TechCloudPro
-artha.build · linkedin.com/company/techcloudpro"""
+artha.build · techcloudpro.com · linkedin.com/company/tech-cloud-pro"""
     },
 }
 
@@ -349,16 +349,47 @@ def fetch_stage_2(dm_conn, limit: int) -> list:
         return [dict(r) for r in cur.fetchall()]
 
 # ── RENDER EMAIL ──────────────────────────────────────────────────────────────
-def render(template: dict, first_name: str) -> tuple[str, str]:
+def render(template: dict, first_name: str, to_email: str) -> tuple[str, str]:
     """Replace {first_name} placeholder in subject and body. Returns (subject, html)."""
     subject = template["subject"].replace("{first_name}", first_name)  # fill subject
     body    = template["body"].replace("{first_name}", first_name)      # fill body
 
-    # Wrap plain-text body in minimal HTML (looks personal, not marketing)
-    html = f"""<!DOCTYPE html>
-<html><body style="font-family:Arial,sans-serif;font-size:15px;line-height:1.8;color:#111;max-width:600px;margin:0 auto;padding:24px 20px;">
-{"".join(f"<p style='margin:0 0 14px 0;'>{line}</p>" for line in body.split("\n\n") if line.strip())}
-</body></html>"""
+    # Convert plain-text URLs to clickable HTML links (order matters — longest first)
+    body = body.replace(
+        "linkedin.com/company/tech-cloud-pro",
+        '<a href="https://www.linkedin.com/company/tech-cloud-pro" style="color:#1a1a1a;">linkedin.com/company/tech-cloud-pro</a>'
+    )
+    body = body.replace(
+        "techcloudpro.com",
+        '<a href="https://www.techcloudpro.com" style="color:#1a1a1a;">techcloudpro.com</a>'
+    )
+    body = body.replace(
+        "artha.build",
+        '<a href="https://artha.build" style="color:#1a1a1a;">artha.build</a>'
+    )
+
+    # Unsubscribe footer — small, plain, CAN-SPAM compliant
+    unsub = (
+        f'<p style="margin:32px 0 0 0;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:12px;">'
+        f'You are receiving this because you work in a NetSuite environment. '
+        f'To stop receiving these emails, reply with "Unsubscribe" or '
+        f'<a href="mailto:sara@techcloudpro.com?subject=Unsubscribe&body=Please remove {to_email} from your list" '
+        f'style="color:#999;">click here</a>.'
+        f'</p>'
+    )
+
+    # Wrap in minimal HTML — looks personal, not marketing
+    html = (
+        '<!DOCTYPE html>'
+        '<html><body style="font-family:Arial,sans-serif;font-size:15px;line-height:1.8;'
+        'color:#111;max-width:600px;margin:0 auto;padding:24px 20px;">'
+        + "".join(
+            f"<p style='margin:0 0 14px 0;'>{line}</p>"
+            for line in body.split("\n\n") if line.strip()
+        )
+        + unsub
+        + '</body></html>'
+    )
     return subject, html
 
 # ── SEND VIA RESEND ───────────────────────────────────────────────────────────
@@ -443,7 +474,7 @@ def run_test_mode():
 
     for i, c in enumerate(fake_contacts, 1):
         template      = EMAILS[(c["persona"], 1)]            # Day-1 email for this persona
-        subject, html = render(template, c["first_name"])    # fill first name
+        subject, html = render(template, c["first_name"], TEST_EMAIL)  # fill first name + unsub
         log.info("[TEST %d/4] Persona %d (%s) → %s", i, c["persona"], c["label"], TEST_EMAIL)
         log.info("  Subject: %s", subject)
         ok = send_email(TEST_EMAIL, subject, html)           # send to test email
@@ -499,7 +530,7 @@ def main():
         template    = EMAILS.get((persona, 3))               # Email 3 for this persona
         if not template:                                     # safety check
             continue
-        subject, html = render(template, c["first_name"])    # fill placeholders
+        subject, html = render(template, c["first_name"], c["email"])  # fill placeholders
         log.info("[Day9 P%d] %s → %s", persona, c["first_name"], c["email"])
         if send_email(c["email"], subject, html):            # attempt send
             log_send(main_conn, c["email"], subject, 3)      # log to main DB
@@ -519,7 +550,7 @@ def main():
         template    = EMAILS.get((persona, 2))               # Email 2 for this persona
         if not template:
             continue
-        subject, html = render(template, c["first_name"])
+        subject, html = render(template, c["first_name"], c["email"])
         log.info("[Day4 P%d] %s → %s", persona, c["first_name"], c["email"])
         if send_email(c["email"], subject, html):
             log_send(main_conn, c["email"], subject, 2)
@@ -539,7 +570,7 @@ def main():
         template    = EMAILS.get((persona, 1))                # Email 1 for this persona
         if not template:
             continue
-        subject, html = render(template, c["first_name"])
+        subject, html = render(template, c["first_name"], c["email"])
         log.info("[Day1 P%d] %s → %s", persona, c["first_name"], c["email"])
         if send_email(c["email"], subject, html):
             log_send(main_conn, c["email"], subject, 1)
